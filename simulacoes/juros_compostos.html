@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juros Compostos - Evolução Dinâmica</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <style>
+        /* ----------------------------------- */
+        /* VARIÁVEIS E ESTILOS GERAIS */
+        /* ----------------------------------- */
+        :root {
+            --sidebar-width: 420px; 
+            --header-height: 55px;
+            --cor-primaria: #00796b; /* Verde Escuro (Cor da Matemática Financeira) */
+            --cor-secundaria: #34495e; 
+            --cor-fundo: #f0f4f7;
+            --cor-card: #ffffff;
+            --cor-destaque: #D2691E; /* Cor do Logo PLATAFORMA */
+                         /* Juros Compostos terá cores mais vibrantes */
+            --cor-capital: #2ecc71; /* Verde Claro */
+            --cor-juros: #e74c3c; /* Vermelho (Para contrastar o crescimento acelerado) */
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--cor-fundo);
+            color: var(--cor-secundaria);
+            padding-top: var(--header-height); 
+            display: flex; 
+            min-height: 100vh;
+            transition: padding-top 0.3s ease;
+        }
+
+        /* ----------------------------------- */
+        /* LAYOUT PADRÃO & TELA CHEIA */
+        /* ----------------------------------- */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: var(--header-height); 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100; 
+            display: flex;
+            align-items: stretch; 
+            border-bottom: 1px solid #ddd; 
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width); 
+            padding: 30px;
+            background-color: var(--cor-card);
+            border-right: 1px solid #ddd;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+            overflow-y: auto; 
+            box-sizing: border-box;
+            position: fixed;
+            top: var(--header-height);
+            bottom: 0;
+            left: 0;
+            z-index: 90;
+            transition: transform 0.3s ease, opacity 0.3s;
+        }
+                
+        .main-container {
+            display: flex;
+            flex-grow: 1; 
+            width: 100%; 
+            padding-left: var(--sidebar-width); 
+            box-sizing: border-box;
+            transition: padding-left 0.3s ease;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            background-color: var(--cor-fundo);
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            box-sizing: border-box;
+            width: calc(100% - var(--sidebar-width)); 
+        }
+                
+        body.fullscreen-mode { padding-top: 0; }
+        body.fullscreen-mode .top-bar { display: none; }
+        body.fullscreen-mode .sidebar { transform: translateX(-100%); opacity: 0; visibility: hidden; }
+        body.fullscreen-mode .main-container { padding-left: 0; }
+        body.fullscreen-mode .main-content { width: 100%; padding-top: 20px; }
+
+        .logo-link { text-decoration: none; color: var(--cor-destaque); font-size: 18px; font-weight: bold; padding: 0 25px; display: flex; align-items: center; border-right: 1px solid #ddd; }
+        .page-title { padding: 0 25px; font-size: 16px; font-weight: bold; color: #555; display: flex; align-items: center; }
+
+        /* ----------------------------------- */
+        /* ESTILOS DA CALCULADORA (Sidebar) */
+        /* ----------------------------------- */
+        h2 { color: var(--cor-primaria); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { font-weight: bold; display: block; margin-bottom: 8px; }
+        .input-line { display: flex; align-items: center; gap: 10px; }
+        .dataInput, .time-select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1.1em; flex-grow: 1; }
+                
+        .calculate-button { width: 100%; padding: 15px; background-color: var(--cor-primaria); color: white; border: none; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 20px; transition: background-color 0.2s; }
+        .calculate-button:hover { background-color: #005a4e; }
+
+        .result-box { margin-top: 30px; padding: 15px; border: 1px solid var(--cor-primaria); border-radius: 8px; background-color: #f7fff7; }
+        .result-label { font-weight: normal; color: #555; display: inline-block; width: 100px; }
+        .result-value { float: right; font-weight: bold; color: var(--cor-secundaria); }
+        .formula { margin-top: 15px; font-size: 0.85em; color: #777; text-align: center; }
+
+        /* ----------------------------------- */
+        /* ESTILOS DO GRÁFICO (Main Content) */
+        /* ----------------------------------- */
+        .chart-container { width: 100%; padding: 20px; background-color: var(--cor-card); border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .chart-title-group { display: flex; align-items: center; }
+        .fullscreen-button { background: none; border: none; color: var(--cor-secundaria); cursor: pointer; font-size: 1.1em; padding: 5px; margin-left: 15px; transition: color 0.2s; }
+        .fullscreen-button:hover { color: var(--cor-primaria); }
+
+        .chart-header p { margin: 0; font-size: 0.9em; color: #777; }
+        .chart-scroll { overflow-x: auto; padding-bottom: 10px; height: 350px; cursor: grab; }
+        #zoomInfo { font-weight: bold; color: #3498db; margin-top: 5px; display: none; }
+
+        .bar-chart { display: flex; align-items: flex-end; height: 300px; padding: 10px 0; border-left: 2px solid #ccc; border-bottom: 2px solid #ccc; gap: 10px; min-width: fit-content; }
+        .bar-wrapper { display: flex; flex-direction: column; align-items: center; width: 50px; height: 100%; position: relative; min-width: 50px; }
+
+        .bar-stack { width: 100%; position: absolute; bottom: 0; display: flex; flex-direction: column; align-items: center; }
+
+        .capital-segment { background-color: var(--cor-capital); width: 100%; position: relative; }
+        .juros-segment { background-color: var(--cor-juros); width: 100%; position: relative; }
+
+        .segment-value { color: black; font-size: 0.75em; font-weight: bold; padding: 3px 0; z-index: 10; }
+        .capital-segment .segment-value { color: #004d40; } 
+        .juros-segment .segment-value { color: white; } /* Cor branca para melhor contraste no vermelho */
+
+        .bar-label { position: absolute; bottom: -30px; font-size: 0.9em; font-weight: bold; white-space: nowrap; }
+
+        /* Ícones de Pilha (Money Stack) - Adaptados para cores do Composto */
+        .money-stack { position: absolute; width: 100%; height: 100%; bottom: 0; left: 0; overflow: hidden; }
+        .money-stack i { position: absolute; font-size: 16px; opacity: 0.6; }
+
+        .stack-capital i { color: #004d40; } 
+        .stack-juros i { color: #f4d03f; } 
+
+        .legend { margin-top: 40px; display: flex; justify-content: center; gap: 30px; }
+        .legend-item { display: flex; align-items: center; font-size: 1em; }
+        .legend-color { width: 15px; height: 15px; border-radius: 3px; margin-right: 8px; }
+
+    </style>
+</head>
+<body onload="calculateJurosCompostos()">
+
+    <header class="top-bar">
+        <a href="#" class="logo-link"><i class="fas fa-book-reader"></i> PLATAFORMA</a>
+        <div class="nav-buttons">
+            <span class="page-title">Calculadora de Juros COMPOSTOS (Evolução Exponencial)</span>
+        </div>
+    </header>
+
+    <div class="main-container">
+        
+        <div class="sidebar">
+            <h2><i class="fas fa-rocket"></i> Parâmetros do Juros Composto</h2>
+
+            <div class="input-group">
+                <label for="capital">Capital Inicial (C - R$)</label>
+                <div class="input-line">
+                    <span style="font-size: 1.2em; font-weight: bold;">R$</span>
+                    <input type="number" id="capital" class="dataInput" value="1000" min="0" step="10" placeholder="Ex: 1000" oninput="calculateJurosCompostos()">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="taxa">Taxa de Juros (i - %)</label>
+                <div class="input-line">
+                    <input type="number" id="taxa" class="dataInput" value="2" min="0" step="0.1" placeholder="Ex: 2" oninput="calculateJurosCompostos()">
+                    <span style="font-size: 1.2em; font-weight: bold;">% ao</span>
+                    <select id="periodo_taxa" class="time-select" style="width: 100px;" onchange="calculateJurosCompostos()">
+                        <option value="mes" selected>Mês</option> 
+                        <option value="ano">Ano</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="tempo">Período de Aplicação (t)</label>
+                <div class="input-line">
+                    <input type="number" id="tempo" class="dataInput" value="2" min="1" step="1" placeholder="Ex: 2" oninput="calculateJurosCompostos()">
+                    <select id="periodo_tempo" class="time-select" style="width: 120px;" onchange="calculateJurosCompostos()">
+                        <option value="mes">Meses</option> 
+                        <option value="ano" selected>Anos</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="calculate-button" onclick="calculateJurosCompostos()">
+                <i class="fas fa-calculator"></i> Calcular e Visualizar Crescimento EXPONENCIAL
+            </button>
+                        
+            <div class="result-box">
+                <h3><i class="fas fa-chart-bar"></i> Resumo Financeiro Final</h3>
+                <div id="res_juros">
+                    <span class="result-label">Juros Totais:</span>
+                    <span class="result-value">R$ 0,00</span>
+                </div>
+                <div id="res_montante">
+                    <span class="result-label">Montante Final:</span>
+                    <span class="result-value">R$ 0,00</span>
+                </div>
+            </div>
+                        
+            <p class="formula">
+                <i class="fas fa-lightbulb"></i> Fórmulas: $M = C \cdot (1 + i)^t$ | $J = M - C$
+            </p>
+        </div>
+
+        <div class="main-content">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title-group">
+                        <h3><i class="fas fa-chart-area"></i> Evolução do Montante (Juros Sobre Juros)</h3>
+                        <button id="fullscreenButton" class="fullscreen-button" onclick="toggleFullScreen()" title="Tela Cheia">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <p style="margin-bottom: 0;">*Arraste (scroll) para rolar a linha do tempo.</p>
+                        <p id="zoomInfo" style="display: none;"><i class="fas fa-mouse"></i> Role o mouse **sobre o gráfico** para simplificar a visualização.</p>
+                    </div>
+                </div>
+
+                <div class="chart-scroll" id="chartScrollContainer">
+                    <div class="bar-chart" id="barChart">
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--cor-capital);"></div>
+                        **Capital (Verde)**
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--cor-juros);"></div>
+                        **Juros Acumulados (Vermelho)**
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let timeSeriesData = []; 
+        let chartViewMode = 'detailed'; 
+        let isZoomable = false;
+        let detailedUnitLabel = 'Mês';
+        let aggregateUnitLabel = 'Ano';
+
+        /**
+         * Formata o número para moeda brasileira (R$).
+         */
+        function formatCurrency(value, withSymbol = true) {
+            if (typeof value !== 'number' || isNaN(value)) return withSymbol ? 'R$ 0,00' : '0,00';
+            // Arredonda para 2 casas decimais antes de formatar
+            value = Math.round(value * 100) / 100; 
+            const formatted = value.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            return withSymbol ? 'R$ ' + formatted : formatted;
+        }
+
+        /**
+         * Gera e posiciona ícones de dinheiro (pilhas) dentro de um segmento.
+         */
+        function generateMoneyStack(stackElement, value, isCapital = true) {
+            stackElement.innerHTML = '';
+            // Número de ícones baseado no valor (para visualização)
+            const iconCount = Math.min(6, Math.floor(value / 300) + 1); 
+            const className = isCapital ? 'stack-capital' : 'stack-juros';
+                        
+            for (let i = 0; i < iconCount; i++) {
+                const icon = document.createElement('i');
+                icon.className = `fas fa-money-bill-wave ${className}`;
+                                
+                const left = Math.random() * 70 + 10; 
+                const bottom = Math.random() * 90; 
+
+                icon.style.left = `${left}%`;
+                icon.style.bottom = `${bottom}%`;
+                icon.style.transform = `rotate(${Math.random() * 20 - 10}deg)`; 
+                stackElement.appendChild(icon);
+            }
+        }
+                
+        /**
+         * Alterna o modo de visualização entre normal e tela cheia.
+         */
+        function toggleFullScreen() {
+            const body = document.body;
+            const button = document.getElementById('fullscreenButton');
+            const topBar = document.querySelector('.top-bar');
+
+            body.classList.toggle('fullscreen-mode');
+
+            if (body.classList.contains('fullscreen-mode')) {
+                button.innerHTML = '<i class="fas fa-compress-arrows-alt"></i>';
+                button.title = 'Sair da Tela Cheia';
+                topBar.style.display = 'none'; 
+            } else {
+                button.innerHTML = '<i class="fas fa-expand-arrows-alt"></i>';
+                button.title = 'Tela Cheia';
+                topBar.style.display = 'flex'; 
+            }
+
+            setTimeout(() => {
+                updateChart(timeSeriesData); 
+            }, 300);
+        }
+
+        /**
+         * Calcula o Juros Composto e armazena os dados.
+         */
+        function calculateJurosCompostos() {
+            // Coleta os valores atuais dos campos de entrada
+            const C = parseFloat(document.getElementById('capital').value) || 0;
+            const i_percent = parseFloat(document.getElementById('taxa').value) || 0;
+            const t_total = parseFloat(document.getElementById('tempo').value) || 0;
+            const periodoTaxa = document.getElementById('periodo_taxa').value;
+            const periodoTempo = document.getElementById('periodo_tempo').value;
+                        
+            const i = i_percent / 100; // Taxa em decimal
+            timeSeriesData = [];
+                        
+            const zoomInfo = document.getElementById('zoomInfo');
+            zoomInfo.style.display = 'none';
+
+            if (C <= 0 || i_percent <= 0 || t_total <= 0) { 
+                document.getElementById('res_juros').querySelector('.result-value').textContent = 'R$ 0,00'; 
+                document.getElementById('res_montante').querySelector('.result-value').textContent = 'R$ 0,00'; 
+                document.getElementById('barChart').innerHTML = ''; 
+                return;
+            }
+
+            // 1. Configuração do Zoom e Alinhamento de Períodos
+            let t_limite = t_total;
+
+            if (periodoTaxa === 'mes' && periodoTempo === 'ano') { 
+                t_limite = t_total * 12; // Ex: 2 anos * 12 meses = 24 períodos
+                detailedUnitLabel = 'Mês';
+                aggregateUnitLabel = 'Ano';
+                isZoomable = true;
+            } else if (periodoTaxa === 'ano' && periodoTempo === 'mes') { 
+                // Taxa anual, tempo em meses. Converter taxa para mensal (i_m = (1+i_a)^(1/12) - 1)
+                // OU, converter o tempo para anos: t_limite = t_total / 12.
+                // Para manter a simulação período a período, usaremos a taxa equivalente por mês:
+                const i_mensal = Math.pow(1 + i, 1/12) - 1;
+                const i_display_perc = (i_mensal * 100).toFixed(4); // Exibir no alerta
+                alert(`A taxa anual de ${i_percent}% foi convertida para a taxa mensal equivalente de ${i_display_perc.replace('.', ',')}% para realizar a simulação mês a mês.`);
+                
+                // Recalcula i como a taxa mensal
+                i = i_mensal; 
+                t_limite = t_total; // O loop agora simula em meses
+                detailedUnitLabel = 'Mês';
+                aggregateUnitLabel = 'Ano';
+                isZoomable = (t_limite > 12); // Só zoom se houver mais de um ano
+            } else {
+                // Períodos iguais (mês/mês ou ano/ano)
+                isZoomable = false;
+                detailedUnitLabel = periodoTempo.replace('es', '').replace('s', '');
+                aggregateUnitLabel = periodoTempo.replace('es', '').replace('s', '');
+            }
+
+
+            if (t_limite > 60) {
+                alert("O limite de simulação visual é de 60 períodos para performance. Reduza o tempo de aplicação.");
+                t_limite = 60;
+            }
+
+            if (isZoomable) {
+                zoomInfo.style.display = 'block';
+                zoomInfo.innerHTML = `<i class="fas fa-mouse"></i> Role o mouse **sobre o gráfico** para simplificar a visualização (por ${aggregateUnitLabel}).`;
+                chartViewMode = 'detailed'; 
+            } else {
+                chartViewMode = 'detailed';
+            }
+            
+            let maxMontante = C;
+
+            // 2. Cálculo Periodo a Periodo (Exponencial)
+            for (let t = 1; t <= t_limite; t++) {
+                // Juros Composto: M = C * (1 + i)^t
+                const M = C * Math.pow(1 + i, t);
+                
+                // Juros Acumulados: J = M - C
+                let J = M - C; 
+                
+                J = Math.round(J * 100) / 100; // Arredonda Juros
+                
+                timeSeriesData.push({
+                    t: t, 
+                    juros: J,
+                    montante: M,
+                    periodoLabel: detailedUnitLabel,
+                });
+
+                if (M > maxMontante) {
+                    maxMontante = M;
+                }
+            }
+
+            // 3. Atualiza Resumo Final
+            const finalData = timeSeriesData[timeSeriesData.length - 1] || {juros: 0, montante: C};
+            document.getElementById('res_juros').querySelector('.result-value').textContent = formatCurrency(finalData.juros);
+            document.getElementById('res_montante').querySelector('.result-value').textContent = formatCurrency(finalData.montante);
+
+            // 4. Renderiza o Gráfico
+            updateChart(timeSeriesData);
+        }
+
+        /**
+         * Atualiza o gráfico com base no modo de visualização.
+         */
+        function updateChart(allData) {
+            const chartContainer = document.getElementById('barChart');
+            chartContainer.innerHTML = '';
+                        
+            let displayData = allData;
+            const C = parseFloat(document.getElementById('capital').value) || 0;
+            const maxVal = allData.reduce((max, item) => Math.max(max, item.montante), C);
+            const chartHeightPx = 300;
+
+            // 1. Filtra os dados se o modo for 'aggregated'
+            if (chartViewMode === 'aggregated') {
+                const factor = 12; 
+                displayData = allData.filter(item => item.t % factor === 0);
+                                
+                const lastItem = allData[allData.length - 1];
+                if (lastItem && (displayData.length === 0 || displayData[displayData.length - 1].t !== lastItem.t)) {
+                    displayData.push(lastItem);
+                }
+            }
+
+            // 2. Renderiza as Barras
+            displayData.forEach(item => {
+                                
+                const totalHeight = (item.montante / maxVal) * chartHeightPx;
+                const capitalHeight = (C / item.montante) * totalHeight; 
+                const jurosHeight = totalHeight - capitalHeight; 
+
+                let labelText = `${item.periodoLabel.charAt(0).toUpperCase() + item.periodoLabel.slice(1)} ${item.t}`;
+
+                if (chartViewMode === 'aggregated' && aggregateUnitLabel === 'Ano') {
+                    const ano = Math.ceil(item.t / 12);
+                    labelText = `Ano ${ano}`;
+                }
+                
+                const barWrapper = document.createElement('div');
+                barWrapper.className = 'bar-wrapper';
+
+                const barStack = document.createElement('div');
+                barStack.className = 'bar-stack';
+                barStack.style.height = `${totalHeight}px`;
+
+                // Segmento de Juros
+                const jurosSegment = document.createElement('div');
+                jurosSegment.className = 'juros-segment';
+                jurosSegment.style.height = `${jurosHeight}px`;
+                jurosSegment.innerHTML = `
+                    <div class="money-stack stack-juros"></div>
+                    <span class="segment-value">${formatCurrency(item.juros, false)}</span>
+                `;
+                barStack.appendChild(jurosSegment);
+                generateMoneyStack(jurosSegment.querySelector('.money-stack'), item.juros, false);
+
+                // Segmento de Capital
+                const capitalSegment = document.createElement('div');
+                capitalSegment.className = 'capital-segment';
+                capitalSegment.style.height = `${capitalHeight}px`;
+                // Ajusta a posição do valor do Capital
+                capitalSegment.innerHTML = `
+                    <div class="money-stack stack-capital"></div>
+                    <span class="segment-value" style="top: ${capitalHeight > 15 ? capitalHeight - 15 : 0}px; color: #004d40;">${formatCurrency(C, false)}</span>
+                `;
+                barStack.appendChild(capitalSegment);
+                generateMoneyStack(capitalSegment.querySelector('.money-stack'), C, true);
+
+                const label = document.createElement('div');
+                label.className = 'bar-label';
+                label.textContent = labelText;
+
+                barWrapper.appendChild(barStack);
+                barWrapper.appendChild(label);
+                chartContainer.appendChild(barWrapper);
+            });
+        }
+
+        // 3. Adiciona o Event Listener para o Scroll (Zoom Dinâmico)
+        document.addEventListener('DOMContentLoaded', () => {
+            calculateJurosCompostos();
+
+            const scrollContainer = document.getElementById('chartScrollContainer');
+
+            scrollContainer.addEventListener('wheel', function(e) {
+                if (e.deltaY !== 0) {
+                    if (isZoomable && timeSeriesData.length > 12) {
+                                                
+                        const newMode = (e.deltaY > 0) ? 'aggregated' : 'detailed';
+
+                        if (newMode !== chartViewMode) {
+                            chartViewMode = newMode;
+                                                        
+                            const zoomInfo = document.getElementById('zoomInfo');
+                            if (chartViewMode === 'aggregated') {
+                                zoomInfo.innerHTML = `<i class="fas fa-search-minus"></i> Visualizando por **${aggregateUnitLabel}**. Role para baixo para ver por ${detailedUnitLabel}.`;
+                            } else {
+                                zoomInfo.innerHTML = `<i class="fas fa-search-plus"></i> Visualizando por **${detailedUnitLabel}**. Role para cima para ver por ${aggregateUnitLabel}.`;
+                            }
+
+                            updateChart(timeSeriesData);
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
