@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Flappy Bird Programável com Blocos</title>
+    <style>
+        body { margin: 0; display: flex; height: 100vh; background-color: #eee; font-family: sans-serif; }
+        #gameContainer { padding: 10px; display: flex; flex-direction: column; align-items: center; background-color: #70c5ce; }
+        canvas { border: 1px solid #000; display: block; background-color: #70c5ce; margin-bottom: 10px; }
+        #runCodeBtn, #resetGameBtn { padding: 8px 15px; font-size: 1em; margin: 5px; cursor: pointer; border-radius: 5px; border: none; color: white; }
+        #runCodeBtn { background-color: #198754; } /* Verde */
+        #runCodeBtn:hover { background-color: #157347; }
+        #resetGameBtn { background-color: #0d6efd; } /* Azul */
+        #resetGameBtn:hover { background-color: #0b5ed7; }
+        #blocklyContainer { flex-grow: 1; display: flex; flex-direction: column; }
+        #blocklyDiv { height: 100%; width: 100%; }
+        /* Esconde scrollbars */
+        html, body { overflow: hidden; }
+        /* Ícones nos botões */
+        button i { margin-right: 5px; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <script src="blockly/blockly_compressed.js"></script>
+    <script src="blockly/blocks_compressed.js"></script>
+    <script src="blockly/javascript_compressed.js"></script>
+    <script src="blockly/msg/js/pt-br.js"></script> <script src="js/custom_blocks.js"></script> <script src="js/game.js"></script>         </head>
+<body>
+
+    <div id="gameContainer">
+        <canvas id="flappyCanvas" width="320" height="480"></canvas>
+        <button id="runCodeBtn" title="Executa a lógica dos blocos e reinicia o jogo"><i class="fas fa-play"></i> Executar Blocos</button>
+        <button id="resetGameBtn" title="Reinicia o jogo com a lógica atual"><i class="fas fa-redo"></i> Reiniciar Jogo</button>
+    </div>
+
+    <div id="blocklyContainer">
+        <div id="blocklyDiv"></div>
+    </div>
+
+    <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
+        <category name="Eventos" colour="#FFD500">
+            <block type="when_game_starts"></block>
+            <block type="when_click_or_tap"></block>
+            <block type="when_hit_obstacle"></block>
+            <block type="when_pass_pipe"></block>
+            <block type="every_frame"></block>
+        </category>
+        <category name="Ações do Pássaro" colour="#4C97FF">
+            <block type="bird_flap">
+                 <value name="STRENGTH"> <shadow type="math_number"> <field name="NUM">8</field> </shadow> </value>
+            </block>
+             <block type="bird_set_y">
+                 <value name="YPOS"> <shadow type="math_number"> <field name="NUM">240</field> </shadow> </value>
+             </block>
+        </category>
+        <category name="Controle do Jogo" colour="#5BB75B">
+            <block type="set_gravity">
+                 <value name="GRAVITY"> <shadow type="math_number"> <field name="NUM">0.5</field> </shadow> </value>
+            </block>
+            <block type="set_pipe_speed">
+                <value name="SPEED"> <shadow type="math_number"> <field name="NUM">2</field> </shadow> </value>
+            </block>
+             <block type="set_pipe_gap">
+                 <value name="GAP"> <shadow type="math_number"> <field name="NUM">100</field> </shadow> </value>
+             </block>
+             <block type="set_pipe_frequency">
+                 <value name="FREQUENCY"> <shadow type="math_number"> <field name="NUM">90</field> </shadow> </value>
+             </block>
+            <block type="add_score">
+                 <value name="POINTS"> <shadow type="math_number"> <field name="NUM">1</field> </shadow> </value>
+            </block>
+            <block type="game_over"></block>
+            <block type="restart_game"></block>
+        </category>
+        <category name="Valores" colour="#A55BFF">
+             <block type="get_bird_y"></block>
+             <block type="get_bird_velocity"></block>
+             <block type="get_score"></block>
+        </category>
+         <category name="Lógica" colour="%{BKY_LOGIC_HUE}">
+             <block type="controls_if"></block>
+             <block type="logic_compare"></block>
+             <block type="logic_operation"></block>
+             <block type="logic_negate"></block>
+             <block type="logic_boolean"></block>
+         </category>
+         <category name="Matemática" colour="%{BKY_MATH_HUE}">
+             <block type="math_number"> <field name="NUM">0</field> </block>
+             <block type="math_arithmetic"></block>
+             <block type="math_random_int">
+                <value name="FROM"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
+                <value name="TO"><shadow type="math_number"><field name="NUM">100</field></shadow></value>
+             </block>
+         </category>
+          <category name="Variáveis" colour="%{BKY_VARIABLES_HUE}" custom="VARIABLE"></category>
+    </xml>
+
+    <script src="js/main.js"></script>
+
+</body>
+</html>
