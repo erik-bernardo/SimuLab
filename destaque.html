@@ -42,15 +42,12 @@
             align-items: center;
             padding: 15px 25px;
             transition: background-color 0.3s;
+        }
 
-             .logo-image {
-        /* Define uma altura máxima para a imagem */
-            max-height: 70px; 
-        /* Garante que a imagem se ajuste ao tamanho e não estique */
-            width: auto;     
-        /* Remove a margem extra, se houver */
-             object-fit: fill;
-            
+         .logo-link .logo-image {
+            height: 70px; /* Altura que preenche o espaço */
+            width: auto;
+            object-fit: fill; /* Deforma a imagem para preencher o espaço */
         }
 
         .nav-links {
@@ -196,7 +193,7 @@
 <body>
     <header class="top-bar">
         <a href="index.html" class="logo-link">
-            <i class="fas fa-flask"></i> SIMULAB
+          <img src="dados/simulab_banner.png" alt="SimuLab Logo e Plataforma" class="logo-image">
         </a>
         <nav class="nav-links">
             <a href="index.html" class="nav-link">SOBRE</a>
