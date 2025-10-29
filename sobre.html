@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -43,6 +44,12 @@
             align-items: center;
             padding: 15px 25px;
             transition: background-color 0.3s;
+        }
+
+         .logo-link .logo-image {
+            height: 70px; /* Altura que preenche o espaço */
+            width: auto;
+            object-fit: fill; /* Deforma a imagem para preencher o espaço */
         }
 
         .nav-links {
@@ -229,7 +236,7 @@
 <body>
     <header class="top-bar">
         <a href="index.html" class="logo-link">
-            <i class="fas fa-flask"></i> SIMULAB
+               <img src="dados/simulab_banner.png" alt="SimuLab Logo " class="logo-image">
         </a>
         <nav class="nav-links">
             <a href="index.html" class="nav-link active">SOBRE</a>
