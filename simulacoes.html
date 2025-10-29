@@ -68,7 +68,39 @@
         /* .logo-link .fas {
             margin-right: 10px;
         } */
+.nav-links {
+            display: flex;
+            align-items: stretch;
+        }
 
+        .nav-link {
+            text-decoration: none;
+            color: #555;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 0 15px;
+            transition: color 0.3s, background-color 0.3s;
+            display: flex;
+            align-items: center;
+            text-transform: uppercase;
+        }
+
+        .nav-link:hover {
+            color: #D2691E;
+            background-color: #f0f0f0;
+        }
+
+        .nav-link.main-action {
+            background-color: #D2691E;
+            color: white;
+            padding: 0 20px;
+            margin-left: 20px;
+        }
+        .nav-link.main-action:hover {
+             background-color: #c05c18; /* Cor mais escura no hover */
+             color: white;
+        }
+        
         .nav-buttons {
             display: flex;
             justify-content: flex-start;
@@ -767,6 +799,7 @@
     </script>
 </body>
 </html>
+
 
 
 
