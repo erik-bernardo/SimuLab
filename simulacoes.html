@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma Educacional</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* ----------------------------------- */
+        /* RESET BÁSICO E ESTILOS GERAIS */
+        /* ----------------------------------- */
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        .content-area {
+            padding: 20px 40px;
+        }
+
+        /* ----------------------------------- */
+        /* BARRA SUPERIOR DE NAVEGAÇÃO (TOP-BAR) */
+        /* ----------------------------------- */
+
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            margin-bottom: 20px;
+            
+            /* NOVO: Flexbox para alinhar logo e botões */
+            display: flex;
+            align-items: stretch; 
+            border-bottom: 1px solid #ddd; 
+        }
+
+        /* Link do Logo (MODIFICADO PARA IMAGEM) */
+        .logo-link {
+            text-decoration: none;
+            /* Estilos de texto do logo antigo (comentados/removidos) */
+            /* color: #D2691E; */ 
+            /* font-size: 18px; */
+            /* font-weight: bold; */
+            padding: 0 25px; 
+            display: flex;
+            align-items: center; 
+            border-right: 1px solid #ddd; 
+            transition: background-color 0.3s;
+        }
+        
+        .logo-link:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* NOVO ESTILO: Imagem do Banner */
+        .logo-link .logo-image {
+            height: 70px; /* Altura que preenche o espaço */
+            width: auto;
+            object-fit: fill; /* Deforma a imagem para preencher o espaço */
+        }
+
+        /* Estilo para ícone do logo (REMOVIDO, POIS AGORA É IMAGEM) */
+        /* .logo-link .fas {
+            margin-right: 10px;
+        } */
+
+        .nav-buttons {
+            display: flex;
+            justify-content: flex-start;
+            flex-grow: 1;
+        }
+
+        .nav-button {
+            background: none;
+            border: none;
+            padding: 15px 25px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background-color 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-button.active {
+            color: #D2691E; 
+            border-bottom: 3px solid #D2691E;
+        }
+
+        .nav-button:hover:not(.active) {
+            background-color: #f0f0f0;
+        }
+
+        .more-options {
+            margin-left: auto;
+            font-size: 24px;
+            padding: 10px 20px;
+        }
+
+        /* ----------------------------------- */
+        /* MENU DE MATÉRIAS E PESQUISA */
+        /* ----------------------------------- */
+
+        .header-tools {
+            display: flex;
+            align-items: flex-start;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .subject-menu-container {
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+            width: 200px;
+            margin-top: -15px;
+        }
+
+        .subject-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .subject-item:hover {
+            background-color: #f0f0f0;
+        }
+        
+        /* Estilo para o item de menu selecionado */
+        .subject-item.selected {
+            background-color: #f0f0f0; 
+            color: #D2691E;
+        }
+
+        .subject-item .fas {
+            font-size: 10px;
+            color: #777;
+        }
+
+        .search-bar-container {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden;
+            height: 40px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            margin-top: 10px;
+            max-width: 600px;
+        }
+
+        .search-input {
+            border: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            outline: none;
+            flex-grow: 1;
+        }
+
+        .search-button {
+            background-color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            color: #555;
+            font-size: 16px;
+            border-left: 1px solid #ccc;
+        }
+
+        /* ----------------------------------- */
+        /* SEÇÕES DE SÉRIE E CARDS */
+        /* Corrigindo o layout para ajuste automático */
+        /* ----------------------------------- */
+
+        .grade-section {
+            margin-bottom: 40px;
+            position: relative;
+            text-align: center;
+        }
+
+        .grade-title {
+            font-weight: bold;
+            color: #555;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: -10px;
+            z-index: 10;
+            background-color: #f8f8f8;
+            display: inline-block;
+            padding: 0 10px;
+        }
+
+        .divider {
+            border: none;
+            border-top: 2px dashed #999;
+            width: 100%;
+            margin: 10px 0 20px;
+        }
+
+        /* NOVO CONTAINER FLEXBOX PARA O CONTEÚDO */
+        .card-container-wrapper {
+            display: flex;
+            flex-wrap: wrap; /* Permite que os cards quebrem para a próxima linha */
+            gap: 30px; /* Espaço uniforme entre todos os cards */
+            justify-content: center; /* Centraliza a linha de cards */
+            padding: 20px 0;
+        }
+        
+        /* Estilo para o link do card */
+        .card-link {
+            /* Flex: grow(1), shrink(1), basis(tamanho base de 250px) */
+            flex: 1 1 250px; 
+            max-width: 250px; 
+            text-decoration: none; 
+            color: inherit;
+            display: block; 
+        }
+
+        /* ESTILO PARA O CARD DE CONTEÚDO (PADRONIZADO COM FLEXBOX) */
+        .content-card {
+            width: 100%;
+            height: 180px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+            cursor: pointer;
+            
+            /* CENTRALIZAÇÃO DE CONTEÚDO (ICON + TEXTO) */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .content-card:hover {
+            transform: scale(1.02);
+            box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* ESTILO PARA O ÍCONE DENTRO DO CARD */
+        .card-icon {
+            font-size: 3em; 
+            margin-bottom: 10px; 
+            color: #D2691E; 
+        }
+        
+        /* ESTILO PARA O TÍTULO DENTRO DO CARD */
+        .card-title {
+            text-align: center; 
+            color: #555; 
+            font-weight: bold;
+            margin: 0; 
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <img src="assets/simulab_banner.png" alt="SimuLab Logo e Plataforma" class="logo-image">
+        </a>
+
+        <div class="nav-buttons">
+            <button class="nav-button active"><i class="fas fa-arrow-up"></i> MATÉRIAS</button>
+            <button class="nav-button"><i class="fas fa-arrow-down"></i> EXE. DE APOIO</button>
+            <button class="nav-button"><i class="fas fa-arrow-down"></i> VIDEO AULA</button>
+            <button class="nav-button more-options">...</button>
+        </div>
+    </header>
+
+    <main class="content-area">
+
+        <div class="header-tools">
+
+            <div class="subject-menu-container">
+                <div class="subject-item">
+                    Química <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="subject-item">
+                    Física <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="subject-item">
+                    Matemática <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="subject-item">
+                    Matemática Financeira <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="subject-item more">
+                    More <i class="fas fa-arrow-down"></i>
+                </div>
+            </div>
+
+            <div class="search-bar-container">
+                <input type="text" class="search-input" placeholder="PESQUISA">
+                <button class="search-button"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <div class="grade-section">
+            <p class="grade-title">1º do EM</p>
+            <hr class="divider">
+            
+            <div class="card-container-wrapper">
+                <a href="geometria_plana.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-chart-area card-icon"></i> <p class="card-title">Geometria Plana</p>
+                    </div>
+                </a>
+                <a href="conjuntos_numericos.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-calculator card-icon"></i> <p class="card-title">Conjuntos Numéricos</p>
+                    </div>
+                </a>
+                <a href="funcoes.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-line-chart card-icon"></i> <p class="card-title">Função Afim e Quadrática</p>
+                    </div>
+                </a>
+                 <a href="arcos_angulos.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-drafting-compass card-icon"></i> <p class="card-title">Arcos e Ângulos</p>
+                    </div>
+                </a>
+                <a href="sequencias_numericas.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-sort-numeric-up-alt card-icon"></i> <p class="card-title">Sequências Iniciais</p>
+                    </div>
+                </a>
+                <a href="50-30-20.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-coins card-icon"></i> <p class="card-title">gasto mensal recomendado</p>
+                    </div>
+                </a>
+                <a href="desconto_simples.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-minus-circle card-icon"></i> <p class="card-title">Desconto Simples</p>
+                    </div>
+                </a>
+                <a href="porcentagem.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-percent card-icon"></i> <p class="card-title">Porcentagem e Frações</p>
+                    </div>
+                </a>
+                <a href="taxas.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-exchange-alt card-icon"></i> <p class="card-title">Taxas Equivalentes</p>
+                    </div>
+                </a>
+                <a href="custo_venda.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-cash-register card-icon"></i> <p class="card-title">Custo e Venda</p>
+                    </div>
+                </a>
+                <a href="mru.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-car-side card-icon"></i> <p class="card-title">MRU</p>
+                    </div>
+                </a>
+                <a href="mruv.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-rocket card-icon"></i> <p class="card-title">MRUV</p>
+                    </div>
+                </a>
+                <a href="energia.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-bolt card-icon"></i> <p class="card-title">Energia</p>
+                    </div>
+                </a>
+                 <a href="escalas_termometricas.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-thermometer-half card-icon"></i> <p class="card-title">Escalas Term. </p>
+                    </div>
+                </a>
+                <a href="queda_livre.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-gavel card-icon"></i> <p class="card-title">Queda Livre</p>
+                    </div>
+                </a>
+                 <a href="tabela_periodica.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-atom card-icon"></i> <p class="card-title">Tabela Periódica</p>
+                    </div>
+                </a>
+                <a href="ligacoes.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-link card-icon"></i> <p class="card-title">Ligações Químicas</p>
+                    </div>
+                </a>
+                <a href="acidos_bases.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-vial card-icon"></i> <p class="card-title">Ácidos e Bases</p>
+                    </div>
+                </a>
+                <a href="balanceamento.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-balance-scale card-icon"></i> <p class="card-title">Balanceamento</p>
+                    </div>
+                </a>
+                <a href="funcoes_inorganicas.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-flask-poison card-icon"></i> <p class="card-title">Funções Inorgânicas</p>
+                    </div>
+                </a>
+            </div>
+            
+        </div>
+        
+        <div class="grade-section">
+            <p class="grade-title">2º do EM</p>
+            <hr class="divider">
+            
+            <div class="card-container-wrapper">
+                <a href="matriz.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fa-solid fa-hashtag card-icon"></i> <p class="card-title">Matrizes</p>
+                    </div>
+                </a>
+                <a href="geo_analitica.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-ruler card-icon"></i> <p class="card-title">Geometria Analítica</p>
+                    </div>
+                </a>
+                <a href="sequencias_numericas.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-sort-numeric-up-alt card-icon"></i> <p class="card-title">Sequências (PA/PG)</p>
+                    </div>
+                </a>
+                 <a href="probabilidade.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-dice-six card-icon"></i> <p class="card-title">Probabilidade</p>
+                    </div>
+                </a>
+                <a href="combinatoria.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-sitemap card-icon"></i> <p class="card-title">Análise Combinatória</p>
+                    </div>
+                </a>
+                <a href="nox.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                       <i class="fa-solid fa-flask card-icon"></i> <p class="card-title">NOX</p>
+                    </div>
+                </a>
+                <a href="estequiometria.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-weight-hanging card-icon"></i> <p class="card-title">Estequiometria</p>
+                    </div>
+                </a>
+                <a href="solucoes.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-water card-icon"></i> <p class="card-title">Soluções</p>
+                    </div>
+                </a>
+                 <a href="reacoes.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-atom card-icon"></i> <p class="card-title">Reações Químicas</p>
+                    </div>
+                </a>
+                 <a href="cinetica.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-tachometer-alt card-icon"></i> <p class="card-title">Cinética Química</p>
+                    </div>
+                </a>
+                <a href="juros_simples.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-coins card-icon"></i> <p class="card-title">Juros Simples</p>
+                    </div>
+                </a>
+                <a href="desconto_simples.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-minus-circle card-icon"></i> <p class="card-title">Desconto Simples</p>
+                    </div>
+                </a>
+                <a href="porcentagem.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-percent card-icon"></i> <p class="card-title">Porcentagem e Frações</p>
+                    </div>
+                </a>
+                <a href="taxas.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-exchange-alt card-icon"></i> <p class="card-title">Taxas Equivalentes</p>
+                    </div>
+                </a>
+                <a href="custo_venda.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-cash-register card-icon"></i> <p class="card-title">Custo e Venda</p>
+                    </div>
+                </a>
+                <a href="dilatacao_termica.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-expand-alt card-icon"></i> <p class="card-title">Dilatação Térmica</p>
+                    </div>
+                </a>
+                <a href="calorimetria.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-fire-alt card-icon"></i> <p class="card-title">Calorimetria</p>
+                    </div>
+                </a>
+                <a href="ondas.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-wave-square card-icon"></i> <p class="card-title">Ondas e Óptica</p>
+                    </div>
+                </a>
+                <a href="hidrostatica.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-faucet card-icon"></i> <p class="card-title">Hidrostática</p>
+                    </div>
+                </a>
+                <a href="gravitacao_universal.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-cogs card-icon"></i> <p class="card-title">Gravitação Universal</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
+        <div class="grade-section">
+            <p class="grade-title">3º do EM</p>
+            <hr class="divider">
+            
+            <div class="card-container-wrapper">
+                <a href="limites.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-infinity card-icon"></i> <p class="card-title">Cálculo e Limites</p>
+                    </div>
+                </a>
+                <a href="numeros_complexos.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-divide card-icon"></i> <p class="card-title">Números Complexos</p>
+                    </div>
+                </a>
+                <a href="polinomios.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-superscript card-icon"></i> <p class="card-title">Polinômios</p>
+                    </div>
+                </a>
+                 <a href="conicas.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-circle card-icon"></i> <p class="card-title">Cônicas</p>
+                    </div>
+                </a>
+                <a href="estatistica.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-chart-bar card-icon"></i> <p class="card-title">Estatística Avançada</p>
+                    </div>
+                </a>
+                <a href="organica.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-flask card-icon"></i> <p class="card-title">Orgânica</p>
+                    </div>
+                </a>
+                <a href="eletroquimica.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-battery-full card-icon"></i> <p class="card-title">Eletroquímica</p>
+                    </div>
+                </a>
+                <a href="termoquimica.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-temperature-high card-icon"></i> <p class="card-title">Termoquímica</p>
+                    </div>
+                </a>
+                <a href="radioatividade.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-radiation card-icon"></i> <p class="card-title">Radioatividade</p>
+                    </div>
+                </a>
+                <a href="polimeros.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-splotch card-icon"></i> <p class="card-title">Polímeros</p>
+                    </div>
+                </a>
+                 <a href="eletricidade.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-plug card-icon"></i> <p class="card-title">Eletricidade</p>
+                    </div>
+                </a>
+                <a href="eletrostatica.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-charging-station card-icon"></i> <p class="card-title">Eletrostática</p>
+                    </div>
+                </a>
+                <a href="eletromagnetismo.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-magnet card-icon"></i> <p class="card-title">Eletromagnetismo</p>
+                    </div>
+                </a>
+                <a href="circuitos.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-network-wired card-icon"></i> <p class="card-title">Circuitos Elétricos</p>
+                    </div>
+                </a>
+                 <a href="optica_geo.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-eye card-icon"></i> <p class="card-title">Óptica Geométrica</p>
+                    </div>
+                </a>
+                <a href="juros_compostos.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-chart-line card-icon"></i> <p class="card-title">Juros Compostos</p>
+                    </div>
+                </a>
+                 <a href="amortizacao.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-piggy-bank card-icon"></i> <p class="card-title">Amortização</p>
+                    </div>
+                </a>
+                 <a href="fluxo_caixa.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-money-bill-wave card-icon"></i> <p class="card-title">Fluxo de Caixa</p>
+                    </div>
+                </a>
+                <a href="rendas.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-hand-holding-usd card-icon"></i> <p class="card-title">Rendas (Séries de Pagamentos)</p>
+                    </div>
+                </a>
+                <a href="cet.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-file-invoice-dollar card-icon"></i> <p class="card-title">Custo Efetivo Total (CET)</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Lógica para a Navegação Principal (Troca de Abas)
+            const navButtons = document.querySelectorAll('.nav-button:not(.more-options)');
+            
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 1.1. Resetar todos os botões
+                    navButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        const icon = btn.querySelector('.fas');
+                        if (icon) {
+                            icon.classList.remove('fa-arrow-up');
+                            icon.classList.add('fa-arrow-down');
+                        }
+                    });
+
+                    // 1.2. Ativar o botão clicado
+                    this.classList.add('active');
+                    const icon = this.querySelector('.fas');
+                    if (icon) {
+                        icon.classList.remove('fa-arrow-down');
+                        icon.classList.add('fa-arrow-up');
+                    }
+                });
+            });
+
+            // 2. Lógica para o Menu de Matérias (Filtragem de Conteúdo)
+            const subjectItems = document.querySelectorAll('.subject-item');
+            const allCards = document.querySelectorAll('.card-container-wrapper > .card-link'); 
+
+            function filterContent(subject) {
+                // Oculta todos os cards/links
+                allCards.forEach(card => {
+                    card.style.display = 'none'; 
+                });
+
+                // Se a matéria for 'all', mostra tudo
+                if (subject === 'all') {
+                    allCards.forEach(card => {
+                        card.style.display = 'block'; 
+                    });
+                    return;
+                }
+
+                // Mostra apenas os cards com o atributo data-subject correspondente
+                const filteredCards = document.querySelectorAll(`[data-subject="${subject}"]`);
+                
+                filteredCards.forEach(card => {
+                    card.style.display = 'block'; 
+                });
+            }
+
+            subjectItems.forEach(item => {
+                item.addEventListener('click', function() {
+                
+                    const fullSubjectName = this.textContent.trim().replace(/\s\s+/g, ' ');
+                    let filterKey;
+                    
+                    if (fullSubjectName.startsWith('Matemática Financeira')) {
+                        filterKey = 'matematica financeira';
+                    } else if (fullSubjectName.startsWith('More')) {
+                        filterKey = 'all';
+                    } else {
+                        // Para as matérias de uma palavra
+                        const key = fullSubjectName.split(' ')[0];
+                        // Mapeamento simples
+                        if (key === 'Química') filterKey = 'quimica';
+                        else if (key === 'Física') filterKey = 'fisica';
+                        else if (key === 'Matemática') filterKey = 'matematica';
+                    }
+
+                    // Verifica se o item clicado já está selecionado para recolher
+                    const isSelected = this.classList.contains('selected');
+                    
+                    // Remove a classe de 'selected' de todos os itens e reseta os ícones
+                    subjectItems.forEach(i => {
+                        i.classList.remove('selected');
+                        const icon = i.querySelector('.fas');
+                        if (icon) {
+                            icon.classList.remove('fa-arrow-up');
+                            icon.classList.add('fa-arrow-down');
+                        }
+                    });
+
+                    if (isSelected) {
+                        // Se já estava selecionado, deseleciona e mostra todos os cards
+                        filterContent('all');
+                        return; 
+                    }
+
+                    // Adiciona a classe 'selected' ao item clicado e ajusta o ícone
+                    this.classList.add('selected');
+                    const icon = this.querySelector('.fas');
+                    if (icon) {
+                        icon.classList.remove('fa-arrow-down');
+                        icon.classList.add('fa-arrow-up');
+                    }
+
+                    if (filterKey) {
+                        filterContent(filterKey);
+                    }
+                });
+            });
+            
+            // Garante que todos os cards apareçam ao carregar
+            filterContent('all'); 
+            
+            // 3. Lógica simples para a Barra de Pesquisa
+            const searchButton = document.querySelector('.search-button');
+            const searchInput = document.querySelector('.search-input');
+
+            searchButton.addEventListener('click', () => {
+                const searchTerm = searchInput.value.trim();
+                if (searchTerm) {
+                    alert(`Pesquisando por: "${searchTerm}"`);
+                } else {
+                    alert('Por favor, digite um termo de pesquisa.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma SimuLab</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* Estilos base para a página */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        /* ----------------------------------- */
+        /* BARRA SUPERIOR DE NAVEGAÇÃO (TOP-BAR) */
+        /* ----------------------------------- */
+
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            margin-bottom: 20px;
+            
+            /* Flexbox para alinhar logo e botões */
+            display: flex;
+            align-items: stretch; /* Garante que o link e os botões tenham a mesma altura */
+            border-bottom: 1px solid #ddd; /* Linha divisória em toda a barra */
+        }
+
+        /* Link do Logo (Contêiner da Imagem) */
+        .logo-link {
+            text-decoration: none;
+            
+            padding: 0 25px; 
+            display: flex;
+            align-items: center; /* Centraliza a imagem verticalmente */
+            border-right: 1px solid #ddd; /* Separador visual do menu */
+            transition: background-color 0.3s;
+        }
+
+        .logo-link:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* ESTILO PARA A IMAGEM DO BANNER */
+        .logo-link .logo-image {
+            /* Altura da imagem para se ajustar à barra. */
+            height: 70px;
+            width: auto; 
+            object-fit: fill; 
+        }
+
+        /* Estilos dos Botões de Navegação */
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-button {
+            background: none;
+            border: none;
+            color: #333;
+            /* O padding vertical é 0 pois o 'align-items: stretch' na .top-bar estica o botão */
+            padding: 0 15px; 
+            height: 100%;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-button:hover:not(.active) {
+            background-color: #f0f0f0;
+        }
+
+        .nav-button.active {
+            color: #D2691E; /* Cor de destaque (Laranja/Cobre) para o botão ativo */
+            border-bottom: 3px solid #D2691E;
+            box-shadow: none; /* Remove a sombra do botão */
+        }
+
+        .nav-button .fas {
+            margin-right: 5px;
+        }
+
+        .content-placeholder {
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<header class="top-bar">
+    <a href="index.html" class="logo-link">
+        <img src="simulab_banner.png" alt="SimuLab Logo e Plataforma" class="logo-image">
+    </a>
+
+
+        <div class="nav-buttons">
+            <button class="nav-button active"><i class="fas fa-arrow-up"></i> MATÉRIAS</button>
+            <button class="nav-button"><i class="fas fa-arrow-down"></i> EXE. DE APOIO</button>
+            <button class="nav-button"><i class="fas fa-arrow-down"></i> VIDEO AULA</button>
+            <button class="nav-button more-options">...</button>
+        </div>
+    </header>
+    <div class="content-placeholder">
+        <h1>Conteúdo do Simulador Aqui</h1>
+        <p>A barra de navegação acima está funcionando com sua imagem!</p>
+    </div>
+    
+</body>
+</html>

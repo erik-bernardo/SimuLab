@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sequência Numérica - PA, PG e Geral</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    
+    <style>
+        /* ----------------------------------- */
+        /* ESTILOS GERAIS: REUTILIZADOS DO LAYOUT ANTERIOR */
+        /* ----------------------------------- */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-content-wrapper {
+            display: flex;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden; 
+        }
+        
+        /* TOP BAR */
+        .top-bar {
+            background-color: white; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0; margin-bottom: 0; display: flex; align-items: stretch; 
+            border-bottom: 1px solid #ddd; z-index: 1000; 
+        }
+        .logo-link {
+            text-decoration: none; color: #D2691E; font-size: 18px; font-weight: bold;
+            padding: 0 25px; display: flex; align-items: center; border-right: 1px solid #ddd; 
+            transition: background-color 0.3s;
+        }
+        .logo-link:hover { background-color: #f5f5f5; }
+        .logo-link .fas { margin-right: 10px; }
+        .nav-buttons { display: flex; }
+        .nav-button {
+            background: none; border: none; padding: 15px 20px; font-size: 14px;
+            font-weight: 500; color: #555; cursor: pointer; transition: background-color 0.3s, color 0.3s;
+            display: flex; align-items: center;
+        }
+        .nav-button i { margin-right: 8px; }
+        .nav-button:hover { background-color: #f5f5f5; color: #333; }
+        .nav-button.active { color: #3498db; border-bottom: 3px solid #3498db; }
+        .more-options { font-weight: bold; font-size: 18px; padding: 15px; }
+
+
+        /* PAINEL ESQUERDO */
+        .left-panel {
+            flex: 0 0 350px; padding: 20px; background-color: #fff;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); display: flex;
+            flex-direction: column; overflow-y: auto; transition: width 0.3s;
+        }
+        .action-button { 
+            padding: 12px; border: none; border-radius: 4px; cursor: pointer; 
+            font-size: 1.05em; transition: background-color 0.3s; margin-top: 15px;
+            width: 100%;
+        }
+        #calculateButton {
+             background-color: #2ecc71; color: white;
+        }
+        #calculateButton:hover:not(:disabled) { background-color: #27ae60; }
+        
+        #findPositionButton {
+             background-color: #e67e22; color: white;
+             margin-bottom: 20px;
+        }
+        #findPositionButton:hover:not(:disabled) { background-color: #d35400; }
+
+        .action-button:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        .input-group { 
+            margin-bottom: 15px; 
+            padding: 5px 0; 
+            border-top: 1px solid #eee; 
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #34495e;
+        }
+        .input-field, #sequenceType { 
+            padding: 10px; border: 1px solid #ccc; border-radius: 4px; 
+            font-size: 1.0em; 
+        }
+        #sequenceType {
+            padding: 9px;
+            background-color: #f9f9f9;
+        }
+        .input-info {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        /* CENTRO DE RESULTADOS */
+        .results-area {
+            flex-grow: 1; position: relative; background-color: #fff;
+            padding: 30px; overflow-y: auto;
+        }
+        
+        /* Estilos de Exibição */
+        .result-box {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            border-left: 5px solid #3498db;
+        }
+        #lawOfFormationResult {
+            border-left: 5px solid #e74c3c; 
+            background-color: #fef5f5;
+        }
+        #positionError {
+            color: #e74c3c; 
+            font-weight: bold; 
+            margin-top: 10px;
+        }
+        .result-box h3 {
+            color: #2980b9;
+            margin-top: 0;
+            border-bottom: 1px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+        .term-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .term-list li {
+            background-color: #34495e;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s; /* Para a animação do destaque */
+        }
+        /* ESTILO: Termo Destacado */
+        .term-list li.highlight {
+            background-color: #e67e22; /* Cor de destaque (laranja) */
+            color: white;
+            border: 2px solid #d35400;
+            transform: scale(1.05); /* Efeito de zoom */
+        }
+
+        .formula {
+            background-color: #fcf8e3;
+            border: 1px solid #faebcc;
+            color: #8a6d3b;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        /* Estilo MathJax para melhor exibição */
+        .formula span {
+            font-size: 1.2em !important;
+        }
+        
+        /* Painel Direito (Cálculo de Etapas - Colapsado) */
+        .right-panel {
+            flex: 0 0 350px; max-width: 350px; padding: 20px;
+            background-color: #fff; box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex; flex-direction: column; transition: transform 0.3s ease-in-out;
+            position: relative; overflow-y: auto;
+        }
+        .right-panel.collapsed {
+            transform: translateX(350px);
+        }
+        .toggle-button {
+            position: absolute; left: -30px; top: 50%; transform: translateY(-50%);
+            background-color: #3498db; color: white; border: none; padding: 8px 5px;
+            border-radius: 4px 0 0 4px; cursor: pointer; z-index: 10; transition: background-color 0.3s;
+        }
+        .toggle-button:hover { background-color: #2980b9; }
+
+    </style>
+</head>
+<body>
+    
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-book-reader"></i> PLATAFORMA
+        </a>
+
+        <div class="nav-buttons">
+            <button class="nav-button active"><i class="fas fa-calculator"></i> SEQUÊNCIA</button>
+            <button class="nav-button"><i class="fas fa-arrow-down"></i> EXE. DE APOIO</button>
+            <button class="nav-button"><i class="fas fa-arrow-down"></i> VIDEO AULA</button>
+            <button class="nav-button more-options">...</button>
+        </div>
+    </header>
+
+    <div class="main-content-wrapper">
+
+        <div class="left-panel">
+            <h2 style="color: #3498db;"><i class="fas fa-cogs"></i> Parâmetros da Sequência</h2>
+
+            <div class="input-group" style="border-top: none;">
+                <label for="sequenceType">Tipo de Sequência:</label>
+                <select id="sequenceType" class="input-field">
+                    <option value="PA">PA (Progressão Aritmética)</option>
+                    <option value="PG">PG (Progressão Geométrica)</option>
+                    <option value="GERAL">Geral ($a_n = f(n)$)</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label for="a1Input">Primeiro Termo ($\mathbf{a_1}$):</label>
+                <input type="number" id="a1Input" class="input-field" placeholder="Ex: 2" value="2">
+            </div>
+            
+            <div id="paPgControls">
+                <div class="input-group">
+                    <label for="rInputPA_PG">Razão ($\mathbf{r}$):</label>
+                    <input type="number" id="rInputPA_PG" class="input-field" placeholder="Ex: 3" value="3">
+                </div>
+            </div>
+
+            <div id="generalControls" style="display: none;">
+                <div class="input-group">
+                    <label for="aNFormulaInput">Lei de Formação ($\mathbf{a_n}$):</label>
+                    <input type="text" id="aNFormulaInput" class="input-field" placeholder="Ex: n² + 2n - 1" value="n² + 1">
+                    <p class="input-info">Use 'n' (ou 'N') para a posição. São permitidos +, -, *, /, e expoentes ² e ³.</p>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="nInput">Número de Termos ($\mathbf{n}$):</label>
+                <input type="number" id="nInput" class="input-field" placeholder="Ex: 5" value="5" min="2">
+            </div>
+
+            <button id="calculateButton" class="action-button">
+                <i class="fas fa-calculator"></i> CALCULAR SEQUÊNCIA
+            </button>
+            
+            <h2 style="color: #e67e22; margin-top: 20px;"><i class="fas fa-question-circle"></i> Encontrar Termo ou Posição</h2>
+            <div class="input-group" style="border-top: 1px solid #eee;">
+                <label for="axInput">Valor ($a_x$) ou Posição ($a_n$):</label>
+                <input type="text" id="axInput" class="input-field" placeholder="Ex: 23 ou a21" value="">
+            </div>
+            <button id="findPositionButton" class="action-button" style="background-color: #e67e22;">
+                <i class="fas fa-search"></i> PROCESSAR
+            </button>
+            </div>
+
+        <div id="resultsArea" class="results-area">
+            <h1 style="color: #3498db;"><i class="fas fa-chart-line"></i> Resultados da Sequência</h1>
+            
+            <div id="lawOfFormationResult" class="result-box" style="display: none;">
+                <h3>Lei de Formação Explícita ($\mathbf{a_n}$):</h3>
+                <p>A Lei de Formação é a fórmula que gera qualquer termo $\mathbf{a_n}$ em função da sua posição $\mathbf{n}$:</p>
+                <div class="formula" id="lawOfFormationFormula"></div>
+            </div>
+
+            <div id="termosResult" class="result-box" style="display: none;">
+                <h3>Termos da Sequência:</h3>
+                <p>Fórmula genérica: <span id="termosFormula"></span></p>
+                <ul class="term-list" id="termosList"></ul>
+            </div>
+
+            <div id="nTermoResult" class="result-box" style="display: none;">
+                <h3>Cálculo do $n$-ésimo Termo ($a_n$ com $n=<span id="nTermoNValue"></span>$):</h3>
+                <div class="formula" id="nTermoFormula"></div>
+                <p>O $a_<span id="nTermoNValue2"></span>$ termo é: <strong id="nTermoValue"></strong></p>
+            </div>
+            
+            <div id="somaResult" class="result-box" style="display: none;">
+                <h3>Soma dos Termos ($\mathbf{S_n}$):</h3>
+                <div class="formula" id="somaFormula"></div>
+                <p>A soma dos termos é: <strong id="somaValue"></strong></p>
+            </div>
+            
+            <div id="findPositionResult" class="result-box" style="display: none;">
+                <h3 id="positionTitle">Posição do Termo ($a_x$):</h3>
+                <p id="positionInputDisplay">Valor buscado ($\mathbf{a_x}$): <strong id="axValueDisplay"></strong></p>
+                <div class="formula" id="positionFormula"></div>
+                <p id="positionOutput">Resultado: <strong id="axFinalValue"></strong> <span id="positionStatusText"></span>.</p>
+                <p id="positionError"></p>
+            </div>
+            <p id="initialMessage">Insira os parâmetros no painel esquerdo e clique em "CALCULAR SEQUÊNCIA" para ver os resultados.</p>
+
+        </div>
+        
+        <div id="calcStepsPanel" class="right-panel collapsed">
+            <button id="toggleCalcButton" class="toggle-button">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <h2 style="color: #3498db; margin-top: 0;"><i class="fas fa-chalkboard-teacher"></i> Etapas do Cálculo</h2>
+            
+            <div id="calc-steps-content">
+                <p style="font-size: 0.9em; color: #999;">Os cálculos detalhados para o n-ésimo termo e a soma aparecerão aqui.</p>
+            </div>
+        </div>
+        
+    </div> <script>
+        // ----------------- Variáveis Globais e Elementos DOM -----------------
+        const a1Input = document.getElementById('a1Input');
+        const rInputPA_PG = document.getElementById('rInputPA_PG');
+        const aNFormulaInput = document.getElementById('aNFormulaInput'); 
+        const nInput = document.getElementById('nInput');
+        const axInput = document.getElementById('axInput');
+        const sequenceType = document.getElementById('sequenceType');
+        const paPgControls = document.getElementById('paPgControls'); 
+        const generalControls = document.getElementById('generalControls'); 
+        
+        // Botões e mensagens
+        const calculateButton = document.getElementById('calculateButton');
+        const findPositionButton = document.getElementById('findPositionButton');
+        const initialMessage = document.getElementById('initialMessage');
+        const toggleCalcButton = document.getElementById('toggleCalcButton');
+        
+        // Resultados
+        const lawOfFormationResult = document.getElementById('lawOfFormationResult');
+        const lawOfFormationFormula = document.getElementById('lawOfFormationFormula');
+        const termosResult = document.getElementById('termosResult');
+        const termosFormula = document.getElementById('termosFormula');
+        const termosList = document.getElementById('termosList');
+        const nTermoResult = document.getElementById('nTermoResult');
+        const nTermoFormula = document.getElementById('nTermoFormula');
+        const nTermoValue = document.getElementById('nTermoValue');
+        const nTermoNValue = document.getElementById('nTermoNValue');
+        const nTermoNValue2 = document.getElementById('nTermoNValue2');
+        const somaResult = document.getElementById('somaResult');
+        const somaFormula = document.getElementById('somaFormula');
+        const somaValue = document.getElementById('somaValue');
+        // Novo
+        const findPositionResult = document.getElementById('findPositionResult');
+        const positionTitle = document.getElementById('positionTitle');
+        const positionInputDisplay = document.getElementById('positionInputDisplay');
+        const axValueDisplay = document.getElementById('axValueDisplay');
+        const positionFormula = document.getElementById('positionFormula');
+        const axFinalValue = document.getElementById('axFinalValue');
+        const positionStatusText = document.getElementById('positionStatusText');
+        const positionError = document.getElementById('positionError');
+        
+        
+        // ----------------- FUNÇÕES DE FORMATAÇÃO -----------------
+        
+        /**
+         * Formata um número para exibição: usa vírgula como separador decimal (pt-BR) 
+         * e remove zeros à direita se for um inteiro. Limita a 4 casas decimais.
+         */
+        function formatDisplay(num) {
+            if (isNaN(num)) return 'ERRO';
+            
+            // Arredonda para a precisão máxima (4 casas) para evitar float issues
+            const maxDecimals = 4;
+            const factor = Math.pow(10, maxDecimals);
+            const roundedNum = Math.round(num * factor) / factor;
+
+            // Usa toLocaleString para formatação em Português (vírgula)
+            return roundedNum.toLocaleString('pt-BR', { 
+                minimumFractionDigits: 0, // Não mostra casas para inteiros
+                maximumFractionDigits: maxDecimals // Limita a precisão
+            });
+        }
+        
+        /**
+         * Formata um número para ser inserido em strings LaTeX, usando ponto como decimal
+         * e limitando a precisão sem forçar zeros à direita.
+         */
+        function formatFormulaValue(num, maxDecimals = 4) {
+            if (isNaN(num)) return num;
+            
+            const factor = Math.pow(10, maxDecimals);
+            const roundedNum = Math.round(num * factor) / factor;
+            
+            // Verifica se é um inteiro (com tolerância)
+            if (Math.abs(roundedNum - Math.round(roundedNum)) < 1e-9) {
+                return Math.round(roundedNum).toString();
+            }
+            
+            // Converte para string com ponto e corta zeros desnecessários
+            return roundedNum.toFixed(maxDecimals).replace(/\.0+$/, '');
+        }
+
+        // ----------------- Funções de Cálculo -----------------
+
+        /**
+         * Avalia a fórmula explícita do usuário para um dado valor de n.
+         */
+        function evaluateGeneralFormula(formula, n) {
+            let expression = formula.toLowerCase();
+            
+            expression = expression.replace(/\s/g, ''); 
+            expression = expression.replace(/,/g, '.'); 
+            
+            expression = expression.replace(/¹/g, '**1');
+            expression = expression.replace(/²/g, '**2');
+            expression = expression.replace(/³/g, '**3');
+            
+            expression = expression.replace(/n/g, `n`); 
+
+            // Trata a multiplicação implícita (Ex: 2n -> 2*n)
+            expression = expression.replace(/(\d)n/g, '$1*n');
+            expression = expression.replace(/n(\d)/g, 'n*$1');
+
+            try {
+                const safeEval = new Function('n', `return ${expression};`);
+                return safeEval(n);
+            } catch (e) {
+                return NaN;
+            }
+        }
+        
+        function calculatePA_an(a1, n, r) {
+            return a1 + (n - 1) * r;
+        }
+
+        function calculatePG_an(a1, n, r) {
+            return a1 * Math.pow(r, n - 1);
+        }
+
+        // ----------------- Funções de Encontrar Posição -----------------
+
+        /**
+         * Limpa todos os destaques existentes na lista de termos.
+         */
+        function clearAllHighlights() {
+            document.querySelectorAll('.term-list li').forEach(li => {
+                li.classList.remove('highlight');
+            });
+        }
+        
+        function findPositionPA(a1, r, ax) {
+            let formula = `n = \\frac{a_x - a_1}{r} + 1 \\Rightarrow n = \\frac{${formatFormulaValue(ax)} - ${formatFormulaValue(a1)}}{${formatFormulaValue(r)}} + 1`;
+            if (r === 0) {
+                if (a1 === ax) {
+                     return {n: 1, formula, error: `Qualquer $n \\geq 1$ tem valor ${formatFormulaValue(a1)}`, isInteger: true};
+                } else {
+                    return {n: NaN, formula, error: "Razão é 0, e $a_1 \\neq a_x$. O termo não existe.", isInteger: false};
+                }
+            }
+            const n_raw = (ax - a1) / r + 1;
+            const isInteger = Math.abs(n_raw - Math.round(n_raw)) < 1e-9;
+            const n_final = isInteger ? Math.round(n_raw) : n_raw;
+            
+            if (isInteger && n_final >= 1) {
+                return {n: n_final, formula, error: '', isInteger: true};
+            } else {
+                return {n: n_final, formula, error: 'O resultado não é um número inteiro e positivo.', isInteger: false};
+            }
+        }
+
+        function findPositionPG(a1, r, ax) {
+            let formula = `n = \\log_r \\left(\\frac{a_x}{a_1}\\right) + 1 \\Rightarrow n = \\frac{\\log \\left(\\frac{${formatFormulaValue(ax)}}{${formatFormulaValue(a1)}}\\right)}{\\log(${formatFormulaValue(r)})} + 1`;
+            let error = '';
+
+            if (r === 1) {
+                if (a1 === ax) return {n: 1, formula, error: `Qualquer $n \\geq 1$ tem valor ${formatFormulaValue(a1)}`, isInteger: true};
+                return {n: NaN, formula, error: "Razão é 1, e $a_1 \\neq a_x$. O termo não existe.", isInteger: false};
+            }
+            
+            if (a1 === 0 && ax !== 0) {
+                 return {n: NaN, formula, error: "Se $a_1=0$, todos os termos são zero. O termo não existe.", isInteger: false};
+            }
+            
+            const ratio = ax / a1;
+            if (ratio <= 0 && r > 0) {
+                error = "Para $n$ ser inteiro, $a_x/a_1$ deve ser positivo.";
+            }
+            if (ratio <= 0 || r <= 0) return {n: NaN, formula, error, isInteger: false};
+            
+            const exponent = Math.log(ratio) / Math.log(r);
+            const n_raw = exponent + 1;
+            const isInteger = Math.abs(n_raw - Math.round(n_raw)) < 1e-9;
+            const n_final = isInteger ? Math.round(n_raw) : n_raw;
+
+            if (isInteger && n_final >= 1) {
+                return {n: n_final, formula, error: '', isInteger: true};
+            } else {
+                error = error || 'O resultado não é um número inteiro e positivo.';
+                return {n: n_final, formula, error, isInteger: false};
+            }
+        }
+        
+        function findPositionGeneral(formula, ax) {
+            const maxN = 1000;
+            let n_found = NaN;
+            
+            let formula_text = `Resolução numérica: Tentando $a_n = ${formula} = ${formatFormulaValue(ax)}$ para $n = 1, 2, 3, ...$`;
+
+            for (let n = 1; n <= maxN; n++) {
+                const an = evaluateGeneralFormula(formula, n);
+                if (Math.abs(an - ax) < 1e-6) { 
+                    n_found = n;
+                    break;
+                }
+            }
+
+            if (isNaN(n_found)) {
+                return {n: NaN, formula: formula_text, error: `Não encontrado um $n$ inteiro até ${maxN}.`, isInteger: false};
+            } else {
+                return {n: n_found, formula: formula_text, error: '', isInteger: true};
+            }
+        }
+
+        function findPosition() {
+            // Garante que a sequência foi calculada primeiro
+            if (termosList.children.length === 0) {
+                calculateSequence(true); 
+            }
+            
+            const rawInput = axInput.value.trim();
+            let isPositionSearch = false; // TRUE se o input for aN (ex: a21)
+            let aN_position = NaN;
+            let ax_value = NaN; // O valor que estamos procurando a posição
+
+            // 1. ANÁLISE DO INPUT
+            const match = rawInput.match(/^[aA](\d+)$/);
+            
+            if (match) {
+                // Cenário 1: Input é no formato aN (Ex: a21) -> Buscar o VALOR do termo
+                isPositionSearch = true;
+                aN_position = parseInt(match[1]);
+                
+                if (aN_position < 1 || isNaN(aN_position)) {
+                     positionError.textContent = "A posição $n$ deve ser um número inteiro positivo (a1, a2, ...).";
+                     clearAllHighlights();
+                     findPositionResult.style.display = 'block';
+                     return;
+                }
+
+            } else {
+                // Cenário 2: Input é um valor (aX) -> Buscar a POSIÇÃO do valor
+                
+                // Tenta fazer o parse do valor (aceita vírgula)
+                ax_value = parseFloat(rawInput.replace(',', '.'));
+                if (isNaN(ax_value)) {
+                    positionError.textContent = "Por favor, insira um valor numérico válido para $a_x$ ou uma posição válida (ex: a21).";
+                    clearAllHighlights();
+                    findPositionResult.style.display = 'block';
+                    return;
+                }
+            }
+            
+            findPositionResult.style.display = 'block';
+            positionError.textContent = '';
+            clearAllHighlights();
+
+            if (isPositionSearch) {
+                // CÁLCULO DO VALOR DE aN
+                findPositionResult.style.borderLeft = '5px solid #2ecc71'; 
+                positionTitle.textContent = `Cálculo do Termo $a_${aN_position}$:`;
+                positionInputDisplay.innerHTML = `Posição buscada: <strong id="axValueDisplay">${aN_position}</strong>`;
+                
+                const n = aN_position;
+                const termListItems = document.querySelectorAll('#termosList li');
+                let an_value_calculated = NaN;
+                
+                let a1 = parseFloat(a1Input.value);
+                let r = parseFloat(rInputPA_PG.value);
+                let formula = aNFormulaInput.value;
+                let type = sequenceType.value;
+                
+                // 1. Tenta pegar da lista calculada
+                if (termListItems.length > n - 1) {
+                    const content = termListItems[n - 1].textContent; 
+                    const valueStr = content.split(':')[1].trim();
+                    an_value_calculated = parseFloat(valueStr.replace(',', '.'));
+                    positionFormula.textContent = `\\( a_${n} = \\text{Valor encontrado na lista de termos.} \\)`;
+                } 
+                
+                // 2. Se não está na lista ou lista não existe, calcula explicitamente
+                if (isNaN(an_value_calculated)) {
+                    if (type === 'PA') {
+                         if (isNaN(a1) || isNaN(r)) { positionError.textContent = "Verifique $a_1$ e Razão (r) para PA."; return; }
+                         an_value_calculated = calculatePA_an(a1, n, r);
+                         positionFormula.textContent = `\\( a_n = a_1 + (n-1)r \\Rightarrow a_${n} = ${formatFormulaValue(a1)} + (${n}-1) \\cdot ${formatFormulaValue(r)} \\)`;
+                    } else if (type === 'PG') {
+                         if (isNaN(a1) || isNaN(r)) { positionError.textContent = "Verifique $a_1$ e Razão (r) para PG."; return; }
+                         an_value_calculated = calculatePG_an(a1, n, r);
+                         positionFormula.textContent = `\\( a_n = a_1 \\cdot r^{n-1} \\Rightarrow a_${n} = ${formatFormulaValue(a1)} \\cdot ${formatFormulaValue(r)}^{${n}-1} \\)`;
+                    } else { // GERAL
+                         if (!formula) { positionError.textContent = "Insira a Lei de Formação $a_n$."; return; }
+                         an_value_calculated = evaluateGeneralFormula(formula, n);
+                         positionFormula.textContent = `\\( a_n = ${formula.replace(/²/g, '^2').replace(/³/g, '^3')} \\Rightarrow a_${n} = \\text{Cálculo com } n=${n} \\)`;
+                    }
+                }
+                
+                if (isNaN(an_value_calculated)) {
+                     positionError.textContent = "Erro ao calcular o termo $a_{" + n + "}$. Verifique os parâmetros da sequência.";
+                     return;
+                }
+                
+                axFinalValue.textContent = formatDisplay(an_value_calculated);
+                positionStatusText.innerHTML = `**O valor do termo $\\mathbf{a_${n}}$ é:**`;
+
+
+                // Destaque se o termo existir na lista
+                if (termListItems.length > n - 1) {
+                     termListItems[n - 1].classList.add('highlight');
+                     termListItems[n - 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+
+
+            } else {
+                // CÁLCULO DA POSIÇÃO DE aX
+                
+                findPositionResult.style.borderLeft = '5px solid #e67e22'; 
+                positionTitle.textContent = `Posição do Termo ($a_x$):`;
+                positionInputDisplay.innerHTML = `Valor buscado ($\mathbf{a_x}$): <strong id="axValueDisplay">${formatDisplay(ax_value)}</strong>`;
+                
+                const ax = ax_value;
+                const type = sequenceType.value;
+                const a1 = parseFloat(a1Input.value);
+                const r = parseFloat(rInputPA_PG.value);
+                const formula = aNFormulaInput.value;
+                
+                let result = {n: NaN, formula: '', error: '', isInteger: false};
+
+                if (type === 'PA') {
+                    if (isNaN(a1) || isNaN(r)) { positionError.textContent = "Verifique $a_1$ e Razão (r) para PA."; return; }
+                    result = findPositionPA(a1, r, ax);
+                } else if (type === 'PG') {
+                    if (isNaN(a1) || isNaN(r)) { positionError.textContent = "Verifique $a_1$ e Razão (r) para PG."; return; }
+                    result = findPositionPG(a1, r, ax);
+                } else { // GERAL
+                     if (!formula) { positionError.textContent = "Insira a Lei de Formação $a_n$."; return; }
+                     result = findPositionGeneral(formula, ax);
+                }
+
+                // Exibir Resultado
+                axFinalValue.textContent = formatDisplay(ax);
+                positionFormula.textContent = `\\( ${result.formula} \\)`;
+                
+                if (result.isInteger && result.n >= 1) {
+                    positionStatusText.innerHTML = `**está na posição $\\mathbf{n}$ = <strong style="color: #2ecc71;">${result.n}</strong>.**`;
+                    positionError.textContent = '';
+                    
+                    const targetIndex = result.n - 1;
+                    const termListItems = document.querySelectorAll('#termosList li');
+
+                    if (termListItems.length > targetIndex) {
+                        termListItems[targetIndex].classList.add('highlight');
+                        termListItems[targetIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        positionError.textContent = `Posição ${result.n} encontrada, mas a lista de termos calculada só vai até ${termListItems.length} termos. Clique em "CALCULAR SEQUÊNCIA" com um $n$ maior.`;
+                    }
+
+                } else {
+                    positionStatusText.innerHTML = `**não pertence à sequência** (ou não em uma posição inteira e positiva).`;
+                    positionError.textContent = result.error;
+                }
+            }
+            
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, findPositionResult]);
+        }
+        
+        // ----------------- Função Principal de Cálculo -----------------
+
+        function calculateSequence(silent = false) {
+            const a1 = parseFloat(a1Input.value);
+            const r = parseFloat(rInputPA_PG.value);
+            const formula = aNFormulaInput.value;
+            const n = parseInt(nInput.value);
+            const type = sequenceType.value;
+
+            // Validação com alertas
+            if (isNaN(n) || n < 2) { if (!silent) alert("Por favor, insira um valor numérico válido para 'n'."); return; }
+            if ((type === 'PA' || type === 'PG') && (isNaN(a1) || isNaN(r))) { if (!silent) alert("Por favor, insira valores numéricos válidos para 'a1' e 'Razão'."); return; }
+            if (type === 'GERAL' && !formula) { if (!silent) alert("Por favor, insira a Lei de Formação ($a_n$)."); return; }
+
+            initialMessage.style.display = 'none';
+            clearAllHighlights(); 
+            
+            let an_value, Sn_value = NaN;
+            let an_formula_latex = '', Sn_formula_latex = '', termos_formula_latex = '';
+            const termos = [];
+
+            if (type === 'PA') {
+                for (let i = 1; i <= n; i++) { termos.push(calculatePA_an(a1, i, r)); }
+                an_value = calculatePA_an(a1, n, r);
+                
+                // Usando formatFormulaValue para os números nas strings LaTeX
+                termos_formula_latex = `a_i = a_1 + (i-1)r`;
+                an_formula_latex = `a_n = a_1 + (n-1)r \\Rightarrow a_${n} = ${formatFormulaValue(a1)} + (${n}-1) \\cdot ${formatFormulaValue(r)}`;
+            } else if (type === 'PG') { 
+                for (let i = 1; i <= n; i++) { termos.push(calculatePG_an(a1, i, r)); }
+                an_value = calculatePG_an(a1, n, r);
+                
+                // Usando formatFormulaValue para os números nas strings LaTeX
+                termos_formula_latex = `a_i = a_1 \\cdot r^{i-1}`;
+                an_formula_latex = `a_n = a_1 \\cdot r^{n-1} \\Rightarrow a_${n} = ${formatFormulaValue(a1)} \\cdot ${formatFormulaValue(r)}^{${n}-1}`;
+            } else { // GERAL
+                 for (let i = 1; i <= n; i++) { termos.push(evaluateGeneralFormula(formula, i)); }
+                an_value = evaluateGeneralFormula(formula, n);
+                
+                termos_formula_latex = `a_i = ${formula.replace(/n/g, 'i').replace(/²/g, '^2').replace(/³/g, '^3')}`;
+                an_formula_latex = `a_n = ${formula.replace(/²/g, '^2').replace(/³/g, '^3')} \\Rightarrow a_${n} = \\text{Cálculo com } n=${n}`;
+                somaResult.style.display = 'none';
+            }
+            
+            // 1. Lei de Formação Explícita
+            if (type === 'PA') {
+                const constant = a1 - r;
+                const sign = constant >= 0 ? '+' : '-';
+                const an_final = r === 0 ? formatFormulaValue(a1) : (constant === 0 ? `${formatFormulaValue(r)}n` : `${formatFormulaValue(r)}n ${sign} ${formatFormulaValue(Math.abs(constant))}`);
+                lawOfFormationFormula.textContent = `\\( a_n = ${an_final} \\)`;
+                lawOfFormationResult.style.display = 'block';
+            } else if (type === 'PG') {
+                const an_final = r === 1 ? formatFormulaValue(a1) : `${formatFormulaValue(a1)} \\cdot ${formatFormulaValue(r)}^{n-1}`;
+                lawOfFormationFormula.textContent = `\\( a_n = ${an_final} \\)`;
+                lawOfFormationResult.style.display = 'block';
+            } else { 
+                lawOfFormationFormula.textContent = `\\( a_n = ${formula.replace(/²/g, '^2').replace(/³/g, '^3')} \\)`;
+                lawOfFormationResult.style.display = 'block';
+            }
+
+
+            // 2. Exibir Termos (USANDO formatDisplay)
+            termosList.innerHTML = '';
+            termos.forEach((term, index) => {
+                const li = document.createElement('li');
+                li.textContent = `a${index + 1}: ${formatDisplay(term)}`;
+                termosList.appendChild(li);
+            });
+            termosFormula.textContent = `\\( ${termos_formula_latex} \\)`;
+            termosResult.style.display = 'block';
+
+            // 3. Exibir N-ésimo Termo (USANDO formatDisplay)
+            nTermoNValue.textContent = n;
+            nTermoNValue2.textContent = n;
+            nTermoFormula.textContent = `\\( ${an_formula_latex} \\)`;
+            nTermoValue.textContent = isNaN(an_value) ? 'ERRO DE FÓRMULA' : formatDisplay(an_value);
+            nTermoResult.style.display = 'block';
+
+            // 4. Exibir Soma (Apenas para PA/PG)
+            if (type === 'PA' || type === 'PG') {
+                const calculatePA_Sn = (a1, n, r) => (n * (a1 + calculatePA_an(a1, n, r))) / 2;
+                const calculatePG_Sn = (a1, n, r) => (r === 1) ? n * a1 : a1 * (Math.pow(r, n) - 1) / (r - 1);
+                
+                Sn_value = (type === 'PA') ? calculatePA_Sn(a1, n, r) : calculatePG_Sn(a1, n, r);
+                
+                // Usando formatFormulaValue para os números nas strings LaTeX
+                Sn_formula_latex = (type === 'PA') ? 
+                    `S_n = \\frac{n(a_1 + a_n)}{2} \\Rightarrow S_${n} = \\frac{${n}(${formatFormulaValue(a1)} + ${formatFormulaValue(an_value)})}{2}` : 
+                    (r === 1 ? `S_n = n \\cdot a_1 \\Rightarrow S_${n} = ${n} \\cdot ${formatFormulaValue(a1)}` : `S_n = \\frac{a_1(r^n - 1)}{r - 1} \\Rightarrow S_${n} = \\frac{${formatFormulaValue(a1)}(${formatFormulaValue(r)}^{${n}} - 1)}{${formatFormulaValue(r)} - 1}`);
+
+                somaFormula.textContent = `\\( ${Sn_formula_latex} \\)`;
+                somaValue.textContent = formatDisplay(Sn_value); // USANDO formatDisplay
+                somaResult.style.display = 'block';
+            } else {
+                 somaResult.style.display = 'none';
+            }
+
+
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+        }
+
+        // ----------------- Funções de UI e Inicialização -----------------
+        
+        function updateControlsVisibility() {
+            const type = sequenceType.value;
+            if (type === 'PA' || type === 'PG') {
+                paPgControls.style.display = 'block';
+                generalControls.style.display = 'none';
+            } else { // GERAL
+                paPgControls.style.display = 'none';
+                generalControls.style.display = 'block';
+            }
+        }
+
+        function toggleCalculationPanel() {
+            calcStepsPanel.classList.toggle('collapsed');
+            const icon = toggleCalcButton.querySelector('i');
+            if (calcStepsPanel.classList.contains('collapsed')) {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            } else {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            }
+        }
+        
+        function initializePage() {
+            updateControlsVisibility(); 
+            sequenceType.addEventListener('change', updateControlsVisibility); 
+
+            calculateButton.addEventListener('click', () => calculateSequence(false)); // Não silencioso
+            findPositionButton.addEventListener('click', findPosition);
+            toggleCalcButton.addEventListener('click', toggleCalculationPanel);
+        }
+
+        initializePage();
+    </script>
+</body>
+</html>

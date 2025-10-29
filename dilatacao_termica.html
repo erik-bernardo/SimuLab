@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Dilatacao Termica</title>
+    
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* --- Variáveis de Estilo --- */
+        :root {
+            --sidebar-width: 380px; 
+            --header-height: 55px; 
+            --cor-primaria: #1a237e; 
+            --cor-secundaria: #3f51b5; 
+            --cor-fundo-pagina: #f4f7f6;
+            --cor-destaque-quente: #e74c3c; 
+            --cor-destaque-frio: #3399ff; 
+            --cor-grid: rgba(0, 0, 0, 0.1);
+            --cor-sombra-3d: rgba(0, 0, 0, 0.4);
+        }
+
+        /* --- Estrutura Geral --- */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--cor-fundo-pagina);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            padding-top: var(--header-height); 
+        }
+
+        /* --- HEADER (Top Bar) --- */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            height: var(--header-height); 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 200; 
+            display: flex;
+            align-items: stretch; 
+            border-bottom: 1px solid #ddd; 
+            box-sizing: border-box; 
+        }
+        .logo-link {
+            text-decoration: none;
+            color: #D2691E; 
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 25px; 
+            display: flex;
+            align-items: center; 
+            border-right: 1px solid #ddd; 
+            transition: background-color 0.3s;
+        }
+        .logo-link:hover { background-color: #f5f5f5; }
+        .logo-link .fas { margin-right: 10px; }
+        .nav-buttons { display: flex; align-items: center; }
+        .nav-button {
+            height: 100%; 
+            padding: 0 20px;
+            border: none;
+            background-color: transparent;
+            color: #555;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s, background-color 0.2s, border-bottom 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .nav-button:hover { color: var(--cor-primaria); background-color: #f5f5f5; }
+        .nav-button.active {
+            color: var(--cor-primaria);
+            border-bottom: 3px solid var(--cor-primaria);
+            background-color: #f9f9f9;
+        }
+        .nav-button .fas { margin-right: 8px; }
+
+        /* --- Sidebar (Lado Esquerdo - Cálculo) --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            min-height: calc(100vh - var(--header-height)); 
+            background-color: #ffffff;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            box-sizing: border-box;
+            overflow-y: auto; 
+            position: relative; 
+            z-index: 10;
+        }
+
+        h1 {
+            color: var(--cor-primaria);
+            font-size: 1.5em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #455a64;
+            font-size: 0.9em;
+        }
+
+        .input-group input, 
+        .input-group select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 0.9em;
+        }
+        
+        /* Layout para inputs de dimensão (3 colunas) */
+        .dimension-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .dimension-inputs .input-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        .dimension-inputs .input-group input {
+            margin-bottom: 0; 
+        }
+        
+        .mode-selector {
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e8eaf6;
+            border-radius: 8px;
+        }
+        .mode-button {
+            flex-grow: 1;
+            padding: 10px 5px;
+            border: none;
+            border-radius: 6px;
+            background-color: #c5cae9;
+            color: var(--cor-primaria);
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            font-size: 0.85em;
+        }
+        .mode-button.selected {
+            background-color: var(--cor-primaria);
+            color: white;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+        .mode-button:not(.selected):hover {
+            background-color: #b3baff;
+        }
+
+        /* --- Área de Simulação (Lado Direito - FIXA com Grid) --- */
+        .simulation-area-container {
+            position: fixed;
+            top: var(--header-height); 
+            left: var(--sidebar-width); 
+            width: calc(100% - var(--sidebar-width));
+            height: calc(100vh - var(--header-height));
+            background-color: var(--cor-fundo-pagina);
+            background-image: 
+                linear-gradient(to right, var(--cor-grid) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--cor-grid) 1px, transparent 1px);
+            background-size: 20px 20px; 
+            padding: 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- Objeto de Simulação (O CUBO/PLANO/BARRA) --- */
+        .simulacao-conteudo {
+            max-width: 500px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .bar-container {
+            width: 80%;
+            height: 250px; /* Mais alto para o efeito 3D */
+            background-color: rgba(255, 255, 255, 0.7); 
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; 
+            margin-bottom: 40px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 5; 
+            overflow: hidden; /* Garante que o cubo não vaze */
+        }
+
+        .dilatable-bar {
+            height: 50px;
+            border-radius: 4px;
+            transition: all 0.3s ease-out; 
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+            transform-origin: left; 
+            border: 1px solid transparent; 
+        }
+
+        /* ESTILOS ESPECÍFICOS DE MODO */
+
+        /* Modo Linear */
+        .dilatable-bar[data-mode="linear"] {
+            height: 50px; 
+            margin-left: 20px; /* Espaço para o marcador L0 */
+        }
+
+        /* Modo Superficial/Volumétrico (Plano/Cubo em 2D/3D) */
+        .bar-container[data-mode="superficial"],
+        .bar-container[data-mode="volumetrica"] {
+            align-items: flex-start;
+            justify-content: flex-start; 
+            padding-left: 20px;
+            padding-top: 20px;
+        }
+        .dilatable-bar[data-mode="superficial"] {
+            height: 120px; 
+            width: 50%; 
+            border-radius: 4px;
+            transform-origin: top left; 
+        }
+
+        /* NOVO: Estilos 3D para o Cubo Volumétrico */
+        .dilatable-bar[data-mode="volumetrica"] {
+            /* Ocupa o espaço 3D dentro do container */
+            position: absolute;
+            top: 50%; 
+            left: 50%;
+            transform: translate(-50%, -50%);
+            perspective: 500px; /* Define a profundidade da perspectiva */
+            transform-style: preserve-3d;
+            height: auto; /* A altura é definida pelos lados do cubo */
+            width: auto;
+            background-color: transparent !important;
+            box-shadow: none;
+            border: none;
+        }
+        
+        .cube {
+            transform-style: preserve-3d;
+            position: relative;
+            transform: rotateX(-20deg) rotateY(20deg); /* Rotação 3D para o efeito de cubo */
+            transition: all 0.3s ease-out;
+        }
+
+        .face {
+            position: absolute;
+            background-color: transparent;
+            border: 1px solid rgba(0, 0, 0, 0.2); /* Borda para visibilidade */
+            background-color: inherit; /* Herda a cor base do material */
+        }
+
+        .face.front {
+            transform: translateZ(var(--dim-z));
+            width: var(--dim-x);
+            height: var(--dim-y);
+            opacity: 0.8; 
+            box-shadow: 0 0 10px var(--cor-sombra-3d); 
+        }
+        .face.back {
+            transform: translateZ(0);
+            width: var(--dim-x);
+            height: var(--dim-y);
+            opacity: 0.2;
+        }
+        .face.right {
+            transform: rotateY(90deg) translateZ(var(--dim-x));
+            width: var(--dim-z);
+            height: var(--dim-y);
+            opacity: 0.4;
+        }
+        .face.top {
+            transform: rotateX(90deg) translateZ(var(--dim-y));
+            width: var(--dim-x);
+            height: var(--dim-z);
+            opacity: 0.5;
+        }
+
+        /* --- RÓTULOS (Dilatação) --- */
+        .dilatacao-label {
+            /* Estilo da versão anterior (ajustes para linear e superficial) */
+            position: absolute;
+            top: -30px;
+            right: 0;
+            transform: translateX(50%); 
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--cor-destaque-quente);
+            white-space: nowrap;
+            opacity: 0; 
+            transition: opacity 0.5s, transform 0.3s; 
+            z-index: 10;
+        }
+        .dilatacao-label.visible { opacity: 1; }
+        .dilatacao-label[data-mode="superficial"] {
+            top: 50%; right: -10px;
+            transform: translateY(-50%) translateX(100%);
+            width: 150px; text-align: left;
+            padding: 5px; background: rgba(255, 255, 255, 0.9);
+            border-radius: 4px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        /* Esconde o label de dilatação genérico no modo 3D (usaremos labels específicos) */
+        .dilatacao-label[data-mode="volumetrica"] { display: none; }
+        
+        /* Marcador de Ponto Fixo */
+        .l0-marker {
+            position: absolute;
+            left: 5px;
+            font-size: 0.7em;
+            color: #555;
+            top: 50%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+        }
+        .l0-reference-line {
+            position: absolute;
+            left: 20px;
+            height: 100%;
+            width: 1px;
+            background-color: #555;
+            z-index: 5;
+        }
+        .l0-marker[data-mode="superficial"], .l0-marker[data-mode="volumetrica"],
+        .l0-reference-line[data-mode="superficial"], .l0-reference-line[data-mode="volumetrica"] {
+             display: none; 
+        }
+
+        /* --- Processo de Cálculo Detalhado e Resultados --- */
+        .process-details {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .process-details h2 {
+            color: var(--cor-secundaria);
+            font-size: 1.2em;
+            margin-top: 0;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .step {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 4px solid var(--cor-destaque-quente);
+            background-color: #fff3f3;
+        }
+        .step:last-child {
+             border-left-color: #2e7d32; 
+             background-color: #e8f5e9;
+        }
+        .step strong {
+            display: block;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .formula-line {
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 1em;
+            color: #00796b;
+        }
+
+        /* --- NOVO: Resultados Detalhados de Dimensão (x, y, z) --- */
+        .dimension-results {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .dimension-results div {
+            flex: 1;
+            padding: 5px;
+            border-right: 1px solid #eee;
+        }
+        .dimension-results div:last-child {
+            border-right: none;
+        }
+        .dimension-results span {
+            display: block;
+            font-weight: bold;
+            color: var(--cor-destaque-quente);
+            font-size: 1.1em;
+            margin-top: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+<header class="top-bar">
+    <a href="index.html" class="logo-link">
+        <i class="fas fa-book-reader"></i> PLATAFORMA
+    </a>
+    <div class="nav-buttons">
+        <button class="nav-button active"><i class="fas fa-arrow-up"></i> MATÉRIAS</button>
+        <button class="nav-button"><i class="fas fa-arrow-down"></i> EXE. DE APOIO</button>
+        <button class="nav-button"><i class="fas fa-arrow-down"></i> VIDEO AULA</button>
+        <button class="nav-button more-options">...</button>
+    </div>
+</header>
+
+<div class="sidebar">
+    <h1>Calculadora de Dilatacao Termica</h1>
+
+    <div class="mode-selector">
+        <button class="mode-button selected" data-mode="linear" onclick="setMode('linear')">Linear ($\Delta L$)</button>
+        <button class="mode-button" data-mode="superficial" onclick="setMode('superficial')">Superficial ($\Delta A$)</button>
+        <button class="mode-button" data-mode="volumetrica" onclick="setMode('volumetrica')">Volumétrica ($\Delta V$)</button>
+    </div>
+
+    <div class="input-group">
+        <label for="material">Material:</label>
+        <select id="material" onchange="calcularDilatacao()">
+            </select>
+        <p style="font-size: 0.8em; margin-top: -10px; margin-bottom: 15px;">
+            Coeficiente Linear ($\alpha$): <span id="alpha-display">0</span> x $10^{-6}$ °C⁻¹
+        </p>
+    </div>
+
+    <div class="dimension-inputs" id="dimension-inputs-container">
+        <div class="input-group" id="input-L0">
+            <label for="L0" id="label-L0">Comprimento Inicial ($L_0$ - m):</label>
+            <input type="number" id="L0" value="1.0" min="0.1" step="0.1" oninput="calcularDilatacao()">
+        </div>
+        
+        <div class="input-group hidden-dim" id="input-Lx">
+            <label for="Lx">Largura ($L_x$ - m):</label>
+            <input type="number" id="Lx" value="0.5" min="0.1" step="0.1" oninput="calcularDilatacao()">
+        </div>
+        <div class="input-group hidden-dim" id="input-Ly">
+            <label for="Ly">Altura ($L_y$ - m):</label>
+            <input type="number" id="Ly" value="0.5" min="0.1" step="0.1" oninput="calcularDilatacao()">
+        </div>
+        <div class="input-group hidden-dim" id="input-Lz">
+            <label for="Lz">Profundidade ($L_z$ - m):</label>
+            <input type="number" id="Lz" value="0.5" min="0.1" step="0.1" oninput="calcularDilatacao()">
+        </div>
+    </div>
+    
+    <div class="input-group">
+        <label id="label-L0-A0-V0-calc" style="font-weight: normal;">Comprimento Inicial ($L_0$): <span id="valor-L0-A0-V0">1.0 m</span></label>
+    </div>
+
+
+    <div class="input-group">
+        <label for="Ti">Temperatura Inicial ($T_i$ - em °C):</label>
+        <input type="number" id="Ti" value="20" oninput="calcularDilatacao()">
+    </div>
+
+    <div class="input-group">
+        <label for="Tf">Temperatura Final ($T_f$ - em °C):</label>
+        <input type="number" id="Tf" value="120" oninput="calcularDilatacao()">
+    </div>
+
+    <div class="process-details">
+        <h2>Processo do Cálculo (<span id="formula-header">Fórmula: $\Delta L = L_0 \cdot \alpha \cdot \Delta T$</span>)</h2>
+        
+        <div class="step">
+            <strong>1. Variação de Temperatura ($\Delta T$):</strong>
+            <p>Calcula-se a diferença entre as temperaturas.</p>
+            <div class="formula-line" id="calc-deltaT"></div>
+        </div>
+        
+        <div class="step">
+            <strong id="step-alpha-title">2. Coeficiente Linear ($\alpha$):</strong>
+            <p id="step-alpha-desc">O coeficiente base ($\alpha$) é usado diretamente.</p>
+            <div class="formula-line" id="calc-alpha"></div>
+        </div>
+        
+        <div class="step">
+            <strong id="step-delta-title">3. Cálculo da Dilatação ($\Delta L$):</strong>
+            <p>Multiplica-se os 3 fatores.</p>
+            <div class="formula-line" id="calc-deltaL"></div>
+        </div>
+        
+        <div class="step">
+            <strong id="step-final-title">4. Comprimento Final ($L$):</strong>
+            <p>Soma-se a dilatação ao comprimento inicial.</p>
+            <div class="formula-line" id="calc-Lfinal"></div>
+        </div>
+    </div>
+</div>
+
+<div class="simulation-area-container">
+    <div class="simulacao-conteudo">
+        <h2>Simulação Visual da Dilatação</h2>
+        
+        <div class="bar-container" data-mode="linear">
+            <div class="l0-reference-line"></div>
+            
+            <div class="dilatable-bar" id="dilatable-bar-element" data-mode="linear" style="width: 50%;">
+                <div class="cube" id="cube-element">
+                    <div class="face front" id="face-front"></div>
+                    <div class="face back" id="face-back"></div>
+                    <div class="face right" id="face-right"></div>
+                    <div class="face top" id="face-top"></div>
+                </div>
+                
+                <span class="dilatacao-label" id="dilatacao-label-element" data-mode="linear"></span>
+            </div>
+            
+            <span class="l0-marker">Ponto Fixo ($L_0$)</span>
+            
+        </div>
+        
+        <div class="process-details" style="max-width: 450px; text-align: center;">
+            <h2>Resultados Finais</h2>
+            
+            <p>
+                Variação de Temperatura ($\Delta T$): <span id="resultado-deltaT" style="font-weight: bold; color: var(--cor-secundaria);">0</span> °C
+            </p>
+            
+            <div class="dimension-results" id="dimension-results-container" style="display: none;">
+                <div>Dilatação $L_x$: <span id="resultado-deltaLx">0 m</span></div>
+                <div>Dilatação $L_y$: <span id="resultado-deltaLy">0 m</span></div>
+                <div id="div-deltaLz">Dilatação $L_z$: <span id="resultado-deltaLz">0 m</span></div>
+            </div>
+            
+            <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;">
+            
+            <p>
+                Dilatação Total (<span id="resultado-delta-rotulo">$\Delta L$</span>): <span id="resultado-deltaL" style="font-weight: bold; color: var(--cor-destaque-quente); font-size: 1.3em;">0</span> <span id="resultado-unidade">m</span>
+            </p>
+            <p>
+                Valor Final (<span id="resultado-final-rotulo">$L$</span>): <span id="resultado-Lfinal" style="font-weight: bold; color: #2e7d32; font-size: 1.1em;">0</span> <span id="resultado-final-unidade">m</span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tabela de Coeficientes de Dilatação Linear (α) em (10^-6 °C^-1) e CORES
+    const COEFICIENTES_DILATACAO = {
+        "Aco-Ferro": { nome: "Aço / Ferro", alphaBase: 12, cor: "#7f8c8d", isClara: false },
+        "Aluminio": { nome: "Alumínio", alphaBase: 22, cor: "#bdc3c7", isClara: true },
+        "Cobre": { nome: "Cobre", alphaBase: 17, cor: "#b87333", isClara: false },
+        "Chumbo": { nome: "Chumbo", alphaBase: 27, cor: "#535c68", isClara: false },
+        "Zinco": { nome: "Zinco", alphaBase: 26, cor: "#95a5a6", isClara: true },
+        "Prata": { nome: "Prata", alphaBase: 19, cor: "#e7e7e7", isClara: true },
+        "Ouro": { nome: "Ouro", alphaBase: 15, cor: "#ffc800", isClara: false },
+        "Concreto-Cimento": { nome: "Concreto / Cimento", alphaBase: 12, cor: "#95a5a6", isClara: true },
+        "Platina": { nome: "Platina", alphaBase: 9, cor: "#d2dae2", isClara: true },
+        "Vidro-Comum": { nome: "Vidro Comum", alphaBase: 8, cor: "rgba(255, 255, 255, 0.7)", isClara: true },
+        "Vidro-Borossilicato": { nome: "Vidro Borossilicato", alphaBase: 3.2, cor: "rgba(255, 255, 255, 0.8)", isClara: true }, 
+        "Porcelana": { nome: "Porcelana", alphaBase: 3, cor: "#f9f9f9", isClara: true },
+        "Quartzo-Fundido": { nome: "Quartzo Fundido", alphaBase: 0.5, cor: "#dcdde1", isClara: true }
+    };
+    
+    let currentMode = 'linear'; // Estado inicial
+
+    // Referências dos Elementos DOM
+    const $materialSelect = document.getElementById('material');
+    const $alphaDisplay = document.getElementById('alpha-display');
+    const $TiInput = document.getElementById('Ti');
+    const $TfInput = document.getElementById('Tf');
+    const $barContainer = document.querySelector('.bar-container');
+    const $barElement = document.getElementById('dilatable-bar-element');
+    const $dilatacaoLabel = document.getElementById('dilatacao-label-element');
+    const $cubeElement = document.getElementById('cube-element');
+    const $L0_A0_V0_value = document.getElementById('valor-L0-A0-V0');
+    
+    // Inputs de Dimensão
+    const $inputL0 = document.getElementById('input-L0');
+    const $inputLx = document.getElementById('input-Lx');
+    const $inputLy = document.getElementById('input-Ly');
+    const $inputLz = document.getElementById('input-Lz');
+    const $inputL0val = document.getElementById('L0');
+    const $inputLxval = document.getElementById('Lx');
+    const $inputLyval = document.getElementById('Ly');
+    const $inputLzval = document.getElementById('Lz');
+
+    // Rótulos Dinâmicos
+    const $labelL0A0V0Calc = document.getElementById('label-L0-A0-V0-calc');
+    const $formulaHeader = document.getElementById('formula-header');
+    const $stepAlphaTitle = document.getElementById('step-alpha-title');
+    const $stepAlphaDesc = document.getElementById('step-alpha-desc');
+    const $stepDeltaTitle = document.getElementById('step-delta-title');
+    const $stepFinalTitle = document.getElementById('step-final-title');
+    const $resultadoDeltaRotulo = document.getElementById('resultado-delta-rotulo');
+    const $resultadoFinalRotulo = document.getElementById('resultado-final-rotulo');
+    const $resultadoUnidade = document.getElementById('resultado-unidade');
+    const $resultadoFinalUnidade = document.getElementById('resultado-final-unidade');
+    const $dimensionResultsContainer = document.getElementById('dimension-results-container');
+    const $divDeltaLz = document.getElementById('div-deltaLz');
+
+    // Referências dos Resultados Finais e Detalhes do Processo
+    const $calcDeltaT = document.getElementById('calc-deltaT');
+    const $calcAlpha = document.getElementById('calc-alpha');
+    const $calcDeltaL = document.getElementById('calc-deltaL');
+    const $calcLfinal = document.getElementById('calc-Lfinal');
+
+    const L_VISUAL_SIZE_PX = 150; // Tamanho base (em pixels) para 1 metro em L0/Lx/Ly/Lz
+    const BASE_L_VISUAL_PERCENT = 50; // Largura inicial da barra linear/quadrado superficial
+
+    // --- FUNÇÕES DE CONTROLE DE MODO ---
+    function setMode(mode) {
+        currentMode = mode;
+        
+        // 1. Atualiza a seleção visual dos botões
+        document.querySelectorAll('.mode-button').forEach(btn => {
+            if (btn.dataset.mode === mode) {
+                btn.classList.add('selected');
+            } else {
+                btn.classList.remove('selected');
+            }
+        });
+        
+        // 2. Atualiza os atributos de simulação
+        $barContainer.setAttribute('data-mode', mode);
+        $barElement.setAttribute('data-mode', mode);
+        $dilatacaoLabel.setAttribute('data-mode', mode);
+
+        // 3. Gerencia Inputs de Dimensão (L0, Lx, Ly, Lz)
+        $inputL0.style.display = 'none';
+        $inputLx.style.display = 'none';
+        $inputLy.style.display = 'none';
+        $inputLz.style.display = 'none';
+        $dimensionResultsContainer.style.display = 'none';
+
+        if (mode === 'linear') {
+            $inputL0.style.display = 'block';
+            $inputL0.style.flex = '1'; // Ocupa todo o espaço
+
+        } else if (mode === 'superficial') {
+            $inputLx.style.display = 'block';
+            $inputLy.style.display = 'block';
+            $dimensionResultsContainer.style.display = 'flex';
+            $divDeltaLz.style.display = 'none'; // Esconde Lz
+
+        } else if (mode === 'volumetrica') {
+            $inputLx.style.display = 'block';
+            $inputLy.style.display = 'block';
+            $inputLz.style.display = 'block';
+            $dimensionResultsContainer.style.display = 'flex';
+            $divDeltaLz.style.display = 'block'; // Mostra Lz
+        }
+
+
+        // 4. Atualiza rótulos e unidades
+        let initialLabel, deltaLabel, finalLabel, unit, finalUnit;
+        let formulaText;
+        
+        if (mode === 'linear') {
+            initialLabel = "Comprimento Inicial ($L_0$):";
+            deltaLabel = "$\Delta L$";
+            finalLabel = "$L$";
+            unit = "m";
+            finalUnit = "m";
+            formulaText = "Fórmula: $\\Delta L = L_0 \\cdot \\alpha \\cdot \\Delta T$";
+        } else if (mode === 'superficial') {
+            initialLabel = "Área Inicial ($A_0 = L_x \\cdot L_y$):";
+            deltaLabel = "$\Delta A$";
+            finalLabel = "$A$";
+            unit = "m²";
+            finalUnit = "m²";
+            formulaText = "Fórmula: $\\Delta A = A_0 \\cdot \\beta \\cdot \\Delta T$ (onde $\\beta \\approx 2\\alpha$)";
+        } else if (mode === 'volumetrica') {
+            initialLabel = "Volume Inicial ($V_0 = L_x \\cdot L_y \\cdot L_z$):";
+            deltaLabel = "$\Delta V$";
+            finalLabel = "$V$";
+            unit = "m³";
+            finalUnit = "m³";
+            formulaText = "Fórmula: $\\Delta V = V_0 \\cdot \\gamma \\cdot \\Delta T$ (onde $\\gamma \\approx 3\\alpha$)";
+        }
+        
+        $labelL0A0V0Calc.innerHTML = initialLabel + ` <span id="valor-L0-A0-V0">0.0 ${unit}</span>`;
+        $formulaHeader.innerHTML = formulaText;
+        $stepDeltaTitle.innerHTML = `3. Cálculo da Dilatação (${deltaLabel}):`;
+        $stepFinalTitle.innerHTML = `4. Valor Final (${finalLabel}):`;
+        
+        $resultadoDeltaRotulo.innerHTML = deltaLabel;
+        $resultadoFinalRotulo.innerHTML = finalLabel;
+        $resultadoUnidade.textContent = unit;
+        $resultadoFinalUnidade.textContent = finalUnit;
+        
+        // Recalcula para atualizar tudo
+        calcularDilatacao();
+    }
+
+    // 1. Preenche o seletor de materiais
+    function preencherMateriais() {
+        for (const key in COEFICIENTES_DILATACAO) {
+            const data = COEFICIENTES_DILATACAO[key];
+            const option = document.createElement('option');
+            option.value = key; 
+            option.textContent = data.nome; 
+            $materialSelect.appendChild(option);
+        }
+        atualizarAlphaECor(); 
+    }
+
+    // 2. Atualiza a exibição do coeficiente (α) e a COR da barra
+    function atualizarAlphaECor() {
+        const materialKey = $materialSelect.value;
+        const materialData = COEFICIENTES_DILATACAO[materialKey];
+        
+        const alphaBase = materialData ? materialData.alphaBase : 0;
+        const corBase = materialData ? materialData.cor : 'gray';
+        const isClara = materialData ? materialData.isClara : false;
+
+        $alphaDisplay.textContent = alphaBase;
+
+        // Aplica a cor de fundo (apenas para Linear e Superficial)
+        if (currentMode !== 'volumetrica') {
+            $barElement.style.backgroundColor = corBase;
+        } else {
+            // Aplica a cor do material nas faces do cubo
+            document.getElementById('face-front').style.backgroundColor = corBase;
+            document.getElementById('face-back').style.backgroundColor = corBase;
+            document.getElementById('face-right').style.backgroundColor = corBase;
+            document.getElementById('face-top').style.backgroundColor = corBase;
+        }
+        
+        if (isClara) {
+            $barElement.setAttribute('data-clara', 'true');
+        } else {
+            $barElement.removeAttribute('data-clara');
+        }
+    }
+
+    // 3. Função principal de cálculo e atualização da simulação
+    function calcularDilatacao() {
+        atualizarAlphaECor();
+        
+        // Leitura dos dados
+        const materialKey = $materialSelect.value;
+        const alphaBase = COEFICIENTES_DILATACAO[materialKey] ? COEFICIENTES_DILATACAO[materialKey].alphaBase : 0;
+        const Ti = parseFloat($TiInput.value) || 0;
+        const Tf = parseFloat($TfInput.value) || 0;
+        const deltaT = Tf - Ti; 
+
+        let L0_A0_V0_calc = 0;
+        let L0_A0_V0_unit = '';
+        let L_x_initial, L_y_initial, L_z_initial;
+        let delta_Lx, delta_Ly, delta_Lz;
+        
+        const alpha_Dilatacao = alphaBase * 1e-6; // α na unidade SI (m/m°C)
+
+        // --- CÁLCULO DAS DIMENSÕES INICIAIS ---
+        if (currentMode === 'linear') {
+            L_x_initial = parseFloat($inputL0val.value) || 0;
+            L_y_initial = 0; L_z_initial = 0;
+            L0_A0_V0_calc = L_x_initial;
+            L0_A0_V0_unit = 'm';
+        } else if (currentMode === 'superficial') {
+            L_x_initial = parseFloat($inputLxval.value) || 0;
+            L_y_initial = parseFloat($inputLyval.value) || 0;
+            L_z_initial = 0;
+            L0_A0_V0_calc = L_x_initial * L_y_initial;
+            L0_A0_V0_unit = 'm²';
+        } else if (currentMode === 'volumetrica') {
+            L_x_initial = parseFloat($inputLxval.value) || 0;
+            L_y_initial = parseFloat($inputLyval.value) || 0;
+            L_z_initial = parseFloat($inputLzval.value) || 0;
+            L0_A0_V0_calc = L_x_initial * L_y_initial * L_z_initial;
+            L0_A0_V0_unit = 'm³';
+        }
+        
+        // Atualiza o valor inicial calculado na sidebar
+        $L0_A0_V0_value.textContent = `${L0_A0_V0_calc.toFixed(4)} ${L0_A0_V0_unit}`;
+
+
+        // --- DEFINIÇÃO DO COEFICIENTE DE ACORDO COM O MODO ---
+        let gamma_beta_alpha_base = alphaBase;
+        let coefLabel = '\\alpha';
+        let descText = `O coeficiente base (\\alpha) é usado diretamente.`;
+        
+        if (currentMode === 'superficial') {
+            gamma_beta_alpha_base = alphaBase * 2; // β ≈ 2α
+            coefLabel = '\\beta';
+            descText = `O coeficiente superficial (\\beta) é obtido multiplicando o \\alpha base por 2 ($\\beta \\approx 2\\alpha$).`;
+        } else if (currentMode === 'volumetrica') {
+            gamma_beta_alpha_base = alphaBase * 3; // γ ≈ 3α
+            coefLabel = '\\gamma';
+            descText = `O coeficiente volumétrico (\\gamma) é obtido multiplicando o \\alpha base por 3 ($\\gamma \\approx 3\\alpha$).`;
+        }
+
+        const CoefDilatacao = gamma_beta_alpha_base * 1e-6; 
+        
+        // --- CÁLCULO FÍSICO ---
+        const delta_Final = L0_A0_V0_calc * CoefDilatacao * deltaT; 
+        const Valor_Final = L0_A0_V0_calc + delta_Final;
+
+        // Cálculo da Dilatação Específica por Eixo (mesmo α)
+        // ΔL = L_inicial * α * ΔT
+        delta_Lx = L_x_initial * alpha_Dilatacao * deltaT;
+        delta_Ly = L_y_initial * alpha_Dilatacao * deltaT;
+        delta_Lz = L_z_initial * alpha_Dilatacao * deltaT;
+
+        // --- PREPARAÇÃO DAS SAÍDAS FORMATADAS ---
+        const Inicial_Format = L0_A0_V0_calc.toFixed(4);
+        const deltaT_Format = deltaT.toFixed(2);
+        
+        const coefDilatacao_Format = CoefDilatacao.toExponential(2);
+        let delta_Final_Format = (Math.abs(delta_Final) < 0.0001 && delta_Final !== 0) ? delta_Final.toExponential(4) : delta_Final.toFixed(6);
+        const Valor_Final_Format = Valor_Final.toFixed(6);
+        
+        const L_x_Final = L_x_initial + delta_Lx;
+        const L_y_Final = L_y_initial + delta_Ly;
+        const L_z_Final = L_z_initial + delta_Lz;
+
+        // --- ATUALIZAÇÃO DO PROCESSO DE CÁLCULO EM ETAPAS ---
+        $calcDeltaT.textContent = `ΔT = T final - T inicial\nΔT = ${Tf.toFixed(2)} - ${Ti.toFixed(2)}\nΔT = ${deltaT_Format} °C`;
+        
+        // Coeficiente (Passo 2)
+        $stepAlphaTitle.innerHTML = `2. Coeficiente (${coefLabel}):`;
+        $stepAlphaDesc.innerHTML = descText;
+        $calcAlpha.textContent = `${coefLabel} = ${gamma_beta_alpha_base.toFixed(2)} x 10⁻⁶ °C⁻¹\n${coefLabel} = ${coefDilatacao_Format} °C⁻¹`;
+        
+        // Dilatação (Passo 3)
+        $calcDeltaL.textContent = `ΔL/A/V = Inicial * ${coefLabel} * ΔT\nΔL/A/V = ${Inicial_Format} * ${coefDilatacao_Format} * ${deltaT_Format}\nΔL/A/V = ${delta_Final_Format} ${$resultadoUnidade.textContent}`;
+        
+        // Final (Passo 4)
+        $calcLfinal.textContent = `Final = Inicial + ΔL/A/V\nFinal = ${Inicial_Format} + ${delta_Final_Format}\nFinal = ${Valor_Final_Format} ${$resultadoUnidade.textContent}`;
+
+        // --- ATUALIZAÇÃO DA SIMULAÇÃO VISUAL ---
+
+        const corDestaque = deltaT >= 0 ? 'var(--cor-destaque-quente)' : 'var(--cor-destaque-frio)';
+        document.getElementById('resultado-deltaL').style.color = corDestaque;
+        
+        // Fator de Escala Visual: Amplificamos a dilatação
+        const AMP_FACTOR = 10000; 
+        const delta_Px = L_x_initial > 0 ? delta_Lx / L_x_initial * AMP_FACTOR : 0;
+        const delta_Py = L_y_initial > 0 ? delta_Ly / L_y_initial * AMP_FACTOR : 0;
+        const delta_Pz = L_z_initial > 0 ? delta_Lz / L_z_initial * AMP_FACTOR : 0;
+
+        // Tamanhos Visuais Finais em Pixels
+        const L_x_final_px = (L_x_initial * L_VISUAL_SIZE_PX) + delta_Px;
+        const L_y_final_px = (L_y_initial * L_VISUAL_SIZE_PX) + delta_Py;
+        const L_z_final_px = (L_z_initial * L_VISUAL_SIZE_PX) + delta_Pz;
+        
+        // Limita o tamanho máximo e mínimo para visualização
+        const MAX_PX = 250;
+        const MIN_PX = 10;
+        const Final_visual_L_x = Math.max(MIN_PX, Math.min(MAX_PX, L_x_final_px));
+        const Final_visual_L_y = Math.max(MIN_PX, Math.min(MAX_PX, L_y_final_px));
+        const Final_visual_L_z = Math.max(MIN_PX, Math.min(MAX_PX, L_z_final_px));
+
+        if (currentMode === 'linear') {
+            $barElement.style.width = `${Final_visual_L_x}px`;
+            $barElement.style.height = `50px`; 
+            // Mostra o label de dilatação genérico
+            if (delta_Final !== 0) {
+                $dilatacaoLabel.textContent = (delta_Final > 0 ? `+${delta_Final_Format}` : `${delta_Final_Format}`) + L0_A0_V0_unit;
+                $dilatacaoLabel.classList.add('visible');
+                $dilatacaoLabel.style.color = corDestaque;
+            } else {
+                $dilatacaoLabel.classList.remove('visible');
+            }
+        } else if (currentMode === 'superficial') {
+            $barElement.style.width = `${Final_visual_L_x}px`;
+            $barElement.style.height = `${Final_visual_L_y}px`;
+            // Mostra o label de dilatação genérico (ajustado para lateral)
+            if (delta_Final !== 0) {
+                $dilatacaoLabel.textContent = (delta_Final > 0 ? `+${delta_Final_Format}` : `${delta_Final_Format}`) + L0_A0_V0_unit;
+                $dilatacaoLabel.classList.add('visible');
+                $dilatacaoLabel.style.color = corDestaque;
+            } else {
+                $dilatacaoLabel.classList.remove('visible');
+            }
+        } else if (currentMode === 'volumetrica') {
+            // Esconde os estilos 2D/1D
+            $barElement.style.width = `100%`;
+            $barElement.style.height = `100%`; 
+
+            // Atualiza as dimensões CSS do cubo 3D (variáveis CSS)
+            const cubeStyle = $cubeElement.style;
+            cubeStyle.setProperty('--dim-x', `${Final_visual_L_x}px`);
+            cubeStyle.setProperty('--dim-y', `${Final_visual_L_y}px`);
+            cubeStyle.setProperty('--dim-z', `${Final_visual_L_z}px`);
+            cubeStyle.backgroundColor = document.getElementById('face-front').style.backgroundColor; // Força a cor do material no elemento pai para herança
+
+            // Posição para manter o cubo mais centralizado no container
+            $cubeElement.style.left = `calc(50% - ${Final_visual_L_x / 2}px)`;
+            $cubeElement.style.top = `calc(50% - ${Final_visual_L_y / 2}px)`;
+        }
+
+        // --- ATUALIZAÇÃO DOS RESULTADOS FINAIS ---
+        document.getElementById('resultado-deltaT').textContent = deltaT_Format;
+        document.getElementById('resultado-deltaL').textContent = delta_Final_Format;
+        document.getElementById('resultado-Lfinal').textContent = Valor_Final_Format;
+
+        // Resultados detalhados por eixo
+        if (currentMode === 'superficial' || currentMode === 'volumetrica') {
+            document.getElementById('resultado-deltaLx').textContent = `${(delta_Lx > 0 ? '+' : '')}${delta_Lx.toExponential(2)} m`;
+            document.getElementById('resultado-deltaLy').textContent = `${(delta_Ly > 0 ? '+' : '')}${delta_Ly.toExponential(2)} m`;
+            if (currentMode === 'volumetrica') {
+                document.getElementById('resultado-deltaLz').textContent = `${(delta_Lz > 0 ? '+' : '')}${delta_Lz.toExponential(2)} m`;
+            }
+        }
+        
+        // Força a re-renderização do MathJax
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    // Inicializa a aplicação ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+        preencherMateriais();
+        // Inicializa o modo linear (que já chama calcularDilatacao)
+        setMode('linear'); 
+    });
+</script>
+
+</body>
+</html>

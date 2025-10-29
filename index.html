@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma Educacional - Início</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Cores: #D2691E (Principal), #f8f8f8 (Fundo) */
+        /* ----------------------------------- */
+        /* ESTILOS GERAIS */
+        /* ----------------------------------- */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        /* ----------------------------------- */
+        /* BARRA SUPERIOR DE NAVEGAÇÃO (TOP-BAR) */
+        /* ----------------------------------- */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            border-bottom: 1px solid #ddd;
+            padding: 0 40px; /* Adiciona padding lateral */
+        }
+
+        .logo-link {
+            text-decoration: none;
+            color: #D2691E;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo-link .fas {
+            margin-right: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #555;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 0 15px;
+            transition: color 0.3s, background-color 0.3s;
+            display: flex;
+            align-items: center;
+            text-transform: uppercase;
+        }
+
+        .nav-link:hover {
+            color: #D2691E;
+            background-color: #f0f0f0;
+        }
+
+        .nav-link.main-action {
+            background-color: #D2691E;
+            color: white;
+            padding: 0 20px;
+            margin-left: 20px;
+        }
+        .nav-link.main-action:hover {
+             background-color: #c05c18; /* Cor mais escura no hover */
+             color: white;
+        }
+
+
+        /* ----------------------------------- */
+        /* SEÇÕES DA LANDING PAGE */
+        /* ----------------------------------- */
+
+        /* 1. SEÇÃO PRINCIPAL (HERO) */
+        .hero-section {
+            background-color: #f0f0f0;
+            padding: 80px 40px;
+            text-align: center;
+        }
+
+        .hero-section h2 {
+            font-size: 2.5em;
+            color: #D2691E;
+            margin-bottom: 10px;
+        }
+
+        .hero-section p {
+            font-size: 1.2em;
+            color: #555;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .hero-button {
+            background-color: #D2691E;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-button:hover {
+            background-color: #c05c18;
+        }
+        
+        /* 2. SEÇÃO DE DESTAQUE (Simulador/Módulos) */
+        .feature-section {
+            padding: 60px 40px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .feature-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .feature-text h3 {
+            color: #D2691E;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .feature-image-container {
+            flex: 1;
+            max-width: 500px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .feature-image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* 3. SEÇÃO "SAIBA MAIS" (Recursos Extras) */
+        .info-section {
+            background-color: white;
+            padding: 60px 40px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+        
+        .info-section h3 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 30px;
+        }
+        
+        .info-grid {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .info-card {
+            flex-basis: 30%;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            transition: box-shadow 0.3s;
+        }
+
+        .info-card:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card i {
+            font-size: 2em;
+            color: #D2691E;
+            margin-bottom: 10px;
+        }
+
+        .info-card h4 {
+            color: #333;
+            margin-top: 0;
+        }
+
+        /* 4. RODAPÉ */
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 0.9em;
+        }
+
+
+        /* ----------------------------------- */
+        /* RESPONSIVIDADE BÁSICA */
+        /* ----------------------------------- */
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 0 20px;
+            }
+            .nav-link {
+                padding: 0 10px;
+            }
+            .feature-section {
+                flex-direction: column; /* Coloca a imagem e o texto um abaixo do outro */
+                text-align: center;
+            }
+            .feature-text {
+                text-align: center;
+            }
+            .info-grid {
+                flex-direction: column;
+            }
+            .info-card {
+                flex-basis: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-book-reader"></i> PLATAFORMA
+        </a>
+
+        <nav class="nav-links">
+            <a href="#sobre" class="nav-link">Sobre o Projeto</a>
+            <a href="#simulador" class="nav-link">Destaque</a>
+            <a href="#recursos" class="nav-link">Recursos</a>
+            <a href="materias.html" class="nav-link main-action">ACESSAR CONTEÚDO</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero-section" id="home">
+            <h2>Transforme seu Aprendizado em Resultados.</h2>
+            <p>
+                Sua plataforma completa de estudos para Ensino Médio e Curiosidades. 
+                Acesse todo o conteúdo programático, exercícios de apoio e simulações interativas.
+            </p>
+            <a href="materias.html" class="hero-button">COMECE A ESTUDAR AGORA <i class="fas fa-arrow-right"></i></a>
+        </section>
+
+        <section class="feature-section" id="simulador">
+            <div class="feature-text">
+                <h3>Simulador em Destaque: Custo Efetivo Total (CET)</h3>
+                <p>
+                    Entenda de forma prática como as taxas de juros, impostos e encargos impactam o custo final de um empréstimo ou financiamento. Nossa ferramenta interativa de Matemática Financeira descomplica o cálculo do CET.
+                </p>
+                <p>
+                    <a href="cet_simulador.html" class="hero-button" style="background-color: #555;">Ver Simulação <i class="fas fa-calculator"></i></a>
+                </p>
+            </div>
+            
+            <div class="feature-image-container">
+                
+                </div>
+        </section>
+
+        <section class="info-section" id="recursos">
+            <h3>Nossos Pilares Educacionais</h3>
+            <div class="info-grid">
+                
+                <div class="info-card">
+                    <i class="fas fa-globe-americas"></i>
+                    <h4>Cobertura Completa</h4>
+                    <p>Todo o conteúdo de Química, Física, Matemática e Programação em um só lugar, seguindo o currículo padrão.</p>
+                </div>
+                
+                <div class="info-card">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <h4>Foco na Prática</h4>
+                    <p>Exercícios de fixação e simuladores interativos (Matemática Financeira, Física) para solidificar o conhecimento.</p>
+                </div>
+                
+                <div class="info-card">
+                    <i class="fas fa-lightbulb"></i>
+                    <h4>Inovação e Expansão</h4>
+                    <p>Nosso projeto está sempre evoluindo, adicionando novas matérias, simuladores e videoaulas a cada mês.</p>
+                </div>
+                
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        &copy; 2025 Plataforma Educacional. Todos os direitos reservados.
+    </footer>
+</body>
+</html>

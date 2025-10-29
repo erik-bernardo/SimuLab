@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Elétrica - Simulação de Potência</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        /* Variáveis de Cores e Estilos */
+        :root {
+            --cor-fundo-app: #ffffff;
+            --cor-fundo-pagina: #f0f4f7;
+            --cor-primaria: #1c2a38; /* Azul escuro */
+            --cor-secundaria: #e74c3c; /* Vermelho (Potência) */
+            --cor-aceleracao: #27ae60; /* Verde/Ciano (Normal) - Usado no Motor */
+            --cor-alerta: #e67e22; /* Laranja (Aviso) - Usado no Motor */
+            --cor-sobrecarga: #c0392b; /* Vermelho Escuro (Perigo) - Usado no Motor */
+            
+            /* NOVAS VARIÁVEIS PARA A SIMULAÇÃO DE APARELHOS */
+            --cor-ligado-ideal: #27ae60; /* Verde */
+            --cor-alerta-luz: #f39c12; /* Laranja Claro (Overload Leve) */
+            --cor-sobrecarga-luz: #e74c3c; /* Vermelho (Queimado/Crítico) */
+            --cor-inativo: #95a5a6; /* Cinza (Initial/Far from ideal) */
+            
+            --sidebar-width: 380px;
+            --header-height: 55px; /* Altura do novo header */
+        }
+
+        /* ----------------------------------- */
+        /* ESTILOS DO HEADER (NOVO) */
+        /* ----------------------------------- */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            height: var(--header-height); 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100; 
+            display: flex;
+            align-items: center; 
+            border-bottom: 1px solid #ddd; 
+            box-sizing: border-box; 
+        }
+
+        .logo-link {
+            text-decoration: none;
+            color: #D2691E; /* Cor Laranja/Marrom do seu index.html */
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 25px; 
+            display: flex;
+            align-items: center;
+            height: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .logo-link:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* --- ESTILOS GERAIS E LAYOUT LATERAL (SIDEBAR ESQUERDA) --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            /* Ajusta o padding-top para acomodar o header */
+            padding-top: var(--header-height); 
+            /* Ajusta o padding-left para acomodar a sidebar */
+            padding-left: var(--sidebar-width); 
+            background-color: var(--cor-fundo-pagina);
+            color: var(--cor-primaria);
+            min-height: 100vh;
+        }
+        
+        /* CONTAINER PRINCIPAL: Fixado na Lateral Esquerda */
+        #mainContainer {
+            position: fixed;
+            top: var(--header-height); /* Desloca abaixo do header */
+            left: 0; 
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height)); /* Ajusta a altura */
+            background-color: var(--cor-fundo-app);
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1); 
+            padding: 20px;
+            overflow-y: auto; 
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        /* --- ESTILO DE INPUTS E CONTROLES --- */
+        #painelControle h2 {
+            color: var(--cor-secundaria);
+            font-size: 1.5em;
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+        .input-group input[type="number"] {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1.1em;
+            text-align: right;
+        }
+
+        /* --- ESTILOS PARA OS SLIDERS DE CONTROLE --- */
+        .slider-control {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 10px; 
+            margin-top: 5px;
+        }
+
+        .slider-control input[type="range"] {
+            flex-grow: 1; 
+            -webkit-appearance: none; 
+            appearance: none;
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .slider-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--cor-primaria); 
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider-control input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--cor-primaria);
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            font-weight: bold;
+            color: var(--cor-primaria);
+            width: 60px; 
+            text-align: right;
+            font-size: 1.1em;
+        }
+
+        /* --- RESULTADO P --- */
+        #resultadoDisplay {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+        }
+        .valor-potencia {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: var(--cor-secundaria);
+            text-align: center;
+            margin: 5px 0 5px;
+        }
+        #calculoFormula {
+            font-size: 1.1em;
+            text-align: center;
+            padding-top: 5px;
+            border-top: 1px dashed #ccc;
+            min-height: 30px;
+        }
+        .MathJax {
+            font-size: 1.1em !important;
+            color: var(--cor-primaria);
+            margin: 5px auto !important;
+        }
+
+        /* --- LISTA DE COMPARAÇÃO DE APARELHOS (Lateral) --- */
+        #listaComparacao {
+            margin-top: 20px;
+            padding: 0 10px 20px;
+            border-top: 1px solid #eee;
+        }
+        #listaComparacao h3 {
+            font-size: 1.2em;
+            color: #34495e;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .aparelho-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+        
+        .aparelho-porcentagem {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: var(--cor-aceleracao); 
+            transition: color 0.3s ease;
+        }
+        .porcentagem-alerta {
+            color: var(--cor-alerta); 
+        }
+        .porcentagem-sobrecarga {
+            color: var(--cor-sobrecarga); 
+            animation: pulse-red 0.5s infinite alternate;
+        }
+
+        @keyframes pulse-red {
+            from { box-shadow: 0 0 0px var(--cor-sobrecarga); }
+            to { box-shadow: 0 0 5px var(--cor-sobrecarga); }
+        }
+        
+        /* --- VISUALIZAÇÃO PRINCIPAL (Motor, Lâmpada e Aparelhos) --- */
+        #visualizacaoPrincipal {
+            padding: 40px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - var(--header-height)); /* Ajusta a altura */
+            text-align: center;
+        }
+        #indicadorPotencia {
+            margin-bottom: 30px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--cor-primaria);
+        }
+        
+        /* --- SIMULAÇÃO DO MOTOR (Mantido) --- */
+        @keyframes girar {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        #motorContainer {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            margin: 30px;
+        }
+        
+        .motor-corpo {
+            width: 180px;
+            height: 100px;
+            background-color: #7f8c8d;
+            border: 4px solid var(--cor-primaria);
+            border-radius: 10px;
+            position: absolute;
+            top: 50px;
+            left: 10px;
+        }
+
+        #rotor {
+            width: 80px;
+            height: 80px;
+            background-color: var(--cor-rotor, var(--cor-aceleracao)); 
+            border-radius: 50%;
+            border: 5px solid #34495e;
+            position: absolute;
+            top: 60px;
+            left: 60px;
+            z-index: 10;
+            
+            animation: girar var(--velocidade-motor, 0s) linear infinite;
+            animation-play-state: paused; 
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+            transition: background-color 0.5s ease;
+        }
+        /* Detalhe do Rotor (Aspas) mantido */
+        #rotor::before, #rotor::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 90%;
+            background-color: #2c3e50;
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 4px;
+        }
+        #rotor::after {
+            transform: translateX(-50%) rotate(90deg);
+        }
+        
+        /* --- SIMULAÇÃO DE APARELHOS NO LADO DIREITO (Aprimorado) --- */
+        #visualizacaoAparelhos {
+            margin-top: 40px;
+            width: 90%;
+            max-width: 700px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        #visualizacaoAparelhos h3 {
+            color: var(--cor-primaria);
+            margin-bottom: 5px;
+        }
+        #aparelhosContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px 0 10px;
+            border-top: 1px dashed #eee;
+        }
+        .aparelho-visual {
+            text-align: center;
+            width: 80px;
+            padding: 5px;
+            border-radius: 5px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            cursor: help;
+            position: relative; /* Para a caveira */
+        }
+        
+        /* Default state: Cinza (Inativo) */
+        .aparelho-visual i {
+            font-size: 3em;
+            color: var(--cor-inativo); 
+            transition: color 0.5s ease, filter 0.5s ease;
+        }
+        
+        /* State 1: Running Ideal (Green) */
+        .aparelho-visual.ideal i {
+            color: var(--cor-ligado-ideal);
+        }
+
+        /* State 2: Overload/Warning (Orange) */
+        .aparelho-visual.alerta i {
+            color: var(--cor-alerta-luz);
+        }
+        
+        /* State 3: Burnt/Critical (Red and Skull) */
+        .aparelho-visual.queimado i {
+            color: var(--cor-sobrecarga-luz); /* Fica vermelho/sobrecarga */
+            filter: none; /* Remove qualquer filtro */
+            opacity: 1;
+            animation: shake 0.5s;
+        }
+
+        /* Styling for the skull overlay */
+        .aparelho-visual .skull-overlay {
+            position: absolute;
+            top: 5px; 
+            left: 50%;
+            transform: translateX(-50%);
+            color: black;
+            font-size: 1.5em; 
+            z-index: 20;
+            display: none;
+            text-shadow: 0 0 5px white; /* Ajuda a destacar a caveira preta */
+        }
+        
+        .aparelho-visual.queimado .skull-overlay {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-3px); }
+            40%, 80% { transform: translateX(3px); }
+        }
+        .aparelho-visual:hover {
+            transform: scale(1.1);
+        }
+        .aparelho-visual span {
+            display: block;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-top: 5px;
+            color: var(--cor-primaria);
+            line-height: 1.1;
+        }
+
+        /* --- SIMULAÇÃO DA LÂMPADA (Mantido) --- */
+        #lampadaSimulacao {
+            display: none; 
+            margin-top: 20px;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Plataforma Educacional
+        </a>
+    </header>
+    <div id="mainContainer">
+        
+        <div id="painelControle">
+            <h2><i class="fas fa-calculator"></i> Cálculo de Potência (P)</h2>
+
+            <div class="input-group">
+                <label for="inputU">Tensão (U) - V</label>
+                <div class="slider-control">
+                    <input type="range" id="inputU" min="0" max="250" step="1" value="127">
+                    <span class="slider-value" id="displayU">127 V</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="inputR">Resistência (R) - $\Omega$</label>
+                <div class="slider-control">
+                    <input type="range" id="inputR" min="1" max="500" step="1" value="100">
+                    <span class="slider-value" id="displayR">100 Ω</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="inputI">Corrente (I) (Amperes, A):</label>
+                <input type="number" id="inputI" value="0.83" step="0.01" min="0" data-key="I">
+            </div>
+            
+            <div id="resultadoDisplay">
+                <div style="text-align: center; font-weight: 600;">Potência Calculada (P)</div>
+                <div class="valor-potencia"><span id="potenciaValor">0.00</span> W</div>
+                
+                <div id="calculoFormula">
+                    <p style="font-style: italic; color: #7f8c8d;">Fórmula Utilizada:</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="listaComparacao">
+            <h3><i class="fas fa-chart-bar"></i> Comparação de Aparelhos</h3>
+            <div id="listaAparelhos">
+                </div>
+        </div>
+
+    </div>
+    
+    <div id="visualizacaoPrincipal">
+        <h1 style="color: var(--cor-secundaria);"><i class="fas fa-bolt"></i> Simulação Dinâmica</h1>
+        <p>A velocidade do Motor e as cores de alerta são controladas pela Potência **P** calculada.</p>
+        
+        <div id="indicadorPotencia">Potência: <span id="visualPotenciaValor" style="color: var(--cor-secundaria);">0.00</span> W</div>
+
+        <div id="motorContainer">
+            <div class="motor-corpo"></div>
+            <div id="rotor"></div>
+        </div>
+        
+        <p id="velocidadeIndicador" style="font-size: 1.2em; font-weight: 600; color: var(--cor-aceleracao);">Motor Parado</p>
+        
+        <div id="lampadaSimulacao">
+            <p style="font-size: 0.9em; color: #7f8c8d;">(Aparelhos de baixo consumo, como uma lâmpada LED)</p>
+            <div class="lamp-bulb"></div>
+            <div class="lamp-base"></div>
+            <div id="alertaSobrecarga">SOBRECARGA! Lâmpada Queimada.</div>
+        </div>
+        
+        <div id="visualizacaoAparelhos">
+            <h3><i class="fas fa-plug"></i> Simulação de Compatibilidade</h3>
+            <p style="font-size: 0.9em; color: #7f8c8d;">Aparelhos **escuros** (cinza) estão inativos. Aparelhos **vermelhos** queimariam.</p>
+            <div id="aparelhosContainer">
+                </div>
+        </div>
+        
+    </div>
+
+    <script>
+        class CircuitoSimulacao {
+            // --- DADOS E REFERÊNCIAS ---
+            P_MIN_MOTOR = 50; 
+            P_MAX_LAMPADA_SEGURA = 20; 
+            VELOCIDADE_MAX_P = 2000; 
+            P_SOBRECARGA_MOTOR = 3000; 
+            DURACAO_MIN_ANIMACAO = 0.1; 
+            DURACAO_MAX_ANIMACAO = 4.0; 
+            
+            // Potências nominais (Média em Watts) para comparação
+            P_NOMINAL_APARELHOS = {
+                'Lâmpada LED (10W)': { P: 10, icon: 'fa-lightbulb' },
+                'Televisão (100W)': { P: 100, icon: 'fa-tv' },
+                'Videogame (150W)': { P: 150, icon: 'fa-gamepad' },
+                'Computador (250W)': { P: 250, icon: 'fa-desktop' },
+                'Impressão 3D (300W)': { P: 300, icon: 'fa-cube' },
+                'Ar Condicionado (900W)': { P: 900, icon: 'fa-fan' },
+                'Microondas (1500W)': { P: 1500, icon: 'fa-microwave' },
+                'Chuveiro Elétrico (5500W)': { P: 5500, icon: 'fa-shower' },
+            };
+
+            constructor() {
+                // Elementos do Slider
+                this.inputU = document.getElementById('inputU');
+                this.displayU = document.getElementById('displayU');
+                this.inputR = document.getElementById('inputR');
+                this.displayR = document.getElementById('displayR');
+                
+                // Input I 
+                this.inputI = document.getElementById('inputI');
+
+                this.potenciaDisplay = document.getElementById('potenciaValor');
+                this.formulaDisplay = document.getElementById('calculoFormula');
+                this.listaAparelhosContainer = document.getElementById('listaAparelhos');
+                
+                // Elementos da Simulação
+                this.rotorElement = document.getElementById('rotor');
+                this.visualPotenciaValor = document.getElementById('visualPotenciaValor');
+                this.velocidadeIndicador = document.getElementById('velocidadeIndicador');
+                this.lampadaSimulacao = document.getElementById('lampadaSimulacao');
+                this.lampadaBulbElement = this.lampadaSimulacao.querySelector('.lamp-bulb');
+                this.alertaSobrecarga = document.getElementById('alertaSobrecarga');
+                
+                // Container para visualização dos aparelhos (lado direito)
+                this.aparelhosContainerVisual = document.getElementById('aparelhosContainer');
+
+                this.configurarEventos();
+                this.inicializarListaAparelhos();
+                this.calcularEAtualizar();
+            }
+
+            // --- FUNÇÕES DE SETUP E CONTROLES ---
+            configurarEventos() {
+                // Sliders U e R - Disparam cálculo em tempo real no evento 'input'
+                this.inputU.addEventListener('input', () => {
+                    this.handleSliderChange(this.inputU, this.displayU, ' V');
+                    this.calcularEAtualizar();
+                });
+                
+                this.inputR.addEventListener('input', () => {
+                    this.handleSliderChange(this.inputR, this.displayR, ' Ω');
+                    this.calcularEAtualizar();
+                });
+
+                // Input I (tipo number) - Dispara cálculo no evento 'input'
+                this.inputI.addEventListener('input', () => {
+                    this.calcularEAtualizar();
+                });
+                
+                // Inicializa os displays dos sliders com os valores iniciais
+                this.handleSliderChange(this.inputU, this.displayU, ' V');
+                this.handleSliderChange(this.inputR, this.displayR, ' Ω');
+            }
+
+            handleSliderChange(slider, display, unit) {
+                const value = parseFloat(slider.value);
+                display.textContent = `${value}${unit}`;
+            }
+
+            pegarValores() {
+                let U = parseFloat(this.inputU.value) || 0;
+                let R = parseFloat(this.inputR.value) || 0;
+                let I = parseFloat(this.inputI.value) || 0; 
+                
+                U = Math.max(0, U);
+                R = Math.max(0, R);
+                I = Math.max(0, I);
+                
+                return { U, R, I };
+            }
+
+            calcularEAtualizar() {
+                let { U, R, I } = this.pegarValores();
+                let P = 0;
+                let formulaTexto = '<p style="font-style: italic; color: #7f8c8d;">Fórmula Utilizada:</p>';
+                let campoCalculado = null; 
+                
+                // --- 1. Decide a fórmula e completa a Lei de Ohm (U=RI) ---
+                if (U > 0 && I > 0) {
+                    R = U / I; 
+                    campoCalculado = this.inputR;
+                    P = U * I;
+                    formulaTexto = `$$P = U \\cdot I \\Rightarrow P = ${U.toFixed(2)} \\cdot ${I.toFixed(2)}$$`;
+                } else if (R > 0 && I > 0) {
+                    U = R * I; 
+                    campoCalculado = this.inputU;
+                    P = R * I * I;
+                    formulaTexto = `$$P = R \\cdot I^2 \\Rightarrow P = ${R.toFixed(2)} \\cdot (${I.toFixed(2)})^2$$`;
+                } else if (U > 0 && R > 0) {
+                    I = U / R; 
+                    campoCalculado = this.inputI;
+                    P = (U * U) / R;
+                    formulaTexto = `$$P = \\frac{U^2}{R} \\Rightarrow P = \\frac{${U.toFixed(2)}^2}{${R.toFixed(2)}}$$`;
+                } else {
+                    P = 0;
+                    formulaTexto = `<p style="font-style: italic; color: #7f8c8d;">Insira pelo menos 2 valores (U, R ou I).</p>`;
+                }
+
+                // --- 2. Atualiza o valor do campo calculado (se houver) ---
+                if (campoCalculado && P > 0.001) {
+                    if (campoCalculado === this.inputI) {
+                        campoCalculado.value = I.toFixed(2);
+                    } else if (campoCalculado === this.inputU) {
+                        campoCalculado.value = U.toFixed(2);
+                        this.handleSliderChange(this.inputU, this.displayU, ' V');
+                    } else if (campoCalculado === this.inputR) {
+                        campoCalculado.value = R.toFixed(2);
+                        this.handleSliderChange(this.inputR, this.displayR, ' Ω');
+                    }
+                }
+                
+                if (isNaN(P) || !isFinite(P) || P < 0) P = 0;
+
+                this.potenciaDisplay.textContent = P.toFixed(2);
+                this.visualPotenciaValor.textContent = P.toFixed(2);
+                this.formulaDisplay.innerHTML = formulaTexto;
+                
+                // --- 4. Atualiza os Visuais e Listas ---
+                this.atualizarMotor(P);
+                this.atualizarListaAparelhos(P); // Lista lateral (comparação percentual)
+                this.renderAparelhosVisual(P); // Visualização central (ícones que rodam/queimam)
+
+                if (window.MathJax) {
+                    MathJax.typesetPromise([this.formulaDisplay]).catch((err) => console.error('MathJax Error:', err));
+                }
+            }
+            
+            // --- FUNÇÕES DE VISUALIZAÇÃO DINÂMICA (Aprimorado) ---
+            renderAparelhosVisual(P_calculada) {
+                let html = '';
+                for (const [nome, dados] of Object.entries(this.P_NOMINAL_APARELHOS)) {
+                    const P_nominal = dados.P;
+                    let classe = '';
+                    let tooltip = '';
+                    let showSkull = false; // Flag para a caveira
+                    
+                    if (P_calculada === 0) {
+                        // Ponto 1: Cinza (Inativo / P=0)
+                        classe = ''; 
+                        tooltip = `${nome} - Potência P=0W. Desligado.`;
+                    } else if (P_calculada < P_nominal * 0.5) {
+                        // Ponto 2: Cinza (Inativo / Muito Longe da ideal W)
+                        classe = ''; 
+                        tooltip = `${nome} - Inativo. P (${P_calculada.toFixed(0)}W) é muito baixa para operar eficientemente.`;
+                    } else if (P_calculada <= P_nominal * 1.1) {
+                        // Ponto 3: Ideal (Verde) - Rodando dentro de 10% do nominal
+                        classe = 'ideal';
+                        tooltip = `${nome} - **IDEAL**. P (${P_calculada.toFixed(0)}W) ~ P_nom (${P_nominal}W).`;
+                    } else if (P_calculada <= P_nominal * 1.5) {
+                        // Ponto 4: Alerta (Laranja) - Sobrecarga leve (entre 10% e 50% acima)
+                        classe = 'alerta';
+                        tooltip = `${nome} - Alerta de Sobrecarga. P (${P_calculada.toFixed(0)}W) > P_nom (${P_nominal}W).`;
+                    } else {
+                        // Ponto 5: Queimado (Vermelho/Caveira) - Sobrecarga Crítica (Mais de 50% acima)
+                        classe = 'queimado';
+                        tooltip = `${nome} - SOBRECARGA CRÍTICA. Aparelho queimaria! P (${P_calculada.toFixed(0)}W) >> P_nom (${P_nominal}W).`;
+                        showSkull = true;
+                    }
+                    
+                    const nomeCurto = nome.split(' (')[0];
+                    
+                    // Inclui a caveira condicionalmente
+                    const skullHtml = showSkull ? `<i class="fas fa-skull skull-overlay"></i>` : ''; 
+
+                    html += `
+                        <div class="aparelho-visual ${classe}" title="${tooltip}">
+                            ${skullHtml} 
+                            <i class="fas ${dados.icon}"></i>
+                            <span>${nomeCurto}</span>
+                        </div>
+                    `;
+                }
+                this.aparelhosContainerVisual.innerHTML = html;
+            }
+
+            // --- FUNÇÃO DE VISUALIZAÇÃO DO MOTOR/LÂMPADA (Mantidas) ---
+            atualizarMotor(P) {
+                let corRotor = 'var(--cor-aceleracao)'; 
+                if (P > this.P_SOBRECARGA_MOTOR) {
+                    corRotor = 'var(--cor-sobrecarga)';
+                } else if (P >= this.VELOCIDADE_MAX_P) {
+                    corRotor = 'var(--cor-alerta)';
+                }
+                this.rotorElement.style.setProperty('--cor-rotor', corRotor);
+
+
+                if (P < this.P_MIN_MOTOR) {
+                    this.rotorElement.style.setProperty('animation-play-state', 'paused');
+                    this.velocidadeIndicador.textContent = 'Motor Parado';
+                    this.velocidadeIndicador.style.color = '#7f8c8d';
+                    
+                } else {
+                    let P_normalizada = Math.min(this.VELOCIDADE_MAX_P, P) - this.P_MIN_MOTOR;
+                    let rangePotencia = this.VELOCIDADE_MAX_P - this.P_MIN_MOTOR;
+                    let fatorVelocidade = P_normalizada / rangePotencia; 
+
+                    let duracao = this.DURACAO_MAX_ANIMACAO - (fatorVelocidade * (this.DURACAO_MAX_ANIMACAO - this.DURACAO_MIN_ANIMACAO));
+                    duracao = Math.max(this.DURACAO_MIN_ANIMACAO, Math.min(this.DURACAO_MAX_ANIMACAO, duracao));
+
+                    this.rotorElement.style.setProperty('--velocidade-motor', `${duracao}s`);
+                    this.rotorElement.style.setProperty('animation-play-state', 'running');
+
+                    let rpm = 60 / duracao;
+                    
+                    if (P > this.P_SOBRECARGA_MOTOR) {
+                        this.velocidadeIndicador.textContent = 'SOBRECARGA CRÍTICA! (Aquecendo)';
+                        this.velocidadeIndicador.style.color = 'var(--cor-sobrecarga)';
+                    } else if (duracao === this.DURACAO_MIN_ANIMACAO) {
+                        this.velocidadeIndicador.textContent = 'VELOCIDADE MÁXIMA (Aviso)';
+                        this.velocidadeIndicador.style.color = 'var(--cor-alerta)';
+                    } else {
+                        this.velocidadeIndicador.textContent = `Velocidade: ${rpm.toFixed(0)} RPM (aproximada)`;
+                        this.velocidadeIndicador.style.color = 'var(--cor-aceleracao)';
+                    }
+                }
+            }
+            
+            // --- FUNÇÕES DA LISTA DE APARELHOS (Lateral) ---
+
+            inicializarListaAparelhos() {
+                let html = '';
+                for (const [nome, dados] of Object.entries(this.P_NOMINAL_APARELHOS)) {
+                    html += `
+                        <div class="aparelho-item" data-aparelho="${nome}">
+                            <div class="aparelho-nome"><i class="fas ${dados.icon}"></i> ${nome}</div>
+                            <div class="aparelho-info">
+                                <span class="aparelho-potencia-nominal">${dados.P} W</span><br>
+                                <span class="aparelho-porcentagem">0%</span>
+                            </div>
+                        </div>
+                    `;
+                }
+                this.listaAparelhosContainer.innerHTML = html;
+            }
+
+            atualizarListaAparelhos(P_calculada) {
+                const itens = this.listaAparelhosContainer.querySelectorAll('.aparelho-item');
+                
+                itens.forEach(item => {
+                    const nomeAparelho = item.getAttribute('data-aparelho');
+                    const dados = this.P_NOMINAL_APARELHOS[nomeAparelho];
+                    const P_nominal = dados.P;
+                    const spanPorcentagem = item.querySelector('.aparelho-porcentagem'); 
+                    
+                    let porcentagem = 0;
+                    let classeCor = '';
+                    
+                    if (P_calculada > 0.001) {
+                        porcentagem = (P_calculada / P_nominal) * 100;
+                        
+                        if (porcentagem > 200) { 
+                            classeCor = 'porcentagem-sobrecarga'; 
+                        } else if (porcentagem > 120) { 
+                            classeCor = 'porcentagem-alerta';
+                        } else {
+                            classeCor = ''; 
+                        }
+                        
+                        const percentualExibido = Math.min(9999, porcentagem); 
+                        spanPorcentagem.textContent = `${percentualExibido.toFixed(1)}%`;
+                        
+                    } else {
+                        spanPorcentagem.textContent = '0%';
+                        classeCor = '';
+                    }
+                    
+                    spanPorcentagem.classList.remove('porcentagem-alerta', 'porcentagem-sobrecarga');
+                    
+                    if (classeCor) {
+                        spanPorcentagem.classList.add(classeCor);
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new CircuitoSimulacao();
+        });
+    </script>
+</body>
+</html>

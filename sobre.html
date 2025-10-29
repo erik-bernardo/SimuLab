@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimuLab: Laboratório Virtual para o Ensino Médio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* ----------------------------------- */
+        /* RESET BÁSICO E ESTILOS GERAIS */
+        /* ----------------------------------- */
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f8f8f8; 
+            color: #333; 
+            scroll-behavior: smooth; /* Para âncoras internas */
+        }
+        
+        /* ----------------------------------- */
+        /* BARRA SUPERIOR DE NAVEGAÇÃO (TOP-BAR) */
+        /* ----------------------------------- */
+        .top-bar { 
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-link {
+            text-decoration: none;
+            color: #D2691E;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            justify-content: flex-end;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #555;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 15px 15px;
+            transition: color 0.3s, background-color 0.3s;
+            display: flex;
+            align-items: center;
+            text-transform: uppercase;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-link.active, .nav-link:hover {
+            color: #D2691E;
+            border-bottom: 3px solid #D2691E;
+            background-color: #f0f0f0;
+        }
+        
+        .hero-button {
+            background-color: #D2691E;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+        }
+
+
+        /* ----------------------------------- */
+        /* ESTILOS ESPECÍFICOS DE 'SOBRE O PROJETO' */
+        /* ----------------------------------- */
+
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .section-header {
+            text-align: center;
+            padding: 40px 0 20px;
+        }
+        
+        .section-header h1 {
+            color: #333;
+            font-size: 2.8em;
+            margin-bottom: 10px;
+        }
+
+        .section-header p {
+            color: #D2691E;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 3fr; /* Menu lateral à esquerda, conteúdo principal à direita */
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        /* MENU LATERAL */
+        .sidebar-menu {
+            background-color: white;
+            padding: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 100px; /* Abaixo da top-bar */
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+            transition: background-color 0.3s, border-left 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: #f0f0f0;
+            border-left: 3px solid #D2691E;
+            color: #D2691E;
+        }
+        
+        /* CONTEÚDO PRINCIPAL (Módulos) */
+        .main-content {
+            padding-top: 5px; /* Ajuste para melhor alinhamento visual */
+        }
+        
+        .content-module {
+            background-color: white;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .content-module h2 {
+            color: #333;
+            font-size: 2em;
+            border-bottom: 2px solid #D2691E;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .content-module h3 {
+            color: #D2691E;
+            margin-top: 25px;
+            font-size: 1.4em;
+        }
+
+        /* Layout de Pilares/Valores (3 Colunas) */
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .pillar-card {
+            padding: 20px;
+            background-color: #f7f7f7;
+            border-left: 5px solid #D2691E;
+            border-radius: 4px;
+        }
+
+        .pillar-card i {
+            font-size: 1.5em;
+            margin-right: 10px;
+            color: #D2691E;
+        }
+
+        /* Layout de Destaques/Conquistas (2 Colunas com Imagem) */
+        .highlight-module {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .highlight-text { flex: 2; }
+        .highlight-image { flex: 1; text-align: center; }
+
+        .highlight-image img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsividade */
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .sidebar-menu {
+                position: static;
+                margin-bottom: 20px;
+            }
+            .highlight-module {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-flask"></i> SIMULAB
+        </a>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-link active">SOBRE</a>
+            <a href="destaque.html" class="nav-link">DESTAQUE</a>
+            <a href="recursos.html" class="nav-link">RECURSOS</a>
+            <a href="materias.html" class="nav-link" id="materias-nav-link">
+                CONTEÚDO
+            </a>
+        </nav>
+    </header>
+
+    <main class="content-container">
+        
+        <div class="section-header">
+            <h1>SimuLab: Laboratório Virtual para o Ensino Médio</h1>
+            <p>METODOLOGIA STEAM e ODS: Tornando o aprendizado teórico em prática simulada.</p>
+        </div>
+
+        <div class="main-grid">
+            
+            <aside class="sidebar-menu">
+                <a href="#quem-somos" class="active">A Origem do SimuLab</a>
+                <a href="#o-que-criamos">O que Criamos?</a>
+                <a href="#pilares">Nossos Pilares</a>
+                <a href="#sonhos">Feitos de Sonhos</a>
+                <hr>
+                <a href="materias.html" style="color: #555;">Acessar Conteúdo <i class="fas fa-arrow-right"></i></a>
+            </aside>
+            
+            <section class="main-content">
+
+                <article class="content-module" id="quem-somos">
+                    <h2>A Origem do SimuLab <i class="fas fa-flask" style="color:#D2691E;"></i></h2>
+                    <div class="highlight-module">
+                        <div class="highlight-text">
+                            <p>
+                                O <strong>SimuLab</strong> nasceu de um <strong>Projeto Livre</strong> obrigatório no 2º ano do Ensino Médio, alinhado à metodologia <strong>STEAM</strong> do SESI. Motivados pela busca por uma <strong>Educação de Qualidade (ODS 4)</strong> mais ativa e moderna, um grupo de alunos identificou a necessidade de uma ponte entre a teoria de sala de aula e a prática laboratorial.
+                            </p>
+                            <p>
+                                Percebemos que as aulas práticas são essenciais, mas nem sempre acessíveis ou viáveis para todos os experimentos complexos. Daí veio a ideia: criar uma plataforma que oferece a experiência de um laboratório no computador.
+                            </p>
+                            
+                            <h3><i class="fas fa-lightbulb"></i> A Linguagem do Nome</h3>
+                            <p>
+                                <strong>SimuLab</strong> é a união perfeita de <strong>Simu</strong>lação e <strong>Lab</strong>oratório. Ou seja, um laboratório simulado. Não é apenas um simulador, é um ambiente virtual que replica a experiência de "mão na massa", permitindo que o aluno explore, erre e aprenda com segurança e a qualquer hora.
+                            </p>
+                        </div>
+                        <div class="highlight-image">
+                            <img src="https://via.placeholder.com/300x200?text=Logo+SimuLab" alt="Logo do Projeto SimuLab">
+                        </div>
+                    </div>
+                </article>
+
+                <article class="content-module" id="o-que-criamos">
+                    <h2>O que Oferecemos Atualmente <i class="fas fa-hammer" style="color:#D2691E;"></i></h2>
+                    <p>
+                        Nosso trabalho principal é o desenvolvimento de <strong>Simuladores Interativos</strong> para as disciplinas de Ciências da Natureza e Matemática. Cada módulo é cuidadosamente planejado para cobrir tópicos complexos, como Química Orgânica, Leis da Física ou o Custo Efetivo Total (CET) em Matemática Financeira.
+                    </p>
+                    
+                    <h3>Estrutura e Desenvolvimento</h3>
+                    <p>
+                        Os simuladores são desenvolvidos utilizando a linguagem  <strong>JavaScript</strong> e ferramentas de design moderno, permitindo que a experiência seja realista e responsiva em qualquer dispositivo. Todo o processo de criação segue a lógica do <strong>Design Thinking</strong> para garantir a usabilidade e o impacto pedagógico.
+                    </p>
+                    
+                    <a href="materias.html" class="hero-button" style="background-color: #555; margin-top: 15px;">Acessar o Conteúdo Completo</a>
+                </article>
+
+                <article class="content-module" id="pilares">
+                    <h2>Os Pilares do Nosso Projeto <i class="fas fa-compass" style="color:#D2691E;"></i></h2>
+                    
+                    <div class="pillars-grid">
+                        <div class="pillar-card">
+                            <h3><i class="fas fa-rocket"></i> Missão</h3>
+                            <p>Oferecer uma alternativa prática e segura ao laboratório físico, inspirando a curiosidade científica e promovendo uma <strong>Educação de Qualidade (ODS 4)</strong> acessível e moderna para todos os estudantes do Ensino Médio.</p>
+                        </div>
+                        <div class="pillar-card">
+                            <h3><i class="fas fa-eye"></i> Visão</h3>
+                            <p>Ser a principal ferramenta digital de apoio ao aprendizado prático para escolas que utilizam a metodologia STEAM, democratizando o acesso a experimentos complexos e inovadores.</p>
+                        </div>
+                        <div class="pillar-card">
+                            <h3><i class="fas fa-heart"></i> Valores</h3>
+                            <p>Inovação, Acessibilidade, Segurança e <strong>Colaboração</strong>, garantindo que o SimuLab seja uma construção coletiva, aberta a feedback e melhorias contínuas.</p>
+                        </div>
+                    </div>
+                    
+                    <h3>Core Values (Valores Fundamentais)</h3>
+                    <p>
+                        O SimuLab adota os valores fundamentais do STEAM, promovendo a multidisciplinaridade, o pensamento crítico e a resolução de problemas do mundo real em todas as etapas do desenvolvimento do projeto.
+                    </p>
+                </article>
+
+                <article class="content-module" id="sonhos">
+                    <h2>Feitos de Sonhos e STEAM <i class="fas fa-star" style="color:#D2691E;"></i></h2>
+                    
+                    <p>
+                        O SimuLab é a prova do potencial da metodologia STEAM em transformar a sala de aula. Corremos contra o tempo e os obstáculos técnicos para realizar diversos projetos que nasceram de uma simples ideia de Projeto Livre.
+                    </p>
+
+                    <div class="pillars-grid">
+                        <div class="pillar-card" style="border-left-color: #555;">
+                            <h3><i class="fas fa-user-check"></i> Protótipo Validado</h3>
+                            <p>Desenvolvemos e validamos o primeiro simulador funcional (Ex.: Leis de Newton/Cálculo de Juros), testado e aprovado por professores e colegas para uso didático.</p>
+                        </div>
+                        <div class="pillar-card" style="border-left-color: #555;">
+                            <h3><i class="fas fa-code"></i> Arquitetura Aberta</h3>
+                            <p>A estrutura do código-fonte foi desenvolvida de forma organizada, permitindo a fácil inclusão de novos simuladores pelas próximas turmas de STEAM.</p>
+                        </div>
+                    
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <a href="#" class="hero-button">Conheça Nosso GitHub <i class="fab fa-github"></i></a>
+                    </div>
+                </article>
+
+            </section>
+        </div>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
+            const sections = document.querySelectorAll('.main-content article');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.3 
+            };
+
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const targetId = entry.target.id;
+                    const correspondingLink = document.querySelector(`.sidebar-menu a[href="#${targetId}"]`);
+                    
+                    if (entry.isIntersecting) {
+                        // Remove 'active' de todos os links que são âncoras (ignora o link "Acessar Conteúdo")
+                        sidebarLinks.forEach(link => {
+                             if (link.href.includes('#')) {
+                                link.classList.remove('active');
+                            }
+                        });
+                        // Adiciona 'active' ao link visível
+                        if (correspondingLink) {
+                            correspondingLink.classList.add('active');
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+            
+            // Garante que o primeiro link (Quem Somos) esteja ativo ao carregar
+            if (sidebarLinks.length > 0 && sidebarLinks[0].href.includes('#')) {
+                sidebarLinks[0].classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

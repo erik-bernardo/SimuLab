@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimuLab: Labirinto Sequencial</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* ----------------------------------- */
+        /* ESTILOS GERAIS E TOP-BAR */
+        /* ----------------------------------- */
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f8f8f8; 
+            color: #333; 
+        }
+        
+        .top-bar { 
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-link {
+            text-decoration: none;
+            color: #1E90FF; 
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #555;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 15px 15px;
+            text-transform: uppercase;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-link[href="recursos.html"] {
+            color: #1E90FF; 
+            border-bottom: 3px solid #1E90FF;
+            background-color: #f0f0f0;
+        }
+
+        /* ----------------------------------- */
+        /* ESTRUTURA E LAYOUT DO SIMULADOR */
+        /* ----------------------------------- */
+        
+        .simulador-container {
+            display: flex;
+            min-height: calc(100vh - 60px); 
+        }
+
+        .painel-blocos {
+            width: 280px;
+            background-color: #3a3f44;
+            color: white;
+            padding: 20px 10px;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .area-programacao {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
+        }
+        
+        .area-visualizacao {
+            width: 450px; 
+            background-color: #fafafa;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Controles */
+        .controles {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .btn-executar, .btn-reset {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-executar { background-color: #4CAF50; color: white; }
+        .btn-reset { background-color: #f44336; color: white; }
+        
+        /* Workspace */
+        .workspace {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: #e8e8e8;
+            overflow-y: auto;
+        }
+        
+        #workspace-blocos {
+            /* ESTILO DE BLOCOS DE PROGRAMAÇÃO APRIMORADO */
+            min-height: 400px; 
+            border: 2px dashed #a0a0a0; 
+            padding: 15px; 
+            background-color: #ffffff; 
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1); 
+            display: flex; 
+            flex-direction: column;
+            gap: 5px; 
+        }
+
+        /* ----------------------------------- */
+        /* ESTILOS DOS BLOCOS DE COMANDO */
+        /* ----------------------------------- */
+
+        .bloco {
+            margin: 0; 
+            border-radius: 8px; 
+            cursor: grab;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+            font-weight: bold;
+            font-size: 1em; 
+            text-align: left; 
+            padding: 10px 15px; 
+            color: white;
+            background-color: #1E90FF; 
+            border: 2px solid #1872CC;
+        }
+        
+        .bloco[data-type^="girar"] {
+             background-color: #FFD700; 
+             border: 2px solid #CCAA00;
+             color: #333;
+        }
+
+        .passos-counter {
+            /* ESTILO DE INPUT DENTRO DO BLOCO */
+            width: 40px; 
+            text-align: center;
+            border: 1px solid white;
+            border-radius: 3px;
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 3px 5px;
+        }
+        
+        .drop-target {
+            border: 2px dashed #1E90FF !important;
+            box-shadow: 0 0 10px rgba(30, 144, 255, 0.5);
+        }
+
+        /* ----------------------------------- */
+        /* ESTILOS DO LABIRINTO E PLAYER */
+        /* ----------------------------------- */
+
+        .labirinto-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            width: 400px;
+            height: 400px;
+            border: 4px solid #333;
+            background-color: #555;
+            position: relative;
+        }
+        
+        .celula {
+            border: 1px solid #777;
+            background-color: #ccc; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+
+        .celula-parede {
+            background-color: #333; 
+            border: none;
+        }
+
+        .celula-inicio, .celula-fim {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .celula-inicio { background-color: #4CAF50; }
+        .celula-fim { background-color: #FF4500; color: white; }
+
+        .player {
+            width: 20%; /* Player ocupa 90% da célula */
+            height: 20%; 
+            background-color: #1E90FF;
+            border-radius: 5px;
+            position: absolute;
+            transition: all 0.5s ease-in-out; 
+            box-sizing: border-box;
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            transform-origin: center center;
+            z-index: 10;
+        }
+        
+        .player i {
+            font-size: 24px; 
+            transition: transform 0.3s ease-in-out;
+            /* Rotação é controlada totalmente pelo JS para precisão */
+        }
+
+    </style>
+</head>
+<body>
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-route"></i> SIMULAB: LABIRINTO
+        </a>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-link">SOBRE</a>
+            <a href="destaque.html" class="nav-link">DESTAQUE</a>
+            <a href="recursos.html" class="nav-link active">RECURSOS</a>
+            <a href="materias.html" class="nav-link">CONTEÚDO</a>
+        </nav>
+    </header>
+
+    <main class="simulador-container">
+        
+        <section class="painel-blocos">
+            <h2><i class="fas fa-puzzle-piece"></i> Comandos de Movimento</h2>
+            
+            <div class="bloco-paleta-wrapper">
+                <div class="bloco" draggable="true" data-type="mover-passos">
+                    MOVER <input type="number" value="1" min="1" max="5" class="passos-counter"> PASSOS
+                </div>
+            </div>
+
+            <div class="bloco-paleta-wrapper">
+                <div class="bloco" draggable="true" data-type="girar-direita">GIRAR 90° DIREITA <i class="fas fa-angle-right"></i></div>
+            </div>
+            
+            <div class="bloco-paleta-wrapper">
+                <div class="bloco" draggable="true" data-type="girar-esquerda">GIRAR 90° ESQUERDA <i class="fas fa-angle-left"></i></div>
+            </div>
+            
+            <p style="font-size: 0.8em; color: #ccc; margin-top: 20px;">
+                * Crie a sequência de movimentos para chegar ao ponto final.
+            </p>
+        </section>
+
+        <section class="area-programacao">
+            <div class="controles">
+                <button class="btn-executar" onclick="executarCodigo()"><i class="fas fa-play"></i> Executar Sequência</button>
+                <button class="btn-reset" onclick="resetSimulador()"><i class="fas fa-redo"></i> Resetar Mapa</button>
+                <span id="log-display" style="margin-left: 20px; color: #1E90FF;">Monte sua primeira rota!</span>
+            </div>
+            
+            <div class="workspace">
+                <div class="workspace-titulo"><i class="fas fa-list-ol"></i> SEQUÊNCIA DE COMANDOS</div>
+                <div id="workspace-blocos">
+                    </div>
+            </div>
+        </section>
+
+        <section class="area-visualizacao">
+            <h2><i class="fas fa-map-marked-alt"></i> Labirinto - Desafio 1</h2>
+            <div class="labirinto-grid" id="labirinto-grid">
+                </div>
+            <div class="corredor-status" id="status-jogo" style="margin-top: 15px;">Objetivo: Chegar à célula FIM.</div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const painelBlocos = document.querySelector('.painel-blocos');
+            const workspace = document.getElementById('workspace-blocos');
+            const logDisplay = document.getElementById('log-display'); 
+            const labirintoGrid = document.getElementById('labirinto-grid');
+            const statusJogo = document.getElementById('status-jogo');
+            
+            let draggedBlock = null;
+            
+            // --- VARIÁVEIS DO JOGO E CONFIGURAÇÃO DE NÍVEIS ---
+            const GRID_SIZE = 5;
+            const CELL_SIZE = 80; 
+            
+            let playerState = {
+                x: 0, 
+                y: 4, 
+                direction: 0, // 0: Norte, 90: Leste, 180: Sul, 270: Oeste
+                isMoving: false,
+            };
+
+            const LEVELS = [
+                // NÍVEL 1: Apenas movimento horizontal
+                {
+                    map: [
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [2, 0, 0, 0, 3] 
+                    ],
+                    start: { x: 0, y: 4 },
+                    end: { x: 4, y: 4 },
+                    goal: "Mova 4 passos para a direita (Leste) para chegar ao FIM. Você já está virado para o Norte (cima) e precisa girar!"
+                },
+                // NÍVEL 2: Sequência e Rotação Simples
+                {
+                    map: [
+                        [0, 0, 0, 3, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [2, 0, 0, 0, 0] 
+                    ],
+                    start: { x: 0, y: 4 },
+                    end: { x: 3, y: 0 },
+                    goal: "Chegue ao FIM (3,0). Sua solução exigirá rotação!"
+                },
+                // NÍVEL 3: Paredes
+                {
+                    map: [
+                        [1, 1, 0, 3, 1],
+                        [1, 0, 0, 0, 1],
+                        [1, 0, 1, 0, 1],
+                        [1, 0, 0, 0, 1],
+                        [2, 0, 1, 1, 1] 
+                    ],
+                    start: { x: 0, y: 4 },
+                    end: { x: 3, y: 0 },
+                    goal: "Chegue ao FIM (3,0). Cuidado com as paredes!"
+                }
+            ];
+            
+            let currentLevel = 0; 
+            let MAPA = LEVELS[currentLevel].map;
+            let START_POS = LEVELS[currentLevel].start;
+            let END_POS = LEVELS[currentLevel].end;
+            
+            
+            // --- FUNÇÃO DE LOG (CORRIGIDA) ---
+            const log = (message, isError = false) => {
+                logDisplay.style.color = isError ? '#f44336' : '#1E90FF';
+                logDisplay.textContent = message;
+            };
+
+            // --- LÓGICA DE VISUALIZAÇÃO DO MAPA E PLAYER ---
+            
+            const createMaze = () => {
+                labirintoGrid.innerHTML = '';
+                for (let y = 0; y < GRID_SIZE; y++) {
+                    for (let x = 0; x < GRID_SIZE; x++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'celula';
+                        
+                        const cellType = MAPA[y][x];
+                        if (cellType === 1) cell.classList.add('celula-parede');
+                        if (cellType === 2) { cell.classList.add('celula-inicio'); cell.textContent = "INÍCIO"; }
+                        if (cellType === 3) { cell.classList.add('celula-fim'); cell.textContent = "FIM"; }
+                        
+                        labirintoGrid.appendChild(cell);
+                    }
+                }
+                const playerElement = document.createElement('div');
+                playerElement.id = 'player';
+                playerElement.className = 'player';
+                playerElement.innerHTML = '<i class="fas fa-location-arrow"></i>';
+                labirintoGrid.appendChild(playerElement);
+            };
+
+            const updatePlayerVisuals = () => {
+                const playerElement = document.getElementById('player');
+                
+                // Posição: (Offset de 0.05 para centralizar o player de 90%)
+                const xOffset = playerState.x * CELL_SIZE + (CELL_SIZE * 0.05); 
+                const yOffset = playerState.y * CELL_SIZE + (CELL_SIZE * 0.05); 
+
+                playerElement.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
+                
+                // Rotação da Seta (Ajuste de -45deg para que 0deg seja o Norte)
+                const totalRotation = playerState.direction - 45; 
+                
+                playerElement.querySelector('i').style.transform = `rotate(${totalRotation}deg)`;
+            };
+
+            // --- LÓGICA DE NÍVEL E RESET ---
+            
+            const loadLevel = (levelIndex) => {
+                if (levelIndex >= LEVELS.length) {
+                    statusJogo.textContent = 'PARABÉNS! Você completou todos os desafios!';
+                    log("Todos os níveis concluídos!");
+                    currentLevel = 0; 
+                } else {
+                    currentLevel = levelIndex;
+                    MAPA = LEVELS[currentLevel].map;
+                    START_POS = LEVELS[currentLevel].start;
+                    END_POS = LEVELS[currentLevel].end;
+                    
+                    document.querySelector('.area-visualizacao h2').innerHTML = 
+                        `<i class="fas fa-map-marked-alt"></i> Labirinto - Desafio ${currentLevel + 1}`;
+                }
+            };
+
+            const resetSimulador = () => {
+                playerState.x = START_POS.x;
+                playerState.y = START_POS.y;
+                playerState.direction = 0; 
+                playerState.isMoving = false;
+                
+                const playerElement = document.getElementById('player');
+                if (playerElement) playerElement.remove();
+                
+                createMaze();
+                updatePlayerVisuals();
+                log(`Nível ${currentLevel + 1} carregado. Crie a sequência!`);
+                statusJogo.textContent = `Objetivo: ${LEVELS[currentLevel].goal}`;
+
+                workspace.innerHTML = '';
+            };
+            window.resetSimulador = resetSimulador;
+
+            // --- LÓGICA DE CRIAÇÃO E DROP DE BLOCOS (Mantida) ---
+            
+            const createCopy = (original) => {
+                const clone = original.cloneNode(true);
+                clone.setAttribute('draggable', 'true');
+                clone.classList.remove('bloco-paleta-wrapper');
+                
+                if (clone.getAttribute('data-type') === 'mover-passos') {
+                    const originalInput = original.querySelector('.passos-counter');
+                    const cloneInput = clone.querySelector('.passos-counter');
+                    if (originalInput && cloneInput) {
+                        cloneInput.value = originalInput.value;
+                        cloneInput.addEventListener('change', (e) => { e.stopPropagation(); });
+                    }
+                }
+                
+                return clone;
+            };
+
+            painelBlocos.querySelectorAll('.bloco').forEach(bloco => {
+                bloco.addEventListener('dragstart', (e) => {
+                    draggedBlock = bloco;
+                    e.dataTransfer.setData('text/plain', 'dragging');
+                });
+            });
+
+            workspace.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                workspace.classList.add('drop-target');
+            });
+            workspace.addEventListener('dragleave', (e) => {
+                workspace.classList.remove('drop-target');
+            });
+            
+            workspace.addEventListener('drop', (e) => {
+                e.preventDefault();
+                workspace.classList.remove('drop-target');
+                
+                if (!draggedBlock) return;
+                
+                const clone = createCopy(draggedBlock);
+                workspace.appendChild(clone);
+                log(`Comando "${clone.textContent.trim().split('\n')[0].trim()}" adicionado à sequência.`);
+                
+                draggedBlock = null; 
+            });
+
+            // --- LÓGICA DE EXECUÇÃO DO CÓDIGO (Mantida) ---
+            
+            const executeMove = async (steps) => {
+                for (let i = 0; i < steps; i++) {
+                    await new Promise(r => setTimeout(r, 400)); 
+                    
+                    let newX = playerState.x;
+                    let newY = playerState.y;
+
+                    // Mapeamento da Direção
+                    if (playerState.direction === 0) newY--;
+                    else if (playerState.direction === 90) newX++;
+                    else if (playerState.direction === 180) newY++;
+                    else if (playerState.direction === 270) newX--;
+
+                    // 1. Checa Limites e Parede
+                    if (newX < 0 || newX >= GRID_SIZE || newY < 0 || newY >= GRID_SIZE) {
+                        log(`ERRO: Fora dos limites! Tentativa em (${newX}, ${newY})`, true);
+                        return false; 
+                    }
+                    if (MAPA[newY][newX] === 1) {
+                        log(`ERRO: Movimento bloqueado por PAREDE em (${newX}, ${newY})!`, true);
+                        return false;
+                    }
+
+                    // Move
+                    playerState.x = newX;
+                    playerState.y = newY;
+                    updatePlayerVisuals();
+                    log(`Moveu para a célula (${newX}, ${newY})`);
+                    
+                    // Checa Fim
+                    if (playerState.x === END_POS.x && playerState.y === END_POS.y) {
+                         return false; 
+                    }
+                }
+                return true; 
+            };
+            
+            const executeRotate = (angle) => {
+                playerState.direction = (playerState.direction + angle) % 360;
+                if (playerState.direction < 0) playerState.direction += 360; 
+                updatePlayerVisuals();
+                log(`GIRANDO para ${playerState.direction}°`);
+            };
+
+            window.executarCodigo = async () => {
+                const program = Array.from(workspace.children);
+                if (program.length === 0) { log("Arrastar blocos para iniciar a sequência.", true); return; }
+
+                if (playerState.isMoving) { log("Aguarde a execução atual terminar.", true); return; }
+                
+                playerState.x = START_POS.x;
+                playerState.y = START_POS.y;
+                playerState.direction = 0; 
+                playerState.isMoving = true;
+                updatePlayerVisuals(); 
+                
+                await new Promise(r => setTimeout(r, 500)); 
+                
+                let success = true;
+
+                for (let i = 0; i < program.length; i++) {
+                    const bloco = program[i];
+                    bloco.style.boxShadow = '0 0 15px yellow';
+                    
+                    const type = bloco.getAttribute('data-type');
+                    
+                    if (playerState.x === END_POS.x && playerState.y === END_POS.y) break; 
+                    
+                    if (type === 'mover-passos') {
+                        const stepsInput = bloco.querySelector('.passos-counter');
+                        const steps = parseInt(stepsInput ? stepsInput.value : 1);
+                        success = await executeMove(steps);
+                        if (!success) break;
+                    } else if (type === 'girar-direita') {
+                        executeRotate(90);
+                    } else if (type === 'girar-esquerda') {
+                        executeRotate(-90);
+                    }
+
+                    bloco.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'; 
+                }
+
+                playerState.isMoving = false;
+                
+                if (playerState.x === END_POS.x && playerState.y === END_POS.y) {
+                    log(`SUCESSO! Nível ${currentLevel + 1} concluído!`, false);
+                    statusJogo.textContent = `SUCESSO: Nível ${currentLevel + 1} completo! Carregando próximo...`;
+                    await new Promise(r => setTimeout(r, 1500)); 
+                    
+                    loadLevel(currentLevel + 1);
+                    resetSimulador(); 
+                } else if (success) { 
+                    log("Sequência executada. Não chegou ao FIM.", true);
+                    statusJogo.textContent = 'FALHA: Não chegou ao destino. Tente outra sequência.';
+                }
+            };
+            
+            // Inicializa o mapa
+            loadLevel(0);
+            resetSimulador(); 
+        });
+    </script>
+</body>
+</html>

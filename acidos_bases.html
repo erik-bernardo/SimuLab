@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Ácido-Base (pH) - V3.0</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* ----------------------------------- */
+        /* ESTILOS GERAIS E LAYOUT */
+        /* ----------------------------------- */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f5;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .header-link {
+            text-decoration: none; 
+            color: #D2691E; 
+            font-weight: bold; 
+            margin-bottom: 10px;
+        }
+        
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px; 
+            gap: 0px; 
+            background-color: white;
+            padding: 0; 
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            flex-grow: 1; 
+            height: calc(100vh - 120px); /* Ajusta altura para caber o footer */
+        }
+
+        /* ----------------------------------- */
+        /* CONTROLES (PAINEL ESQUERDO) */
+        /* ----------------------------------- */
+        .controls {
+            width: 380px; 
+            min-width: 380px;
+            padding: 20px;
+            border-right: 2px solid #ddd; 
+            overflow-y: auto; 
+        }
+
+        .controls label, .controls button, .controls select, .controls input[type="number"], .controls input[type="text"] {
+            display: block;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        
+        .controls label {
+            font-weight: bold;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .controls select, .controls input[type="number"], .controls input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            font-size: 16px;
+        }
+        
+        .controls button {
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        /* Estilos específicos dos botões */
+        #addReagentButton {
+            background-color: #1abc9c; 
+            color: white;
+        }
+        #addReagentButton:hover {
+            background-color: #16a085;
+        }
+        
+        #resetButton {
+            background-color: #95a5a6;
+            color: white;
+        }
+        #resetButton:hover { 
+            background-color: #7f8c8d; 
+        }
+
+        /* PAINÉIS DE INFORMAÇÃO */
+        .data-panel, .property-panel {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+
+        .property-panel {
+            border: 2px solid #333; 
+            background-color: #fffff0; 
+        }
+        
+        .property-panel h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        
+        .property-panel .pH-status {
+            font-weight: bold;
+            font-size: 18px;
+            padding: 5px 0;
+        }
+
+        /* ----------------------------------- */
+        /* ÁREA DE SIMULAÇÃO (DIREITA) */
+        /* ----------------------------------- */
+        .simulation-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #ecf0f1; 
+            border-radius: 0 10px 10px 0; 
+            position: relative;
+        }
+        
+        /* O Beaker/Copo */
+        .beaker {
+            width: 200px;
+            height: 300px;
+            background: #fff;
+            border: 3px solid #333;
+            border-radius: 0 0 15px 15px;
+            position: relative;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80%; 
+            transition: background-color 0.5s ease-out; 
+            background-color: #F0F8FF; /* Neutro/Inicial (Água) */
+        }
+
+        /* Medidor de pH Digital */
+        .ph-meter {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            padding: 10px;
+            background-color: #333;
+            color: #4CAF50; 
+            font-size: 30px;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+        
+        /* Indicador de Piscina */
+        .color-indicator-scale {
+            position: absolute;
+            right: -80px; 
+            top: 50px;
+            width: 50px;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .color-indicator {
+            width: 30px;
+            height: 30px;
+            margin: 5px auto;
+            border-radius: 50%;
+            border: 2px solid #333;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+            transition: background-color 0.5s ease-out;
+        }
+
+        /* ----------------------------------- */
+        /* RODAPÉ (FOOTER) */
+        /* ----------------------------------- */
+        footer {
+            width: 100%;
+            text-align: center;
+            padding: 15px 0;
+            background-color: #333;
+            color: #ccc;
+            font-size: 14px;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            margin-top: auto; /* Empurra para o fundo da página */
+        }
+
+    </style>
+</head>
+<body>
+    <a href="simulacoes.html" class="header-link">
+        <i class="fas fa-arrow-left"></i> Voltar para a Plataforma
+    </a>
+    
+    <h1>Simulador Químico: Equilíbrio Ácido-Base (pH)</h1>
+
+    <div class="container">
+        <div class="controls">
+            <h2>Adicionar Reagente</h2>
+
+            <label for="reagentSelect">Reagente Comum:</label>
+            <select id="reagentSelect">
+                </select>
+
+            <label for="customFormulaInput">Fórmula/Nome:</label>
+            <input type="text" id="customFormulaInput" value="H₂O" placeholder="Ex: H₂SO₄, NaOH, H₂O">
+            
+            <label for="volumeInput">Volume a Adicionar (L):</label>
+            <input type="number" id="volumeInput" value="0.05" min="0.001" max="1.0" step="0.01">
+
+            <label for="concentrationInput">Concentração do Reagente (M):</label>
+            <input type="number" id="concentrationInput" value="1.0" min="0.001" max="5.0" step="0.1">
+
+            <button id="addReagentButton" style="margin-top: 10px;"><i class="fas fa-plus-circle"></i> Adicionar Reagente</button>
+            
+            <button id="resetButton" style="margin-top: 20px;"><i class="fas fa-undo"></i> Resetar Solução (Água Pura)</button>
+
+            <hr style="margin: 20px 0;">
+
+            <div class="data-panel">
+                <h3>Composição da Solução</h3>
+                <p>Volume Total: <span id="totalVolume">1.00 L</span></p>
+                <p>Concentração $[H^+]$: <span id="concH">1.00e-7 M</span></p>
+                <p>Concentração $[OH^-]$: <span id="concOH">1.00e-7 M</span></p>
+            </div>
+
+            <div class="property-panel">
+                <h3>Propriedades Químicas</h3>
+                <p class="pH-status">Status Atual: <span id="phStatus">Neutro</span></p>
+                <p>Nível de Corrosividade: <span id="corrosivityLevel">Baixo</span></p>
+                <p>Exemplo de Uso: <span id="substanceExample">Água Pura</span></p>
+                <p>Avisos: <span id="warnings">Seguro para contato.</span></p>
+            </div>
+
+        </div>
+
+        <div class="simulation-area">
+            
+            <div class="beaker">
+                <div class="liquid" id="solutionLiquid"></div>
+                <div class="ph-meter">
+                    <span id="phValue">7.00</span>
+                    <span>pH</span>
+                </div>
+            </div>
+
+            <div class="color-indicator-scale">
+                <p>Cor na Amostra</p>
+                <div class="color-indicator" id="colorIndicatorSample"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        O conteúdo desta plataforma está em constante atualização e refinamento. Utilize com responsabilidade.
+    </footer>
+
+    <script>
+        // -----------------------------------
+        // 1. VARIÁVEIS DE ESTADO E CONSTANTES
+        // -----------------------------------
+        
+        const KW = 1.0e-14; // Constante de auto-ionização da água [H+][OH-]
+        const INITIAL_VOLUME = 1.0; // Litros
+        
+        let totalVolume = INITIAL_VOLUME;
+        let molesH = 1.0e-7 * totalVolume; 
+        let molesOH = 1.0e-7 * totalVolume; 
+        
+        // Elementos DOM
+        const solutionLiquid = document.getElementById('solutionLiquid');
+        const phValueDisplay = document.getElementById('phValue');
+        const colorIndicatorSample = document.getElementById('colorIndicatorSample');
+        const totalVolumeDisplay = document.getElementById('totalVolume');
+        const concHDisplay = document.getElementById('concH');
+        const concOHDisplay = document.getElementById('concOH');
+        const phStatusDisplay = document.getElementById('phStatus');
+        const corrosivityLevelDisplay = document.getElementById('corrosivityLevel');
+        const substanceExampleDisplay = document.getElementById('substanceExample');
+        const warningsDisplay = document.getElementById('warnings');
+        
+        const reagentSelect = document.getElementById('reagentSelect');
+        const customFormulaInput = document.getElementById('customFormulaInput');
+        const volumeInput = document.getElementById('volumeInput');
+        const concentrationInput = document.getElementById('concentrationInput');
+        const addReagentButton = document.getElementById('addReagentButton');
+        const resetButton = document.getElementById('resetButton');
+
+        // Lista de Reagentes Comuns com suas naturezas
+        const REAGENTS = [
+            { name: "Água Pura", formula: "H₂O", type: "Neutral" },
+            { name: "Ácido de Bateria (H₂SO₄)", formula: "H₂SO₄", type: "StrongAcid" },
+            { name: "Ácido Clorídrico (HCl)", formula: "HCl", type: "StrongAcid" },
+            { name: "Vinagre (CH₃COOH)", formula: "CH₃COOH", type: "WeakAcid" },
+            { name: "Refrigerante de Cola", formula: "H₃PO₄ (Diluído)", type: "WeakAcid" },
+            { name: "Bicarbonato de Sódio", formula: "NaHCO₃", type: "WeakBase" },
+            { name: "Amônia (NH₃)", formula: "NH₃", type: "ModerateBase" },
+            { name: "Leite de Magnésia", formula: "Mg(OH)₂", type: "WeakBase" },
+            { name: "Soda Cáustica (NaOH)", formula: "NaOH", type: "StrongBase" },
+        ];
+
+
+        // -----------------------------------
+        // 2. MODELO QUÍMICO
+        // -----------------------------------
+        
+        function calculatepH() {
+            let concH = molesH / totalVolume;
+            let concOH = molesOH / totalVolume;
+
+            let netH = concH - concOH;
+            let pH;
+            
+            if (netH > 1e-12) {
+                pH = -Math.log10(netH);
+            } else if (netH < -1e-12) {
+                let netOH = Math.abs(netH);
+                concH = KW / netOH;
+                pH = -Math.log10(concH);
+            } else {
+                pH = 7.0;
+            }
+            
+            return Math.max(0.00, Math.min(14.00, pH));
+        }
+
+        function getReagentType(reagentName) {
+            const selectedReagent = REAGENTS.find(r => r.name === reagentName);
+            return selectedReagent ? selectedReagent.type : "Custom";
+        }
+
+        function updateSolution() {
+            const volAdded = parseFloat(volumeInput.value);
+            const concAdded = parseFloat(concentrationInput.value);
+            const reagentName = reagentSelect.value;
+            const reagentType = getReagentType(reagentName);
+
+            if (isNaN(volAdded) || isNaN(concAdded) || volAdded <= 0 || concAdded <= 0) {
+                alert("Por favor, insira valores válidos (> 0) para Volume e Concentração.");
+                return;
+            }
+
+            const molesAdded = volAdded * concAdded;
+            let addedH = 0;
+            let addedOH = 0;
+            let isNeutral = false;
+
+            // Define o que está sendo adicionado com base no tipo
+            switch(reagentType) {
+                case "StrongAcid": addedH = molesAdded; break;
+                case "WeakAcid": addedH = molesAdded * 0.01; break;
+                case "StrongBase": addedOH = molesAdded; break;
+                case "ModerateBase": addedOH = molesAdded * 0.5; break;
+                case "WeakBase": addedOH = molesAdded * 0.01; break;
+                case "Neutral":
+                case "Custom":
+                default: isNeutral = true; break;
+            }
+            
+            if (!isNeutral) {
+                molesH += addedH;
+                molesOH += addedOH;
+            }
+
+            // Lógica de Neutralização
+            const netMoles = molesH - molesOH;
+            
+            if (netMoles > 1e-15 * totalVolume) {
+                molesH = netMoles;
+                molesOH = 0; // OOH- que sobrar será da auto-ionização do novo volume
+            } else if (netMoles < -1e-15 * totalVolume) {
+                molesOH = Math.abs(netMoles);
+                molesH = 0; // O H+ que sobrar será da auto-ionização do novo volume
+            } else {
+                molesH = 0;
+                molesOH = 0;
+            }
+
+            // Atualiza Volume
+            totalVolume += volAdded;
+            
+            // Re-adiciona a auto-ionização da água ao novo volume
+            const autoIonizationMoles = 1.0e-7 * totalVolume;
+            if (molesH === 0 && molesOH === 0) {
+                 molesH = autoIonizationMoles;
+                 molesOH = autoIonizationMoles;
+            } else if (molesH > 0) {
+                molesOH = autoIonizationMoles;
+            } else if (molesOH > 0) {
+                molesH = autoIonizationMoles;
+            }
+            
+            updateDisplay();
+        }
+
+        function resetSolution() {
+            totalVolume = INITIAL_VOLUME;
+            molesH = 1.0e-7 * totalVolume;
+            molesOH = 1.0e-7 * totalVolume;
+            updateDisplay();
+        }
+
+        // -----------------------------------
+        // 3. FUNÇÕES DE VISUALIZAÇÃO E PROPRIEDADES (REVISADAS)
+        // -----------------------------------
+
+        /**
+         * NOVO: Mapeia o pH para uma cor baseada em um indicador universal (simulação).
+         * @param {number} pH O valor de pH atual.
+         * @returns {string} O código de cor (Hex) ou nome da cor CSS.
+         */
+        function getLiquidColor(pH) {
+            if (pH <= 2.0) return '#FF0000'; // Vermelho (Ácido Forte)
+            if (pH <= 4.0) return '#FF4500'; // Laranja avermelhado
+            if (pH <= 6.0) return '#FFA500'; // Laranja
+            if (pH <= 6.5) return '#FFFF00'; // Amarelo
+            if (pH <= 7.5) return '#008000'; // Verde (Neutro)
+            if (pH <= 9.0) return '#00FFFF'; // Ciano
+            if (pH <= 11.0) return '#0000FF'; // Azul
+            if (pH <= 12.0) return '#4B0082'; // Índigo/Violeta
+            return '#8A2BE2'; // Roxo/Violeta (Base Forte)
+        }
+        
+        function getProperties(pH, formula) {
+            if (pH <= 1.0) {
+                return {
+                    status: "ÁCIDO SUPER-FORTE",
+                    corrosivity: "EXTREMAMENTE CORROSIVO",
+                    example: `Ácido de Bateria (H₂SO₄)`,
+                    warning: "Nível de risco extremo. Causa necrose tecidual imediata."
+                };
+            } else if (pH <= 4.0) {
+                return {
+                    status: "ÁCIDO FORTE/MODERADO",
+                    corrosivity: "ALTA CORROSIVIDADE",
+                    example: "Suco de Limão, Vinagre",
+                    warning: "Fortemente irritante para pele, olhos e trato respiratório."
+                };
+            } else if (pH < 7.0) {
+                return {
+                    status: "ÁCIDO FRACO",
+                    corrosivity: "BAIXA/NULA",
+                    example: "Leite, Café, Chuva Ácida",
+                    warning: "Seguro, mas pode causar azia/irritação leve."
+                };
+            } else if (pH === 7.0) {
+                return {
+                    status: "NEUTRO",
+                    corrosivity: "BAIXO",
+                    example: "Água Pura, Solução Salina",
+                    warning: "Seguro para contato e consumo. Condição ideal."
+                };
+            } else if (pH <= 10.0) {
+                return {
+                    status: "BASE FRACA",
+                    corrosivity: "BAIXA/NULA",
+                    example: "Bicarbonato de Sódio, Sabão",
+                    warning: "Seguro em diluições. Evitar contato com os olhos."
+                };
+            } else if (pH <= 13.0) {
+                return {
+                    status: "BASE FORTE/CÁUSTICA",
+                    corrosivity: "ALTA CORROSIVIDADE",
+                    example: "Amônia, Alvejante, Leite de Magnésia",
+                    warning: "Causa queimaduras químicas e irritação grave na pele. Usar luvas."
+                };
+            } else { // pH > 13.0
+                return {
+                    status: "BASE SUPER-FORTE (CÁUSTICA)",
+                    corrosivity: "EXTREMAMENTE CORROSIVO",
+                    example: `Soda Cáustica (NaOH), Limpadores Concentrados`,
+                    warning: "Nível de risco extremo. Causa saponificação tecidual grave. NUNCA tocar."
+                };
+            }
+        }
+
+        // -----------------------------------
+        // 4. FUNÇÃO PRINCIPAL DE ATUALIZAÇÃO
+        // -----------------------------------
+
+        function updateDisplay() {
+            const pH = calculatepH();
+            const color = getLiquidColor(pH);
+            const concH = molesH / totalVolume;
+            const concOH = molesOH / totalVolume;
+            const currentFormula = customFormulaInput.value;
+            const properties = getProperties(pH, currentFormula);
+            
+            // 1. Atualiza o pH no medidor digital
+            phValueDisplay.textContent = pH.toFixed(2);
+
+            // 2. Atualiza a cor do líquido e do indicador
+            solutionLiquid.style.backgroundColor = color;
+            colorIndicatorSample.style.backgroundColor = color;
+
+            // 3. Atualiza Mols e Volume
+            totalVolumeDisplay.textContent = `${totalVolume.toFixed(2)} L`;
+            concHDisplay.textContent = `${concH.toExponential(2)} M`;
+            concOHDisplay.textContent = `${concOH.toExponential(2)} M`;
+            
+            // 4. Atualiza o painel de propriedades
+            phStatusDisplay.textContent = properties.status;
+            corrosivityLevelDisplay.textContent = properties.corrosivity;
+            substanceExampleDisplay.textContent = properties.example;
+            warningsDisplay.textContent = properties.warning;
+            
+            // Atualiza a cor do status para dar um feedback visual
+            if (pH < 6.5) {
+                phStatusDisplay.style.color = '#e74c3c'; // Vermelho para ácido
+            } else if (pH > 7.5) {
+                phStatusDisplay.style.color = '#3498db'; // Azul para base
+            } else {
+                phStatusDisplay.style.color = '#27ae60'; // Verde para neutro
+            }
+        }
+
+        // -----------------------------------
+        // 5. LISTENERS E INICIALIZAÇÃO
+        // -----------------------------------
+        
+        function populateReagents() {
+            REAGENTS.forEach(reagent => {
+                const option = document.createElement('option');
+                option.value = reagent.name;
+                option.textContent = reagent.name;
+                reagentSelect.appendChild(option);
+            });
+            reagentSelect.value = "Água Pura"; 
+        }
+        
+        // Listener para atualizar a fórmula quando o reagente é selecionado
+        reagentSelect.addEventListener('change', () => {
+            const selectedName = reagentSelect.value;
+            const selectedReagent = REAGENTS.find(r => r.name === selectedName);
+            if (selectedReagent) {
+                customFormulaInput.value = selectedReagent.formula;
+            }
+        });
+
+
+        addReagentButton.addEventListener('click', updateSolution);
+        resetButton.addEventListener('click', resetSolution);
+
+        // Garante que o usuário não consiga esvaziar a solução ou usar concentração zero
+        [volumeInput, concentrationInput].forEach(input => {
+            input.addEventListener('input', () => {
+                let val = parseFloat(input.value);
+                if (isNaN(val) || val <= 0) {
+                    input.value = 0.001;
+                }
+            });
+        });
+        
+        // Inicialização
+        populateReagents();
+        updateDisplay(); 
+    </script>
+</body>
+</html>

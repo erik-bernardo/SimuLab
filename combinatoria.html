@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise Combinatória - Calculadora Avançada</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    
+    <style>
+        /* ----------------------------------- */
+        /* VARIÁVEIS E ESTILOS GERAIS */
+        /* ----------------------------------- */
+        :root {
+            --sidebar-width: 400px;
+            --cor-primaria: #D2691E; 
+            --cor-secundaria: #34495e; 
+            --cor-matematica: #00796b; 
+            --cor-fundo: #f8f8f8;
+            --cor-fundo-card: #ffffff;
+            --cor-borda: #ccc;
+            --cor-resultado: #2980b9; 
+            --header-height: 55px;
+            --cor-simulacao-arranjo: #81c784; 
+            --cor-simulacao-combinacao: #4fc3f7; 
+            --cor-simulacao-repeticao: #ffcc80; 
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--cor-secundaria);
+            display: flex; 
+            flex-direction: column;
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        /* ----------------------------------- */
+        /* LAYOUT PRINCIPAL (Sidebar + Content) */
+        /* ----------------------------------- */
+        .main-content-wrapper {
+            display: flex;
+            flex-grow: 1; 
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .controls-panel {
+            width: var(--sidebar-width); 
+            height: 100%;
+            overflow-y: auto; 
+            background-color: var(--cor-fundo);
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box; 
+            flex-shrink: 0;
+        }
+        
+        .result-panel {
+            flex-grow: 1; 
+            background-color: var(--cor-fundo-card);
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* ----------------------------------- */
+        /* BOTÕES, INPUTS E CONTROLES (Mantidos) */
+        /* ----------------------------------- */
+        h1 {
+            color: var(--cor-matematica);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-button {
+            flex-grow: 1;
+            padding: 15px 10px;
+            border: none;
+            background-color: #ecf0f1;
+            color: var(--cor-secundaria);
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            text-align: center;
+        }
+        
+        .tab-button.active {
+            background-color: var(--cor-matematica);
+            color: white;
+        }
+        
+        .tab-content {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: var(--cor-fundo-card);
+        }
+        
+        .input-group input[type="number"] {
+            width: calc(100% - 12px);
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1.1em;
+            text-align: center;
+        }
+        
+        .repetition-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border: 1px solid #e0efff;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* ----------------------------------- */
+        /* ÁREA DE RESULTADOS */
+        /* ----------------------------------- */
+
+        .result-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f4f9fc;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--cor-resultado);
+        }
+
+        .result-section h2 {
+            color: var(--cor-resultado);
+            margin-top: 0;
+            border-bottom: 1px dashed #ddd;
+            padding-bottom: 10px;
+        }
+        
+        .result-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--cor-matematica);
+            margin-top: 15px;
+            text-align: center;
+            word-break: break-all;
+        }
+        
+        /* ESTILOS DO PASSO A PASSO E SIMULAÇÃO */
+        .step-by-step-box, .simulation-container {
+            background-color: white;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+        }
+        
+        .simulation-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            max-height: 400px; 
+            overflow-y: auto;
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .sequence-item {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-family: monospace;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .item-arranjo {
+            background-color: var(--cor-simulacao-arranjo);
+            color: #004d40;
+        }
+        
+        .item-arranjo-rep {
+            background-color: var(--cor-simulacao-repeticao);
+            color: var(--cor-secundaria);
+        }
+        
+        .item-combinacao {
+            background-color: var(--cor-simulacao-combinacao);
+            color: #01579b;
+        }
+        
+        .simulation-limit-warning {
+            color: #e67e22;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            padding: 5px;
+            background-color: #fef0e7;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-book-reader"></i> PLATAFORMA
+        </a>
+
+        <div class="nav-buttons">
+            <a href="index.html" class="nav-button"><i class="fas fa-arrow-up"></i> MATÉRIAS</a>
+            <a href="exercicios_index.html" class="nav-button"><i class="fas fa-arrow-down"></i> EXE. DE APOIO</a>
+            <a href="videoaula_index.html" class="nav-button"><i class="fas fa-arrow-down"></i> VIDEO AULA</a>
+            
+            <button class="nav-button more-options">...</button>
+        </div>
+    </header>
+
+    <div class="main-content-wrapper">
+        
+        <div class="controls-panel">
+            <h1><i class="fas fa-cubes"></i> Análise Combinatória</h1>
+            
+            <div class="tab-buttons">
+                <button class="tab-button active" data-op="ARRANJO" onclick="setOperation('ARRANJO')">
+                    <i class="fas fa-sort-numeric-up-alt"></i> Arranjo
+                </button>
+                <button class="tab-button" data-op="COMBINACAO" onclick="setOperation('COMBINACAO')">
+                    <i class="fas fa-layer-group"></i> Combinação
+                </button>
+                <button class="tab-button" data-op="FATORIAL" onclick="setOperation('FATORIAL')">
+                    <i class="fas fa-exclamation"></i> Fatorial
+                </button>
+            </div>
+            
+            <div id="operation-content" class="tab-content">
+                </div>
+
+        </div>
+
+        <div id="result-container" class="result-panel">
+            <div class="result-section">
+                <h2>Seja Bem-Vindo!</h2>
+                <p>Selecione uma das operações ao lado (Arranjo, Combinação ou Fatorial) e insira os valores para ver a fórmula, o passo a passo da solução e, para valores pequenos, a **Simulação Prática** de todas as possibilidades geradas com as ${baseElements.length} letras do alfabeto.</p>
+            </div>
+        </div>
+    </div>
+
+    
+    <script>
+        
+        let currentOperation = 'ARRANJO'; 
+        const SIMULATION_LIMIT = 60; // Limite máximo de resultados para a simulação prática
+        const baseElements = Array.from({length: 26}, (_, i) => String.fromCharCode(65 + i)); // A, B, C... Z
+
+
+        // --- FUNÇÕES MATEMÁTICAS (BigInt) ---
+
+        function factorial(n) {
+            n = Number(n);
+            if (n < 0) return 0n;
+            if (n === 0) return 1n;
+            let result = 1n;
+            for (let i = 2; i <= n; i++) {
+                result *= BigInt(i);
+            }
+            return result;
+        }
+        
+        function arrangement(n, k) {
+            n = Number(n);
+            k = Number(k);
+            if (k > n || n < 0 || k < 0) return 0n;
+            
+            let numerator = 1n;
+            for (let i = 0; i < k; i++) {
+                numerator *= BigInt(n - i);
+            }
+            return numerator;
+        }
+
+        function combination(n, k) {
+            n = Number(n);
+            k = Number(k);
+            if (k > n || n < 0 || k < 0) return 0n;
+            
+            if (k > n / 2) k = n - k;
+            
+            let numerator = 1n;
+            for (let i = 0; i < k; i++) {
+                numerator *= BigInt(n - i);
+            }
+            return numerator / factorial(k);
+        }
+        
+        // --- FUNÇÕES DE GERAÇÃO DE SEQUÊNCIA (Gera até o limite especificado) ---
+
+        /** Gera sequências até o limite (limit) */
+        function generateAllSequences(n, k, op, limit, allowRepetition = false) {
+            const elements = baseElements.slice(0, n);
+            let results = [];
+            
+            if (op === 'ARRANJO' || op === 'FATORIAL') {
+                // Arranjo (Sequência Ordenada)
+                function generate(current) {
+                    if (results.length >= limit) return;
+                    if (current.length === k) {
+                        results.push(current.join(''));
+                        return;
+                    }
+
+                    for (let i = 0; i < n; i++) {
+                        const element = elements[i];
+                        if (allowRepetition || !current.includes(element)) {
+                            generate([...current, element]);
+                             if (results.length >= limit) return; // Parar propagação
+                        }
+                    }
+                }
+                generate([]);
+                
+            } else if (op === 'COMBINACAO') {
+                // Combinação (Grupo Não Ordenado, Sem Repetição)
+                function generate(startIndex, current) {
+                    if (current.length === k) {
+                        results.push(current.sort().join(', ')); 
+                        return;
+                    }
+                    
+                    for (let i = startIndex; i < n; i++) {
+                        if (results.length >= limit) return; // Parar se atingir o limite antes de recursão
+                        generate(i + 1, [...current, elements[i]]);
+                    }
+                }
+                generate(0, []);
+                // Filtra e limita no final para garantir unicidade e o limite, pois a recursão é mais difícil de limitar 
+                // para Combinação devido à ordem
+                results = [...new Set(results)].slice(0, limit); 
+            }
+            
+            return results;
+        }
+
+        // --- FUNÇÕES DE RENDERIZAÇÃO ---
+
+        /** Constrói o passo a passo da fórmula. (Sem alterações, apenas mantida) */
+        function buildStepByStep(op, n, k, allowRepetition = false) {
+            if (n < 0 || (op !== 'FATORIAL' && (k < 0 || k > n && !allowRepetition))) return '<p>Passo a passo indisponível devido a valores inválidos.</p>';
+            
+            let steps = '';
+            
+            if (op === 'FATORIAL') {
+                let factors = [];
+                for (let i = n; i >= 1; i--) {
+                    factors.push(i);
+                }
+                steps = `
+                    <p><strong>1. Conceito:</strong> O Fatorial de $n$ é o produto de todos os números inteiros positivos de $n$ até 1.</p>
+                    <div class="step-line">$$${n}! = ${factors.join(' \\times ')}$$</div>
+                    <p><strong>2. Cálculo:</strong></p>
+                    <div class="step-line">${factors.join(' &times; ')}</div>
+                `;
+
+            } else if (op === 'ARRANJO') {
+                if (allowRepetition) {
+                    steps = `
+                        <p><strong>1. Fórmula:</strong> Arranjo com Repetição é calculado como $n^k$ (o número de opções em cada uma das $k$ posições).</p>
+                        <div class="step-line">$$\\text{Total} = n^k = ${n}^{k}$$</div>
+                        <p><strong>2. Expansão:</strong></p>
+                        <div class="step-line">$$\\text{Total} = \\underbrace{${n} \\times ${n} \\times \\dots \\times ${n}}_{k \\text{ vezes}}$$</div>
+                    `;
+                } else {
+                    const n_k_fact = n - k;
+                    let expansion = [];
+                    for (let i = 0; i < k; i++) {
+                        expansion.push(n - i);
+                    }
+                    steps = `
+                        <p><strong>1. Fórmula:</strong> $A_{n,k}$ é calculado como:</p>
+                        <div class="step-line">$$A_{n,k} = \\frac{n!}{(n-k)!} = \\frac{${n}!}{${n_k_fact}!}$$</div>
+                        <p><strong>2. Expansão (Cancelamento):</strong> Multiplicação dos ${k} primos fatores descendentes de $n$.</p>
+                        <div class="step-line">$$A_{n,k} = ${expansion.join(' \\times ')}$$</div>
+                    `;
+                }
+            } else if (op === 'COMBINACAO') {
+                const n_k_fact = n - k;
+                let numerator_expansion = [];
+                for (let i = 0; i < k; i++) {
+                    numerator_expansion.push(n - i);
+                }
+                let k_fact_factors = [];
+                for (let i = k; i >= 1; i--) {
+                    k_fact_factors.push(i);
+                }
+                steps = `
+                    <p><strong>1. Fórmula:</strong> $C_{n,k}$ é calculado como:</p>
+                    <div class="step-line">$$C_{n,k} = \\frac{n!}{k!(n-k)!} = \\frac{${n}!}{${k}! \\times ${n_k_fact}!}$$</div>
+                    <p><strong>2. Expansão (Simplificada):</strong></p>
+                    <div class="step-line">$$C_{n,k} = \\frac{${numerator_expansion.join(' \\times ')}}{${k_fact_factors.join(' \\times ')}}$$</div>
+                `;
+            }
+            
+            return `<div class="step-by-step-box">${steps}</div>`;
+        }
+        
+        /** Constrói a visualização prática (listagem de resultados) com limite e contador. */
+        function buildSimulationVisualization(op, n, k, totalCount, allowRepetition = false) {
+            
+            if (totalCount === 0n) {
+                 return '<p class="simulation-limit-warning" style="color: #c0392b; background-color: #fcebeb;"><i class="fas fa-times-circle"></i> O resultado é zero (valores inválidos).</p>';
+            }
+
+            const totalCountNum = Number(totalCount);
+            const isLimited = totalCountNum > SIMULATION_LIMIT;
+            const limit = isLimited ? SIMULATION_LIMIT : totalCountNum;
+
+            let sequences = [];
+            let vizHtml = '';
+            
+            try {
+                // Gera as sequências até o limite (SIMULATION_LIMIT)
+                sequences = generateAllSequences(n, k, op, limit, allowRepetition); 
+            } catch (e) {
+                 return `<div class="simulation-container"><p class="simulation-limit-warning" style="color: #c0392b; background-color: #fcebeb;"><i class="fas fa-times-circle"></i> Erro ao gerar a simulação: ${e.message}</p></div>`;
+            }
+            
+            // Tratamento da exibição da lista
+            const itemClass = op === 'ARRANJO' 
+                ? (allowRepetition ? 'item-arranjo-rep' : 'item-arranjo') 
+                : 'item-combinacao';
+            
+            const typeName = op === 'ARRANJO' 
+                ? (allowRepetition ? 'Arranjos (Com Repetição)' : 'Arranjos (Sem Repetição)')
+                : 'Combinações (Sem Ordem/Repetição)';
+
+            let gridContent = sequences.map(seq => `<span class="sequence-item ${itemClass}">${seq}</span>`).join('');
+            
+            if (isLimited) {
+                const remaining = totalCount - BigInt(SIMULATION_LIMIT);
+                gridContent += `
+                    <span class="sequence-item" style="background-color: #ddd; color: #555;">...</span>
+                    <span class="sequence-item" style="background-color: #f39c12; color: white;">+ ${remaining.toLocaleString('pt-BR')} (restantes)</span>
+                `;
+            }
+
+            // HTML Final
+            vizHtml = `
+                <p><strong>Total de ${typeName} (${totalCount.toLocaleString('pt-BR')} resultados):</strong></p>
+                <div class="simulation-grid">
+                    ${gridContent}
+                </div>
+                <p style="font-size: 0.9em; margin-top: 10px;">Elementos base usados: ${baseElements.slice(0, n).join(', ')}</p>
+                ${isLimited ? `<p class="simulation-limit-warning"><i class="fas fa-exclamation-triangle"></i> **Simulação Parcial:** Apenas os primeiros ${SIMULATION_LIMIT} resultados são exibidos para manter a performance.</p>` : ''}
+            `;
+            
+            return `<div class="simulation-container"><h3>Simulação Prática de Todas as Possibilidades</h3>${vizHtml}</div>`;
+        }
+
+
+        function setOperation(op) {
+            currentOperation = op;
+            
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.op === op) {
+                    btn.classList.add('active');
+                }
+            });
+
+            updateInputForm();
+            calculateAndDisplayResult();
+        }
+
+        function updateInputForm() {
+            const container = document.getElementById('operation-content');
+            let html = '';
+
+            if (currentOperation === 'FATORIAL') {
+                html = `
+                    <h3>Calcular $n!$ (Permutação)</h3>
+                    <div class="input-group">
+                        <label for="n_fatorial">Valor de n:</label>
+                        <input type="number" id="n_fatorial" min="0" max="26" value="5" oninput="calculateAndDisplayResult()">
+                        <div class="input-explanation">O número de elementos (n) a serem totalmente ordenados (máx. 26).</div>
+                    </div>
+                `;
+            } else if (currentOperation === 'ARRANJO') {
+                 html = `
+                    <h3>Calcular Arranjo ($A_{n,k}$)</h3>
+                    <div class="repetition-toggle" onclick="document.getElementById('allow_repetition').click()">
+                        <input type="checkbox" id="allow_repetition" onchange="calculateAndDisplayResult()">
+                        <label for="allow_repetition"><i class="fas fa-redo-alt"></i> Permitir Repetição nos Elementos? (n^k)</label>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="n_arranjo">Valor de n (Total):</label>
+                        <input type="number" id="n_arranjo" min="0" max="26" value="4" oninput="calculateAndDisplayResult()">
+                        <div class="input-explanation">Total de elementos disponíveis (letras A, B, C...). Máx. 26.</div>
+                    </div>
+                    <div class="input-group">
+                        <label for="k_arranjo">Valor de k (Tamanho da Sequência):</label>
+                        <input type="number" id="k_arranjo" min="0" value="3" oninput="calculateAndDisplayResult()">
+                        <div class="input-explanation">Número de elementos a serem escolhidos e ordenados.</div>
+                    </div>
+                `;
+            } else if (currentOperation === 'COMBINACAO') {
+                html = `
+                    <h3>Calcular Combinação ($C_{n,k}$)</h3>
+                    <div class="input-group">
+                        <label for="n_combinacao">Valor de n (Total):</label>
+                        <input type="number" id="n_combinacao" min="0" max="26" value="5" oninput="calculateAndDisplayResult()">
+                        <div class="input-explanation">Total de elementos disponíveis (letras A, B, C...). Máx. 26.</div>
+                    </div>
+                    <div class="input-group">
+                        <label for="k_combinacao">Valor de k (Tamanho do Grupo):</label>
+                        <input type="number" id="k_combinacao" min="0" value="3" oninput="calculateAndDisplayResult()">
+                        <div class="input-explanation">Número de elementos a serem escolhidos (a ordem não importa).</div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function calculateAndDisplayResult() {
+            const container = document.getElementById('result-container');
+            let formulaTex = '';
+            let calculation = 0n;
+            let title = '';
+            let valid = true;
+            let errorMsg = '';
+            let n_val = NaN, k_val = NaN;
+            let allowRepetition = false;
+            
+            const n_input = (id) => document.getElementById(id) ? parseInt(document.getElementById(id).value) : NaN;
+
+            if (currentOperation === 'FATORIAL') {
+                n_val = n_input('n_fatorial');
+                k_val = n_val; 
+                title = `Resultado do Fatorial (${n_val}!)`;
+
+                if (isNaN(n_val) || n_val < 0 || n_val > 26) {
+                    valid = false;
+                    errorMsg = 'O valor de "n" deve ser um inteiro entre 0 e 26.';
+                } else {
+                    formulaTex = `$$\\text{Total} = ${n_val}!$$`;
+                    calculation = factorial(n_val);
+                }
+
+            } else if (currentOperation === 'ARRANJO') {
+                allowRepetition = document.getElementById('allow_repetition') ? document.getElementById('allow_repetition').checked : false;
+                n_val = n_input('n_arranjo');
+                k_val = n_input('k_arranjo');
+                
+                if (allowRepetition) {
+                    title = `Resultado do Arranjo com Repetição (${n_val}^{k_val})`;
+                    // Limite alto para n e k para Repetição, mas mantemos 26 para simulação base
+                    if (isNaN(n_val) || isNaN(k_val) || n_val < 0 || k_val < 0 || n_val > 26 || k_val > 100) {
+                        valid = false;
+                        errorMsg = 'Valores muito grandes ou inválidos. (Max n=26, Max k=100).';
+                    } else {
+                        formulaTex = `$$\\text{Total} = n^k = ${n_val}^{k_val}$$`;
+                        calculation = BigInt(n_val) ** BigInt(k_val);
+                    }
+                } else {
+                    title = `Resultado do Arranjo Sem Repetição $A_{${n_val}, ${k_val}}$`;
+                    if (isNaN(n_val) || isNaN(k_val) || n_val < 0 || k_val < 0 || k_val > n_val || n_val > 26) {
+                        valid = false;
+                        errorMsg = 'Valores inválidos. Requer-se $n \\geq 0$, $k \\geq 0$, $k \\leq n$ e $n \\leq 26$.';
+                    } else {
+                        formulaTex = `$$A_{${n_val},${k_val}} = \\frac{${n_val}!}{( ${n_val} - ${k_val} )!}$$`;
+                        calculation = arrangement(n_val, k_val);
+                    }
+                }
+            } else if (currentOperation === 'COMBINACAO') {
+                n_val = n_input('n_combinacao');
+                k_val = n_input('k_combinacao');
+                title = `Resultado da Combinação $C_{${n_val}, ${k_val}}$`;
+
+                if (isNaN(n_val) || isNaN(k_val) || n_val < 0 || k_val < 0 || k_val > n_val || n_val > 26) {
+                    valid = false;
+                    errorMsg = 'Valores inválidos. Requer-se $n \\geq 0$, $k \\geq 0$, $k \\leq n$ e $n \\leq 26$.';
+                } else {
+                    formulaTex = `$$C_{${n_val},${k_val}} = \\binom{${n_val}}{${k_val}} = \\frac{${n_val}!}{${k_val}!( ${n_val} - ${k_val} )!}$$`;
+                    calculation = combination(n_val, k_val);
+                }
+            }
+            
+            let resultHtml;
+
+            if (valid) {
+                // Build the simulation and step-by-step visualizations
+                const stepByStepHtml = buildStepByStep(currentOperation, n_val, k_val, allowRepetition);
+                const simulationHtml = buildSimulationVisualization(currentOperation, n_val, k_val, calculation, allowRepetition);
+
+                resultHtml = `
+                    <div class="result-section">
+                        <h2><i class="fas fa-check-circle"></i> Resultado Final</h2>
+                        <div class="result-formula">${formulaTex}</div>
+                        <div class="result-value">${calculation.toLocaleString('pt-BR')}</div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h2><i class="fas fa-calculator"></i> Passo a Passo da Solução</h2>
+                        ${stepByStepHtml}
+                    </div>
+
+                    <div class="result-section">
+                        <h2><i class="fas fa-puzzle-piece"></i> Simulação Prática (Usando Letras A, B, C...)</h2>
+                        ${simulationHtml}
+                    </div>
+                `;
+            } else {
+                 resultHtml = `
+                    <div class="result-section">
+                        <h2><i class="fas fa-exclamation-triangle"></i> Erro no Cálculo</h2>
+                        <div class="error-message">${errorMsg}</div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = resultHtml;
+
+            // Renderiza as fórmulas MathJax
+            MathJax.typesetPromise([container]).catch((err) => console.error("MathJax error:", err));
+        }
+
+        // --- INICIALIZAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setOperation('ARRANJO'); 
+        });
+
+    </script>
+</body>
+</html>

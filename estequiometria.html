@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Estequiometria Química</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* ----------------------------------- */
+        /* VARIÁVEIS E ESTILOS GERAIS */
+        /* ----------------------------------- */
+        :root {
+            --cor-primaria: #2c3e50; /* Azul Escuro */
+            --cor-secundaria: #3498db; /* Azul Claro */
+            --cor-destaque: #e74c3c; /* Vermelho/Laranja */
+            --cor-fundo: #ecf0f1; /* Cinza Claro */
+            --cor-painel: #ffffff;
+            --cor-texto: #333;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding-top: 30px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background-color: var(--cor-painel);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: var(--cor-primaria);
+            text-align: center;
+            border-bottom: 2px solid var(--cor-secundaria);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        h2 {
+            color: var(--cor-secundaria);
+            margin-top: 25px;
+        }
+
+        /* ----------------------------------- */
+        /* EXPLICAÇÃO E INPUTS */
+        /* ----------------------------------- */
+        .explanation p {
+            font-size: 1em;
+            text-align: justify;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--cor-primaria);
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        
+        .reaction-display {
+            font-size: 1.2em;
+            font-family: monospace;
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            white-space: pre-wrap;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--cor-destaque);
+        }
+
+        button {
+            background-color: var(--cor-secundaria);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        /* ----------------------------------- */
+        /* TABELA DE RESULTADOS */
+        /* ----------------------------------- */
+        #results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        #results-table th, #results-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        #results-table th {
+            background-color: var(--cor-primaria);
+            color: white;
+            font-weight: normal;
+        }
+
+        #results-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .error-message {
+            color: var(--cor-destaque);
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1><i class="fas fa-calculator"></i> Calculadora de Estequiometria</h1>
+        
+        <div class="explanation">
+            <p>A Estequiometria é a ferramenta da Química que quantifica as reações. Com base na **Lei da Conservação da Massa** e na **Proporção Molar** de uma equação química balanceada, é possível prever exatamente quanto de produto será formado ou quanto de reagente é necessário.</p>
+            <p style="font-weight: bold;">**Instrução:** Insira uma equação química já balanceada (ex: <code>2H2 + O2 -> 2H2O</code>), um reagente conhecido e a quantidade em massa ou mol.</p>
+        </div>
+
+        <div class="input-group">
+            <label for="reaction-input">1. Equação Química Balanceada (Use símbolos + e ->)</label>
+            <input type="text" id="reaction-input" placeholder="Ex: Fe + CuSO4 -> FeSO4 + Cu" value="Fe + CuSO4 -> FeSO4 + Cu">
+            
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <div style="flex: 1;">
+                    <label for="known-substance">2. Substância de Partida</label>
+                    <input type="text" id="known-substance" placeholder="Ex: Fe" value="Fe">
+                </div>
+                <div style="flex: 1;">
+                    <label for="known-quantity">3. Quantidade Conhecida</label>
+                    <input type="number" id="known-quantity" placeholder="Ex: 55.85" value="55.85" min="0.01" step="0.01">
+                </div>
+                <div style="flex: 1;">
+                    <label for="quantity-unit">4. Unidade</label>
+                    <select id="quantity-unit">
+                        <option value="mass">Gramas (g)</option>
+                        <option value="mols">Mols</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="calculateStoichiometry()" style="margin-top: 20px;"><i class="fas fa-chart-bar"></i> Calcular Estequiometria</button>
+            <div id="error-output" class="error-message"></div>
+        </div>
+        
+        <div id="results-area" style="display: none;">
+            <h2>Resultados do Cálculo</h2>
+            <div class="reaction-display" id="calculated-reaction"></div>
+            <table id="results-table">
+                <thead>
+                    <tr>
+                        <th>Substância</th>
+                        <th>Massa Molar (g/mol)</th>
+                        <th>Coeficiente (Mols)</th>
+                        <th>Mols Calculados</th>
+                        <th>Massa Calculada (g)</th>
+                    </tr>
+                </thead>
+                <tbody id="results-body">
+                    </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        // ==================================================================================================
+        // 1. DADOS DE MASSA ATÔMICA (Baseado em valores comuns, incluindo os presentes na Tabela Periódica)
+        // ==================================================================================================
+     const ATOMIC_MASSES = {
+    // Período 1
+    'H': 1.008,    // Hidrogênio
+    'He': 4.003,   // Hélio
+    // Período 2
+    'Li': 6.94,     // Lítio
+    'Be': 9.012,    // Berílio
+    'B': 10.81,     // Boro
+    'C': 12.011,    // Carbono
+    'N': 14.007,    // Nitrogênio
+    'O': 15.999,    // Oxigênio
+    'F': 18.998,    // Flúor
+    'Ne': 20.180,   // Neônio
+    // Período 3
+    'Na': 22.990,   // Sódio
+    'Mg': 24.305,   // Magnésio
+    'Al': 26.982,   // Alumínio
+    'Si': 28.085,   // Silício
+    'P': 30.974,    // Fósforo
+    'S': 32.06,     // Enxofre
+    'Cl': 35.45,    // Cloro
+    'Ar': 39.948,   // Argônio
+    // Período 4
+    'K': 39.098,    // Potássio
+    'Ca': 40.078,   // Cálcio
+    'Sc': 44.956,   // Escândio
+    'Ti': 47.867,   // Titânio
+    'V': 50.942,    // Vanádio
+    'Cr': 51.996,   // Cromo
+    'Mn': 54.938,   // Manganês
+    'Fe': 55.845,   // Ferro
+    'Co': 58.933,   // Cobalto
+    'Ni': 58.693,   // Níquel
+    'Cu': 63.546,   // Cobre
+    'Zn': 65.38,    // Zinco
+    'Ga': 69.723,   // Gálio
+    'Ge': 72.63,    // Germânio
+    'As': 74.922,   // Arsênio
+    'Se': 78.97,    // Selênio
+    'Br': 79.904,   // Bromo
+    'Kr': 83.798,   // Criptônio
+    // Período 5
+    'Rb': 85.468,   // Rubídio
+    'Sr': 87.62,    // Estrôncio
+    'Y': 88.906,    // Ítrio
+    'Zr': 91.224,   // Zircônio
+    'Nb': 92.906,   // Nióbio
+    'Mo': 95.95,    // Molibdênio
+    'Tc': 97.907,   // Tecnécio [98] (Isótopo mais estável)
+    'Ru': 101.07,   // Rutênio
+    'Rh': 102.91,   // Ródio
+    'Pd': 106.42,   // Paládio
+    'Ag': 107.87,   // Prata
+    'Cd': 112.41,   // Cádmio
+    'In': 114.82,   // Índio
+    'Sn': 118.71,   // Estanho
+    'Sb': 121.76,   // Antimônio
+    'Te': 127.60,   // Telúrio
+    'I': 126.90,    // Iodo
+    'Xe': 131.29,   // Xenônio
+    // Período 6 - Bloco s, d e p
+    'Cs': 132.91,   // Césio
+    'Ba': 137.33,   // Bário
+    'Hf': 178.49,   // Háfnio
+    'Ta': 180.95,   // Tântalo
+    'W': 183.84,    // Tungstênio
+    'Re': 186.21,   // Rênio
+    'Os': 190.23,   // Ósmio
+    'Ir': 192.22,   // Irídio
+    'Pt': 195.08,   // Platina
+    'Au': 196.97,   // Ouro
+    'Hg': 200.59,   // Mercúrio
+    'Tl': 204.38,   // Tálio
+    'Pb': 207.2,    // Chumbo
+    'Bi': 208.98,   // Bismuto
+    'Po': 208.98,   // Polônio [209]
+    'At': 209.99,   // Ástato [210]
+    'Rn': 222.02,   // Radônio [222]
+    // Período 7 - Bloco s, d e p
+    'Fr': 223.02,   // Frâncio [223]
+    'Ra': 226.03,   // Rádio [226]
+    'Rf': 267.12,   // Rutherfórdio [267]
+    'Db': 268.13,   // Dúbnio [268]
+    'Sg': 269.13,   // Seabórgio [269]
+    'Bh': 270.13,   // Bóhrio [270]
+    'Hs': 269.13,   // Hássio [269]
+    'Mt': 278.16,   // Meitnério [278]
+    'Ds': 281.17,   // Darmstádio [281]
+    'Rg': 282.18,   // Roentgênio [282]
+    'Cn': 285.19,   // Copernício [285]
+    'Nh': 286.20,   // Nihônio [286]
+    'Fl': 289.23,   // Fleróvio [289]
+    'Mc': 290.23,   // Moscóvio [290]
+    'Lv': 293.24,   // Livermório [293]
+    'Ts': 294.25,   // Tennessine [294]
+    'Og': 294.25,   // Oganessônio [294]
+    
+    // Lantanídeos (Bloco f - Linha 6)
+    'La': 138.91,   // Lantânio
+    'Ce': 140.12,   // Cério
+    'Pr': 140.91,   // Praseodímio
+    'Nd': 144.24,   // Neodímio
+    'Pm': 144.91,   // Promécio [145]
+    'Sm': 150.36,   // Samário
+    'Eu': 151.96,   // Európio
+    'Gd': 157.25,   // Gadolínio
+    'Tb': 158.93,   // Térbio
+    'Dy': 162.50,   // Disprósio
+    'Ho': 164.93,   // Hólmio
+    'Er': 167.26,   // Érbio
+    'Tm': 168.93,   // Túlio
+    'Yb': 173.05,   // Itérbio
+    'Lu': 174.97,   // Lutécio
+
+    // Actinídeos (Bloco f - Linha 7)
+    'Ac': 227.03,   // Actínio [227]
+    'Th': 232.04,   // Tório
+    'Pa': 231.04,   // Protactínio
+    'U': 238.03,    // Urânio
+    'Np': 237.05,   // Netúnio [237]
+    'Pu': 244.06,   // Plutônio [244]
+    'Am': 243.06,   // Amerício [243]
+    'Cm': 247.07,   // Cúrio [247]
+    'Bk': 247.07,   // Berquélio [247]
+    'Cf': 251.08,   // Califórnio [251]
+    'Es': 252.08,   // Einstênio [252]
+    'Fm': 257.10,   // Férmio [257]
+    'Md': 258.10,   // Mendelévio [258]
+    'No': 259.10,   // Nobélio [259]
+    'Lr': 266.12    // Laurêncio [266]
+};
+
+        // Regex para extrair a fórmula e os índices:
+        // Ex: CuSO4 -> [Cu] [1], [S] [1], [O] [4]
+        const FORMULA_REGEX = /([A-Z][a-z]*)(\d*)/g;
+        // Regex para extrair o coeficiente e a fórmula da reação:
+        // Ex: 2H2O -> [2] [H2O]
+        const SUBSTANCE_REGEX = /^(\d*)?([A-Z].*)/;
+
+
+        /**
+         * Converte uma fórmula química (ex: H2O) na sua Massa Molar (g/mol).
+         * @param {string} formula - A fórmula química.
+         * @returns {number} A massa molar.
+         */
+        function parseFormulaToMolarMass(formula) {
+            let mass = 0;
+            let match;
+            
+            // Usamos a regex para encontrar pares de Símbolo + Índice
+            while ((match = FORMULA_REGEX.exec(formula)) !== null) {
+                const symbol = match[1]; // Ex: Cu
+                const count = parseInt(match[2] || 1); // Ex: 4 (para O4) ou 1 (se não houver índice)
+
+                if (ATOMIC_MASSES[symbol]) {
+                    mass += ATOMIC_MASSES[symbol] * count;
+                } else {
+                    // Retorna um valor grande para indicar erro de elemento desconhecido
+                    return -1; 
+                }
+            }
+            return mass;
+        }
+
+        /**
+         * Extrai o coeficiente estequiométrico e a fórmula de uma substância na equação.
+         * @param {string} rawSubstance - Ex: '2H2O' ou 'Fe'
+         * @returns {{coefficient: number, formula: string}}
+         */
+        function extractCoefficientAndFormula(rawSubstance) {
+            const trimmed = rawSubstance.trim();
+            const match = trimmed.match(SUBSTANCE_REGEX);
+            
+            if (match) {
+                const coefficient = parseInt(match[1] || 1);
+                const formula = match[2];
+                return { coefficient, formula };
+            }
+            return null; // Falha na análise
+        }
+
+        // ==================================================================================================
+        // 2. FUNÇÃO PRINCIPAL DE CÁLCULO ESTEQUIOMÉTRICO
+        // ==================================================================================================
+        function calculateStoichiometry() {
+            const reactionInput = document.getElementById('reaction-input').value.trim();
+            const knownSubstanceInput = document.getElementById('known-substance').value.trim();
+            const knownQuantity = parseFloat(document.getElementById('known-quantity').value);
+            const quantityUnit = document.getElementById('quantity-unit').value;
+            const errorOutput = document.getElementById('error-output');
+            const resultsArea = document.getElementById('results-area');
+            const resultsBody = document.getElementById('results-body');
+            
+            errorOutput.textContent = '';
+            resultsArea.style.display = 'none';
+            resultsBody.innerHTML = '';
+            
+            if (!reactionInput || !knownSubstanceInput || isNaN(knownQuantity) || knownQuantity <= 0) {
+                errorOutput.textContent = 'Preencha todos os campos com valores válidos.';
+                return;
+            }
+
+            // 1. Parsing da Reação
+            const parts = reactionInput.split('->');
+            if (parts.length !== 2) {
+                errorOutput.textContent = 'Formato de reação inválido. Use A + B -> C + D.';
+                return;
+            }
+
+            const reagents = parts[0].split('+').map(s => s.trim()).filter(s => s.length > 0);
+            const products = parts[1].split('+').map(s => s.trim()).filter(s => s.length > 0);
+            const allSubstances = [...reagents, ...products];
+
+            let substanceData = [];
+            let knownSubstanceDetails = null;
+
+            // 2. Extração de Dados (Coeficientes e Massa Molar)
+            for (const rawSubstance of allSubstances) {
+                const details = extractCoefficientAndFormula(rawSubstance);
+                if (!details) {
+                    errorOutput.textContent = `Erro ao analisar a fórmula: ${rawSubstance}.`;
+                    return;
+                }
+                
+                const molarMass = parseFormulaToMolarMass(details.formula);
+                if (molarMass === -1) {
+                     errorOutput.textContent = `Elemento desconhecido encontrado na fórmula: ${details.formula}.`;
+                    return;
+                }
+
+                const data = {
+                    raw: rawSubstance,
+                    formula: details.formula,
+                    coefficient: details.coefficient,
+                    molarMass: molarMass
+                };
+                substanceData.push(data);
+                
+                if (details.formula.toUpperCase() === knownSubstanceInput.toUpperCase().trim()) {
+                    knownSubstanceDetails = data;
+                }
+            }
+            
+            if (!knownSubstanceDetails) {
+                 errorOutput.textContent = `A substância de partida (${knownSubstanceInput}) não foi encontrada na equação.`;
+                return;
+            }
+
+            // 3. Cálculo da Proporção Molar
+            let knownMols = 0;
+            if (quantityUnit === 'mass') {
+                // Cálculo Mol-Massa: n = m / MM
+                knownMols = knownQuantity / knownSubstanceDetails.molarMass;
+            } else { // 'mols'
+                knownMols = knownQuantity;
+            }
+            
+            // O mol de referência é o coeficiente molar da substância conhecida.
+            const referenceMolCoefficient = knownSubstanceDetails.coefficient;
+
+            // 4. Inserção dos Resultados na Tabela
+            let tableHTML = '';
+            for (const data of substanceData) {
+                // n_calculado = (n_conhecido / coeficiente_conhecido) * coeficiente_calculado
+                const calculatedMols = (knownMols / referenceMolCoefficient) * data.coefficient;
+                
+                // m_calculada = n_calculado * MM
+                const calculatedMass = calculatedMols * data.molarMass;
+                
+                const isKnown = (data.formula === knownSubstanceDetails.formula);
+
+                tableHTML += `
+                    <tr style="${isKnown ? 'background-color: #d1ecf1; font-weight: bold;' : ''}">
+                        <td>${data.raw}</td>
+                        <td>${data.molarMass.toFixed(2)} g/mol</td>
+                        <td>${data.coefficient}</td>
+                        <td>${calculatedMols.toFixed(4)} mol</td>
+                        <td>${calculatedMass.toFixed(2)} g</td>
+                    </tr>
+                `;
+            }
+
+            // 5. Exibição
+            document.getElementById('calculated-reaction').textContent = reactionInput;
+            resultsBody.innerHTML = tableHTML;
+            resultsArea.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

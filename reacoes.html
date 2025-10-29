@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Químico (V21 - Alerta de Segurança)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --sidebar-width: 280px; 
+            --cor-destaque: #2c3e50;
+            --cor-sucesso: #27ae60;
+            --cor-perigo: #c0392b;
+            --cor-aviso: #f1c40f;
+            --cor-fundo: #ecf0f1;
+            --grid-size: 30px;
+        }
+
+        body { font-family: 'Segoe UI', 'Roboto', sans-serif; background-color: var(--cor-fundo); margin: 0; padding: 0; color: #34495e; overflow: hidden; }
+        .simulation-container { display: flex; width: 100%; height: 100vh; }
+        .left-panel { flex: 0 0 var(--sidebar-width); display: flex; flex-direction: column; background-color: #ffffff; padding: 15px; box-sizing: border-box; border-right: 1px solid #bdc3c7; overflow-y: auto; }
+        .panel-title { margin-top: 0; color: var(--cor-destaque); border-bottom: 2px solid var(--cor-destaque); padding-bottom: 10px; }
+        #periodic-table-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .element-card { background-color: white; border: 1px solid #ddd; border-radius: 5px; padding: 5px; text-align: center; cursor: grab; user-select: none; transition: all 0.2s ease; }
+        .element-card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.12); transform: translateY(-3px); }
+        .element-symbol { font-size: 16px; font-weight: bold; color: #333; }
+        .element-name { font-size: 9px; color: #666; margin-top: 2px; }
+        
+        .center-area { flex-grow: 1; display: flex; flex-direction: column; background-color: #fdfdfd; padding: 25px; overflow-y: auto; }
+        
+        #workspace-container { flex-grow: 1; position: relative; margin-bottom: 20px; }
+        #workspace-grid {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border: 2px solid #bdc3c7; border-radius: 8px; background-color: #ffffff;
+            background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+            background-size: var(--grid-size) var(--grid-size);
+        }
+        #bond-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .covalent-bond { stroke: #34495e; stroke-width: 4; }
+        .ionic-bond { stroke: #c0392b; stroke-width: 4; stroke-dasharray: 8 4; }
+
+        #bond-labels { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .bond-label { position: absolute; background-color: rgba(255, 255, 255, 0.8); padding: 2px 5px; border-radius: 4px; font-size: 12px; color: var(--cor-destaque); transform: translate(-50%, -50%); }
+
+        .atom-on-grid {
+            position: absolute; width: 50px; height: 50px;
+            color: white; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 20px; font-weight: bold;
+            cursor: grab; user-select: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border: 3px solid white; z-index: 10; transition: border-color 0.2s;
+        }
+        .atom-on-grid.selected { border-color: var(--cor-aviso); }
+        .atom-on-grid:active { cursor: grabbing; z-index: 1000; }
+
+        .simulation-controls { margin-bottom: 15px; }
+        .control-button { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background-color 0.2s; font-size: 15px; margin-right: 10px;}
+        .control-button.primary { background-color: var(--cor-sucesso); color: white; }
+        .control-button.primary:hover { background-color: #229954; }
+        .control-button.danger { background-color: var(--cor-perigo); color: white; }
+        .control-button.danger:hover { background-color: #a93226; }
+
+        #reaction-analysis-output { background-color: #ffffff; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; white-space: pre-wrap; font-family: 'Consolas', 'Courier New', monospace; font-size: 15px; line-height: 1.7; color: var(--cor-destaque); box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+
+        /* NOVO: Estilos do Pop-up de Alerta */
+        .modal {
+            display: none; /* Escondido por padrão */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6); /* Fundo escurecido */
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* Centraliza verticalmente e horizontalmente */
+            padding: 25px;
+            border: 5px solid var(--cor-perigo);
+            width: 80%;
+            max-width: 500px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover, .close-button:focus {
+            color: #000;
+        }
+        .modal-header {
+            color: var(--cor-perigo);
+            font-size: 24px;
+            border-bottom: 2px solid var(--cor-perigo);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .modal-header i {
+            margin-right: 10px;
+        }
+        .modal-body p {
+            line-height: 1.6;
+        }
+        .modal-didatica {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f7f7f7;
+            border-left: 4px solid var(--cor-destaque);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="simulation-container">
+        <div class="left-panel">
+            <h2 class="panel-title"><i class="fas fa-atom"></i> Elementos</h2>
+            <div id="periodic-table-container"></div>
+        </div>
+        <div class="center-area">
+            <h3 style="color: var(--cor-destaque); margin-top: 0;"><i class="fas fa-drafting-compass"></i> Espaço de Modelagem</h3>
+            <div id="workspace-container">
+                <svg id="bond-svg"></svg>
+                <div id="bond-labels"></div>
+                <div id="workspace-grid"></div>
+            </div>
+            <div class="simulation-controls">
+                 <button onclick="simulateReaction()" class="control-button primary"><i class="fas fa-cogs"></i> Analisar Reação</button>
+                 <button onclick="clearWorkspace()" class="control-button danger"><i class="fas fa-trash"></i> Limpar Tudo</button>
+            </div>
+            <h3 style="color: var(--cor-destaque);"><i class="fas fa-chart-simple"></i> Análise da Previsão</h3>
+            <div id="reaction-analysis-output">Aguardando análise...</div>
+        </div>
+    </div>
+    
+    <div id="safetyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeSafetyModal()">&times;</span>
+            <div id="modalHeader" class="modal-header"></div>
+            <div id="modalBody" class="modal-body"></div>
+        </div>
+    </div>
+    
+    <script>
+    // ==================================================================================================
+    // 1. BANCO DE DADOS QUÍMICO
+    // ==================================================================================================
+    const ELEMENTS_DATA = [ { s: 'H', n: 'Hidrogênio', isMetal: false, color: '#34495e' }, { s: 'C', n: 'Carbono', isMetal: false, color: '#34495e' }, { s: 'N', n: 'Nitrogênio', isMetal: false, color: '#34495e' }, { s: 'O', n: 'Oxigênio', isMetal: false, color: '#34495e' }, { s: 'S', n: 'Enxofre', isMetal: false, color: '#34495e' }, { s: 'Cl', n: 'Cloro', isMetal: false, color: '#16a085' }, { s: 'Na', n: 'Sódio', isMetal: true, color: '#8e44ad' }, { s: 'K', n: 'Potássio', isMetal: true, color: '#8e44ad' }, { s: 'Mg', n: 'Magnésio', isMetal: true, color: '#2980b9' }, { s: 'Ca', n: 'Cálcio', isMetal: true, color: '#2980b9' }, { s: 'Fe', n: 'Ferro', isMetal: true, color: '#d35400' }, { s: 'Zn', n: 'Zinco', isMetal: true, color: '#d35400' }, { s: 'Ag', n: 'Prata', isMetal: true, color: '#d35400' }, ];
+    const ELEMENTS_MAP = new Map(ELEMENTS_DATA.map(el => [el.s, el]));
+    
+    // ===================== CORREÇÃO E EXPANSÃO AQUI =====================
+    const COMPOUNDS_DATABASE = {
+        'H2': { commonName: 'Gás Hidrogênio' }, 'O2': { commonName: 'Gás Oxigênio' }, 'Na': { commonName: 'Sódio Metálico' }, 'Zn': { commonName: 'Zinco Metálico' },
+        'H2O': { commonName: 'Água' },
+        'C2H6O': { commonName: 'Etanol' }, // Álcool Etílico
+        'CH4O': { commonName: 'Metanol' }, // Álcool Metílico
+        'C2H5Cl': { commonName: 'Cloroetano' }, // Produto do Etanol + HCl
+        'CH3Cl': { commonName: 'Clorometano' }, // Produto do Metanol + HCl
+
+        'CO2': { commonName: 'Dióxido de Carbono', reactsWith: [{ with: 'H2O', products: ['H2CO3'], description: 'Síntese de Ácido Carbônico' }] },
+        
+        'HCl': { 
+            commonName: 'Ácido Clorídrico (Suco Gástrico)', 
+            reactsWith: [
+                { with: 'Zn', products: ['ZnCl2', 'H2'], description: 'Simples Troca (Metal ativo desloca H2)' }, 
+                { with: 'NaOH', products: ['NaCl', 'H2O'], description: 'Dupla Troca (Neutralização)' }, 
+                // Reação com Etanol: C2H6O + HCl → C2H5Cl + H2O
+                { with: 'C2H6O', products: ['C2H5Cl', 'H2O'], description: 'Substituição Nucleofílica (Halogenação de Álcool)'}, 
+                // Reação com Metanol: CH4O + HCl → CH3Cl + H2O
+                { with: 'CH4O', products: ['CH3Cl', 'H2O'], description: 'Substituição Nucleofílica (Halogenação de Álcool)'} 
+            ]
+        },
+        
+        'NaOH': { commonName: 'Soda Cáustica' },
+        'NaCl': { commonName: 'Sal de Cozinha', reactsWith: [{ with: 'AgNO3', products: ['AgCl', 'NaNO3'], description: 'Dupla Troca (Precipitação)' }] },
+        'AgNO3': { commonName: 'Nitrato de Prata' }, 'H2CO3': { commonName: 'Ácido Carbônico' }, 'AgCl': { commonName: 'Cloreto de Prata' }, 'NaNO3': { commonName: 'Nitrato de Sódio' }, 'ZnCl2': { commonName: 'Cloreto de Zinco' },
+    };
+    // ===================== FIM DA EXPANSÃO =====================
+
+    // NOVO: Alertas de Segurança para o Pop-up
+    const SAFETY_ALERTS = {
+        'CH4O_HCl': {
+            header: '⚠️ PERIGO: METANOL + ÁCIDO CLORÍDRICO ⚠️',
+            body: `
+                <p>O <strong>Metanol (Álcool Metílico)</strong> é um <strong>veneno poderoso</strong>. A reação com HCl forma Clorometano ($CH_3Cl$).</p>
+                <p><strong>RISCO BIOLÓGICO:</strong> O organismo humano converte metanol em <strong>ácido fórmico</strong>, que ataca o sistema nervoso. A ingestão de pequenas doses (cerca de 10 ml) pode causar <strong>cegueira permanente</strong>, e doses maiores podem ser <strong>fatais</strong>.</p>
+                <div class="modal-didatica">
+                    <strong>APLICAÇÃO DIDÁTICA:</strong> Esta reação de Substituição Nucleofílica é fundamental para a síntese de haletos de alquila a partir de álcoois.
+                </div>
+            `
+        },
+        'C2H6O_HCl': {
+            header: '⚠️ ALERTA DIDÁTICO: ETANOL + ÁCIDO CLORÍDRICO ⚠️',
+            body: `
+                <p>O <strong>Etanol (Álcool Etílico)</strong>, embora presente em bebidas, possui riscos à saúde. A reação com HCl forma Cloroetano ($C_2H_5Cl$).</p>
+                <p><strong>RISCO À SAÚDE:</strong> O consumo excessivo de etanol causa intoxicação, coma alcoólico e danos crônicos ao <strong>fígado</strong> e <strong>sistema nervoso</strong>. O Etanol é menos tóxico que o Metanol, mas o manuseio de HCl requer cuidado.</p>
+                <div class="modal-didatica">
+                    <strong>APLICAÇÃO DIDÁTICA:</strong> Semelhante ao Metanol, esta reação ilustra a Substituição Nucleofílica, sendo um conceito importante em Química Orgânica.
+                </div>
+            `
+        }
+    };
+
+    // NOVO: Funções para o Pop-up
+    function closeSafetyModal() {
+        document.getElementById('safetyModal').style.display = 'none';
+    }
+
+    function showSafetyModal(alertKey) {
+        const alertData = SAFETY_ALERTS[alertKey];
+        if (!alertData) return;
+
+        document.getElementById('modalHeader').innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${alertData.header}`;
+        document.getElementById('modalBody').innerHTML = alertData.body;
+        document.getElementById('safetyModal').style.display = 'block';
+
+        // Fecha o modal ao clicar fora dele
+        window.onclick = function(event) {
+            const modal = document.getElementById('safetyModal');
+            if (event.target === modal) {
+                closeSafetyModal();
+            }
+        }
+    }
+
+
+    // NOVO: Cache de fórmulas parseadas para otimização
+    const parsedFormulaCache = new Map();
+
+    // ==================================================================================================
+    // 2. ESTADO DA APLICAÇÃO E CONFIGURAÇÕES
+    // ==================================================================================================
+    let workspaceAtoms = [];
+    let selectedAtomId = null;
+    const GRID_SQUARE_SIZE = 30;
+    const BONDING_RADIUS = 4 * GRID_SQUARE_SIZE;
+
+    // ==================================================================================================
+    // 3. LÓGICA DO ESPAÇO DE TRABALHO
+    // ==================================================================================================
+    const workspace = document.getElementById('workspace-grid');
+    const bondSVG = document.getElementById('bond-svg');
+    const bondLabels = document.getElementById('bond-labels');
+
+    workspace.addEventListener('dragover', e => e.preventDefault());
+    workspace.addEventListener('drop', e => { e.preventDefault(); const rect = workspace.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top; const symbol = e.dataTransfer.getData('text/plain'); if (ELEMENTS_MAP.has(symbol)) addAtomToWorkspace(symbol, x, y); });
+    workspace.addEventListener('click', e => { if (e.target === workspace) selectAtom(null); });
+
+    function addAtomToWorkspace(symbol, x, y) {
+        const id = `atom_${Date.now()}`;
+        const atomData = { id, symbol, x, y, element: ELEMENTS_MAP.get(symbol) };
+        workspaceAtoms.push(atomData);
+        const atomElement = document.createElement('div');
+        atomElement.id = id;
+        atomElement.className = 'atom-on-grid';
+        atomElement.textContent = symbol;
+        atomElement.style.left = `${x - 25}px`;
+        atomElement.style.top = `${y - 25}px`;
+        atomElement.style.backgroundColor = atomData.element.color;
+        makeDraggable(atomElement, atomData);
+        atomElement.addEventListener('click', (e) => { e.stopPropagation(); selectAtom(id); });
+        workspace.appendChild(atomElement);
+        updateAllBonds();
+    }
+
+    function makeDraggable(element, atomData) {
+        element.onmousedown = e => {
+            selectAtom(atomData.id);
+            element.style.cursor = 'grabbing';
+            let shiftX = e.clientX - element.getBoundingClientRect().left;
+            let shiftY = e.clientY - element.getBoundingClientRect().top;
+            function moveAt(pageX, pageY) { const rect = workspace.getBoundingClientRect(); atomData.x = pageX - rect.left - shiftX + 25; atomData.y = pageY - rect.top - shiftY + 25; element.style.left = `${atomData.x - 25}px`; element.style.top = `${atomData.y - 25}px`; updateAllBonds(); }
+            function onMouseMove(event) { moveAt(event.pageX, event.pageY); }
+            document.addEventListener('mousemove', onMouseMove);
+            element.onmouseup = () => { document.removeEventListener('mousemove', onMouseMove); element.onmouseup = null; element.style.cursor = 'grab'; };
+        };
+        element.ondragstart = () => false;
+    }
+    
+    function selectAtom(id) {
+        if (selectedAtomId) { const oldSelected = document.getElementById(selectedAtomId); if (oldSelected) oldSelected.classList.remove('selected'); }
+        selectedAtomId = id;
+        if (selectedAtomId) { const newSelected = document.getElementById(selectedAtomId); if (newSelected) newSelected.classList.add('selected'); }
+    }
+
+    function deleteSelectedAtom() {
+        if (!selectedAtomId) return;
+        const atomIndex = workspaceAtoms.findIndex(a => a.id === selectedAtomId);
+        if (atomIndex > -1) { workspaceAtoms.splice(atomIndex, 1); const atomElement = document.getElementById(selectedAtomId); if (atomElement) atomElement.remove(); selectedAtomId = null; updateAllBonds(); }
+    }
+    
+    function clearWorkspace() { workspaceAtoms = []; selectedAtomId = null; workspace.innerHTML = ''; updateAllBonds(); }
+    document.addEventListener('keydown', e => { if (e.key === 'Backspace') deleteSelectedAtom(); });
+    function getBondType(el1, el2) { return (el1.isMetal && !el2.isMetal) || (!el1.isMetal && el2.isMetal) ? 'ionic' : 'covalent'; }
+    function updateAllBonds() {
+        bondSVG.innerHTML = ''; bondLabels.innerHTML = ''; const drawnBonds = new Set();
+        for (let i = 0; i < workspaceAtoms.length; i++) {
+            for (let j = i + 1; j < workspaceAtoms.length; j++) {
+                const atom1 = workspaceAtoms[i]; const atom2 = workspaceAtoms[j];
+                if (Math.hypot(atom1.x - atom2.x, atom1.y - atom2.y) < BONDING_RADIUS) {
+                    const bondId = [atom1.id, atom2.id].sort().join('-'); if (drawnBonds.has(bondId)) continue;
+                    const bondType = getBondType(atom1.element, atom2.element);
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', atom1.x); line.setAttribute('y1', atom1.y); line.setAttribute('x2', atom2.x); line.setAttribute('y2', atom2.y);
+                    line.classList.add(bondType === 'ionic' ? 'ionic-bond' : 'covalent-bond');
+                    bondSVG.appendChild(line);
+                    const label = document.createElement('span');
+                    label.className = 'bond-label'; label.textContent = bondType === 'ionic' ? 'Iônica' : 'Covalente';
+                    label.style.left = `${(atom1.x + atom2.x) / 2}px`; label.style.top = `${(atom1.y + atom2.y) / 2}px`;
+                    bondLabels.appendChild(label);
+                    drawnBonds.add(bondId);
+                }
+            }
+        }
+    }
+    
+    // ==================================================================================================
+    // 4. LÓGICA DE ANÁLISE (COM RECONHECIMENTO INTELIGENTE)
+    // ==================================================================================================
+    const subMap = { '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄', '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉' };
+    const toSubscript = num => (num <= 1) ? '' : num.toString().split('').map(d => subMap[d] || d).join('');
+    
+    function parseFormulaToInventory(formula) {
+        if (parsedFormulaCache.has(formula)) return parsedFormulaCache.get(formula);
+        const inventory = {};
+        const regex = /([A-Z][a-z]?)(\d*)/g;
+        let match;
+        while ((match = regex.exec(formula)) !== null) {
+            const element = match[1];
+            const count = parseInt(match[2] || 1, 10);
+            inventory[element] = (inventory[element] || 0) + count;
+        }
+        parsedFormulaCache.set(formula, inventory);
+        return inventory;
+    }
+    
+    function inventoriesAreEqual(inv1, inv2) {
+        const keys1 = Object.keys(inv1);
+        const keys2 = Object.keys(inv2);
+        if (keys1.length !== keys2.length) return false;
+        for (const key of keys1) {
+            if (inv1[key] !== inv2[key]) return false;
+        }
+        return true;
+    }
+    
+    // ATUALIZADO (V20): Lógica de reconhecimento inteligente
+    function getFormulaData(atomList) {
+        if (!atomList || atomList.length === 0) return null;
+        
+        const userInventory = atomList.reduce((acc, atom) => { acc[atom.symbol] = (acc[atom.symbol] || 0) + 1; return acc; }, {});
+
+        // Procura no DB por uma fórmula com o mesmo inventário
+        for (const dbFormula in COMPOUNDS_DATABASE) {
+            const dbInventory = parseFormulaToInventory(dbFormula);
+            if (inventoriesAreEqual(userInventory, dbInventory)) {
+                // Encontrou! Usa a fórmula padrão do DB.
+                const displayFormula = dbFormula.replace(/(\d+)/g, num => toSubscript(num));
+                return { formula: dbFormula, displayFormula };
+            }
+        }
+
+        // Fallback: Se não encontrou, usa a ordem manual do usuário
+        const orderedSymbols = [];
+        atomList.forEach(atom => { if (!orderedSymbols.includes(atom.symbol)) orderedSymbols.push(atom.symbol); });
+        const formula = orderedSymbols.map(s => s + (userInventory[s] > 1 ? userInventory[s] : '')).join('');
+        const displayFormula = orderedSymbols.map(s => s + toSubscript(userInventory[s])).join('');
+        return { formula, displayFormula };
+    }
+    
+    function identifySubstance(data) { 
+        if (!data) return null; 
+        if (COMPOUNDS_DATABASE[data.formula]) { 
+            return { ...data, ...COMPOUNDS_DATABASE[data.formula] }; 
+        } 
+        return { ...data, commonName: 'Desconhecido' }; 
+    }
+    
+    function simulateReaction() {
+        // ... (lógica de agrupamento sem mudanças) ...
+        const bonds = new Map(); workspaceAtoms.forEach(a => bonds.set(a.id, []));
+        for (let i = 0; i < workspaceAtoms.length; i++) { for (let j = i + 1; j < workspaceAtoms.length; j++) { const atom1 = workspaceAtoms[i]; const atom2 = workspaceAtoms[j]; if (Math.hypot(atom1.x - atom2.x, atom1.y - atom2.y) < BONDING_RADIUS) { bonds.get(atom1.id).push(atom2.id); bonds.get(atom2.id).push(atom1.id); } } }
+        const groups = []; const visited = new Set();
+        for (const atom of workspaceAtoms) {
+            if (visited.has(atom.id)) continue;
+            const currentGroup = []; const toVisit = [atom]; visited.add(atom.id);
+            while(toVisit.length > 0) { const current = toVisit.pop(); currentGroup.push(current); bonds.get(current.id).forEach(neighborId => { if(!visited.has(neighborId)) { visited.add(neighborId); toVisit.push(workspaceAtoms.find(a => a.id === neighborId)); } }); }
+            groups.push(currentGroup);
+        }
+        if (groups.length < 2) { alert("Crie pelo menos dois reagentes separados."); return; }
+
+        const r1 = identifySubstance(getFormulaData(groups[0]));
+        const r2 = identifySubstance(getFormulaData(groups[1]));
+        
+        // NOVO: Verificação do Pop-up de Segurança
+        // Cria uma chave única e ordenada (ex: 'C2H6O_HCl')
+        const formulas = [r1.formula, r2.formula].sort().join('_'); 
+        
+        if (formulas === 'CH4O_HCl') {
+            showSafetyModal('CH4O_HCl');
+        } else if (formulas === 'C2H6O_HCl') {
+            showSafetyModal('C2H6O_HCl');
+        }
+        // FIM DA VERIFICAÇÃO DE POP-UP
+        
+        let result = { type: 'Indeterminada', products: [{displayFormula: 'Sem Reação', commonName: ''}], r1, r2 };
+        
+        const checkDB = (reagent, partner) => {
+            if (reagent && partner && reagent.reactsWith) {
+                const rule = reagent.reactsWith.find(r => r.with === partner.formula);
+                if (rule) {
+                    const richProducts = rule.products.map(pFormula => identifySubstance({formula: pFormula, displayFormula: pFormula.replace(/(\d+)/g, num => toSubscript(num))}));
+                    return { type: rule.description, products: richProducts };
+                }
+            }
+            return null;
+        };
+
+        const dbResult = checkDB(r1, r2) || checkDB(r2, r1);
+        if (dbResult) { result = { ...result, ...dbResult }; }
+        
+        displayResults(result);
+    }
+    
+    function displayResults({type, products, r1, r2}) {
+        const formatSubstance = (s) => s ? `${s.displayFormula} (${s.commonName || 'Substância'})` : '?';
+        const output = document.getElementById('reaction-analysis-output');
+        let html = `<div class="analysis-section"><span class="analysis-title">Reagentes:</span> ${formatSubstance(r1)} + ${formatSubstance(r2)}</div>`;
+        html += `<div class="analysis-section"><span class="analysis-title">Tipo:</span> ${type}</div>`;
+        const productString = products.map(formatSubstance).join(' + ');
+        html += `<div class="analysis-section"><span class="analysis-title">Forma:</span> ${productString}</div>`;
+        output.innerHTML = html;
+    }
+    
+    // ==================================================================================================
+    // 5. INICIALIZAÇÃO
+    // ==================================================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        const tableContainer = document.getElementById('periodic-table-container');
+        ELEMENTS_DATA.forEach(el => {
+            const card = document.createElement('div');
+            card.className = 'element-card'; card.draggable = true;
+            card.innerHTML = `<div class="element-symbol">${el.s}</div><div class="element-name">${el.n}</div>`;
+            card.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', el.s));
+            tableContainer.appendChild(card);
+        });
+    });
+    </script>
+</body>
+</html>

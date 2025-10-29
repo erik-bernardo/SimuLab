@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Probabilidade Avançado: N Dados, N Lados</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* ----------------------------------- */
+        /* RESET BÁSICO E ESTILOS GERAIS */
+        /* ----------------------------------- */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            flex-grow: 1;
+            display: flex;
+            max-width: 1400px;
+            width: 100%;
+            margin: 20px auto;
+            background-color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* ----------------------------------- */
+        /* BARRA SUPERIOR (LOGO-BOTÃO) */
+        /* ----------------------------------- */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: 50px; 
+            display: flex;
+            align-items: stretch; 
+            border-bottom: 1px solid #ddd; 
+        }
+
+        .logo-link {
+            text-decoration: none; 
+            color: #D2691E; 
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 25px; 
+            display: flex;
+            align-items: center; 
+            border-right: 1px solid #ddd; 
+            transition: background-color 0.3s;
+        }
+
+        .logo-link:hover {
+            background-color: #f5f5f5;
+        }
+
+        .logo-link .fas {
+            margin-right: 10px; 
+        }
+        
+        /* ----------------------------------- */
+        /* PAINEL DE CONTROLES (ESQUERDA) */
+        /* ----------------------------------- */
+        .controls {
+            width: 350px;
+            min-width: 300px;
+            padding: 20px;
+            border-right: 2px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; 
+        }
+
+        .controls h2 {
+            color: #D2691E;
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .controls label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .controls input[type="number"], .controls select, .controls input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        .controls button {
+            margin-top: 20px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        #rollOneButton {
+            background-color: #3498db; 
+            color: white;
+        }
+        #rollOneButton:hover {
+            background-color: #2980b9;
+        }
+        
+        #rollManyButton {
+            background-color: #2ecc71; 
+            color: white;
+        }
+        #rollManyButton:hover {
+            background-color: #27ae60;
+        }
+        
+        #resetButton {
+            background-color: #e74c3c; 
+            color: white;
+        }
+        #resetButton:hover {
+            background-color: #c0392b;
+        }
+        
+        .result-display {
+            margin-top: 25px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        
+        .config-group {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            background-color: #fcfcfc;
+        }
+
+        /* ----------------------------------- */
+        /* ÁREA DE VISUALIZAÇÃO DO DADO */
+        /* ----------------------------------- */
+        .simulation-area {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .dice-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            height: 150px; 
+            margin-bottom: 20px;
+            margin-top: 20px;
+            min-height: 120px;
+        }
+        
+        /* Estilo base do dado */
+        .dice {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.1s;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        /* Animação de Rolagem 3D */
+        .dice.rolling {
+            animation: roll-3d 0.5s infinite linear;
+        }
+
+        @keyframes roll-3d {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+        }
+        
+        /* ----------------------------------- */
+        /* GRÁFICO DE BARRAS */
+        /* ----------------------------------- */
+        .chart-container {
+            width: 95%;
+            max-width: 1000px;
+            height: 400px;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #fefefe;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chart-bars {
+            display: flex;
+            height: 90%;
+            align-items: flex-end;
+            border-left: 1px solid #ccc;
+            padding-left: 5px;
+            position: relative;
+        }
+
+        .bar-wrapper {
+            flex-shrink: 0; 
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            margin: 0 1px;
+            position: relative;
+        }
+        
+        .bar {
+            width: 90%;
+            background-color: #3498db;
+            transition: height 0.3s ease;
+            position: relative;
+        }
+        
+        .bar-value {
+            font-size: 11px;
+            color: white;
+            padding: 2px;
+            background-color: rgba(0,0,0,0.5);
+            border-radius: 3px;
+            position: absolute;
+            top: -15px;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        .theoretical-line {
+            width: 100%;
+            border-bottom: 1px dashed #e74c3c;
+            position: absolute;
+            z-index: 5;
+            top: 0;
+            font-size: 12px;
+            color: #e74c3c;
+        }
+        
+        .y-axis {
+            position: absolute;
+            left: -40px; 
+            top: 0;
+            height: 100%;
+            width: 40px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-right: 5px;
+            font-size: 12px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-book-reader"></i> PLATAFORMA
+        </a>
+    </header>
+    <div class="container">
+        <div class="controls">
+            <h2><i class="fas fa-dice-d20"></i> Configurações do Lançamento</h2>
+            
+            <div class="config-group">
+                <label for="numDiceInput">Quantidade de Dados (N):</label>
+                <input type="number" id="numDiceInput" value="2" min="1" max="5">
+                
+                <label for="diceSidesInput">Lados do Dado (D):</label>
+                <select id="diceSidesInput">
+                    <option value="2">D2 (Moeda)</option>
+                    <option value="4">D4</option>
+                    <option value="6" selected>D6 (Padrão)</option>
+                    <option value="8">D8</option>
+                    <option value="10">D10</option>
+                    <option value="12">D12</option>
+                    <option value="20">D20</option>
+                </select>
+                <button id="updateConfigButton" style="background-color: #D2691E; color: white;"><i class="fas fa-sync-alt"></i> Aplicar Configuração</button>
+            </div>
+            
+            <label for="rollCountInput">Lançamentos por Clique (Máx 20M):</label>
+            <input type="number" id="rollCountInput" value="10000" min="1" max="20000000" step="10000">
+            
+            <button id="rollOneButton"><i class="fas fa-dice-one"></i> Lançar 1 Vez</button>
+            <button id="rollManyButton"><i class="fas fa-dice-d6"></i> Lançar <span id="rollCountDisplay">10.000</span> Vezes</button>
+            
+            <label for="animationSpeedInput">Velocidade da Animação (ms/lançamento):</label>
+            <input type="range" id="animationSpeedInput" min="0" max="100" value="50" step="1">
+            <p style="font-size: 12px; margin-top: 5px;">Velocidade: <span id="speedValue">50 ms</span> (0 = Instantâneo)</p>
+
+            <button id="resetButton" style="margin-top: 40px;"><i class="fas fa-trash-alt"></i> Limpar Resultados</button>
+
+            <div class="result-display">
+                <h3>Estatísticas</h3>
+                <p>Configuração: <span id="currentConfig">2D6</span></p>
+                <p>Total de Lançamentos: <span id="totalRolls">0</span></p>
+                <p>Soma Atual: <span id="currentSum">-</span></p>
+                <p>Média Experimental: <span id="experimentalMean">N/A</span></p>
+                <p>Média Teórica: <span id="theoreticalMean">N/A</span></p>
+                
+                <hr style="margin: 15px 0;">
+                
+                <label for="targetSumInput" style="margin-top: 10px; font-weight: bold; color: #D2691E;"><i class="fas fa-search"></i> Buscar Combinação (Soma Alvo):</label>
+                <input type="number" id="targetSumInput" value="7" style="width: 100%; display: inline-block; margin-top: 5px;">
+                
+                <div style="margin-top: 15px; padding: 10px; border: 1px dashed #D2691E; border-radius: 4px; background-color: #fffaf0;">
+                    <p style="font-weight: bold; margin-bottom: 5px; color: #D2691E;"><i class="fas fa-lightbulb"></i> Interpretação da Probabilidade</p>
+                    <p id="interpretationText" style="font-size: 14px;">Aguardando configuração...</p>
+                </div>
+                <p style="font-size: 14px; margin-top: 15px;">Prob. Alvo (<span id="targetSumDisplay">7</span>) Exp: <span id="probTarget" style="font-weight: bold; color: #3498db;">0.0000%</span></p>
+                <p style="font-size: 14px;">Prob. Alvo (<span id="targetSumDisplayTeo">7</span>) Teórica: <span id="probTargetTheoretical" style="font-weight: bold; color: #e74c3c;">N/A</span></p>
+            </div>
+        </div>
+
+        <div class="simulation-area">
+            <h2>Visualização do Lançamento: <span id="visualConfig">2D6</span></h2>
+            
+            <div class="dice-container" id="diceContainer">
+                </div>
+
+            <div class="chart-container">
+                <div style="text-align: center; margin-bottom: 5px; font-weight: bold;">Distribuição de Frequência da Soma</div>
+                <div class="chart-bars" id="chartBars">
+                    </div>
+                <div class="x-axis-labels" style="display: flex; justify-content: space-around; width: 100%; height: 20px;" id="xAxisLabels">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // -----------------------------------
+        // 1. CONFIGURAÇÕES E ESTADO
+        // -----------------------------------
+        const diceContainerEl = document.getElementById('diceContainer');
+        const totalRollsEl = document.getElementById('totalRolls');
+        const currentSumEl = document.getElementById('currentSum');
+        const rollCountInput = document.getElementById('rollCountInput');
+        const rollCountDisplay = document.getElementById('rollCountDisplay');
+        const chartBarsEl = document.getElementById('chartBars');
+        const animationSpeedInput = document.getElementById('animationSpeedInput');
+        const speedValueEl = document.getElementById('speedValue');
+        const rollOneButton = document.getElementById('rollOneButton');
+        const rollManyButton = document.getElementById('rollManyButton');
+        const resetButton = document.getElementById('resetButton');
+        const numDiceInput = document.getElementById('numDiceInput');
+        const diceSidesInput = document.getElementById('diceSidesInput');
+        const updateConfigButton = document.getElementById('updateConfigButton');
+        const currentConfigEl = document.getElementById('currentConfig');
+        const visualConfigEl = document.getElementById('visualConfig');
+        const experimentalMeanEl = document.getElementById('experimentalMean');
+        const theoreticalMeanEl = document.getElementById('theoreticalMean');
+        const xAxisLabelsEl = document.getElementById('xAxisLabels');
+        
+        // Elementos para Busca e Interpretação
+        const targetSumInput = document.getElementById('targetSumInput');
+        const targetSumDisplayEl = document.getElementById('targetSumDisplay');
+        const targetSumDisplayTeoEl = document.getElementById('targetSumDisplayTeo');
+        const probTargetEl = document.getElementById('probTarget');
+        const probTargetTheoreticalEl = document.getElementById('probTargetTheoretical');
+        const interpretationTextEl = document.getElementById('interpretationText'); // NOVO ELEMENTO
+
+        let numDice = 2; // N
+        let diceSides = 6; // D
+        let minSum = 2;
+        let maxSum = 12;
+        let theoreticalProbabilities = {};
+        let theoreticalMean = 0;
+        let targetSum = 7; 
+        
+        let rollCounts = {}; 
+        let totalRolls = 0;
+        let isRolling = false;
+        let animationTime = 50; 
+        
+        // -----------------------------------
+        // 2. LÓGICA DE PROBABILIDADE
+        // -----------------------------------
+
+        function calculateTheoreticalMean(N, D) {
+            return N * (D + 1) / 2;
+        }
+
+        function generateDistribution(N, D) {
+            const min = N;
+            const max = N * D;
+            const ways = {};
+            
+            for (let s = min; s <= max; s++) {
+                ways[s] = 0;
+            }
+            
+            function findWays(k, currentSum) {
+                if (k === 0) {
+                    if (currentSum >= min && currentSum <= max) {
+                        ways[currentSum]++;
+                    }
+                    return;
+                }
+                for (let roll = 1; roll <= D; roll++) {
+                    findWays(k - 1, currentSum + roll);
+                }
+            }
+
+            findWays(N, 0);
+
+            const totalOutcomes = Math.pow(D, N);
+            const probs = {};
+            for (let s = min; s <= max; s++) {
+                probs[s] = ways[s] / totalOutcomes;
+            }
+            
+            return { ways, probs, totalOutcomes };
+        }
+        
+        // -----------------------------------
+        // 3. FUNÇÕES DE ROLAGEM E SIMULAÇÃO
+        // -----------------------------------
+
+        function rollDice(sides) {
+            return Math.floor(Math.random() * sides) + 1;
+        }
+
+        function updateDiceVisuals(results) {
+            const diceElements = document.querySelectorAll('.dice');
+            let sum = 0;
+            
+            diceElements.forEach((el, index) => {
+                const value = results[index];
+                if (value !== undefined) {
+                    el.textContent = value;
+                    sum += value;
+                }
+            });
+            return sum;
+        }
+
+        async function performRoll(count = 1) {
+            if (isRolling) return;
+            isRolling = true;
+            
+            const diceElements = document.querySelectorAll('.dice');
+            
+            if (count === 1 || animationTime > 0) {
+                diceElements.forEach(el => el.classList.add('rolling'));
+            }
+            
+            for (let i = 0; i < count; i++) {
+                const results = [];
+                let sum = 0;
+                
+                for (let j = 0; j < numDice; j++) {
+                    const result = rollDice(diceSides);
+                    results.push(result);
+                    sum += result;
+                }
+
+                if (count === 1 || animationTime > 0) {
+                    updateDiceVisuals(results);
+                    currentSumEl.textContent = sum;
+
+                    await new Promise(resolve => setTimeout(resolve, animationTime));
+                }
+                
+                totalRolls++;
+                rollCounts[sum]++;
+            }
+            
+            diceElements.forEach(el => el.classList.remove('rolling'));
+            
+            if (count > 1 && animationTime === 0) {
+                 const results = [];
+                 let sum = 0;
+                 for (let j = 0; j < numDice; j++) {
+                    const result = rollDice(diceSides);
+                    results.push(result);
+                    sum += result;
+                 }
+                 updateDiceVisuals(results);
+                 currentSumEl.textContent = sum;
+            }
+
+            isRolling = false;
+            updateDisplay();
+        }
+
+        // -----------------------------------
+        // 4. FUNÇÕES DE DISPLAY E GRÁFICO
+        // -----------------------------------
+        
+        // NOVO: Função para interpretar o resultado
+        function updateInterpretation() {
+            const P = theoreticalProbabilities[targetSum];
+            if (P === undefined || P === 0) {
+                interpretationTextEl.innerHTML = `<span style="color: #e74c3c;">A soma **${targetSum}** é **impossível** de ser alcançada com a configuração atual de **${numDice}D${diceSides}**.</span>`;
+                return;
+            }
+
+            // 1. Cálculo da Proporção "1 em X"
+            let fractionDenominator = 1 / P; 
+            
+            let simpleFractionText;
+            if (fractionDenominator < 1000) {
+                 // Arredonda para 1 casa decimal
+                 simpleFractionText = `A chance teórica é de **1 em ${fractionDenominator.toFixed(1).replace('.0', '')}**.`;
+            } else {
+                 // Mantém sem arredondamento para números grandes
+                 simpleFractionText = `A chance teórica é de **1 em ${fractionDenominator.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}**.`;
+            }
+            
+            // 2. Cálculo da Expectativa (usando 100 lançamentos como base)
+            const baseRolls = 100;
+            const expectedCount = P * baseRolls;
+            let expectedCountText;
+            
+            if (expectedCount >= 1) {
+                // Se a expectativa for maior ou igual a 1, usa 100 lançamentos
+                expectedCountText = `Em **${baseRolls} lançamentos**, você esperaria ver a soma ${targetSum} ocorrer **${expectedCount.toFixed(1).replace('.0', '')} vezes**.`;
+            } else {
+                // Se for menor que 1, usa um número base maior
+                const newBaseRolls = Math.ceil(1 / P);
+                expectedCountText = `Você esperaria ver a soma ${targetSum} **pelo menos uma vez** a cada **${newBaseRolls.toLocaleString('pt-BR')} lançamentos**.`;
+            }
+
+            interpretationTextEl.innerHTML = `${simpleFractionText}<br>${expectedCountText}`;
+        }
+
+
+        function calculateExperimentalMean() {
+            let sumOfRolls = 0;
+            for (let s = minSum; s <= maxSum; s++) {
+                sumOfRolls += s * rollCounts[s];
+            }
+            return totalRolls === 0 ? 0 : sumOfRolls / totalRolls;
+        }
+        
+        function updateDisplay() {
+            totalRollsEl.textContent = totalRolls.toLocaleString('pt-BR');
+            experimentalMeanEl.textContent = totalRolls > 0 ? calculateExperimentalMean().toFixed(3) : 'N/A';
+            
+            let targetCount = rollCounts[targetSum] || 0;
+            probTargetEl.textContent = totalRolls > 0 ? (targetCount / totalRolls * 100).toFixed(4) + '%' : '0.0000%';
+
+            updateInterpretation(); // Chama a nova função
+            updateChart();
+        }
+        
+        function updateChart() {
+            chartBarsEl.innerHTML = '';
+            
+            let maxCount = 0;
+            for (let s = minSum; s <= maxSum; s++) {
+                if (rollCounts[s] > maxCount) {
+                    maxCount = rollCounts[s];
+                }
+            }
+            
+            const maxY = maxCount * 1.05; 
+            
+            const yAxis = document.createElement('div');
+            yAxis.classList.add('y-axis');
+            
+            if (totalRolls > 0) {
+                const maxFreq = (maxCount / totalRolls) * 100;
+                yAxis.innerHTML = `
+                    <div style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end;">
+                        <span>${maxFreq.toFixed(1)}%</span>
+                        <span>${(maxFreq / 2).toFixed(1)}%</span>
+                        <span>0.0%</span>
+                    </div>
+                `;
+            } else {
+                 yAxis.innerHTML = `
+                    <div style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end;">
+                        <span>100.0%</span>
+                        <span>50.0%</span>
+                        <span>0.0%</span>
+                    </div>
+                `;
+            }
+
+            chartBarsEl.appendChild(yAxis);
+            
+            for (let sum = minSum; sum <= maxSum; sum++) {
+                const count = rollCounts[sum] || 0;
+                
+                let height = totalRolls === 0 ? 0 : (count / maxY) * 100;
+                height = Math.min(height, 100); 
+
+                const percentage = totalRolls === 0 ? 0 : (count / totalRolls) * 100;
+                
+                const wrapper = document.createElement('div');
+                wrapper.classList.add('bar-wrapper');
+                
+                if (theoreticalProbabilities[sum] !== undefined) {
+                    const theoreticalHeight = theoreticalProbabilities[sum] * totalRolls;
+                    const theoreticalPercentHeight = (theoreticalHeight / maxY) * 100;
+                    
+                    const theoreticalEl = document.createElement('div');
+                    theoreticalEl.classList.add('theoretical-line');
+                    theoreticalEl.style.height = `${theoreticalPercentHeight}%`;
+                    
+                    if (sum === targetSum) {
+                       theoreticalEl.innerHTML = `<span style="position: absolute; right: 0; top: -15px; background: white; padding: 0 5px; border: 1px dashed #e74c3c; border-radius: 3px; z-index: 20;">Alvo Teórico</span>`;
+                    }
+                    wrapper.appendChild(theoreticalEl);
+                }
+
+                const bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${height}%`;
+                
+                const valueLabel = document.createElement('span');
+                valueLabel.classList.add('bar-value');
+                valueLabel.textContent = `${percentage.toFixed(1)}% (${count.toLocaleString('pt-BR')})`;
+                
+                bar.appendChild(valueLabel);
+                wrapper.appendChild(bar);
+                
+                chartBarsEl.appendChild(wrapper);
+            }
+        }
+        
+        function updateXAxisLabels() {
+            xAxisLabelsEl.innerHTML = '';
+            
+            for (let sum = minSum; sum <= maxSum; sum++) {
+                const label = document.createElement('span');
+                label.style.flex = 1;
+                label.style.textAlign = 'center';
+                label.style.fontSize = '12px';
+                label.textContent = sum;
+                xAxisLabelsEl.appendChild(label);
+            }
+        }
+        
+        function renderDiceElements() {
+            diceContainerEl.innerHTML = '';
+            const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f1c40f', '#9b59b6'];
+
+            for (let i = 0; i < numDice; i++) {
+                const diceEl = document.createElement('div');
+                diceEl.classList.add('dice');
+                diceEl.style.backgroundColor = colors[i % colors.length];
+                diceEl.textContent = '1';
+                diceContainerEl.appendChild(diceEl);
+            }
+        }
+        
+        // -----------------------------------
+        // 5. FUNÇÕES DE CONTROLE E INICIALIZAÇÃO
+        // -----------------------------------
+        
+        function updateConfiguration() {
+            numDice = parseInt(numDiceInput.value) || 1;
+            diceSides = parseInt(diceSidesInput.value) || 6;
+            
+            if (numDice > 5) numDice = 5;
+            if (numDice < 1) numDice = 1;
+            numDiceInput.value = numDice;
+
+            minSum = numDice;
+            maxSum = numDice * diceSides;
+            
+            const distribution = generateDistribution(numDice, diceSides);
+            theoreticalProbabilities = distribution.probs;
+            theoreticalMean = calculateTheoreticalMean(numDice, diceSides);
+            
+            totalRolls = 0;
+            rollCounts = {};
+            for (let s = minSum; s <= maxSum; s++) {
+                rollCounts[s] = 0;
+            }
+            
+            targetSumInput.min = minSum;
+            targetSumInput.max = maxSum;
+            targetSum = parseInt(targetSumInput.value);
+            if (targetSum < minSum || targetSum > maxSum || isNaN(targetSum)) {
+                targetSum = minSum; 
+                targetSumInput.value = targetSum;
+            }
+            
+            currentConfigEl.textContent = `${numDice}D${diceSides}`;
+            visualConfigEl.textContent = `${numDice}D${diceSides}`;
+            theoreticalMeanEl.textContent = theoreticalMean.toFixed(3);
+            targetSumDisplayEl.textContent = targetSum;
+            targetSumDisplayTeoEl.textContent = targetSum;
+
+            if (theoreticalProbabilities[targetSum] !== undefined) {
+                probTargetTheoreticalEl.textContent = (theoreticalProbabilities[targetSum] * 100).toFixed(4) + '%';
+            } else {
+                probTargetTheoreticalEl.textContent = '0.0000%';
+            }
+            
+            renderDiceElements();
+            updateXAxisLabels();
+            updateDisplay(); 
+        }
+
+        function initControls() {
+            updateConfiguration(); 
+            
+            rollCountDisplay.textContent = parseInt(rollCountInput.value).toLocaleString('pt-BR');
+            speedValueEl.textContent = `${animationTime} ms`;
+        }
+
+        // -----------------------------------
+        // 6. EVENT LISTENERS
+        // -----------------------------------
+        
+        rollOneButton.addEventListener('click', () => performRoll(1));
+        
+        rollManyButton.addEventListener('click', () => {
+            const count = parseInt(rollCountInput.value) || 10000;
+            performRoll(count);
+        });
+        
+        updateConfigButton.addEventListener('click', updateConfiguration);
+        
+        resetButton.addEventListener('click', () => {
+            totalRolls = 0;
+            rollCounts = {};
+            for (let s = minSum; s <= maxSum; s++) {
+                rollCounts[s] = 0;
+            }
+            document.querySelectorAll('.dice').forEach(el => el.textContent = '1');
+            currentSumEl.textContent = '-';
+            updateDisplay();
+        });
+        
+        rollCountInput.addEventListener('input', (e) => {
+            let val = parseInt(e.target.value);
+            if (val < 1) val = 1;
+            if (val > 20000000) val = 20000000;
+            e.target.value = val;
+            rollCountDisplay.textContent = val.toLocaleString('pt-BR');
+        });
+        
+        animationSpeedInput.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            animationTime = 100 - val;
+            if (animationTime === 100) {
+                 animationTime = 0; 
+                 speedValueEl.textContent = 'Instantâneo';
+            } else {
+                 speedValueEl.textContent = `${animationTime} ms`;
+            }
+        });
+        
+        targetSumInput.addEventListener('input', () => {
+            let val = parseInt(targetSumInput.value);
+            
+            if (isNaN(val)) val = minSum;
+
+            if (val < minSum) val = minSum;
+            if (val > maxSum) val = maxSum;
+            targetSumInput.value = val;
+
+            targetSum = val;
+            
+            targetSumDisplayEl.textContent = targetSum;
+            targetSumDisplayTeoEl.textContent = targetSum;
+            
+            if (theoreticalProbabilities[targetSum] !== undefined) {
+                probTargetTheoreticalEl.textContent = (theoreticalProbabilities[targetSum] * 100).toFixed(4) + '%';
+            } else {
+                probTargetTheoreticalEl.textContent = '0.0000%';
+            }
+            
+            updateDisplay(); 
+        });
+
+        // Inicialização
+        initControls();
+    </script>
+</body>
+</html>

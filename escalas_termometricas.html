@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Termometria e Conversão de Escalas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>        
+        /* Variáveis para o layout */        
+        :root {            
+            --header-height: 55px;             
+            --recipiente-size: 350px;
+            --termometro-height: 300px;
+            --display-height: 100px;
+        }
+
+        /* ----------------------------------- */        
+        /* ESTILOS DO HEADER (Navegação) */        
+        /* ----------------------------------- */        
+        .top-bar {            
+            background-color: white;            
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);            
+            padding: 0;            
+            height: var(--header-height);             
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;             
+            display: flex;
+            align-items: stretch;             
+            border-bottom: 1px solid #ddd;             
+            box-sizing: border-box;         
+        }
+        .logo-link {            
+            text-decoration: none;            
+            color: #D2691E;             
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 25px;             
+            display: flex;
+            align-items: center;             
+            border-right: 1px solid #ddd;             
+            transition: background-color 0.3s;
+        }                
+        .logo-link:hover {            
+            background-color: #f5f5f5;
+        }
+        .nav-buttons {            
+            display: flex;
+            justify-content: flex-start;
+            flex-grow: 1;
+        }
+        .page-title {            
+            padding: 0 25px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+
+        /* ----------------------------------- */        
+        /* ESTILOS GERAIS DA PÁGINA */        
+        /* ----------------------------------- */        
+        body {            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: sans-serif;
+            padding-top: var(--header-height);             
+            box-sizing: border-box;         
+        }
+        #mainContent {            
+            display: flex;
+            align-items: flex-start;
+            gap: 40px;
+            margin: 30px 0 20px 0;
+        }                
+        #termometrosContainer {            
+            display: flex;
+            flex-direction: row;             
+            gap: 20px;
+            padding: 10px;
+            align-items: flex-end;         
+        }                
+        #recipienteContainer {            
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }                
+
+        /* ----------------------------------- */        
+        /* ESTILOS DO RECIPIENTE E PARTÍCULAS */        
+        /* ----------------------------------- */        
+        #recipiente {            
+            position: relative;
+            width: var(--recipiente-size);
+            height: var(--recipiente-size);
+            border: 5px solid #2c3e50;
+            background-color: #ecf0f1;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            background-image: linear-gradient(to right, #bdc3c7 1px, transparent 1px),                              
+                              linear-gradient(to bottom, #bdc3c7 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow: hidden;             
+            border-radius: 8px;
+        }
+        .particula {            
+            position: absolute;
+            background-color: #e74c3c;             
+            border-radius: 50%;
+            transform: translate(-50%, -50%);         
+        }
+
+        /* ----------------------------------- */        
+        /* ESTILOS DOS TERMÔMETROS E INPUTS */        
+        /* ----------------------------------- */        
+        .termometro {            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 0;
+        }
+        .termometro h3 {            
+            margin: 0;
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        .termometro-haste {            
+            position: relative;
+            width: 30px;
+            height: var(--termometro-height);
+            border: 2px solid #2c3e50;
+            border-radius: 15px;
+            background-color: #f5f5f5;
+            overflow: hidden;
+            order: 2;             
+            margin-top: 10px;
+        }
+        .mercurio-barra {            
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: #e74c3c;             
+            border-top: 1px solid #c0392b;
+            cursor: ns-resize;             
+            transition: background-color 0.2s;
+            /* Altura inicial será definida pelo JS */
+            height: 0px; 
+        }
+        .mercurio-barra:hover {            
+            background-color: #c0392b;
+        }
+        .mercurio-barra.dragging {            
+            cursor: grabbing;
+        }                
+        /* Estilo dos Inputs de Temperatura (Celsius, Fahrenheit, Kelvin) */        
+        .temp-input {            
+            order: 1;             
+            padding: 8px;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+            width: 100px;
+            text-align: center;
+            font-weight: bold;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+        }                
+
+        /* ----------------------------------- */        
+        /* CONTROLE DE PARTÍCULAS (FIXO) */        
+        /* ----------------------------------- */        
+        #controleParticulas {            
+            /* Reposicionado e fixado ao lado do recipiente */
+            position: absolute;
+            top: 0;
+            left: calc(var(--recipiente-size) + 20px); 
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            width: 200px;
+            text-align: center;
+            cursor: default; 
+            z-index: 50;
+        }
+        #controleParticulas h4 {            
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        #particulaSlider {            
+            width: 100%;
+            cursor: pointer;
+        }
+
+        /* ----------------------------------- */        
+        /* DISPLAY DE CÁLCULOS E RESULTADOS */        
+        /* ----------------------------------- */        
+        #calculoDisplay {            
+            width: 90%;
+            max-width: 900px;
+            min-height: var(--display-height);
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            text-align: left;
+            border-top: 2px solid #ddd;
+        }
+        .formula-group {            
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .formula-item {            
+            flex-basis: 30%;
+            min-width: 200px;
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 5px;
+            background-color: #f9f9f9;
+        }
+        .formula-item h4 {            
+            margin: 0 0 5px 0;
+            color: #007bb5;
+            font-size: 1em;
+        }
+        .formula-item p {            
+            margin: 3px 0;
+            font-size: 0.9em;
+        }
+        .formula-result {            
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #27ae60;
+        }    
+    </style>
+</head>
+<body>
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-book-reader"></i> PLATAFORMA
+        </a>
+        <div class="nav-buttons">
+            <span class="page-title">Termometria e Conversão de Escalas (°C, °F, K)</span>
+        </div>
+    </header>
+            
+    <div id="mainContent">
+        <div id="termometrosContainer">
+            <div class="termometro" id="termometroC">
+                <h3>Celsius (°C)</h3>
+                <input type="number" class="temp-input" id="celsiusInput" data-scale="celsius" value="0.00" step="0.01" min="-50" max="150" title="Entrada de temperatura em Celsius">
+                <div class="termometro-haste">
+                    <div class="mercurio-barra" data-scale="celsius" data-min-temp="-50" data-max-temp="150"></div>
+                </div>
+                <div class="temp-valor-display" style="font-weight: bold;">0.00 &deg;C</div>
+            </div>
+
+            <div class="termometro" id="termometroF">
+                <h3>Fahrenheit (°F)</h3>
+                <input type="number" class="temp-input" id="fahrenheitInput" data-scale="fahrenheit" value="32.00" step="0.01" min="-58" max="302" title="Entrada de temperatura em Fahrenheit">
+                <div class="termometro-haste">
+                    <div class="mercurio-barra" data-scale="fahrenheit" data-min-temp="-58" data-max-temp="302"></div>
+                </div>
+                <div class="temp-valor-display" style="font-weight: bold;">32.00 &deg;F</div>
+            </div>
+
+            <div class="termometro" id="termometroK">
+                <h3>Kelvin (K)</h3>
+                <input type="number" class="temp-input" id="kelvinInput" data-scale="kelvin" value="273.15" step="0.01" min="0" max="423.15" title="Entrada de temperatura em Kelvin">
+                <div class="termometro-haste">
+                    <div class="mercurio-barra" data-scale="kelvin" data-min-temp="0" data-max-temp="423.15"></div>
+                </div>
+                <div class="temp-valor-display" style="font-weight: bold;">273.15 K</div>
+            </div>
+        </div>
+
+        <div id="recipienteContainer">
+            <div id="recipiente"></div>
+            
+            <div id="controleParticulas">
+                <h4>Quantidade de Partículas</h4>
+                <input type="range" id="particulaSlider" min="1" max="50" value="8" step="1">
+                <p>Nº de Partículas: <span id="numParticulasDisplay" style="font-weight: bold;">8</span></p>
+            </div>
+        </div>
+    </div>
+        
+    <div id="calculoDisplay">
+        <h3>Fórmulas de Conversão e Resultados</h3>
+        <div class="formula-group">
+        </div>
+        <p style="margin-top: 15px; font-size: 0.9em; text-align: center;">Velocidade Média das Partículas: <span id="vMediaDisplay" style="font-weight: bold;">0.00 u/s</span></p>
+    </div>
+
+    <script>
+        // --- CLASSE Particula ---        
+        class Particula {
+            constructor(id, x, y, vx, vy, raio) {
+                this.id = id;
+                this.x = x;
+                this.y = y;
+                this.vx = vx;                 
+                this.vy = vy;                 
+                this.raio = raio;                                                 
+                this.elemento = document.createElement('div');
+                this.elemento.className = 'particula';
+                this.elemento.style.width = (2 * raio) + 'px';                 
+                this.elemento.style.height = (2 * raio) + 'px';                                                 
+                this.elemento.style.left = this.x + 'px';
+                this.elemento.style.top = this.y + 'px';
+            }
+
+            atualizarPosicao(deltaTime, larguraRecipiente, alturaRecipiente) {
+                this.x += this.vx * deltaTime;
+                this.y += this.vy * deltaTime;
+
+                // Colisão Eixo X (Paredes)
+                if (this.x - this.raio < 0) {                     
+                    this.x = this.raio;                     
+                    this.vx *= -1;                 
+                } else if (this.x + this.raio > larguraRecipiente) {                     
+                    this.x = larguraRecipiente - this.raio;
+                    this.vx *= -1;
+                }
+
+                // Colisão Eixo Y (Paredes)
+                if (this.y - this.raio < 0) {                     
+                    this.y = this.raio;
+                    this.vy *= -1;
+                } else if (this.y + this.raio > alturaRecipiente) {                     
+                    this.y = alturaRecipiente - this.raio;
+                    this.vy *= -1;
+                }
+
+                this.elemento.style.left = this.x + 'px';
+                this.elemento.style.top = this.y + 'px';
+            }                
+        }
+
+        // --- CLASSE SimulacaoTermometria (Lógica principal) ---        
+        class SimulacaoTermometria {
+            constructor() {
+                // Dimensões
+                this.larguraRecipiente = document.getElementById('recipiente').offsetWidth;                 
+                this.alturaRecipiente = document.getElementById('recipiente').offsetHeight;                 
+                this.hasteHeight = document.querySelector('.termometro-haste').offsetHeight; 
+
+                // Elementos DOM
+                this.recipiente = document.getElementById('recipiente');
+                this.barras = document.querySelectorAll('.mercurio-barra');
+                this.inputs = document.querySelectorAll('.temp-input');                 
+                this.particulaSlider = document.getElementById('particulaSlider');
+                this.displayCalculo = document.querySelector('#calculoDisplay .formula-group');
+                this.vMediaDisplay = document.getElementById('vMediaDisplay');
+                this.numParticulasDisplay = document.getElementById('numParticulasDisplay');
+
+                // Variáveis de Estado
+                this.particulas = [];
+                this.raioParticula = 7.5;
+                this.temperaturaKelvin = 273.15; // Ponto de congelamento da água
+                this.numParticulas = parseInt(this.particulaSlider.value);
+                this.fatorVelocidade = 10;                 
+                this.minTempK = 0;
+                this.maxTempK = 423.15; // 150°C (máx Celsius)                                
+                
+                // Variáveis de Drag (Termômetros)
+                this.animaID = null;
+                this.tempoAnterior = 0;
+                this.isDragging = false;
+                this.draggingBar = null;
+
+                this.configurarTermometros();                
+                this.configurarControleParticulas();                
+                this.iniciarSimulacao();
+            }
+
+            // --- LÓGICA DE CONVERSÃO ---
+
+            C_to_K(C) { return C + 273.15; }            
+            K_to_C(K) { return K - 273.15; }            
+            C_to_F(C) { return (C * 9/5) + 32; }            
+            F_to_C(F) { return (F - 32) * 5/9; }            
+            K_to_F(K) { return this.C_to_F(this.K_to_C(K)); }            
+            F_to_K(F) { return this.C_to_K(this.F_to_C(F)); }
+
+            getKLimits(scale) {                
+                switch(scale) {                    
+                    case 'celsius': return { minK: this.C_to_K(-50), maxK: this.C_to_K(150) };                    
+                    case 'fahrenheit': return { minK: this.F_to_K(-58), maxK: this.F_to_K(302) };                    
+                    case 'kelvin':                     
+                    default: return { minK: this.minTempK, maxK: this.maxTempK };
+                }
+            }
+
+            // --- LÓGICA DE INTERAÇÃO (TERMÔMETROS) ---
+
+            configurarTermometros() {                
+                // Eventos de arrasto (mercurio) - Usam 'mousemove/input' para reação imediata
+                this.barras.forEach(barra => {                    
+                    barra.addEventListener('mousedown', (e) => this.startDragBar(e, barra));
+                    barra.addEventListener('touchstart', (e) => this.startDragBar(e, barra));
+                });
+                window.addEventListener('mousemove', (e) => this.dragBar(e));
+                window.addEventListener('touchmove', (e) => this.dragBar(e));
+                window.addEventListener('mouseup', () => this.stopDragBar());
+                window.addEventListener('touchend', () => this.stopDragBar());
+
+                // Eventos de input (texto)
+                this.inputs.forEach(input => {                    
+                    input.addEventListener('change', () => this.handleTempInput(input));
+                });
+            }
+
+            startDragBar(e, barra) {                
+                e.preventDefault();
+                this.isDragging = true;
+                this.draggingBar = barra;
+                this.draggingBar.classList.add('dragging');
+            }
+
+            dragBar(e) {                
+                if (!this.isDragging || !this.draggingBar) return;                                
+                
+                let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const haste = this.draggingBar.parentElement;
+                const hasteRect = haste.getBoundingClientRect();                                
+                
+                // Mapeia a posição do clique no eixo Y da barra de mercúrio
+                let mouseYInHaste = hasteRect.bottom - clientY;                                
+                mouseYInHaste = Math.max(0, Math.min(this.hasteHeight, mouseYInHaste));
+                
+                const percentHeight = mouseYInHaste / this.hasteHeight;                                
+                
+                const scale = this.draggingBar.dataset.scale;
+                const { minK, maxK } = this.getKLimits(scale);                                
+                
+                let novoK = minK + percentHeight * (maxK - minK);                                
+                this.setTemperaturaK(novoK);
+            }
+
+            stopDragBar() {                
+                if (this.isDragging && this.draggingBar) {
+                    this.isDragging = false;
+                    this.draggingBar.classList.remove('dragging');
+                    this.draggingBar = null;
+                }
+            }
+            
+            handleTempInput(input) {
+                // Substitui vírgula por ponto para garantir o parsing correto do float
+                const rawValue = input.value.replace(',', '.');
+                let tempValue = parseFloat(rawValue);
+
+                if (isNaN(tempValue)) {
+                    this.atualizarTodosTermometros(); 
+                    return;
+                }
+
+                const scale = input.dataset.scale;
+                let novoK;
+
+                // Converte o valor do input para Kelvin
+                switch (scale) {
+                    case 'celsius':
+                        novoK = this.C_to_K(tempValue);
+                        break;
+                    case 'fahrenheit':
+                        novoK = this.F_to_K(tempValue);
+                        break;
+                    case 'kelvin':
+                    default:
+                        novoK = tempValue;
+                        break;
+                }
+                this.setTemperaturaK(novoK);
+            }
+            
+            // --- LÓGICA PRINCIPAL DE ATUALIZAÇÃO DE ESTADO ---
+            
+            setTemperaturaK(novoK) {
+                // Limita a temperatura dentro dos limites físicos da simulação
+                novoK = Math.max(this.minTempK, Math.min(this.maxTempK, novoK));
+                
+                // Evita recalcular se a temperatura for praticamente a mesma
+                if (Math.abs(novoK - this.temperaturaKelvin) < 0.01) {
+                    this.atualizarTodosTermometros();
+                    return; 
+                }
+                
+                this.temperaturaKelvin = novoK;
+                
+                this.atualizarTodosTermometros(); 
+                this.atualizarVelocidadeParticulas(); 
+                this.atualizarDisplayCalculo();
+            }
+
+            atualizarTodosTermometros() {
+                const K = this.temperaturaKelvin;
+                const C = this.K_to_C(K);
+                const F = this.K_to_F(K);
+
+                // 1. Atualiza Inputs e Displays de Texto
+                document.getElementById('celsiusInput').value = C.toFixed(2);
+                document.querySelector('#termometroC .temp-valor-display').textContent = `${C.toFixed(2)} °C`;
+                
+                document.getElementById('fahrenheitInput').value = F.toFixed(2);
+                document.querySelector('#termometroF .temp-valor-display').textContent = `${F.toFixed(2)} °F`;
+                
+                document.getElementById('kelvinInput').value = K.toFixed(2);
+                document.querySelector('#termometroK .temp-valor-display').textContent = `${K.toFixed(2)} K`;
+
+                // 2. Atualiza a altura das barras de mercúrio
+                this.barras.forEach(barra => {
+                    const scale = barra.dataset.scale;
+                    const { minK, maxK } = this.getKLimits(scale);
+                    
+                    const percent = (K - minK) / (maxK - minK);
+                    const heightPercent = Math.max(0, Math.min(1, percent));
+                    
+                    // Aplica a altura visual em pixels, fazendo o termômetro se mover
+                    barra.style.height = `${heightPercent * this.hasteHeight}px`;
+                });
+            }
+            
+            atualizarVelocidadeParticulas() {
+                const fatorEscala = Math.sqrt(this.temperaturaKelvin * this.fatorVelocidade);
+                
+                this.particulas.forEach(p => {
+                    const v_mag = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                    // Normaliza e reescala o vetor velocidade
+                    const fator = v_mag > 0 ? fatorEscala / v_mag : fatorEscala;
+                    p.vx *= fator;
+                    p.vy *= fator;
+                    
+                    // Se a velocidade era zero (evita que fiquem paradas)
+                    if (v_mag === 0) {
+                        const angulo = Math.random() * 2 * Math.PI;
+                        p.vx = fatorEscala * Math.cos(angulo);
+                        p.vy = fatorEscala * Math.sin(angulo);
+                    }
+                });
+            }
+
+            // --- LÓGICA DE PARTÍCULAS ---
+
+            configurarControleParticulas() {
+                this.particulaSlider.addEventListener('input', () => this.handleParticulaSlider());
+                // Usa 'change' para recriar as partículas APÓS o usuário soltar o slider
+                this.particulaSlider.addEventListener('change', () => this.reiniciarParticulas()); 
+            }
+
+            handleParticulaSlider() {
+                this.numParticulas = parseInt(this.particulaSlider.value);
+                this.numParticulasDisplay.textContent = this.numParticulas;
+            }
+
+            reiniciarParticulas() {
+                // Remove partículas antigas
+                this.particulas.forEach(p => p.elemento.remove());
+                this.particulas = [];
+
+                const raio = this.raioParticula;
+                const largura = this.larguraRecipiente;
+                const altura = this.alturaRecipiente;
+
+                // Cria novas partículas
+                for (let i = 0; i < this.numParticulas; i++) {
+                    const x = raio + Math.random() * (largura - 2 * raio);
+                    const y = raio + Math.random() * (altura - 2 * raio);
+                    
+                    const vx = (Math.random() - 0.5) * 2; 
+                    const vy = (Math.random() - 0.5) * 2;
+
+                    const p = new Particula(i, x, y, vx, vy, raio);
+                    this.particulas.push(p);
+                    
+                    // Adiciona o elemento da partícula ao DOM
+                    this.recipiente.appendChild(p.elemento); 
+                }
+                this.atualizarVelocidadeParticulas();
+                this.calcularEExibirVelocidadeMedia();
+            }
+
+            // --- LÓGICA DE EXIBIÇÃO DE CÁLCULO ---
+
+            calcularEExibirVelocidadeMedia() {
+                let somaVelocidade = 0;
+                this.particulas.forEach(p => {
+                    const v_mag = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                    somaVelocidade += v_mag;
+                });
+                const vMedia = this.particulas.length > 0 ? somaVelocidade / this.particulas.length : 0;
+                
+                this.vMediaDisplay.textContent = `${vMedia.toFixed(2)} u/s`;
+
+                // Prepara as fórmulas
+                const T_c = this.K_to_C(this.temperaturaKelvin).toFixed(2);
+                const T_f = this.K_to_F(this.temperaturaKelvin).toFixed(2);
+                const T_k = this.temperaturaKelvin.toFixed(2);
+                
+                this.displayCalculo.innerHTML = `
+                    <div class="formula-item">
+                        <h4>Conversão C para F</h4>
+                        <p>$$T_F = T_C \\cdot \\frac{9}{5} + 32$$</p>
+                        <p class="formula-result">${T_f} &deg;F = ${T_c} &deg;C \\cdot 1.8 + 32</p>
+                    </div>
+                    <div class="formula-item">
+                        <h4>Conversão C para K</h4>
+                        <p>$$T_K = T_C + 273.15$$</p>
+                        <p class="formula-result">${T_k} K = ${T_c} &deg;C + 273.15</p>
+                    </div>
+                    <div class="formula-item">
+                        <h4>Velocidade (Teoria Cinética)</h4>
+                        <p>$$V_{rms} \\propto \\sqrt{T}$$</p>
+                        <p class="formula-result">T=${T_k} K, V_{média} = ${vMedia.toFixed(2)} u/s</p>
+                    </div>
+                `;
+                // Força o re-render do MathJax
+                if (window.MathJax) {
+                    window.MathJax.typeset();
+                }
+            }
+
+            // --- LÓGICA DE ANIMAÇÃO ---
+
+            iniciarSimulacao() {
+                // Garante que tudo esteja no estado inicial correto
+                this.atualizarTodosTermometros(); 
+                this.reiniciarParticulas(); 
+                this.iniciarLoop();
+            }
+            
+            iniciarLoop() {
+                if (this.animaID) cancelAnimationFrame(this.animaID); // Previne loops duplicados
+                this.tempoAnterior = performance.now();
+                this.animaID = requestAnimationFrame(this.loop.bind(this));
+            }
+
+            loop(timestamp) {
+                const deltaTime = (timestamp - this.tempoAnterior) / 1000; 
+                this.tempoAnterior = timestamp;
+
+                // Move as partículas
+                this.particulas.forEach(p => {
+                    p.atualizarPosicao(deltaTime, this.larguraRecipiente, this.alturaRecipiente);
+                });
+                
+                // Otimização: Recalcula e exibe a velocidade média apenas a cada 50 frames
+                if (Math.floor(timestamp / 50) % 50 === 0) {
+                    this.calcularEExibirVelocidadeMedia();
+                }
+
+                this.animaID = requestAnimationFrame(this.loop.bind(this));
+            }
+        } // Fim da classe SimulacaoTermometria
+
+        // Inicia a simulação após o DOM carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            new SimulacaoTermometria();
+        });
+    </script>
+</body>
+</html>

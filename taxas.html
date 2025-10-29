@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Taxas Equivalentes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    
+    <style>
+        /* ----------------------------------- */
+        /* VARIÁVEIS E ESTILOS GERAIS */
+        /* ----------------------------------- */
+        :root {
+            --sidebar-width: 400px;
+            --cor-primaria: #00796b; /* Cor da Matemática Financeira */
+            --cor-secundaria: #34495e; 
+            --cor-fundo: #f8f8f8;
+            --cor-fundo-card: #ffffff;
+            --cor-resultado: #2980b9; 
+            --cor-destaque: #D2691E; /* Cor de destaque (Logo) */
+            --header-height: 55px;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--cor-secundaria);
+            display: flex; 
+            flex-direction: column;
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        /* ----------------------------------- */
+        /* LAYOUT PRINCIPAL (Sidebar + Content) */
+        /* ----------------------------------- */
+        .main-content-wrapper {
+            display: flex;
+            flex-grow: 1; 
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .controls-panel {
+            width: var(--sidebar-width); 
+            height: 100%;
+            overflow-y: auto; 
+            background-color: var(--cor-fundo);
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box; 
+            flex-shrink: 0;
+        }
+        
+        .result-panel {
+            flex-grow: 1; 
+            background-color: var(--cor-fundo-card);
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        /* BARRA SUPERIOR (Adaptado) */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: var(--header-height);
+            flex-shrink: 0;
+            display: flex;
+            align-items: stretch;
+            border-bottom: 1px solid #ddd;
+        }
+        .logo-link {
+            text-decoration: none;
+            color: var(--cor-destaque); 
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 25px; 
+            display: flex;
+            align-items: center; 
+            border-right: 1px solid #ddd; 
+        }
+        .nav-button {
+            background: none;
+            border: none;
+            padding: 15px 25px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+        }
+
+
+        /* ----------------------------------- */
+        /* CONTROLES E INPUTS */
+        /* ----------------------------------- */
+        h1 {
+            color: var(--cor-primaria);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background-color: #ffffff;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--cor-secundaria);
+        }
+
+        .input-group input[type="number"], .input-group select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1.1em;
+            box-sizing: border-box;
+        }
+        
+        .input-group select {
+             /* Estilo adicional para select */
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%2334495e" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
+            cursor: pointer;
+        }
+        
+        .input-group span {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--cor-primaria);
+            margin-left: 5px;
+        }
+
+        /* ----------------------------------- */
+        /* ÁREA DE RESULTADOS */
+        /* ----------------------------------- */
+
+        .result-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f4f9fc;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--cor-resultado);
+        }
+
+        .result-section h2 {
+            color: var(--cor-resultado);
+            margin-top: 0;
+            border-bottom: 1px dashed #ddd;
+            padding-bottom: 10px;
+        }
+        
+        .result-formula {
+            font-size: 1.2em;
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .result-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: var(--cor-primaria);
+            margin-top: 15px;
+            text-align: center;
+            word-break: break-all;
+            padding: 10px 0;
+        }
+        
+        .error-message {
+            color: #c0392b;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        /* ESTILOS DO PASSO A PASSO */
+        .step-by-step-box {
+            background-color: white;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+        }
+
+        .step-line {
+            padding: 5px 0;
+            font-size: 1.1em;
+            text-align: center;
+        }
+        .step-line .highlight {
+            font-weight: bold;
+            color: var(--cor-resultado);
+            background-color: #e6f7ff;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-book-reader"></i> PLATAFORMA
+        </a>
+
+        <div class="nav-buttons">
+            <a href="index.html" class="nav-button"><i class="fas fa-arrow-up"></i> MATÉRIAS</a>
+            <a href="exercicios_index.html" class="nav-button"><i class="fas fa-arrow-down"></i> EXE. DE APOIO</a>
+            <a href="videoaula_index.html" class="nav-button"><i class="fas fa-arrow-down"></i> VIDEO AULA</a>
+            
+            <button class="nav-button more-options">...</button>
+        </div>
+    </header>
+
+    <div class="main-content-wrapper">
+        
+        <div class="controls-panel">
+            <h1><i class="fas fa-percent"></i> Taxas Equivalentes</h1>
+            
+            <div id="operation-content" class="tab-content">
+                <h3>Converter Taxa de Juros</h3>
+
+                <div class="input-group">
+                    <label for="i_original">Taxa de Juros Original (em %):</label>
+                    <input type="number" id="i_original" min="0" step="0.01" value="1" oninput="calculateEquivalentRate()">
+                    <span>%</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="period_original">Período de Capitalização Original:</label>
+                    <select id="period_original" onchange="calculateEquivalentRate()">
+                        </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="period_target">Período de Capitalização Desejado:</label>
+                    <select id="period_target" onchange="calculateEquivalentRate()">
+                        </select>
+                </div>
+
+                <button class="nav-button" onclick="calculateEquivalentRate()" style="width: 100%; background-color: var(--cor-primaria); color: white; margin-top: 10px;">
+                    <i class="fas fa-sync-alt"></i> CALCULAR EQUIVALÊNCIA
+                </button>
+            </div>
+
+        </div>
+
+        <div id="result-container" class="result-panel">
+            <div class="result-section">
+                <h2>Aguardando Valores</h2>
+                <p>Insira a taxa de juros original e selecione os períodos de capitalização (origem e destino) para calcular a taxa equivalente.</p>
+            </div>
+        </div>
+    </div>
+
+    
+    <script>
+        
+        // Mapeamento: Período -> Períodos em 1 Ano
+        const periodsMap = {
+            'Anual': 1,
+            'Semestral': 2,
+            'Trimestral': 4,
+            'Bimestral': 6,
+            'Mensal': 12,
+            'Quinzenal': 24,
+            'Diário (360 dias)': 360,
+            'Diário (365 dias)': 365,
+        };
+
+        const precision = 8; // Precisão para arredondamento de resultados percentuais
+
+        /** Preenche os dropdowns com as opções de período */
+        function fillPeriodSelectors() {
+            const selectOriginal = document.getElementById('period_original');
+            const selectTarget = document.getElementById('period_target');
+            
+            for (const period in periodsMap) {
+                const optionOriginal = new Option(period, period);
+                const optionTarget = new Option(period, period);
+                selectOriginal.add(optionOriginal);
+                selectTarget.add(optionTarget);
+            }
+            
+            // Define valores iniciais comuns (Ex: Mensal -> Anual)
+            selectOriginal.value = 'Mensal';
+            selectTarget.value = 'Anual';
+        }
+
+
+        /** Constrói o passo a passo da fórmula. */
+        function buildStepByStep(i_original_dec, P_old, P_new, i_result_dec) {
+            
+            const i_orig_perc = (i_original_dec * 100).toFixed(2).replace('.', ',');
+            const P_old_name = getKeyByValue(periodsMap, P_old);
+            const P_new_name = getKeyByValue(periodsMap, P_new);
+            const i_res_perc = (i_result_dec * 100).toFixed(precision).replace('.', ',');
+            
+            // 1. Cálculo do expoente (Fator de Conversão)
+            const exponent = P_old / P_new;
+            
+            // 2. Fator acumulado (1 + i)
+            const factor = 1 + i_original_dec;
+            
+            // 3. Resultado da exponenciação
+            const power_result = Math.pow(factor, exponent);
+            
+            const steps = `
+                <p><strong>1. Conversão da Taxa e Identificação dos Períodos:</strong></p>
+                <div class="step-line">Taxa (Decimal) $i_{old} = \\frac{${i_orig_perc}\\%}{100} = \\text{${i_original_dec.toFixed(precision).replace('.', ',')}}$</div>
+                <div class="step-line">Período Original (<span class="highlight">${P_old_name}</span>): $P_{old} = ${P_old}$ períodos por ano.</div>
+                <div class="step-line">Período Desejado (<span class="highlight">${P_new_name}</span>): $P_{new} = ${P_new}$ períodos por ano.</div>
+
+                <p><strong>2. Cálculo do Expoente (Fator de Conversão de Períodos):</strong></p>
+                <div class="step-line">Expoente $ = \\frac{P_{old}}{P_{new}} = \\frac{${P_old}}{${P_new}} = \\text{${exponent.toFixed(precision).replace('.', ',')}}$</div>
+                
+                <p><strong>3. Aplicação da Fórmula da Taxa Equivalente:</strong></p>
+                <div class="step-line">$$i_{nova} = (1 + i_{original})^{\\frac{P_{old}}{P_{new}}} - 1$$</div>
+                <div class="step-line">$$i_{nova} = (1 + ${i_original_dec.toFixed(precision).replace('.', ',')})^{\\frac{${P_old}}{${P_new}}} - 1$$</div>
+
+                <p><strong>4. Cálculo Final:</strong></p>
+                <div class="step-line">$$( \\text{${factor.toFixed(precision).replace('.', ',')}} )^{\\text{${exponent.toFixed(precision).replace('.', ',')}}} - 1$$</div>
+                <div class="step-line">$$\\text{${power_result.toFixed(precision).replace('.', ',')}} - 1 = \\text{${i_result_dec.toFixed(precision).replace('.', ',')}}$$</div>
+                <div class="step-line">Resultado em %: $\\text{${i_res_perc}}$%</div>
+            `;
+            
+            return `<div class="step-by-step-box">${steps}</div>`;
+        }
+
+        /** Função auxiliar para obter a chave do objeto pelo valor */
+        function getKeyByValue(object, value) {
+            return Object.keys(object).find(key => object[key] === value);
+        }
+
+        /** Função principal de cálculo e exibição */
+        function calculateEquivalentRate() {
+            const container = document.getElementById('result-container');
+            let formulaTex = '';
+            let valid = true;
+            let errorMsg = '';
+            
+            const i_original_perc = parseFloat(document.getElementById('i_original').value);
+            const period_original_key = document.getElementById('period_original').value;
+            const period_target_key = document.getElementById('period_target').value;
+
+            // Validação dos inputs
+            if (isNaN(i_original_perc) || i_original_perc < 0) {
+                valid = false;
+                errorMsg = 'A taxa de juros deve ser um número não negativo válido.';
+            }
+
+            const i_original_dec = i_original_perc / 100;
+            const P_old = periodsMap[period_original_key]; // Períodos/ano na taxa original
+            const P_new = periodsMap[period_target_key]; // Períodos/ano na taxa desejada
+
+            let i_result_dec = 0;
+            
+            if (valid) {
+                try {
+                    // i_new = (1 + i_old)^(P_old / P_new) - 1
+                    // O expoente é (o período mais curto / o período mais longo)
+                    const exponent = P_old / P_new; 
+                    i_result_dec = Math.pow((1 + i_original_dec), exponent) - 1;
+                    
+                    const i_result_perc = i_result_dec * 100;
+                    
+                    // Fórmulas para exibição
+                    formulaTex = `
+                        $$i_{\\text{${period_target_key}}} = (1 + i_{\\text{${period_original_key}}})^{\\frac{\\text{${P_old}}}{\\text{${P_new}}}} - 1$$
+                    `;
+
+                    // Geração do passo a passo
+                    const stepByStepHtml = buildStepByStep(i_original_dec, P_old, P_new, i_result_dec);
+
+                    // HTML Final
+                    container.innerHTML = `
+                        <div class="result-section">
+                            <h2><i class="fas fa-check-circle"></i> Resultado da Taxa Equivalente</h2>
+                            <p style="text-align: center;">Taxa <span style="font-weight: bold;">${i_original_perc.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}% ao ${period_original_key.toLowerCase().replace('á', 'a').split(' ')[0]}</span> é equivalente a:</p>
+                            <div class="result-value">
+                                ${i_result_perc.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: precision })}% <span style="font-size: 0.5em;">ao ${period_target_key.toLowerCase().replace('á', 'a').split(' ')[0]}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="result-section">
+                            <h2><i class="fas fa-calculator"></i> Fórmula Aplicada</h2>
+                            <div class="result-formula">${formulaTex}</div>
+                        </div>
+
+                        <div class="result-section">
+                            <h2><i class="fas fa-list-ol"></i> Detalhamento do Cálculo</h2>
+                            ${stepByStepHtml}
+                        </div>
+                    `;
+
+                } catch (e) {
+                    valid = false;
+                    errorMsg = `Erro durante o cálculo: ${e.message}`;
+                }
+            } 
+            
+            if (!valid) {
+                 container.innerHTML = `
+                    <div class="result-section">
+                        <h2><i class="fas fa-exclamation-triangle"></i> Erro no Cálculo</h2>
+                        <div class="error-message">${errorMsg}</div>
+                    </div>
+                `;
+            }
+
+            // Renderiza as fórmulas MathJax (dentro do try/catch para garantir que o erro seja exibido)
+            MathJax.typesetPromise([container]).catch((err) => console.error("MathJax error:", err));
+        }
+
+        // --- INICIALIZAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            fillPeriodSelectors(); 
+            calculateEquivalentRate(); // Roda o cálculo inicial com os valores padrão
+        });
+
+    </script>
+</body>
+</html>

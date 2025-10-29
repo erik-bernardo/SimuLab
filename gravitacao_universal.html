@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador: Gravidade N-Corpos, Lançamento Pausado, Foco e Tutorial (v18)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* ----------------------------------- */
+        /* VARIÁVEIS E ESTILOS GERAIS */
+        /* ----------------------------------- */
+        :root {
+            --sidebar-width: 380px; 
+            --header-height: 55px;
+            --cor-primaria: #3498db; 
+            --cor-secundaria: #ecf0f1; 
+            --cor-fundo: #0a0a0a; 
+            --cor-card: #1c1c1c;
+            --cor-destaque: #D2691E; /* Cor de Destaque Laranja/Marrom */
+            --cor-malha: #333333; 
+            --cor-orbe: #e74c3c; 
+            --cor-primary-mass: #f39c12; 
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--cor-fundo);
+            color: white;
+            padding-top: var(--header-height); 
+            display: flex; 
+            min-height: 100vh;
+            overflow: hidden; 
+        }
+
+        /* ----------------------------------- */
+        /* LAYOUT PRINCIPAL */
+        /* ----------------------------------- */
+        .top-bar {
+            background-color: var(--cor-card);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            height: var(--header-height); 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100; 
+            display: flex;
+            align-items: stretch; 
+            border-bottom: 1px solid #333; 
+        }
+
+        .sidebar {
+            width: var(--sidebar-width); 
+            padding: 20px;
+            background-color: var(--cor-card);
+            border-right: 1px solid #333;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+            overflow-y: auto; 
+            box-sizing: border-box;
+            position: fixed;
+            top: var(--header-height);
+            bottom: 0;
+            left: 0;
+            z-index: 90;
+        }
+                
+        .main-container {
+            display: flex;
+            flex-grow: 1; 
+            padding-left: var(--sidebar-width); 
+            box-sizing: border-box;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px; 
+        }
+
+        /* ----------------------------------- */
+        /* CSS do Componente LOGO-BOTÃO (Mesclado de logo.html e arco_angulo.html) */
+        /* ----------------------------------- */
+
+        .logo-link {
+            /* Estilo Base */
+            text-decoration: none; 
+            color: var(--cor-destaque); 
+            font-size: 18px;
+            font-weight: bold;
+            
+            /* Box Model e Layout */
+            padding: 0 25px; 
+            display: flex;
+            align-items: center; /* Centraliza verticalmente na altura da barra */
+            
+            /* Separador e Transição - Mantém o padrão escuro */
+            border-right: 1px solid #333; 
+            transition: background-color 0.3s;
+        }
+
+        .logo-link:hover {
+            background-color: #222222; /* Cor de hover adaptada ao tema escuro */
+        }
+
+        .logo-link .fas {
+            margin-right: 10px; /* Espaçamento do ícone */
+        }
+
+        .page-title { padding: 0 25px; font-size: 16px; font-weight: bold; color: #ccc; display: flex; align-items: center; }
+
+        /* ----------------------------------- */
+        /* ESTILOS DO PAINEL DE CONTROLE */
+        /* ----------------------------------- */
+        h2 { color: var(--cor-primaria); border-bottom: 2px solid #333; padding-bottom: 10px; margin-top: 0; }
+        
+        .input-group { margin-bottom: 15px; background-color: #222; padding: 15px; border-radius: 8px; }
+        .input-group label { font-weight: bold; display: block; margin-bottom: 5px; color: #ccc; font-size: 0.9em;}
+        .dataInput { 
+            width: calc(100% - 10px);
+            padding: 8px; border: 1px solid #555; border-radius: 5px; font-size: 1.0em; 
+            box-sizing: border-box; background-color: #333; color: white; 
+        }
+        
+        .info-box { 
+            margin-top: 20px; padding: 15px; border: 1px solid var(--cor-primary-mass); 
+            border-radius: 8px; background-color: #2e261a; font-size: 0.9em; 
+        }
+        .info-box h3 { margin-top: 0; color: var(--cor-primary-mass);}
+
+        .action-button { 
+            width: 100%; padding: 12px; background-color: var(--cor-primaria); color: white; 
+            border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; 
+            cursor: pointer; margin-top: 10px; transition: background-color 0.2s; 
+        }
+        .action-button:hover { background-color: #2980b9; }
+
+        .pause-button.paused {
+            background-color: #e74c3c; 
+        }
+        .pause-button.paused:hover {
+            background-color: #c0392b; 
+        }
+
+        /* NOVO: Estilos para o Tutorial Box */
+        .tutorial-box { 
+            margin-top: 20px; 
+            padding: 10px 15px; 
+            border: 1px solid var(--cor-destaque); 
+            border-radius: 8px; 
+            background-color: #2c2114; /* Cor escura próxima ao laranja/marrom */
+            font-size: 0.9em; 
+        }
+        .tutorial-box h3 { 
+            margin: 0; 
+            color: var(--cor-destaque);
+            padding-bottom: 0;
+            border-bottom: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tutorial-box h4 {
+            margin-top: 10px;
+            margin-bottom: 5px;
+            color: #fff;
+            font-size: 1em;
+        }
+        .tutorial-box ol {
+            padding-left: 20px;
+            margin-top: 0;
+        }
+        .tutorial-box ol li {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        .tutorial-box ul {
+            list-style-type: circle;
+            padding-left: 15px;
+            margin-top: 3px;
+            margin-bottom: 3px;
+            font-size: 0.9em;
+        }
+
+
+        #objectsList {
+            list-style: none;
+            padding: 0;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #444;
+            border-radius: 5px;
+        }
+
+        #objectsList li {
+            padding: 8px 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+        }
+
+        #objectsList li:last-child {
+            border-bottom: none;
+        }
+
+        .foco-link {
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.1s;
+        }
+        .foco-link:hover {
+            color: var(--cor-primaria);
+            font-weight: bold;
+        }
+        
+        /* Estilos para Edição In-line */
+        .edit-name-input {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 2px 5px;
+            width: 120px;
+            margin-right: 5px;
+        }
+        
+        .edit-button {
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: color 0.2s;
+            padding: 0;
+            line-height: 1; 
+        }
+        .edit-button:hover { color: var(--cor-destaque); }
+        
+        .color-selector-wrapper {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+        }
+        .color-selector-wrapper input[type="color"] {
+            width: 25px;
+            height: 25px;
+            padding: 0;
+            border: 1px solid #555;
+            cursor: pointer;
+        }
+
+        /* ----------------------------------- */
+        /* ESTILOS DA SIMULAÇÃO (Canvas) */
+        /* ----------------------------------- */
+        #gravityCanvas {
+            display: block;
+            background-color: var(--cor-fundo);
+            cursor: crosshair;
+            border: 2px solid #555;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body onload="initializeSimulation()">
+
+    <header class="top-bar">
+        <a href="index.html" class="logo-link"><i class="fas fa-book-reader"></i> PLATAFORMA</a>
+        <div class="nav-buttons">
+            <span class="page-title">Simulador de Gravidade N-Corpos (v18 - Tutorial)</span>
+        </div>
+    </header>
+
+    <div class="main-container">
+        
+        <div class="sidebar">
+            <h2><i class="fas fa-globe-asia"></i> Configuração do Sistema</h2>
+
+            <button id="pauseButton" class="action-button pause-button" onclick="togglePause()">
+                <i class="fas fa-pause"></i> PAUSAR SIMULAÇÃO
+            </button>
+
+            <div class="tutorial-box">
+                <h3 onclick="toggleTutorial()" style="cursor: pointer;">
+                    <i class="fas fa-book-open"></i> Tutorial: Sistema Solar Customizado 
+                    <i id="tutorial-toggle-icon" class="fas fa-chevron-down"></i>
+                </h3>
+                <div id="tutorial-content" style="display: none;">
+                    <h4>Passos para criar um sistema com Planetas e Satélites:</h4>
+                    <ol>
+                        <li>
+                            <strong>1. O Sol (Primary Mass):</strong>
+                            <ul>
+                                <li>Use a **Massa: 10000** (máximo).</li>
+                                <li>Clique e solte o mouse no centro da tela para criar o Objeto Principal na posição (0,0) com velocidade zero.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>2. Configurar o Planeta:</strong>
+                            <ul>
+                                <li>**PAUSE** a simulação.</li>
+                                <li>Ajuste a Massa (ex: **500 - 2000**).</li>
+                                <li>**Clique e arraste** para longe do Sol. Use o **Vetor Guia Amarelo** para obter uma órbita circular/elíptica.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>3. Centralizar no Planeta:</strong>
+                            <ul>
+                                <li>**Clique no NOME do planeta** na lista lateral para centralizar a câmera nele.</li>
+                                <li>A simulação deve continuar pausada.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>4. Adicionar o Satélite:</strong>
+                            <ul>
+                                <li>Ajuste a Massa do Satélite (ex: **10 - 200**).</li>
+                                <li>Clique perto do planeta e arraste, definindo uma velocidade que o colocará em órbita do planeta (Use a **Previsão Azul** para auxiliar).</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>5. Iniciar!</strong>
+                            <ul>
+                                <li>Clique em **RETOMAR SIMULAÇÃO**. O sistema deve se mover corretamente.</li>
+                                <li>Use o Scroll para zoom e o clique para focar/desfocar.</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    <p style="font-style: italic; font-size: 0.8em; color: #aaa;">Dica: Órbitas estáveis são geralmente criadas com vetores de velocidade **perpendiculares** à linha que liga os dois corpos.</p>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="newMass"><i class="fas fa-weight-hanging"></i> Massa do Próximo Objeto (Máx 10000):</label>
+                <input type="range" id="newMass" class="dataInput" min="10" max="10000" step="10" value="5000">
+                <p>Massa: <strong id="newMassValue">5000</strong></p>
+            </div>
+            
+            <div class="input-group">
+                <label for="velocityScale"><i class="fas fa-tachometer-alt"></i> Fator de Velocidade (Magnitude do Arraste):</label>
+                <input type="range" id="velocityScale" class="dataInput" min="0.5" max="5.0" step="0.1" value="2.0">
+                <p>Fator: <strong id="velocityScaleValue">2.0</strong></p>
+            </div>
+            
+            <div class="info-box">
+                <h3><i class="fas fa-magic"></i> Dicas de Interação</h3>
+                <p style="font-weight: bold; color: #3498db;"><i class="fas fa-syringe"></i> É possível **lançar objetos** mesmo com a simulação **PAUSADA**.</p>
+                <p style="font-weight: bold; color: #3498db;"><i class="fas fa-satellite"></i> **Clique no NOME** ou no **objeto no canvas** para centralizar a câmera nele.</p>
+                <p style="font-weight: bold; color: #7f8c8d;"><i class="fas fa-mouse"></i> Use a **Roda do Mouse (Scroll)** sobre o canvas para dar zoom.</p>
+            </div>
+
+            <div class="input-group">
+                <label><i class="fas fa-list-ol"></i> Objetos no Sistema (Clique <i class="fas fa-edit"></i> para editar):</label>
+                <ul id="objectsList">
+                    <li style="color: #999;">Nenhum objeto lançado.</li>
+                </ul>
+            </div>
+
+            <button class="action-button" onclick="resetSystem()">
+                <i class="fas fa-trash-alt"></i> Limpar Sistema (Zerar Tudo)
+            </button>
+        </div>
+
+        <div class="main-content">
+            <canvas id="gravityCanvas"></canvas>
+        </div>
+    </div>
+    
+    <script>
+        // --- VARIÁVEIS DE SIMULAÇÃO ---
+        const CANVAS_WIDTH = 1200; 
+        const CANVAS_HEIGHT = 800;  
+        const GRID_DENSITY = 30; 
+        const G_FACTOR = 0.5; // Constante Gravitacional
+        const CENTER_X = CANVAS_WIDTH / 2;
+        const CENTER_Y = CANVAS_HEIGHT / 2;
+        
+        let SCALE_FACTOR = 1.0; 
+        const MIN_SCALE = 0.2;
+        const MAX_SCALE = 3.0;
+
+        let canvas, ctx;
+        let objects = []; 
+        let primaryMass = null; 
+        
+        let isLaunching = false;
+        let isPaused = false; 
+        let focusedBody = null; 
+        
+        let launchStart = { x: 0, y: 0 };
+        let launchEnd = { x: 0, y: 0 };
+        let launchPrediction = []; 
+        let launchTarget = null; 
+        
+        // --- CLASSES DE DADOS ---
+        class CelestialBody {
+            constructor(x, y, mass, vx = 0, vy = 0) {
+                this.x = x; 
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.mass = mass;
+                this.radius = Math.max(4, Math.pow(mass, 1/3) * 1.5); 
+                this.isPrimary = false;
+                this.trail = []; 
+                this.color = mass > 400 ? var2hex('--cor-primary-mass') : var2hex('--cor-orbe');
+                this.name = `Objeto ${objects.length + 1}`;
+            }
+        }
+
+        // --- FUNÇÕES DE CONTROLE GERAL ---
+
+        function updateUIValues() {
+            document.getElementById('newMassValue').textContent = document.getElementById('newMass').value;
+            document.getElementById('velocityScaleValue').textContent = document.getElementById('velocityScale').value;
+        }
+
+        function resetSystem() {
+            objects = [];
+            primaryMass = null;
+            focusedBody = null; 
+            SCALE_FACTOR = 1.0; 
+            updateObjectList();
+            if (isPaused) {
+                togglePause(); 
+            }
+            ctx.fillStyle = var2hex('--cor-fundo');
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            const button = document.getElementById('pauseButton');
+            
+            if (isPaused) {
+                button.innerHTML = '<i class="fas fa-play"></i> RETOMAR SIMULAÇÃO';
+                button.classList.add('paused');
+            } else {
+                button.innerHTML = '<i class="fas fa-pause"></i> PAUSAR SIMULAÇÃO';
+                button.classList.remove('paused');
+            }
+        }
+
+        /** NOVO: Toggle para o tutorial */
+        function toggleTutorial() {
+            const content = document.getElementById('tutorial-content');
+            const icon = document.getElementById('tutorial-toggle-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        }
+        
+        /** Define o foco da câmera pelo índice do objeto no array. */
+        function focusBodyByIndex(index) {
+            const targetBody = objects[index];
+            if (targetBody) {
+                if (targetBody === focusedBody) {
+                    focusedBody = null;
+                } else {
+                    focusedBody = targetBody;
+                }
+            }
+        }
+
+
+        /** Atualiza a lista de objetos no painel lateral. */
+        function updateObjectList() {
+            const list = document.getElementById('objectsList');
+            list.innerHTML = '';
+
+            if (objects.length === 0) {
+                list.innerHTML = '<li style="color: #999; text-align: center;">Nenhum objeto lançado.</li>';
+                primaryMass = null; 
+                focusedBody = null; 
+                return;
+            }
+
+            // Lógica de Encontrar Primary Mass e Re-Referenciar (invariante)
+            const maxMass = objects.reduce((max, obj) => Math.max(max, obj.mass), 0);
+            const newPrimary = objects.find(obj => obj.mass === maxMass) || null;
+            
+            if (newPrimary !== primaryMass && primaryMass) {
+                const dx = newPrimary.x;
+                const dy = newPrimary.y;
+
+                objects.forEach(obj => {
+                    obj.x -= dx;
+                    obj.y -= dy;
+                    obj.trail = []; 
+                });
+                
+                newPrimary.x = 0;
+                newPrimary.y = 0;
+            }
+            
+            primaryMass = newPrimary;
+            
+            if (focusedBody && !objects.includes(focusedBody)) {
+                focusedBody = null;
+            }
+
+            objects.forEach((obj, index) => {
+                const li = document.createElement('li');
+                const isPrimary = (obj === primaryMass);
+                
+                let massText = obj.mass.toFixed(0);
+                let iconClass = 'fa-satellite-dish';
+
+                if (isPrimary) {
+                    massText = `(P) M=${massText}`;
+                    li.style.color = obj.color;
+                    iconClass = 'fa-star';
+                } else {
+                    li.style.color = obj.color;
+                    massText = `M=${massText}`;
+                }
+                
+                const nameSpanId = `name-${index}`;
+                
+                // Adiciona o foco-link no nome
+                li.innerHTML = `
+                    <i class="fas ${iconClass}"></i> 
+                    <span id="${nameSpanId}" class="foco-link" onclick="focusBodyByIndex(${index})" title="Centralizar Câmera">${obj.name}</span>: <strong>${massText}</strong>
+                    
+                    <div style="display: flex; align-items: center; margin-left: auto;">
+                        <button class="edit-button" title="Renomear" onclick="startInlineEdit(${index})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        
+                        <div class="color-selector-wrapper" title="Mudar Cor">
+                            <input type="color" id="color-${index}" value="${obj.color}" onchange="updateBodyColor(${index}, this.value)">
+                        </div>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+        
+        // --- FUNÇÕES DE EDIÇÃO IN-LINE (invariante) ---
+
+        function startInlineEdit(index) {
+            const obj = objects[index];
+            if (!obj) return;
+            
+            const nameSpan = document.getElementById(`name-${index}`);
+            if (!nameSpan) return;
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'edit-name-input';
+            input.value = obj.name;
+            input.maxLength = 15;
+            
+            input.onblur = () => finishInlineEdit(index, input.value);
+            input.onkeydown = (e) => {
+                if (e.key === 'Enter') {
+                    input.blur(); 
+                }
+            };
+            
+            nameSpan.replaceWith(input);
+            input.focus();
+        }
+
+        function finishInlineEdit(index, newName) {
+            const obj = objects[index];
+            const inputElement = document.querySelector(`.edit-name-input`);
+            
+            if (!obj || !inputElement) return;
+
+            const finalName = newName.trim() || `Objeto ${index + 1}`;
+            obj.name = finalName;
+            
+            const newSpan = document.createElement('span');
+            newSpan.id = `name-${index}`;
+            newSpan.className = 'foco-link'; 
+            newSpan.setAttribute('onclick', `focusBodyByIndex(${index})`);
+            newSpan.setAttribute('title', "Centralizar Câmera");
+            newSpan.textContent = finalName;
+
+            inputElement.replaceWith(newSpan);
+            
+            updateObjectList(); 
+        }
+        
+        function updateBodyColor(index, newColor) {
+            const obj = objects[index];
+            if (obj) {
+                obj.color = newColor;
+            }
+        }
+        
+        // --- FUNÇÃO DE INICIALIZAÇÃO ---
+
+        function initializeSimulation() {
+            canvas = document.getElementById('gravityCanvas');
+            ctx = canvas.getContext('2d');
+            canvas.width = CANVAS_WIDTH;
+            canvas.height = CANVAS_HEIGHT;
+            
+            updateUIValues();
+            document.getElementById('newMass').addEventListener('input', updateUIValues);
+            document.getElementById('velocityScale').addEventListener('input', updateUIValues);
+
+            canvas.addEventListener('mousedown', handleMouseDown);
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('mouseup', handleMouseUp);
+            canvas.addEventListener('wheel', handleMouseWheel); 
+            canvas.addEventListener('click', handleCanvasClick); 
+            
+            gameLoop();
+        }
+
+        
+        // --- FUNÇÕES DE MOUSE E INTERAÇÃO ---
+
+        function getMousePos(event) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top
+            };
+        }
+
+        function handleMouseWheel(event) {
+            event.preventDefault(); 
+
+            const zoomAmount = event.deltaY * -0.001; 
+            
+            SCALE_FACTOR += zoomAmount;
+            
+            SCALE_FACTOR = Math.max(MIN_SCALE, Math.min(MAX_SCALE, SCALE_FACTOR));
+        }
+
+        function handleCanvasClick(event) {
+            if (isLaunching) return; 
+
+            const clickPos = getMousePos(event);
+            
+            const cameraX = focusedBody ? focusedBody.x : 0;
+            const cameraY = focusedBody ? focusedBody.y : 0;
+
+            const clickRelX = (clickPos.x - CENTER_X) / SCALE_FACTOR + cameraX;
+            const clickRelY = (clickPos.y - CENTER_Y) / SCALE_FACTOR + cameraY;
+
+            let closestBody = null;
+            let minDistanceSq = Infinity;
+
+            objects.forEach(body => {
+                const dx = body.x - clickRelX;
+                const dy = body.y - clickRelY;
+                const distSq = dx * dx + dy * dy;
+                
+                const radiusInRelUnits = body.radius + (5 / SCALE_FACTOR); 
+                
+                if (distSq < radiusInRelUnits * radiusInRelUnits) {
+                    if (distSq < minDistanceSq) {
+                        minDistanceSq = distSq;
+                        closestBody = body;
+                    }
+                }
+            });
+
+            if (closestBody) {
+                if (closestBody === focusedBody || closestBody === primaryMass) {
+                    focusedBody = null; 
+                } else {
+                    focusedBody = closestBody;
+                }
+            } else {
+                focusedBody = null; 
+            }
+        }
+
+
+        function handleMouseDown(event) {
+            if (document.querySelector('.edit-name-input')) return; 
+
+            const pos = getMousePos(event);
+            isLaunching = true;
+            launchStart = pos;
+            launchPrediction = []; 
+            launchTarget = null; 
+            handleMouseMove(event); 
+        }
+
+        function handleMouseMove(event) {
+            if (!isLaunching) return;
+
+            const pos = getMousePos(event);
+            launchEnd = pos;
+
+            const cameraX = focusedBody ? focusedBody.x : 0;
+            const cameraY = focusedBody ? focusedBody.y : 0;
+            
+            const relativeLaunchX = (launchStart.x - CENTER_X) / SCALE_FACTOR + cameraX; 
+            const relativeLaunchY = (launchStart.y - CENTER_Y) / SCALE_FACTOR + cameraY;
+            
+            launchTarget = findNearestAttractor(relativeLaunchX, relativeLaunchY);
+            
+            calculatePrediction(); 
+        }
+
+        function handleMouseUp(event) {
+            if (!isLaunching) return;
+            isLaunching = false;
+            
+            const pos = getMousePos(event);
+            launchEnd = pos;
+
+            const dx_screen = launchEnd.x - launchStart.x;
+            const dy_screen = launchEnd.y - launchStart.y;
+            
+            const mass = parseFloat(document.getElementById('newMass').value);
+            const factor = parseFloat(document.getElementById('velocityScale').value);
+
+            const cameraX = focusedBody ? focusedBody.x : 0;
+            const cameraY = focusedBody ? focusedBody.y : 0;
+            const relativeLaunchX = (launchStart.x - CENTER_X) / SCALE_FACTOR + cameraX; 
+            const relativeLaunchY = (launchStart.y - CENTER_Y) / SCALE_FACTOR + cameraY;
+            
+            const vx_unscaled = dx_screen * factor * 0.01;
+            const vy_unscaled = dy_screen * factor * 0.01;
+
+            if (!primaryMass && objects.length === 0 && mass > 500) {
+                 const newBody = new CelestialBody(0, 0, mass, 0, 0);
+                 newBody.name = "Sol/Objeto Principal";
+                 objects.push(newBody);
+            } else {
+                const newBody = new CelestialBody(
+                    relativeLaunchX, 
+                    relativeLaunchY, 
+                    mass,
+                    vx_unscaled, 
+                    vy_unscaled
+                );
+                newBody.name = `Objeto ${objects.length + 1}`; 
+                objects.push(newBody);
+            }
+
+            launchPrediction = []; 
+            launchTarget = null; 
+            updateObjectList();
+        }
+
+        /** Encontra o objeto com maior atração para o ponto (x, y) relativo. (invariante) */
+        function findNearestAttractor(x_rel, y_rel) {
+            if (objects.length === 0) return null;
+
+            let mostInfluential = null;
+            let maxInfluence = -1;
+            const minDistanceSq = 100; 
+
+            objects.forEach(body => {
+                const dx = body.x - x_rel;
+                const dy = body.y - y_rel;
+                const r_sq = dx * dx + dy * dy;
+                
+                const r_clamped_sq = Math.max(r_sq, minDistanceSq); 
+                const influence = body.mass / r_clamped_sq;
+
+                if (influence > maxInfluence) {
+                    maxInfluence = influence;
+                    mostInfluential = body;
+                }
+            });
+
+            return mostInfluential;
+        }
+        
+        // --- FUNÇÕES DE FÍSICA E PREVISÃO (invariante) ---
+        function calculateAcceleration(state, attractorBody) {
+            let ax = 0;
+            let ay = 0;
+            
+            if (attractorBody) {
+                const dx_p = attractorBody.x - state.x; 
+                const dy_p = attractorBody.y - state.y;
+                let r_p_sq = dx_p * dx_p + dy_p * dy_p;
+                let r_p = Math.sqrt(r_p_sq);
+                
+                const r_p_clamped_sq = Math.max(r_p_sq, 100); 
+
+                const accelerationMag_p = (G_FACTOR * attractorBody.mass) / r_p_clamped_sq;
+                
+                ax += accelerationMag_p * (dx_p / r_p);
+                ay += accelerationMag_p * (dy_p / r_p);
+            }
+
+            return { ax, ay };
+        }
+        
+        function rk4Step(state, deltaTime, attractorBody) {
+            
+            const derivative = (s) => ({
+                vx: s.vx,
+                vy: s.vy,
+                ax: calculateAcceleration(s, attractorBody).ax,
+                ay: calculateAcceleration(s, attractorBody).ay
+            });
+
+            // K1
+            const d1 = derivative(state);
+
+            // K2
+            const k2_state = {
+                x: state.x + d1.vx * deltaTime / 2,
+                y: state.y + d1.vy * deltaTime / 2,
+                vx: state.vx + d1.ax * deltaTime / 2,
+                vy: state.vy + d1.ay * deltaTime / 2,
+            };
+            const d2 = derivative(k2_state);
+
+            // K3
+            const k3_state = {
+                x: state.x + d2.vx * deltaTime / 2,
+                y: state.y + d2.vy * deltaTime / 2,
+                vx: state.vx + d2.ax * deltaTime / 2,
+                vy: state.vy + d2.ay * deltaTime / 2,
+            };
+            const d3 = derivative(k3_state);
+
+            // K4
+            const k4_state = {
+                x: state.x + d3.vx * deltaTime,
+                y: state.y + d3.vy * deltaTime,
+                vx: state.vx + d3.ax * deltaTime,
+                vy: state.vy + d3.ay * deltaTime,
+            };
+            const d4 = derivative(k4_state);
+
+            // Resultado final
+            const nextState = {
+                x: state.x + (deltaTime / 6) * (d1.vx + 2 * d2.vx + 2 * d3.vx + d4.vx),
+                y: state.y + (deltaTime / 6) * (d1.vy + 2 * d2.vy + 2 * d3.vy + d4.vy),
+                vx: state.vx + (deltaTime / 6) * (d1.ax + 2 * d2.ax + 2 * d3.ax + d4.ax),
+                vy: state.vy + (deltaTime / 6) * (d1.ay + 2 * d2.ay + 2 * d3.ay + d4.ay),
+            };
+            
+            return nextState;
+        }
+
+        function calculatePrediction() {
+            if (!isLaunching || !launchTarget) {
+                launchPrediction = [];
+                return;
+            }
+            
+            const dx_screen = launchEnd.x - launchStart.x;
+            const dy_screen = launchEnd.y - launchStart.y;
+            
+            const mass = parseFloat(document.getElementById('newMass').value);
+            const factor = parseFloat(document.getElementById('velocityScale').value);
+            
+            const cameraX = focusedBody ? focusedBody.x : 0;
+            const cameraY = focusedBody ? focusedBody.y : 0;
+
+            let currentState = {
+                x: (launchStart.x - CENTER_X) / SCALE_FACTOR + cameraX, 
+                y: (launchStart.y - CENTER_Y) / SCALE_FACTOR + cameraY,
+                vx: dx_screen * factor * 0.01,
+                vy: dy_screen * factor * 0.01,
+                mass: mass,
+            };
+            
+            launchPrediction = [];
+            const steps = 300; 
+            const predictionTimeStep = 0.5;
+
+            for (let i = 0; i < steps; i++) {
+                currentState = rk4Step(currentState, predictionTimeStep, launchTarget); 
+                
+                const r_center = Math.sqrt(currentState.x * currentState.x + currentState.y * currentState.y);
+                if (r_center > 3000) break;
+                
+                launchPrediction.push({x: currentState.x, y: currentState.y});
+            }
+        }
+        
+        // --- FUNÇÕES DE DESENHO E ATUALIZAÇÃO ---
+
+        function drawLaunchVector() {
+            if (!isLaunching || !ctx) return;
+
+            const cameraX = focusedBody ? focusedBody.x : 0;
+            const cameraY = focusedBody ? focusedBody.y : 0;
+
+
+            // --- 1. Desenha a Previsão de Órbita (Azul Tracejado) ---
+            if (launchPrediction.length > 0) {
+                ctx.save();
+                
+                ctx.translate(CENTER_X, CENTER_Y); 
+                ctx.scale(SCALE_FACTOR, SCALE_FACTOR); 
+                ctx.translate(-cameraX, -cameraY); 
+                
+                ctx.beginPath();
+                ctx.strokeStyle = '#3498db'; 
+                ctx.lineWidth = 1.5 / SCALE_FACTOR;
+                ctx.setLineDash([10 / SCALE_FACTOR, 10 / SCALE_FACTOR]); 
+                
+                launchPrediction.forEach((point, index) => {
+                    if (index === 0) {
+                        ctx.moveTo(point.x, point.y);
+                    } else {
+                        ctx.lineTo(point.x, point.y);
+                    }
+                });
+                ctx.stroke();
+                ctx.setLineDash([]); 
+
+                ctx.restore();
+            }
+
+            // --- 2. Desenha o Vetor de Arraste (Verde e Amarelo - Coordenadas de Tela não escaladas) ---
+            
+            ctx.save();
+
+            const dx_user = launchEnd.x - launchStart.x;
+            const dy_user = launchEnd.y - launchStart.y;
+            const mass = parseFloat(document.getElementById('newMass').value);
+            const radius = Math.max(4, Math.pow(mass, 1/3) * 1.5);
+            const factor = parseFloat(document.getElementById('velocityScale').value);
+            
+            // CÁLCULO DO VETOR GUIA IDEAL (Amarelo)
+            if (launchTarget) { 
+                const R_x_total = (launchStart.x - CENTER_X) / SCALE_FACTOR + cameraX; 
+                const R_y_total = (launchStart.y - CENTER_Y) / SCALE_FACTOR + cameraY;
+                
+                const R_x = R_x_total - launchTarget.x;
+                const R_y = R_y_total - launchTarget.y;
+                
+                const r = Math.sqrt(R_x * R_x + R_y * R_y);
+                
+                if (r > launchTarget.radius * 2) { 
+                    const P1_x = -R_y; const P1_y = R_x;
+                    const P2_x = R_y; const P2_y = -R_x;
+
+                    const dotP1 = (dx_user * P1_x) + (dy_user * P1_y);
+                    const dotP2 = (dx_user * P2_x) + (dy_user * P2_y);
+
+                    let Guide_x_dir, Guide_y_dir; 
+                    if (dotP1 >= dotP2) {
+                        Guide_x_dir = P1_x; Guide_y_dir = P1_y;
+                    } else {
+                        Guide_x_dir = P2_x; Guide_y_dir = P2_y;
+                    }
+                    
+                    const guide_dir_len = Math.sqrt(Guide_x_dir * Guide_x_dir + Guide_y_dir * Guide_y_dir);
+                    if (guide_dir_len > 0) {
+                        Guide_x_dir /= guide_dir_len; Guide_y_dir /= guide_dir_len;
+                    }
+
+                    const v_orb_ideal = Math.sqrt((G_FACTOR * launchTarget.mass) / r);
+                    const L_ideal = v_orb_ideal / (factor * 0.01); 
+                    
+                    const Guide_x = Guide_x_dir * L_ideal;
+                    const Guide_y = Guide_y_dir * L_ideal;
+                    
+                    const GuideEnd_x = launchStart.x + Guide_x;
+                    const GuideEnd_y = launchStart.y + Guide_y;
+
+                    // Desenha a linha Guia (Amarelo sólido)
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#f1c40f'; 
+                    ctx.lineWidth = 3;
+                    ctx.setLineDash([]); 
+                    ctx.moveTo(launchStart.x, launchStart.y);
+                    ctx.lineTo(GuideEnd_x, GuideEnd_y);
+                    ctx.stroke();
+
+                    // Desenha a ponta de seta do guia e o marcador
+                    const angle_guide = Math.atan2(Guide_y, Guide_x);
+                    const headlen = 10;
+                    ctx.beginPath();
+                    ctx.moveTo(GuideEnd_x, GuideEnd_y);
+                    ctx.lineTo(GuideEnd_x - headlen * Math.cos(angle_guide - Math.PI / 6), GuideEnd_y - headlen * Math.sin(angle_guide - Math.PI / 6));
+                    ctx.moveTo(GuideEnd_x, GuideEnd_y);
+                    ctx.lineTo(GuideEnd_x - headlen * Math.cos(angle_guide + Math.PI / 6), GuideEnd_y - headlen * Math.sin(angle_guide + Math.PI / 6));
+                    ctx.stroke();
+                    
+                    ctx.fillStyle = '#FFD700'; 
+                    ctx.beginPath();
+                    ctx.arc(GuideEnd_x, GuideEnd_y, 5, 0, Math.PI * 2); 
+                    ctx.fill();
+                }
+            }
+
+            // Desenha Objeto na posição inicial e Vetor do Usuário
+            ctx.fillStyle = `rgba(231, 76, 60, 0.7)`; 
+            ctx.beginPath();
+            ctx.arc(launchStart.x, launchStart.y, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#2ecc71'; 
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]); 
+            ctx.moveTo(launchStart.x, launchStart.y);
+            ctx.lineTo(launchEnd.x, launchEnd.y);
+            ctx.stroke();
+            ctx.setLineDash([]); 
+            
+            const angle_user = Math.atan2(dy_user, dx_user);
+            const headlen = 10;
+            ctx.strokeStyle = '#2ecc71'; 
+            ctx.beginPath();
+            ctx.moveTo(launchEnd.x, launchEnd.y);
+            ctx.lineTo(launchEnd.x - headlen * Math.cos(angle_user - Math.PI / 6), launchEnd.y - headlen * Math.sin(angle_user - Math.PI / 6));
+            ctx.moveTo(launchEnd.x, launchEnd.y);
+            ctx.lineTo(launchEnd.x - headlen * Math.cos(angle_user + Math.PI / 6), launchEnd.y - headlen * Math.sin(angle_user + Math.PI / 6));
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+
+        /** Desenha a malha deformada, aplicando o offset da câmera. (invariante) */
+        function drawMesh() {
+            if (!primaryMass) return;
+            
+            ctx.strokeStyle = var2hex('--cor-malha');
+            ctx.lineWidth = 1 / SCALE_FACTOR; 
+
+            const centerX_rel = 0;
+            const centerY_rel = 0;
+            
+            const stepX = CANVAS_WIDTH / (GRID_DENSITY - 1) / SCALE_FACTOR;
+            const stepY = CANVAS_HEIGHT / (GRID_DENSITY - 1) / SCALE_FACTOR;
+            const maxDeformation = 200;
+            
+            const deformationConstant = G_FACTOR * primaryMass.mass * maxDeformation;
+            const primaryRadiusClamped = primaryMass.radius * 3;
+            
+            for (let i = -2; i < GRID_DENSITY + 2; i++) { 
+                
+                // Linhas Horizontais
+                ctx.beginPath();
+                for (let j = -2; j < GRID_DENSITY + 2; j++) {
+                    
+                    const x_rel_origin = j * stepX - CENTER_X / SCALE_FACTOR; 
+                    const y_rel_origin = i * stepY - CENTER_Y / SCALE_FACTOR;
+                    
+                    const dx = x_rel_origin - centerX_rel;
+                    const dy = y_rel_origin - centerY_rel;
+                    
+                    let r = Math.sqrt(dx * dx + dy * dy);
+                    const r_clamped = Math.max(r, primaryRadiusClamped); 
+
+                    const deformation = deformationConstant / (r_clamped * r_clamped);
+                    
+                    const offsetY = deformation * 0.1; 
+                    const offsetX = deformation * (dx / r_clamped) * 0.05; 
+                    
+                    const newX_rel = x_rel_origin + offsetX;
+                    const newY_rel = y_rel_origin + offsetY;
+
+                    if (j === -2) {
+                        ctx.moveTo(newX_rel, newY_rel);
+                    } else {
+                        ctx.lineTo(newX_rel, newY_rel);
+                    }
+                }
+                ctx.stroke();
+
+                // Linhas Verticais
+                ctx.beginPath();
+                for (let j = -2; j < GRID_DENSITY + 2; j++) {
+                    const x_rel_origin = i * stepX - CENTER_X / SCALE_FACTOR;
+                    const y_rel_origin = j * stepY - CENTER_Y / SCALE_FACTOR;
+
+                    const dx = x_rel_origin - centerX_rel;
+                    const dy = y_rel_origin - centerY_rel;
+                    
+                    let r = Math.sqrt(dx * dx + dy * dy);
+
+                    const r_clamped = Math.max(r, primaryRadiusClamped);
+                    
+                    const deformation = deformationConstant / (r_clamped * r_clamped);
+                    
+                    const offsetY = deformation * 0.1; 
+                    const offsetX = deformation * (dx / r_clamped) * 0.05; 
+                    
+                    const newX_rel = x_rel_origin + offsetX;
+                    const newY_rel = y_rel_origin + offsetY;
+
+                    if (j === -2) {
+                        ctx.moveTo(newX_rel, newY_rel);
+                    } else {
+                        ctx.lineTo(newX_rel, newY_rel);
+                    }
+                }
+                ctx.stroke();
+            }
+        }
+
+        /** Atualiza a posição e velocidade dos corpos celestes. (invariante) */
+        function updateOrbits(deltaTime) {
+            
+            const accelerations = new Array(objects.length).fill(0).map(() => ({ ax: 0, ay: 0 }));
+
+            for (let i = 0; i < objects.length; i++) {
+                const bodyA = objects[i];
+                let ax_total = 0;
+                let ay_total = 0;
+
+                for (let j = 0; j < objects.length; j++) {
+                    if (i === j) continue;
+
+                    const bodyB = objects[j];
+
+                    const dx = bodyB.x - bodyA.x;
+                    const dy = bodyB.y - bodyA.y;
+                    const r_sq = dx * dx + dy * dy;
+                    const r = Math.sqrt(r_sq);
+                    
+                    const r_clamped_sq = Math.max(r_sq, 100); 
+                    
+                    const accelerationMag = (G_FACTOR * bodyB.mass) / r_clamped_sq;
+                    
+                    const ax = accelerationMag * (dx / r);
+                    const ay = accelerationMag * (dy / r);
+
+                    ax_total += ax;
+                    ay_total += ay;
+
+                    // Verifica Colisão
+                    if (r < bodyA.radius + bodyB.radius) {
+                        if (bodyA.mass < bodyB.mass) {
+                            objects[i].collided = true;
+                        } else if (bodyB.mass < bodyA.mass) {
+                            objects[j].collided = true;
+                        } else {
+                            if (i > j) objects[i].collided = true; 
+                        }
+                    }
+                }
+                accelerations[i].ax = ax_total;
+                accelerations[i].ay = ay_total;
+            }
+            
+            let numObjectsBefore = objects.length;
+
+            objects = objects.filter((body, i) => {
+                if (body.collided) return false;
+
+                if (body === primaryMass) {
+                    body.vx = 0;
+                    body.vy = 0;
+                    body.x = 0;
+                    body.y = 0;
+                } else {
+                    body.vx += accelerations[i].ax * deltaTime;
+                    body.vy += accelerations[i].ay * deltaTime;
+
+                    body.x += body.vx * deltaTime;
+                    body.y += body.vy * deltaTime;
+                }
+
+                
+                body.trail.push({x: body.x, y: body.y});
+                if (body.trail.length > 200) { 
+                    body.trail.shift();
+                }
+
+                const r_center = Math.sqrt(body.x * body.x + body.y * body.y);
+                
+                return r_center < 3000; 
+            });
+
+            return objects.length !== numObjectsBefore;
+        }
+
+        /**
+         * Desenha todos os corpos celestes.
+         */
+        function drawObjects() {
+            objects.forEach(body => {
+                const drawX = body.x;
+                const drawY = body.y;
+
+                // 1. Desenha o rastro (Órbita)
+                ctx.beginPath();
+                ctx.strokeStyle = body.color + '40'; 
+                ctx.lineWidth = 1 / SCALE_FACTOR; 
+                body.trail.forEach(point => {
+                    const trailX = point.x;
+                    const trailY = point.y;
+                    if (point === body.trail[0]) {
+                        ctx.moveTo(trailX, trailY);
+                    } else {
+                        ctx.lineTo(trailX, trailY);
+                    }
+                });
+                ctx.stroke();
+
+                // 2. Desenha o objeto
+                ctx.fillStyle = body.color;
+                ctx.beginPath();
+                ctx.arc(drawX, drawY, body.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (body === primaryMass) {
+                    ctx.strokeStyle = var2hex('--cor-secundaria');
+                    ctx.lineWidth = 2 / SCALE_FACTOR; 
+                    ctx.beginPath();
+                    ctx.arc(drawX, drawY, body.radius + 3, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                
+                // 3. Desenha o Nome do Objeto 
+                ctx.fillStyle = body.color;
+                ctx.font = `${14 / SCALE_FACTOR}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText(body.name, drawX, drawY - body.radius - (5 / SCALE_FACTOR));
+                
+                // 4. Destaque do Foco
+                if (body === focusedBody) {
+                    ctx.strokeStyle = '#3498db'; 
+                    ctx.lineWidth = 3 / SCALE_FACTOR; 
+                    ctx.beginPath();
+                    ctx.arc(drawX, drawY, body.radius + 8, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            });
+        }
+        
+        // --- UTILS ---
+        function var2hex(cssVar) {
+            return getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim();
+        }
+
+        // --- LOOP PRINCIPAL ---
+
+        let lastTime = 0;
+        let frameCounter = 0; 
+        
+        function gameLoop(currentTime) {
+            requestAnimationFrame(gameLoop);
+
+            const deltaTime = (currentTime - lastTime) / 16; 
+            lastTime = currentTime;
+            
+            frameCounter++; 
+
+            // 1. Limpa a tela 
+            ctx.fillStyle = var2hex('--cor-fundo');
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            
+            // Define o offset da Câmera (Foco)
+            let cameraX = 0;
+            let cameraY = 0;
+            if (focusedBody) {
+                cameraX = focusedBody.x;
+                cameraY = focusedBody.y;
+            }
+
+            // Aplica a transformação de escala e translação
+            ctx.save();
+            ctx.translate(CENTER_X, CENTER_Y); 
+            ctx.scale(SCALE_FACTOR, SCALE_FACTOR); 
+            ctx.translate(-cameraX, -cameraY); 
+            
+            // 2. Desenha a Malha (SÓ A CADA 3 QUADROS)
+            if (primaryMass && frameCounter % 3 === 0) { 
+                drawMesh();
+            }
+
+            let listChanged = false;
+
+            // --- FLUXO DE MOVIMENTO ---
+            if (!isLaunching && !isPaused) { 
+                // 3. Atualiza a Posição dos Objetos (Física N-Corpos - Euler)
+                listChanged = updateOrbits(deltaTime);
+            }
+            
+            // 4. Desenha os Objetos 
+            drawObjects();
+            
+            // Restaura o contexto 
+            ctx.restore(); 
+
+            // 5. Verifica se houve remoção de objetos e atualiza a lista
+            if (listChanged) {
+                updateObjectList();
+            }
+
+            // 6. O Vetor de Lançamento (incluindo a previsão RK4) é desenhado DEPOIS
+            if (isLaunching) {
+                drawLaunchVector();
+            }
+
+            // 7. Informação de Foco no Canto Superior Esquerdo
+            if (focusedBody) {
+                ctx.fillStyle = '#3498db';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Foco: ${focusedBody.name}`, 10, 20);
+            } else if (primaryMass) {
+                ctx.fillStyle = '#f39c12';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Foco: ${primaryMass.name} (Padrão)`, 10, 20);
+            }
+
+            // 8. Indicador de Pausa
+            if (isPaused) {
+                ctx.fillStyle = 'rgba(231, 76, 60, 0.7)';
+                ctx.font = 'bold 36px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText("SIMULAÇÃO PAUSADA", CANVAS_WIDTH / 2, 40);
+            }
+        }
+        
+    </script>
+</body>
+</html>

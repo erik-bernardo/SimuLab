@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Desconto - Loja</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* ----------------------------------- */
+        /* VARIÁVEIS E ESTILOS GERAIS */
+        /* ----------------------------------- */
+        :root {
+            --cor-primaria: #00796b; /* Verde Escuro */
+            --cor-secundaria: #34495e; /* Azul Escuro */
+            --cor-fundo: #f0f4f7;
+            --cor-sale: #c0392b; /* Vermelho (Destaque para Desconto) */
+            --cor-card: #ffffff;
+            --sidebar-width: 320px; 
+            --header-height: 55px; /* Altura da nova barra de topo */
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--cor-fundo);
+            color: var(--cor-secundaria);
+            /* AJUSTE PARA O HEADER FIXO */
+            padding-top: var(--header-height); 
+        }
+
+        /* ----------------------------------- */
+        /* BARRA SUPERIOR (TOP-BAR) - NOVO ESTILO E POSICIONAMENTO FIXO */
+        /* ----------------------------------- */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            height: var(--header-height); 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100; 
+            display: flex;
+            align-items: stretch; 
+            border-bottom: 1px solid #ddd; 
+            box-sizing: border-box; 
+        }
+
+        .logo-link {
+            text-decoration: none;
+            color: #D2691E; /* Cor de destaque */
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 25px; 
+            display: flex;
+            align-items: center; 
+            border-right: 1px solid #ddd; 
+            transition: background-color 0.3s;
+        }
+        
+        .logo-link:hover {
+            background-color: #f5f5f5;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: flex-start;
+            flex-grow: 1;
+        }
+
+        .page-title {
+            padding: 0 25px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* --- LAYOUT PRINCIPAL FLEX --- */
+        .main-container {
+            display: flex;
+            /* Altura ajustada para compensar o header */
+            min-height: calc(100vh - var(--header-height)); 
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--cor-card);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ----------------------------------- */
+        /* LADO ESQUERDO: SIDEBAR (INTERFACE) */
+        /* ----------------------------------- */
+        .sidebar-left {
+            width: var(--sidebar-width);
+            background-color: #f7f7f7;
+            padding: 40px 20px; 
+            border-right: 2px solid #eee;
+            box-sizing: border-box;
+        }
+
+        .sidebar-left h1 {
+            color: var(--cor-primaria);
+            font-size: 1.6em; 
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 15px;
+            margin-top: 0;
+            margin-bottom: 30px; 
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+            color: var(--cor-secundaria);
+        }
+
+        .dataInput {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1.1em;
+            box-sizing: border-box;
+            text-align: right;
+            transition: border-color 0.2s;
+        }
+        
+        .dataInput:focus {
+            border-color: var(--cor-primaria);
+            outline: none;
+        }
+        
+        .calculate-button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--cor-sale);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        .calculate-button:hover {
+            background-color: #a93226;
+        }
+
+        /* --- RESULTADOS --- */
+        .result-box {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: var(--cor-card);
+        }
+
+        .result-box h3 {
+            color: var(--cor-primaria);
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 1em;
+        }
+        
+        .result-item .label {
+            font-weight: bold;
+        }
+
+        #valorDesconto {
+            color: var(--cor-sale);
+            font-weight: bold;
+        }
+
+        #precoFinal {
+            font-size: 1.3em;
+            color: var(--cor-sale);
+            font-weight: bold;
+        }
+
+
+        /* ----------------------------------- */
+        /* LADO DIREITO: PRODUTO E VISUALIZAÇÃO */
+        /* ----------------------------------- */
+        .product-right {
+            flex-grow: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background-color: var(--cor-card);
+        }
+        
+        .product-image-area {
+            position: relative;
+            width: 80%;
+            max-width: 400px;
+            height: 400px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-image-area::before {
+            content: 'CAMISA DE AMOSTRA';
+            color: #bdc3c7;
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        /* --- ETIQUETAS DE PREÇO --- */
+        .price-tag-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            text-align: right;
+        }
+
+        /* Preço Original (Cortado) */
+        .original-price {
+            background-color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            text-decoration: line-through;
+            border: 1px dashed #ccc;
+        }
+
+        /* Preço Descontado (Destaque) */
+        .discount-price-label {
+            background-color: var(--cor-sale);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1.8em;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(192, 57, 43, 0.5);
+            line-height: 1.2;
+        }
+
+        .discount-price-label small {
+            display: block;
+            font-size: 0.5em;
+            font-weight: normal;
+        }
+        
+        .discount-price-label .final-price {
+            font-size: 1.4em;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-book-reader"></i> PLATAFORMA
+        </a>
+        <div class="nav-buttons">
+            <span class="page-title">Calculadora de Desconto Simples (Exemplo Loja)</span>
+        </div>
+    </header>
+
+    <div class="main-container">
+
+        <div class="sidebar-left">
+            <h1><i class="fas fa-percent"></i> Calculadora de Desconto</h1>
+
+            <div class="input-group">
+                <label for="precoOriginal">Preço Original (R$):</label>
+                <input type="number" id="precoOriginal" class="dataInput" value="150.00" min="0.01" step="0.01">
+            </div>
+
+            <div class="input-group">
+                <label for="percentualDesconto">Percentual de Desconto (%):</label>
+                <input type="number" id="percentualDesconto" class="dataInput" value="15" min="0" max="100" step="1">
+            </div>
+
+            <button class="calculate-button" onclick="calculateDiscount()">
+                <i class="fas fa-calculator"></i> Calcular Preço Final
+            </button>
+
+            <div class="result-box">
+                <h3><i class="fas fa-tags"></i> Seu Desconto</h3>
+                
+                <div class="result-item">
+                    <span class="label">Valor Economizado:</span>
+                    <span id="valorDesconto">R$ 0,00</span>
+                </div>
+                <hr style="border: 0; border-top: 1px dashed #eee; margin: 10px 0;">
+                <div class="result-item">
+                    <span class="label">Preço Final:</span>
+                    <span id="precoFinal">R$ 0,00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="product-right">
+            <div class="product-image-area">
+                <div class="price-tag-container">
+                    <div class="original-price" id="etiquetaOriginal">R$ 150,00</div>
+                    <div class="discount-price-label">
+                        <small>Preço com</small>
+                        <span class="final-price" id="etiquetaFinal">R$ 127,50</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Formata um número para o formato de moeda BRL (R$).
+         */
+        function formatCurrency(number) {
+            return 'R$ ' + (number || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        /**
+         * Função principal para calcular o desconto e atualizar as interfaces.
+         */
+        function calculateDiscount() {
+            const precoOriginal = parseFloat(document.getElementById('precoOriginal').value);
+            let percentualDesconto = parseFloat(document.getElementById('percentualDesconto').value);
+
+            // Validação
+            if (isNaN(precoOriginal) || precoOriginal <= 0) {
+                document.getElementById('valorDesconto').textContent = formatCurrency(0);
+                document.getElementById('precoFinal').textContent = formatCurrency(0);
+                
+                document.getElementById('etiquetaOriginal').textContent = formatCurrency(precoOriginal || 0);
+                document.getElementById('etiquetaFinal').textContent = formatCurrency(0);
+                return;
+            }
+            if (isNaN(percentualDesconto) || percentualDesconto < 0 || percentualDesconto > 100) {
+                percentualDesconto = Math.min(100, Math.max(0, percentualDesconto));
+            }
+
+            // Cálculo
+            const valorDesconto = precoOriginal * (percentualDesconto / 100);
+            const precoFinal = precoOriginal - valorDesconto;
+
+            // 1. Atualiza os resultados na Sidebar (Lado Esquerdo)
+            document.getElementById('valorDesconto').textContent = formatCurrency(valorDesconto);
+            document.getElementById('precoFinal').textContent = formatCurrency(precoFinal);
+
+            // 2. Atualiza as etiquetas no Produto (Lado Direito)
+            document.getElementById('etiquetaOriginal').textContent = formatCurrency(precoOriginal);
+            document.getElementById('etiquetaFinal').textContent = formatCurrency(precoFinal);
+        }
+
+        // Inicializa o cálculo ao carregar a página com os valores padrão
+        document.addEventListener('DOMContentLoaded', () => {
+            calculateDiscount();
+        });
+    </script>
+</body>
+</html>

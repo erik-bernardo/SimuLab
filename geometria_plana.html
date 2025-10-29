@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometria Plana - Calculadora Interativa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* ----------------------------------- */
+        /* VARIÁVEIS E ESTILOS GERAIS */
+        /* ----------------------------------- */
+        :root {
+            --sidebar-width: 300px;
+            --header-height: 55px;
+            --cor-primaria: #00796b; 
+            --cor-secundaria: #34495e; 
+            --cor-fundo-pagina: #f0f4f7;
+            --cor-card: #ffffff;
+            --cor-destaque: #D2691E; 
+            --cor-geogebra-bg: #ffffff;
+            --cor-geogebra-grid: #aaaaaa; 
+            --cor-geogebra-eixos: #9e9e9e;
+            --cor-ponto-ativo: #ff0000; 
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--cor-fundo-pagina);
+            color: var(--cor-secundaria);
+            padding-top: var(--header-height); 
+            display: flex; 
+            min-height: 100vh;
+            outline: none; 
+        }
+        
+        /* ----------------------------------- */
+        /* TELA DE CARREGAMENTO */
+        /* ----------------------------------- */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.98); 
+            color: var(--cor-secundaria);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; 
+            transition: opacity 0.5s ease;
+            pointer-events: all;
+            text-align: center;
+        }
+        
+        #loading-overlay h3 {
+             color: var(--cor-primaria);
+        }
+
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid var(--cor-destaque); 
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1.5s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        /* ----------------------------------- */
+        /* LAYOUT (Sidebar e Top-bar) */
+        /* ----------------------------------- */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: var(--header-height); 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100; 
+            display: flex;
+            align-items: stretch; 
+            border-bottom: 1px solid #ddd; 
+        }
+
+        .logo-link { text-decoration: none; color: var(--cor-destaque); font-size: 18px; font-weight: bold; padding: 0 25px; display: flex; align-items: center; border-right: 1px solid #ddd; }
+        .page-title { padding: 0 25px; font-size: 16px; font-weight: bold; color: #555; display: flex; align-items: center; }
+
+        .main-container {
+            display: flex;
+            flex-grow: 1; 
+            width: 100%; 
+            padding-left: var(--sidebar-width); 
+            box-sizing: border-box;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width); 
+            background-color: var(--cor-card);
+            border-right: 1px solid #ddd;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+            overflow-y: auto; 
+            box-sizing: border-box;
+            position: fixed;
+            top: var(--header-height);
+            bottom: 0;
+            left: 0;
+            z-index: 90;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            flex-shrink: 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab-button {
+            flex-grow: 1;
+            padding: 10px 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85em;
+            color: var(--cor-secundaria);
+            transition: background-color 0.2s, color 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button.active {
+            background-color: #f7f7f7;
+            color: var(--cor-primaria);
+            border-bottom: 3px solid var(--cor-primaria);
+            font-weight: bold;
+        }
+        
+        .tab-content-container {
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ----------------------------------- */
+        /* MAIN CONTENT (Canvas - GeoGebra Style) */
+        /* ----------------------------------- */
+        .main-content {
+            flex-grow: 1;
+            background-color: var(--cor-geogebra-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        #geometryCanvas {
+            display: block;
+            cursor: crosshair; 
+        }
+        
+        /* Indicador de Modo de Desenho */
+        #mode-indicator {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 5px 10px;
+            background-color: var(--cor-primaria);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.9em;
+            z-index: 100;
+        }
+
+        /* Estilos de input e resultados */
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em;}
+        .dataInput { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .result-box { margin-top: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; background-color: #f9f9f9; font-size: 0.95em; }
+        .result-box span { font-weight: bold; color: var(--cor-destaque); }
+        .drawing-control {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #eee;
+            border-radius: 4px;
+        }
+        .action-button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: var(--cor-destaque);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .action-button:hover { background-color: #c45c1a; }
+        .finish-button {
+            background-color: #2ecc71; 
+        }
+        .finish-button:hover { background-color: #27ae60; }
+        
+    </style>
+</head>
+<body tabindex="0">
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <h3>Carregando a Calculadora de Geometria...</h3>
+        <p>Se o erro persistir,voltar a pagina principal<p>
+    </div>
+
+    <header class="top-bar">
+        <a href="#" class="logo-link"><i class="fas fa-drafting-compass"></i> GEOPLAT</a>
+        <div class="nav-buttons">
+            <span class="page-title">Calculadora de Geometria Plana</span>
+        </div>
+    </header>
+
+    <div class="main-container">
+        
+        <div class="sidebar">
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="desenho"><i class="fas fa-pencil-ruler"></i> Desenho</button>
+                <button class="tab-button" data-tab="area"><i class="fas fa-square-full"></i> Área/Perímetro</button>
+                <button class="tab-button" data-tab="triangulo"><i class="fas fa-shapes"></i> Triângulo</button>
+                <button class="tab-button" data-tab="thales"><i class="fas fa-ruler-combined"></i> Thales</button>
+            </div>
+
+            <div class="tab-content-container">
+                
+                <div id="tab-desenho" class="tab-content active">
+                    <h4>Desenho de Polígonos Regulares</h4>
+                    <div class="drawing-control">
+                        <label for="polygon-sides">Número de Lados (3 a 10)</label>
+                        <select id="polygon-sides" class="dataInput">
+                            <option value="3">Triângulo (3)</option>
+                            <option value="4">Quadrado (4)</option>
+                            <option value="5">Pentágono (5)</option>
+                            <option value="6">Hexágono (6)</option>
+                            <option value="7">Heptágono (7)</option>
+                            <option value="8">Octógono (8)</option>
+                            <option value="9">Eneágono (9)</option>
+                            <option value="10">Decágono (10)</option>
+                        </select>
+                        <button class="action-button" onclick="activateDrawingMode('polygon')">
+                            <i class="fas fa-drafting-compass"></i> Ativar Polígono
+                        </button>
+                    </div>
+
+                    <h4 style="margin-top: 25px;">Desenho de Formas Livres (Polilinhas)</h4>
+                    <div class="drawing-control">
+                        <p style="font-size: 0.9em; margin-top: 0;">Clique na malha para adicionar vértices.</p>
+                        <button class="action-button" onclick="activateDrawingMode('polyline')">
+                            <i class="fas fa-pencil-alt"></i> Ativar Desenho Livre
+                        </button>
+                        <button class="action-button finish-button" onclick="finalizePolyline()" id="finishPolylineButton" style="display: none;">
+                            <i class="fas fa-check"></i> Finalizar Forma
+                        </button>
+                    </div>
+                </div>
+
+                <div id="tab-area" class="tab-content">
+                    <h4>Área do Círculo</h4>
+                    <div class="input-group">
+                        <label for="circulo-raio">Raio (r)</label>
+                        <input type="number" id="circulo-raio" class="dataInput" value="5" oninput="calculateCircle()">
+                    </div>
+                    <div class="result-box">
+                        Área (A): <span id="res-area">0</span> u²<br>
+                        Perímetro (P): <span id="res-perimetro">0</span> u
+                    </div>
+                    
+                    <h4 style="margin-top: 25px;">Diâmetro (D)</h4>
+                    <div class="input-group">
+                        <label for="raio-diametro">Raio (r)</label>
+                        <input type="number" id="raio-diametro" class="dataInput" value="5" oninput="calculateDiameter()">
+                    </div>
+                    <div class="result-box">
+                        Diâmetro (D): <span id="res-diametro">0</span> u
+                    </div>
+                </div>
+
+                <div id="tab-triangulo" class="tab-content">
+                    <h4>Hipotenusa (Teorema de Pitágoras)</h4>
+                    <div class="input-group">
+                        <label for="cateto-a">Cateto A</label>
+                        <input type="number" id="cateto-a" class="dataInput" value="3" oninput="calculateHipotenusa()">
+                    </div>
+                    <div class="input-group">
+                        <label for="cateto-b">Cateto B</label>
+                        <input type="number" id="cateto-b" class="dataInput" value="4" oninput="calculateHipotenusa()">
+                    </div>
+                    <div class="result-box">
+                        Hipotenusa (H): <span id="res-hipotenusa">0</span> u
+                    </div>
+
+                    <h4 style="margin-top: 25px;">Trigonometria (Ângulo A)</h4>
+                    <div class="input-group">
+                        <label>Ângulo A (deg)</label>
+                        <input type="number" id="angulo-a" class="dataInput" value="30" oninput="calculateTrig()">
+                    </div>
+                    <div class="result-box">
+                        Sen(A): <span id="res-sen">0</span><br>
+                        Cos(A): <span id="res-cos">0</span><br>
+                        Tan(A): <span id="res-tan">0</span>
+                    </div>
+                </div>
+
+                <div id="tab-thales" class="tab-content">
+                    <h4>Teorema de Thales (Calculando X)</h4>
+                    <img src="https://via.placeholder.com/250x100?text=Diagrama+de+Thales" alt="Diagrama de Thales" style="display: block; margin: 10px auto; border: 1px solid #ccc;">
+                    <p style="font-size: 0.85em; text-align: center;">a/b = c/x</p>
+                    <div class="input-group">
+                        <label for="thales-a">Segmento a</label>
+                        <input type="number" id="thales-a" class="dataInput" value="10" oninput="calculateThales()">
+                    </div>
+                    <div class="input-group">
+                        <label for="thales-b">Segmento b</label>
+                        <input type="number" id="thales-b" class="dataInput" value="5" oninput="calculateThales()">
+                    </div>
+                    <div class="input-group">
+                        <label for="thales-c">Segmento c</label>
+                        <input type="number" id="thales-c" class="dataInput" value="8" oninput="calculateThales()">
+                    </div>
+                    <div class="result-box">
+                        X: <span id="res-thales">0</span> u
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <canvas id="geometryCanvas"></canvas>
+            <div id="mode-indicator">Modo: Normal</div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- VARIÁVEIS DE ESTADO E CANVAS ---
+        const canvas = document.getElementById('geometryCanvas');
+        const ctx = canvas.getContext('2d');
+        const mainContent = document.querySelector('.main-content');
+        const modeIndicator = document.getElementById('mode-indicator');
+        
+        // Estado do Canvas e Desenho
+        let scale = 30; 
+        let offsetX = 0; 
+        let offsetY = 0; 
+        const gridStep = 1; 
+        
+        let objects = []; 
+        let drawingMode = 'none'; 
+        let tempObject = null; 
+        
+        // Flag para garantir que o desenho ocorra apenas quando o estado mudar
+        let needsRedraw = true; 
+        
+        // --- FUNÇÕES DE SETUP E DESENHO DO CANVAS ---
+
+        function initCanvas() {
+             // 1. Configura o tamanho do canvas
+            canvas.width = mainContent.clientWidth;
+            canvas.height = mainContent.clientHeight;
+            
+            // 2. Centraliza o offset
+            offsetX = canvas.width / 2;
+            offsetY = canvas.height / 2;
+            
+            // 3. Dispara cálculos iniciais
+            calculateCircle();
+            calculateDiameter();
+            calculateHipotenusa();
+            calculateTrig();
+            calculateThales();
+
+            // 4. Marca para o primeiro desenho e inicia o loop
+            needsRedraw = true;
+            requestAnimationFrame(gameLoop);
+        }
+
+        /**
+         * Loop principal de animação, chamado pelo requestAnimationFrame.
+         * Garante que o desenho seja sincronizado com a taxa de quadros do navegador.
+         */
+        function gameLoop() {
+            if (needsRedraw) {
+                draw();
+                needsRedraw = false;
+            }
+            requestAnimationFrame(gameLoop);
+        }
+        
+        /**
+         * FUNÇÃO DE DESENHO PRINCIPAL: Chama drawGrid e outros elementos.
+         */
+        function draw() {
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--cor-geogebra-bg').trim();
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawGridLines();
+            drawAxes();
+            drawObjects();
+        }
+
+        /**
+         * Desenha APENAS as linhas da malha que estão visíveis.
+         */
+        function drawGridLines() {
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--cor-geogebra-grid').trim();
+            ctx.lineWidth = 1;
+
+            // Linhas Verticais
+            const startX = Math.floor((-offsetX) / scale / gridStep) * gridStep;
+            for (let x = startX; x * scale + offsetX < canvas.width; x += gridStep) {
+                const { px } = worldToScreen(x, 0);
+                ctx.beginPath();
+                ctx.moveTo(px, 0);
+                ctx.lineTo(px, canvas.height);
+                ctx.stroke();
+            }
+
+            // Linhas Horizontais
+            const startY = Math.floor((-offsetY) / scale / gridStep) * gridStep * -1;
+            for (let y = startY; y * scale - offsetY < canvas.height; y -= gridStep) {
+                const { py } = worldToScreen(0, y);
+                ctx.beginPath();
+                ctx.moveTo(0, py);
+                ctx.lineTo(canvas.width, py);
+                ctx.stroke();
+            }
+        }
+
+        /**
+         * Desenha APENAS os eixos X e Y.
+         */
+        function drawAxes() {
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--cor-geogebra-eixos').trim();
+            ctx.lineWidth = 2;
+            
+            // Eixo Y
+            ctx.beginPath();
+            ctx.moveTo(offsetX, 0);
+            ctx.lineTo(offsetX, canvas.height);
+            ctx.stroke();
+
+            // Eixo X
+            ctx.beginPath();
+            ctx.moveTo(0, offsetY);
+            ctx.lineTo(canvas.width, offsetY);
+            ctx.stroke();
+        }
+
+        /**
+         * Converte coordenadas do canvas (px, py) para coordenadas do mundo (x, y).
+         */
+        function screenToWorld(px, py) {
+            const x = (px - offsetX) / scale;
+            const y = (offsetY - py) / scale; 
+            return { x, y };
+        }
+
+        /**
+         * Converte coordenadas do mundo (x, y) para coordenadas do canvas (px, py).
+         */
+        function worldToScreen(x, y) {
+            const px = offsetX + x * scale;
+            const py = offsetY - y * scale;
+            return { px, py };
+        }
+        
+        /**
+         * Desenha todos os objetos (polígonos e polilinhas) salvos e temporários.
+         */
+        function drawObjects() {
+            // Desenha objetos permanentes
+            objects.forEach(obj => {
+                if (obj.type === 'polygon' || obj.type === 'polyline') {
+                    drawPolygonShape(obj.vertices, '#000000', 'rgba(0, 121, 107, 0.4)', 3);
+                }
+            });
+
+            // Desenha objeto temporário em construção
+            if (tempObject) {
+                if (tempObject.type === 'polyline' && tempObject.vertices.length > 0) {
+                    drawPolygonShape(tempObject.vertices, 'var(--cor-ponto-ativo)', 'rgba(255, 0, 0, 0.1)', 2, true); 
+                    tempObject.vertices.forEach(v => drawPoint(v.x, v.y, 6, 'var(--cor-ponto-ativo)'));
+                } else if (tempObject.type === 'polygon' && tempObject.step === 1) {
+                    drawPoint(tempObject.center.x, tempObject.center.y, 8, 'var(--cor-ponto-ativo)');
+                }
+            }
+        }
+
+        /**
+         * Função utilitária para desenhar uma forma a partir de uma lista de vértices.
+         */
+        function drawPolygonShape(vertices, strokeColor, fillColor, lineWidth, isDashed = false) {
+            if (vertices.length < 2) return;
+
+            ctx.beginPath();
+            const start = worldToScreen(vertices[0].x, vertices[0].y);
+            ctx.moveTo(start.px, start.py);
+
+            for (let i = 1; i < vertices.length; i++) {
+                const point = worldToScreen(vertices[i].x, vertices[i].y);
+                ctx.lineTo(point.px, point.py);
+            }
+
+            ctx.closePath(); 
+            
+            ctx.fillStyle = fillColor;
+            ctx.fill();
+
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = lineWidth;
+            if (isDashed) ctx.setLineDash([5, 5]);
+            ctx.stroke();
+            if (isDashed) ctx.setLineDash([]);
+        }
+
+        /**
+         * Função utilitária para desenhar um ponto.
+         */
+        function drawPoint(x, y, radius, color) {
+            const { px, py } = worldToScreen(x, y);
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(px, py, radius, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+        
+        // --- FUNÇÕES DE INTERAÇÃO (Mouse/Teclado) ---
+
+        function activateDrawingMode(mode) {
+            drawingMode = mode;
+            tempObject = { type: mode };
+            
+            document.getElementById('finishPolylineButton').style.display = 'none';
+
+            if (mode === 'polygon') {
+                tempObject.sides = parseInt(document.getElementById('polygon-sides').value);
+                tempObject.step = 1; 
+                modeIndicator.textContent = `Modo: Polígono (${tempObject.sides} lados) - Clique no centro`;
+            } else if (mode === 'polyline') {
+                tempObject.vertices = [];
+                modeIndicator.textContent = `Modo: Desenho Livre - Clique para adicionar pontos`;
+            } else {
+                modeIndicator.textContent = `Modo: Normal`;
+            }
+            needsRedraw = true; 
+        }
+        
+        function handleDrawingClick(e) {
+            if (drawingMode === 'none') return;
+
+            const rect = canvas.getBoundingClientRect();
+            const clickPx = e.clientX - rect.left;
+            const clickPy = e.clientY - rect.top;
+            const worldCoords = screenToWorld(clickPx, clickPy);
+            const x = parseFloat(worldCoords.x.toFixed(2));
+            const y = parseFloat(worldCoords.y.toFixed(2));
+
+            if (drawingMode === 'polygon') {
+                handlePolygonClick(x, y);
+            } else if (drawingMode === 'polyline') {
+                handlePolylineClick(x, y);
+            }
+
+            needsRedraw = true; // Atualiza o estado para redesenhar
+        }
+        
+        function handlePolygonClick(x, y) {
+            if (tempObject.step === 1) {
+                tempObject.center = { x, y };
+                tempObject.step = 2;
+                modeIndicator.textContent = `Modo: Polígono - Clique para definir o raio (tamanho)`;
+            } else if (tempObject.step === 2) {
+                const cx = tempObject.center.x;
+                const cy = tempObject.center.y;
+                const radius = Math.sqrt(Math.pow(x - cx, 2) + Math.pow(y - cy, 2));
+                const sides = tempObject.sides;
+                
+                const vertices = [];
+                const initialAngle = -Math.PI / 2;
+                for (let i = 0; i < sides; i++) {
+                    const angle = initialAngle + i * (2 * Math.PI / sides);
+                    const vx = cx + radius * Math.cos(angle);
+                    const vy = cy + radius * Math.sin(angle);
+                    vertices.push({ x: parseFloat(vx.toFixed(2)), y: parseFloat(vy.toFixed(2)) });
+                }
+
+                objects.push({ type: 'polygon', vertices: vertices });
+                activateDrawingMode('none');
+            }
+        }
+        
+        function handlePolylineClick(x, y) {
+            tempObject.vertices.push({ x, y });
+            
+            if (tempObject.vertices.length >= 2) {
+                document.getElementById('finishPolylineButton').style.display = 'block';
+            }
+            modeIndicator.textContent = `Modo: Desenho Livre - ${tempObject.vertices.length} pontos adicionados.`;
+        }
+
+        function finalizePolyline() {
+            if (tempObject && tempObject.type === 'polyline' && tempObject.vertices.length >= 3) {
+                objects.push(tempObject); 
+                activateDrawingMode('none');
+            } else if (tempObject && tempObject.type === 'polyline') {
+                 alert("Precisa de pelo menos 3 pontos para formar uma forma fechada.");
+            }
+            needsRedraw = true; // Atualiza o estado para redesenhar
+        }
+
+        /**
+         * Trata o evento de zoom (roda do mouse).
+         */
+        function handleZoom(e) {
+            e.preventDefault(); 
+            
+            const zoomFactor = (e.deltaY < 0) ? 1.1 : 1 / 1.1; 
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            offsetX = mouseX - (mouseX - offsetX) * zoomFactor;
+            offsetY = mouseY - (mouseY - offsetY) * zoomFactor;
+            scale *= zoomFactor;
+            
+            scale = Math.max(5, Math.min(100, scale)); 
+
+            needsRedraw = true; // Atualiza o estado para redesenhar
+        }
+
+        /**
+         * Trata o evento de pan (setas do teclado).
+         */
+        function handlePan(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || drawingMode !== 'none') {
+                return; 
+            }
+
+            let moved = false;
+            const panSpeed = 30; 
+
+            switch (e.key) {
+                case 'ArrowLeft':
+                    offsetX += panSpeed;
+                    moved = true;
+                    break;
+                case 'ArrowRight':
+                    offsetX -= panSpeed;
+                    moved = true;
+                    break;
+                case 'ArrowUp':
+                    offsetY += panSpeed;
+                    moved = true;
+                    break;
+                case 'ArrowDown':
+                    offsetY -= panSpeed;
+                    moved = true;
+                    break;
+            }
+
+            if (moved) {
+                e.preventDefault(); 
+                needsRedraw = true; // Atualiza o estado para redesenhar
+            }
+        }
+
+        function switchTab(e) {
+            const targetTab = e.currentTarget.dataset.tab;
+            
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            e.currentTarget.classList.add('active'); 
+
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${targetTab}`).classList.add('active');
+            
+            activateDrawingMode('none');
+        }
+
+
+        // --- FUNÇÕES DE CÁLCULO (Sidebar) ---
+
+        function round(value) {
+            return Math.round(value * 100) / 100;
+        }
+
+        function calculateCircle() {
+            const r = parseFloat(document.getElementById('circulo-raio').value) || 0;
+            if (r <= 0) {
+                document.getElementById('res-area').textContent = '0';
+                document.getElementById('res-perimetro').textContent = '0';
+            } else {
+                const area = Math.PI * r * r;
+                const perimetro = 2 * Math.PI * r;
+                document.getElementById('res-area').textContent = round(area);
+                document.getElementById('res-perimetro').textContent = round(perimetro);
+            }
+        }
+
+        function calculateDiameter() {
+            const r = parseFloat(document.getElementById('raio-diametro').value) || 0;
+            const diametro = r * 2;
+            document.getElementById('res-diametro').textContent = round(diametro);
+        }
+
+        function calculateHipotenusa() {
+            const a = parseFloat(document.getElementById('cateto-a').value) || 0;
+            const b = parseFloat(document.getElementById('cateto-b').value) || 0;
+            if (a > 0 && b > 0) {
+                const h = Math.sqrt(a * a + b * b);
+                document.getElementById('res-hipotenusa').textContent = round(h);
+            } else {
+                document.getElementById('res-hipotenusa').textContent = '0';
+            }
+        }
+
+        function calculateTrig() {
+            const angleDeg = parseFloat(document.getElementById('angulo-a').value) || 0;
+            const angleRad = angleDeg * (Math.PI / 180);
+            
+            document.getElementById('res-sen').textContent = round(Math.sin(angleRad));
+            document.getElementById('res-cos').textContent = round(Math.cos(angleRad));
+            document.getElementById('res-tan').textContent = round(Math.tan(angleRad));
+        }
+
+        function calculateThales() {
+            const a = parseFloat(document.getElementById('thales-a').value) || 0;
+            const b = parseFloat(document.getElementById('thales-b').value) || 0;
+            const c = parseFloat(document.getElementById('thales-c').value) || 0;
+            
+            if (a !== 0 && b > 0 && c > 0) {
+                const x = (b * c) / a;
+                document.getElementById('res-thales').textContent = round(x);
+            } else {
+                document.getElementById('res-thales').textContent = '0';
+            }
+        }
+        
+        // --- INICIALIZAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadingOverlay = document.getElementById('loading-overlay');
+            
+            setTimeout(() => {
+                try {
+                    // 1. Inicializa o Canvas e inicia o Loop de Animação
+                    initCanvas();
+                    
+                    // 2. Adiciona todos os listeners de eventos
+                    canvas.addEventListener('wheel', handleZoom);
+                    window.addEventListener('keydown', handlePan);
+                    canvas.addEventListener('mousedown', handleDrawingClick);
+                    
+                    document.querySelectorAll('.tab-button').forEach(button => {
+                        button.addEventListener('click', switchTab);
+                    });
+
+                    document.body.focus();
+                    
+                    // 3. Esconde a tela de loading
+                    loadingOverlay.classList.add('hidden');
+                    
+                } catch (error) {
+                    console.error("Erro fatal durante a inicialização: ", error);
+                    alert("Ocorreu um erro ao carregar o aplicativo. Verifique o console para detalhes.");
+                    loadingOverlay.classList.add('hidden'); 
+                }
+            }, 50); 
+        });
+    </script>
+</body>
+</html>

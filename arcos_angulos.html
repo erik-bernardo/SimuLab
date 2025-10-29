@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Círculo Trigonométrico (Versão Final)</title>
+    <style>
+        /* --- LAYOUT DE TELA CHEIA --- */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: #fff;
+        }
+
+        #circuloTrig {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1; 
+        }
+
+        /* --- PAINÉIS DE INTERFACE --- */
+        .controls-panel {
+            position: fixed; 
+            top: 20px;
+            width: 300px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(5px); 
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            z-index: 10; 
+            overflow-y: auto;
+            max-height: calc(100vh - 40px); 
+        }
+        .controls-panel.right { right: 20px; }
+        .controls-panel.left { left: 20px; width: 320px; }
+        /* --- FIM DO LAYOUT --- */
+
+        h2 {
+            text-align: left;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        /* --- ESTILOS DO PAINEL DA DIREITA --- */
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
+        .input-group input {
+            width: calc(100% - 24px);
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .toggle-group {
+            display: flex; align-items: center; margin-bottom: 20px;
+            padding: 10px; background-color: #f4f4f4; border-radius: 4px;
+        }
+        .toggle-group input { width: auto; margin-right: 10px; flex-shrink: 0; }
+        .toggle-group label { margin: 0; font-weight: 500; font-size: 0.95em; color: #333; cursor: pointer; }
+        .results { border-top: 1px solid #eee; padding-top: 15px; }
+        .results p {
+            margin: 12px 0; font-size: 1em; display: flex; justify-content: space-between;
+            font-family: "Courier New", Courier, monospace; /* Melhor para frações */
+        }
+        .results strong { color: #000; font-family: Arial, sans-serif; }
+        .pos { color: #27ae60; font-weight: bold; }
+        .neg { color: #e74c3c; font-weight: bold; }
+        .zero { color: #3498db; font-weight: bold; }
+        .undef { color: #95a5a6; font-weight: bold; }
+
+        
+        /* --- NOVOS ESTILOS DO PAINEL DA ESQUERDA --- */
+        .converter-group {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .converter-group h4 { margin-top: 0; margin-bottom: 10px; color: #555; font-size: 1.1em; }
+        .converter-row { display: flex; align-items: center; margin-bottom: 5px; }
+        .converter-row input {
+            font-size: 0.9em; padding: 8px;
+            border: 1px solid #ccc; border-radius: 4px;
+        }
+        .converter-row input[type="text"] { background-color: #eee; }
+        .converter-row span { margin: 0 8px; font-weight: bold; font-size: 1.1em; }
+        
+        /* Estilo para a linha do resultado em fração Pi */
+        .converter-row-frac {
+            display: flex;
+            align-items: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #3498db;
+            padding-left: 20px;
+        }
+        .converter-row-frac span { margin: 0 5px; }
+        
+        /* Estilo para a entrada fracionária Pi */
+        .frac-input input { width: 50px; text-align: center; }
+        .frac-input span { margin: 0 5px; }
+        .frac-input .divider {
+            display: inline-block;
+            border-top: 2px solid #333;
+            width: 20px;
+            margin: 0 5px;
+            vertical-align: middle;
+        }
+        
+        /* Tabela de Ângulos Notáveis */
+        .trig-table {
+            width: 100%; border-collapse: collapse; font-size: 0.9em; margin-top: 10px;
+        }
+        .trig-table th, .trig-table td {
+            border: 1px solid #ddd; padding: 6px; text-align: center;
+            font-family: "Courier New", Courier, monospace;
+        }
+        .trig-table th { background-color: #f4f4f4; font-family: Arial, sans-serif; }
+    </style>
+</head>
+<body>
+
+    <canvas id="circuloTrig"></canvas>
+    
+    <div class="controls-panel left">
+        <h2>Ferramentas</h2>
+        
+        <div class="converter-group">
+            <h4>Graus para Radianos</h4>
+            <div class="converter-row">
+                <input type="number" id="conv_deg_in" value="135" style="width: 80px;"> <span>°</span>
+                <span>=</span>
+                <input type="text" id="conv_rad_out" readonly style="width: 100px;"> <span>rad</span>
+            </div>
+            <div class="converter-row-frac">
+                <span>&asymp;</span> <span id="conv_rad_frac_out">3&pi;/4</span>
+            </div>
+        </div>
+
+        <div class="converter-group">
+            <h4>Radianos (Fração) para Graus</h4>
+            <div class="converter-row frac-input">
+                <input type="number" id="conv_rad_num" value="3">
+                <span>&pi;</span>
+                <span class="divider"></span>
+                <input type="number" id="conv_rad_den" value="4">
+                <span>=</span>
+                <input type="text" id="conv_deg_out" readonly style="width: 100px;"> <span>°</span>
+            </div>
+        </div>
+
+        <div class="converter-group">
+            <h4>Ângulos Notáveis (0° - 90°)</h4>
+            <table class="trig-table">
+                <thead>
+                    <tr>
+                        <th>°</th>
+                        <th>rad</th>
+                        <th>Seno</th>
+                        <th>Cosseno</th>
+                        <th>Tangente</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>0°</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>30°</td>
+                        <td>π/6</td>
+                        <td>1/2</td>
+                        <td>&radic;3/2</td>
+                        <td>&radic;3/3</td>
+                    </tr>
+                    <tr>
+                        <td>45°</td>
+                        <td>π/4</td>
+                        <td>&radic;2/2</td>
+                        <td>&radic;2/2</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>60°</td>
+                        <td>π/3</td>
+                        <td>&radic;3/2</td>
+                        <td>1/2</td>
+                        <td>&radic;3</td>
+                    </tr>
+                    <tr>
+                        <td>90°</td>
+                        <td>π/2</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>&infin;</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="controls-panel right">
+        <h2>Análise Trigonométrica</h2>
+    
+        <div class="input-group">
+            <label for="anguloInput">Digite o Ângulo (°):</label>
+            <input type="number" id="anguloInput" value="135" placeholder="Ex: 45, -30, 400..." oninput="atualizarTudo()">
+        </div>
+
+        <div class="toggle-group">
+            <input type="checkbox" id="showRefAngle" onchange="atualizarTudo()" checked>
+            <label for="showRefAngle">Mostrar ângulo de referência (1ºQ)</label>
+        </div>
+
+        <div class="results">
+            <p><strong>Ângulo Norm.:</strong> <span id="angNormOutput">-</span></p>
+            <p><strong>Quadrante:</strong> <span id="quadranteOutput">-</span></p>
+            <hr>
+            <p><strong>Seno (sin):</strong> <span id="senoOutput">-</span></p>
+            <p><strong>Cosseno (cos):</strong> <span id="cossenoOutput">-</span></p>
+            <p><strong>Tangente (tan):</strong> <span id="tangenteOutput">-</span></p>
+        </div>
+    </div>
+
+    <script>
+        // --- Constantes Globais ---
+        const PI = Math.PI;
+        // Valores Notáveis (para Request 1)
+        const VAL_SIN_30 = "1/2", VAL_COS_30 = "&radic;3/2", VAL_TAN_30 = "&radic;3/3";
+        const VAL_SIN_45 = "&radic;2/2", VAL_COS_45 = "&radic;2/2", VAL_TAN_45 = "1";
+        const VAL_SIN_60 = "&radic;3/2", VAL_COS_60 = "1/2", VAL_TAN_60 = "&radic;3";
+        
+        // Cores
+        const COR_SENO = '#e74c3c', COR_COSSENO = '#3498db', COR_TANGENTE = '#27ae60';
+        const COR_EIXOS = '#ccc', COR_CIRCULO = '#333', COR_RAIO = '#555', COR_REFERENCIA = 'rgba(0, 0, 0, 0.4)';
+
+        // --- Elementos DOM (Painel Direito) ---
+        const input = document.getElementById('anguloInput');
+        const angNormOutput = document.getElementById('angNormOutput');
+        const quadranteOutput = document.getElementById('quadranteOutput');
+        const senoOutput = document.getElementById('senoOutput');
+        const cossenoOutput = document.getElementById('cossenoOutput');
+        const tangenteOutput = document.getElementById('tangenteOutput');
+        const showRefAngleCheckbox = document.getElementById('showRefAngle');
+        
+        // --- Elementos DOM (Painel Esquerdo) ---
+        const conv_deg_in = document.getElementById('conv_deg_in');
+        const conv_rad_out = document.getElementById('conv_rad_out');
+        const conv_rad_frac_out = document.getElementById('conv_rad_frac_out'); // Novo
+        const conv_rad_num = document.getElementById('conv_rad_num'); // Novo
+        const conv_rad_den = document.getElementById('conv_rad_den'); // Novo
+        const conv_deg_out = document.getElementById('conv_deg_out');
+
+        // --- Configurações do Canvas ---
+        const canvas = document.getElementById('circuloTrig');
+        const ctx = canvas.getContext('2d');
+        let centerX, centerY, radius;
+
+        // --- Funções Principais ---
+
+        function atualizarTudo() {
+            const angUsuario = parseFloat(input.value) || 0;
+            const ang = (angUsuario % 360 + 360) % 360; 
+            const rad = ang * (PI / 180); 
+
+            atualizarResultadosTexto(angUsuario, ang, rad); 
+            
+            if (radius) {
+                desenharCanvas(ang, rad);
+            }
+        }
+        
+        function handleResize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const painelEsquerdaLargura = 320 + 20; 
+            const painelDireitaLargura = 300 + 20; 
+            centerY = canvas.height / 2;
+            const x_start = painelEsquerdaLargura;
+            const x_end = canvas.width - painelDireitaLargura;
+            centerX = x_start + (x_end - x_start) / 2;
+            const espacoHorizontalDisponivel = x_end - x_start;
+            const raioHorizontal = (espacoHorizontalDisponivel / 2) * 0.8; 
+            const raioVertical = (canvas.height / 2) * 0.8; 
+            radius = Math.min(raioVertical, raioHorizontal);
+            if (radius < 0) radius = 0; 
+            atualizarTudo();
+        }
+
+        /**
+         * Desenha o círculo trigonométrico (Sem alterações, idêntico à versão anterior)
+         */
+        function desenharCanvas(angDeg, angRad) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 1. Eixos e Círculo Base
+            ctx.strokeStyle = COR_EIXOS; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(0, centerY); ctx.lineTo(canvas.width, centerY); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(centerX, 0); ctx.lineTo(centerX, canvas.height); ctx.stroke();
+            ctx.beginPath(); ctx.arc(centerX, centerY, radius, 0, 2 * PI); ctx.strokeStyle = COR_CIRCULO; ctx.lineWidth = 2; ctx.stroke();
+
+            // Reta da Tangente
+            const tanAxisX = centerX + radius;
+            ctx.beginPath(); ctx.moveTo(tanAxisX, 0); ctx.lineTo(tanAxisX, canvas.height);
+            ctx.strokeStyle = 'rgba(39, 174, 96, 0.5)'; ctx.lineWidth = 1; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
+            
+            // 2. Ângulo de Referência (Semelhante 1Q)
+            const showRef = showRefAngleCheckbox.checked;
+            let angRefDeg = 0;
+            if (angDeg > 90 && angDeg < 180) { angRefDeg = 180 - angDeg; }
+            else if (angDeg > 180 && angDeg < 270) { angRefDeg = angDeg - 180; }
+            else if (angDeg > 270 && angDeg < 360) { angRefDeg = 360 - angDeg; }
+
+            if (showRef && angRefDeg > 0) {
+                const angRefRad = angRefDeg * (PI / 180);
+                const refX = centerX + radius * Math.cos(angRefRad);
+                const refY = centerY - radius * Math.sin(angRefRad);
+                ctx.globalAlpha = 0.4; 
+                ctx.beginPath(); ctx.moveTo(centerX, centerY); ctx.lineTo(refX, refY); 
+                ctx.strokeStyle = COR_RAIO; ctx.lineWidth = 2; ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(centerX, centerY); ctx.lineTo(refX, centerY); 
+                ctx.strokeStyle = COR_COSSENO; ctx.lineWidth = 3; ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(refX, centerY); ctx.lineTo(refX, refY); 
+                ctx.strokeStyle = COR_SENO; ctx.lineWidth = 3; ctx.stroke();
+                ctx.beginPath(); ctx.arc(refX, refY, 5, 0, 2 * PI); 
+                ctx.fillStyle = COR_CIRCULO; ctx.fill();
+                ctx.beginPath(); ctx.arc(centerX, centerY, 30, 0, -angRefRad, true); 
+                ctx.strokeStyle = COR_REFERENCIA; ctx.lineWidth = 2; ctx.stroke();
+                ctx.font = 'bold 16px Arial'; 
+                ctx.fillStyle = COR_REFERENCIA;
+                ctx.fillText(`${angRefDeg.toFixed(1)}°`, refX + 10, refY - 10);
+                ctx.globalAlpha = 1.0; 
+            }
+
+            // 3. Ângulo Principal
+            const x = centerX + radius * Math.cos(angRad);
+            const y = centerY - radius * Math.sin(angRad); 
+
+            ctx.beginPath(); ctx.moveTo(centerX, centerY); ctx.lineTo(x, centerY);
+            ctx.strokeStyle = COR_COSSENO; ctx.lineWidth = 3; ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x, centerY); ctx.lineTo(x, y);
+            ctx.strokeStyle = COR_SENO; ctx.lineWidth = 3; ctx.stroke();
+            
+            // 4. Tangente
+            if (angDeg !== 90 && angDeg !== 270) {
+                const tanY = centerY - radius * Math.tan(angRad); 
+                ctx.beginPath(); ctx.moveTo(centerX, centerY); ctx.lineTo(tanAxisX, tanY);
+                ctx.strokeStyle = COR_RAIO; ctx.lineWidth = 1; ctx.setLineDash([3, 3]); ctx.stroke(); ctx.setLineDash([]);
+                ctx.beginPath(); ctx.moveTo(tanAxisX, centerY); ctx.lineTo(tanAxisX, tanY);    
+                ctx.strokeStyle = COR_TANGENTE; ctx.lineWidth = 3; ctx.stroke();
+                ctx.font = 'bold 16px Arial';
+                ctx.fillStyle = COR_TANGENTE;
+                ctx.fillText('tan', tanAxisX + 8, centerY + (tanY - centerY) / 2);
+            }
+
+            // 5. Raio, Ponto e Legendas
+            ctx.beginPath(); ctx.moveTo(centerX, centerY); ctx.lineTo(x, y);
+            ctx.strokeStyle = COR_RAIO; ctx.lineWidth = 2; ctx.stroke();
+            ctx.beginPath(); ctx.arc(x, y, 5, 0, 2 * PI);
+            ctx.fillStyle = COR_CIRCULO; ctx.fill();
+            ctx.beginPath(); ctx.arc(centerX, centerY, 30, 0, -angRad, true); 
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)'; ctx.lineWidth = 2; ctx.stroke();
+            ctx.font = 'bold 16px Arial'; 
+            ctx.fillStyle = COR_COSSENO;
+            ctx.fillText('cos', centerX + (x - centerX) / 2, centerY + 20);
+            ctx.fillStyle = COR_SENO;
+            ctx.fillText('sin', x + 8, centerY + (y - centerY) / 2);
+            ctx.fillStyle = COR_CIRCULO;
+            ctx.fillText(`${angDeg.toFixed(1)}°`, x + 10, y - 10);
+        }
+
+        /**
+         * MODIFICADO: Atualiza o painel de texto com valores NOTÁVEIS.
+         */
+        function atualizarResultadosTexto(angUsuario, ang, rad) {
+            angNormOutput.textContent = `${ang.toFixed(2)}°`;
+            
+            let quadrante = '-';
+            let sinalSeno = '-', sinalCos = '-', sinalTan = '-';
+            let classeSeno = '', classeCos = '', classeTan = '';
+
+            // --- Lógica de Valores ---
+            
+            // 1. Trata os Eixos (valores exatos)
+            if (ang === 0 || ang === 360) {
+                quadrante = 'Eixo X+';
+                sinalSeno = '0';     classeSeno = 'zero';
+                sinalCos  = '+1';    classeCos  = 'pos';
+                sinalTan  = '0';     classeTan  = 'zero';
+            } else if (ang === 90) {
+                quadrante = 'Eixo Y+';
+                sinalSeno = '+1';    classeSeno = 'pos';
+                sinalCos  = '0';     classeCos  = 'zero';
+                sinalTan  = 'Indefinido'; classeTan = 'undef';
+            } else if (ang === 180) {
+                quadrante = 'Eixo X-';
+                sinalSeno = '0';     classeSeno = 'zero';
+                sinalCos  = '-1';    classeCos  = 'neg';
+                sinalTan  = '0';     classeTan  = 'zero';
+            } else if (ang === 270) {
+                quadrante = 'Eixo Y-';
+                sinalSeno = '-1';    classeSeno = 'neg';
+                sinalCos  = '0';     classeCos  = 'zero';
+                sinalTan  = 'Indefinido'; classeTan = 'undef';
+            } 
+            else { // 2. Trata os Quadrantes
+                // Encontra o ângulo de referência
+                let angRefDeg = ang;
+                if (ang > 90 && ang < 180) { angRefDeg = 180 - ang; quadrante = '2º Quadrante'; }
+                else if (ang > 180 && ang < 270) { angRefDeg = ang - 180; quadrante = '3º Quadrante'; }
+                else if (ang > 270 && ang < 360) { angRefDeg = 360 - ang; quadrante = '4º Quadrante'; }
+                else { quadrante = '1º Quadrante'; }
+
+                // Define os sinais baseado no quadrante
+                const signSin = (ang > 180) ? '-' : '';
+                const signCos = (ang > 90 && ang < 270) ? '-' : '';
+                const signTan = (signSin === signCos) ? '' : '-'; // Se sinais iguais, tan é +, senão -
+
+                const classSin = (ang > 180) ? 'neg' : 'pos';
+                const classCos = (ang > 90 && ang < 270) ? 'neg' : 'pos';
+                const classTan = (signSin === signCos) ? 'pos' : 'neg';
+
+                // Verifica se é um ângulo notável (usando tolerância)
+                if (Math.abs(angRefDeg - 30) < 0.001) {
+                    sinalSeno = signSin + VAL_SIN_30; classeSeno = classSin;
+                    sinalCos  = signCos + VAL_COS_30; classeCos  = classCos;
+                    sinalTan  = signTan + VAL_TAN_30; classeTan  = classTan;
+                }
+                else if (Math.abs(angRefDeg - 45) < 0.001) {
+                    sinalSeno = signSin + VAL_SIN_45; classeSeno = classSin;
+                    sinalCos  = signCos + VAL_COS_45; classeCos  = classCos;
+                    sinalTan  = signTan + VAL_TAN_45; classeTan  = classTan;
+                }
+                else if (Math.abs(angRefDeg - 60) < 0.001) {
+                    sinalSeno = signSin + VAL_SIN_60; classeSeno = classSin;
+                    sinalCos  = signCos + VAL_COS_60; classeCos  = classCos;
+                    sinalTan  = signTan + VAL_TAN_60; classeTan  = classTan;
+                }
+                else { // 3. Se não for Eixo nem Notável, usa Decimal
+                    sinalSeno = Math.sin(rad).toFixed(4); classeSeno = classSin;
+                    sinalCos  = Math.cos(rad).toFixed(4); classeCos  = classCos;
+                    sinalTan  = Math.tan(rad).toFixed(4); classeTan  = classTan;
+                }
+            }
+            
+            // 4. Atualiza o HTML
+            quadranteOutput.textContent = quadrante;
+            senoOutput.innerHTML = sinalSeno; // innerHTML para renderizar &radic;
+            senoOutput.className = classeSeno;
+            cossenoOutput.innerHTML = sinalCos; // innerHTML
+            cossenoOutput.className = classeCos;
+            tangenteOutput.innerHTML = sinalTan; // innerHTML
+            tangenteOutput.className = classeTan;
+        }
+
+
+        // --- Funções do Conversor (Painel Esquerdo) ---
+        
+        // Função auxiliar para encontrar o Maior Divisor Comum (para simplificar frações)
+        function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b) {
+                [a, b] = [b, a % b];
+            }
+            return a;
+        }
+        
+        // Função auxiliar para converter graus em fração de Pi (Request 2)
+        function degToPiFraction(deg) {
+            if (deg === 0) return "0";
+            
+            // Simplifica a fração deg/180
+            const common = gcd(deg, 180);
+            let num = deg / common;
+            let den = 180 / common;
+
+            // Formata a string de saída
+            if (den === 1) {
+                return (num === 1) ? "&pi;" : `${num}&pi;`;
+            }
+            if (num === 1) {
+                return `&pi;/${den}`;
+            }
+            return `${num}&pi;/${den}`;
+        }
+        
+        // Atualiza o conversor Graus -> Rad (Decimal e Fração)
+        function updateDegToRad() {
+            const deg = parseFloat(conv_deg_in.value) || 0;
+            // Saída Decimal
+            conv_rad_out.value = (deg * (PI / 180)).toFixed(4);
+            // Saída Fração Pi
+            conv_rad_frac_out.innerHTML = degToPiFraction(deg);
+        }
+        
+        // Atualiza o conversor Rad (Fração) -> Graus (Request 3)
+        function updateRadFracToDeg() {
+            const num = parseFloat(conv_rad_num.value) || 0;
+            const den = parseFloat(conv_rad_den.value) || 1; // Padrão de 1 para evitar div/0
+            
+            if (den === 0) {
+                conv_deg_out.value = "Div/0!";
+                return;
+            }
+            
+            const deg = (num / den) * 180;
+            conv_deg_out.value = deg.toFixed(4);
+        }
+
+        // --- Inicialização ---
+        function initialize() {
+            window.addEventListener('resize', handleResize);
+            
+            // Listeners do Painel Esquerdo
+            conv_deg_in.addEventListener('input', updateDegToRad);
+            conv_rad_num.addEventListener('input', updateRadFracToDeg);
+            conv_rad_den.addEventListener('input', updateRadFracToDeg);
+            
+            // Chama as funções pela primeira vez
+            handleResize(); 
+            updateDegToRad(); 
+            updateRadFracToDeg(); 
+        }
+
+        initialize();
+    </script>
+
+</body>
+</html>

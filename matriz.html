@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Matrizes - Avançada</title>
+    
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* --- Variáveis de Estilo --- */
+        :root {
+            --sidebar-width: 420px;
+            --header-height: 55px;
+            --cor-primaria: #00796b; /* Verde Escuro (Cor principal da Matriz) */
+            --cor-secundaria: #388e3c; /* Verde Médio */
+            --cor-fundo-pagina: #f4f7f6;
+            --cor-destaque: #ff9800; /* Laranja */
+            --cor-erro: #c0392b; /* Vermelho Escuro */
+            --cor-alerta: #e67e22; /* Laranja */
+            --cor-logo-platform: #D2691E; /* Cor do Logo PLATAFORMA */
+        }
+
+        /* --- Estrutura Geral --- */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--cor-fundo-pagina);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            padding-top: var(--header-height);
+        }
+
+        /* ----------------------------------- */
+        /* --- HEADER (Top Bar - MERGED) --- */
+        /* ----------------------------------- */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: var(--header-height);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 200;
+            /* Flexbox da nova estrutura */
+            display: flex;
+            align-items: stretch; 
+            border-bottom: 1px solid #ddd;
+            padding: 0;
+        }
+
+        /* Link do Logo da Plataforma (Botão "Início") */
+        .logo-link {
+            text-decoration: none;
+            /* REMOVIDO: Cor e fonte do texto PLATAFORMA */
+            padding: 0 25px;
+            display: flex;
+            align-items: center;
+            border-right: 1px solid #ddd;
+            transition: background-color 0.2s;
+        }
+        
+        /* NOVO ESTILO: Para a imagem do logo */
+        .logo-img {
+            height: 40px; /* Altura da imagem */
+            width: auto;
+            display: block;
+        }
+
+        .logo-link:hover {
+            background-color: #f0f0f0; 
+        }
+        .logo-link .fas { margin-right: 10px; }
+        
+        /* Título da Página Atual */
+        .title-display {
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--cor-primaria);
+            padding: 0 25px;
+        }
+        .title-display .fas { margin-right: 10px; }
+
+
+        /* Botões de Navegação (Menu) */
+        .nav-buttons {
+            display: flex;
+            justify-content: flex-start;
+            align-items: stretch;
+            flex-grow: 1; /* Ocupa o espaço restante */
+        }
+
+        .nav-button {
+            background-color: transparent;
+            color: #555;
+            border: none;
+            padding: 0 15px; 
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s, color 0.2s;
+            border-left: 1px solid #eee;
+        }
+
+        .nav-button .fas {
+            margin-right: 8px;
+        }
+
+        .nav-button:hover:not(.active) {
+            background-color: #f9f9f9;
+            color: #000;
+        }
+
+        .nav-button.active {
+            background-color: #f0f0f0;
+            color: var(--cor-primaria); /* Usa a cor verde da matriz */
+            border-bottom: 3px solid var(--cor-primaria);
+        }
+
+        /* --- Sidebar (Lado Esquerdo - Configuração) --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            /* Garante que a sidebar ocupe toda a altura disponível da janela */
+            height: calc(100vh - var(--header-height)); 
+            background-color: #ffffff;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            box-sizing: border-box;
+            /* SCROLL PRÓPRIO */
+            overflow-y: auto; 
+            position: fixed;
+            left: 0;
+            top: var(--header-height);
+            z-index: 10;
+        }
+
+        h1 {
+            color: var(--cor-primaria);
+            font-size: 1.5em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Group Containers */
+        .input-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 6px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #455a64;
+            font-size: 0.95em;
+        }
+        .input-group select, .input-group button, .input-group input[type="text"], .input-group input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 0.9em;
+        }
+
+        /* Seletor de Tamanho e Operação */
+        .config-section {
+            display: flex;
+            gap: 10px;
+        }
+        .config-section > div {
+            flex: 1;
+        }
+
+        /* Estilo dos Botões de Operação */
+        .operation-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .operation-button {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            background-color: #e0f2f1;
+            color: var(--cor-primaria);
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            font-size: 0.85em;
+            min-width: 80px;
+        }
+        .operation-button.selected {
+            background-color: var(--cor-primaria);
+            color: white;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+        .operation-button:not(.selected):hover {
+            background-color: #b2dfdb;
+        }
+
+        /* --- Área Principal (Lado Direito - Inputs e Resultado) --- */
+        .main-area {
+            flex-grow: 1;
+            padding: 20px;
+            box-sizing: border-box;
+            margin-left: var(--sidebar-width); /* Empurra o conteúdo para a direita */
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Containers de Matriz */
+        .matrix-container {
+            flex: 1;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            min-height: 250px;
+        }
+        .matrix-container h2 {
+            color: var(--cor-secundaria);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .input-matrix-grid {
+            display: inline-grid;
+            gap: 5px;
+            padding: 10px;
+            border: 1px solid var(--cor-primaria);
+            border-radius: 5px;
+            max-width: fit-content;
+            overflow: auto; /* Permite scroll para matrizes grandes */
+        }
+
+        .input-matrix-grid input {
+            width: 50px;
+            height: 30px;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 1em;
+        }
+        
+        /* Lei de Formação */
+        .rule-input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .rule-input-group input[type="text"] {
+            flex-grow: 1;
+        }
+        .rule-input-group button {
+            width: auto;
+            padding: 8px 15px;
+            background-color: var(--cor-destaque);
+            color: white;
+            border: none;
+            flex-basis: 100px;
+        }
+
+        /* --- Resultado --- */
+        #result-container {
+            padding: 20px;
+            background-color: #e8f5e9;
+            border: 2px solid var(--cor-secundaria);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        #result-container h2 {
+            color: var(--cor-secundaria);
+        }
+        #result-matrix-display {
+            font-size: 1.1em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            overflow-x: auto; /* Permite scroll para resultado de matrizes grandes */
+        }
+        .matrix-bracket {
+            font-size: 4em;
+            line-height: 0.5;
+            color: var(--cor-secundaria);
+            vertical-align: middle;
+            margin: 0 5px;
+        }
+        .result-matrix-grid {
+            display: inline-grid;
+            gap: 10px 15px;
+            vertical-align: middle;
+            text-align: right;
+            padding: 10px 0;
+            font-family: monospace;
+        }
+
+        .error-message {
+            color: var(--cor-erro);
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        .info-message {
+            color: var(--cor-alerta);
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+    </style>
+</head>
+<body>
+
+<header class="top-bar">
+    <a href="index.html" class="logo-link">
+        <img src="logo.png" alt="Fisio Lab" class="logo-img">
+    </a>
+
+    <div class="title-display">
+        <i class="fas fa-calculator"></i> Calculadora de Matrizes
+    </div>
+
+    <div class="nav-buttons">
+        <button class="nav-button active">
+            <i class="fas fa-calculator"></i> MATRIZES
+        </button>
+        <button class="nav-button">
+            <i class="fas fa-question-circle"></i> EXE. DE APOIO
+        </button>
+        <button class="nav-button">
+            <i class="fas fa-video"></i> VIDEO AULA
+        </button>
+    </div>
+</header>
+
+<div class="sidebar">
+    <h1>Configuração e Operações</h1>
+
+    <div class="input-group">
+        <label>Dimensões da **Matriz A** ($m \times n$):</label>
+        <div class="config-section">
+            <div>
+                <label for="rowsA">Linhas (m):</label>
+                <select id="rowsA" onchange="updateMatrixDimensions('A')"></select>
+            </div>
+            <div>
+                <label for="colsA">Colunas (n):</label>
+                <select id="colsA" onchange="updateMatrixDimensions('A')"></select>
+            </div>
+        </div>
+    </div>
+    
+    <div class="input-group" id="dim-B-group">
+        <label>Dimensões da **Matriz B** ($p \times q$):</label>
+        <div class="config-section">
+            <div>
+                <label for="rowsB">Linhas (p):</label>
+                <select id="rowsB" onchange="updateMatrixDimensions('B')"></select>
+            </div>
+            <div>
+                <label for="colsB">Colunas (q):</label>
+                <select id="colsB" onchange="updateMatrixDimensions('B')"></select>
+            </div>
+        </div>
+        <div id="compatibility-info" class="info-message"></div>
+    </div>
+
+
+    <div class="input-group">
+        <label>Selecione a Operação:</label>
+        <div class="operation-buttons" id="operation-buttons">
+            <button class="operation-button" data-op="add">Adição ($A+B$)</button>
+            <button class="operation-button" data-op="sub">Subtração ($A-B$)</button>
+            <button class="operation-button" data-op="mult">Multiplicação ($A \times B$)</button>
+            <button class="operation-button" data-op="transpose">Transposta ($A^T$)</button>
+            <button class="operation-button" data-op="power">Potência ($A^k$)</button>
+            <button class="operation-button" data-op="inverse">Inversa ($A^{-1}$)</button>
+            <button class="operation-button" data-op="identity">Identidade</button>
+            <button class="operation-button" data-op="rule">Lei de Formação</button>
+        </div>
+        <div class="error-message" id="operation-info" style="font-size: 0.85em; color: var(--cor-primaria); margin-top: 10px;"></div>
+    </div>
+    
+    <div class="input-group" id="power-input-group" style="display: none;">
+        <label for="powerK">Expoente (k):</label>
+        <input type="number" id="powerK" value="2" min="2" step="1">
+    </div>
+
+    <div class="input-group" id="rule-input-group" style="display: none;">
+        <label>Lei de Formação $a_{i,j}$ (Expressão em JavaScript):</label>
+        <p style="font-size: 0.8em; margin-top: 5px; color: #555;">
+            *Use **i** (linha) e **j** (coluna), começando em **1**.
+            <br>
+            **Operadores:** `+`, `-`, `*`, `/`, `**` (potência).
+            <br>
+            **Funções:** `Math.pow(i, 2)`, `Math.sin(j)`, `Math.abs(i-j)`.
+        </p>
+        <div class="rule-input-group">
+            <input type="text" id="ruleFormula" value="i * j" placeholder="Ex: (i + j) / 2">
+            <button onclick="applyRuleToMatrix('A')">Gerar A</button>
+            <button onclick="applyRuleToMatrix('B')">Gerar B</button>
+        </div>
+    </div>
+    
+    <button id="calculate-button" style="width: 100%; padding: 15px; background-color: var(--cor-primaria); color: white; border: none; border-radius: 6px; font-size: 1.1em; cursor: pointer; margin-top: 20px;" onclick="performOperation()">
+        CALCULAR
+    </button>
+    <div class="error-message" id="global-error" style="text-align: center;"></div>
+</div>
+
+<div class="main-area">
+
+    <div class="matrix-container" id="matrix-A-container">
+        <h2>Matriz A</h2>
+        <div id="matrix-A-inputs" class="input-matrix-grid">
+            </div>
+    </div>
+
+    <div class="matrix-container" id="matrix-B-container" style="display: none;">
+        <h2>Matriz B</h2>
+        <div id="matrix-B-inputs" class="input-matrix-grid">
+            </div>
+    </div>
+    
+    <div class="matrix-container" id="result-container">
+        <h2>Resultado <span id="result-operation-symbol">C</span>:</h2>
+        <div id="result-matrix-display">
+            </div>
+        <div class="error-message" id="result-error"></div>
+    </div>
+
+</div>
+
+<script>
+    // --- VARIÁVEIS GLOBAIS DE ESTADO E DOM ---
+    let currentOperation = 'add'; 
+
+    const $rowsA = document.getElementById('rowsA');
+    const $colsA = document.getElementById('colsA');
+    const $rowsB = document.getElementById('rowsB');
+    const $colsB = document.getElementById('colsB');
+    
+    const $matrixAInputs = document.getElementById('matrix-A-inputs');
+    const $matrixBContainer = document.getElementById('matrix-B-container');
+    const $matrixBInputs = document.getElementById('matrix-B-inputs');
+    const $compatibilityInfo = document.getElementById('compatibility-info');
+    const $resultDisplay = document.getElementById('result-matrix-display');
+    const $resultOperationSymbol = document.getElementById('result-operation-symbol');
+    const $powerInputGroup = document.getElementById('power-input-group');
+    const $ruleInputGroup = document.getElementById('rule-input-group');
+    const $globalError = document.getElementById('global-error');
+    const $operationInfo = document.getElementById('operation-info');
+    const $resultError = document.getElementById('result-error');
+    const $dimBGroup = document.getElementById('dim-B-group');
+
+    // --- UTILS (FUNÇÕES MATEMÁTICAS) ---
+    function roundToPrecision(num, precision = 4) {
+        if (Math.abs(num) < 1e-10) return 0; 
+        return parseFloat(num.toFixed(precision));
+    }
+    
+    /** Classe utilitária para Matrizes (mesma da versão anterior) */
+    class Matrix {
+        constructor(rows, cols, data = null) {
+            this.rows = rows;
+            this.cols = cols;
+            this.data = data || Array(rows).fill(0).map(() => Array(cols).fill(0));
+        }
+        
+        static fromHTMLInputs(id, rows, cols) {
+            const container = document.getElementById(id);
+            const inputs = container.querySelectorAll('input');
+            const data = [];
+            
+            let k = 0;
+            for (let i = 0; i < rows; i++) {
+                data[i] = [];
+                for (let j = 0; j < cols; j++) {
+                    let value = inputs[k].value.replace(',', '.');
+                    data[i][j] = parseFloat(value) || 0; 
+                    k++;
+                }
+            }
+            return new Matrix(rows, cols, data);
+        }
+        
+        transpose() {
+            const newData = Array(this.cols).fill(0).map(() => Array(this.rows).fill(0));
+            for (let i = 0; i < this.rows; i++) {
+                for (let j = 0; j < this.cols; j++) {
+                    newData[j][i] = this.data[i][j];
+                }
+            }
+            return new Matrix(this.cols, this.rows, newData);
+        }
+        
+        static add(A, B, subtract = false) {
+            if (A.rows !== B.rows || A.cols !== B.cols) {
+                throw new Error("As dimensões das matrizes devem ser iguais para Adição/Subtração.");
+            }
+            const C = new Matrix(A.rows, A.cols);
+            const factor = subtract ? -1 : 1;
+            for (let i = 0; i < A.rows; i++) {
+                for (let j = 0; j < A.cols; j++) {
+                    C.data[i][j] = A.data[i][j] + factor * B.data[i][j];
+                }
+            }
+            return C;
+        }
+
+        static multiply(A, B) {
+            if (A.cols !== B.rows) {
+                throw new Error("O número de colunas de A deve ser igual ao número de linhas de B para Multiplicação.");
+            }
+            const C = new Matrix(A.rows, B.cols);
+            for (let i = 0; i < A.rows; i++) {
+                for (let j = 0; j < B.cols; j++) {
+                    let sum = 0;
+                    for (let k = 0; k < A.cols; k++) {
+                        sum += A.data[i][k] * B.data[k][j];
+                    }
+                    C.data[i][j] = sum;
+                }
+            }
+            return C;
+        }
+
+        power(k) {
+            if (this.rows !== this.cols) {
+                throw new Error("A Potência só é definida para matrizes quadradas.");
+            }
+            if (k === 0) return Matrix.identity(this.rows);
+            if (k === 1) return this;
+            
+            let result = this;
+            for (let i = 2; i <= k; i++) {
+                result = Matrix.multiply(result, this);
+            }
+            return result;
+        }
+
+        static identity(n) {
+            const I = new Matrix(n, n);
+            for (let i = 0; i < n; i++) {
+                I.data[i][i] = 1;
+            }
+            return I;
+        }
+
+        determinant() {
+            if (this.rows !== this.cols) {
+                throw new Error("O Determinante só é definido para matrizes quadradas.");
+            }
+            const n = this.rows;
+            const A = this.data;
+
+            if (n === 1) return A[0][0];
+            if (n === 2) return A[0][0] * A[1][1] - A[0][1] * A[1][0];
+            if (n === 3) { // Sarrus
+                return (
+                    A[0][0] * A[1][1] * A[2][2] + A[0][1] * A[1][2] * A[2][0] + A[0][2] * A[1][0] * A[2][1] -
+                    (A[0][2] * A[1][1] * A[2][0] + A[0][0] * A[1][2] * A[2][1] + A[0][1] * A[1][0] * A[2][2])
+                );
+            }
+            
+            // Laplace para N > 3
+            let det = 0;
+            for (let j = 0; j < n; j++) {
+                const cofactor = Matrix.getCofactor(this, 0, j);
+                const sign = (j % 2 === 0 ? 1 : -1);
+                det += sign * A[0][j] * cofactor.determinant();
+            }
+            return det;
+        }
+        
+        static getCofactor(M, p, q) {
+            const A = M.data;
+            const n = M.rows;
+            const subData = [];
+            let i = 0, j = 0;
+
+            for (let row = 0; row < n; row++) {
+                if (row !== p) {
+                    subData[i] = [];
+                    j = 0;
+                    for (let col = 0; col < n; col++) {
+                        if (col !== q) {
+                            subData[i][j++] = A[row][col];
+                        }
+                    }
+                    i++;
+                }
+            }
+            return new Matrix(n - 1, n - 1, subData);
+        }
+
+        inverse() {
+            if (this.rows !== this.cols) {
+                throw new Error("A matriz deve ser quadrada para ter Inversa.");
+            }
+            const n = this.rows;
+            if (n > 4) {
+                throw new Error("Cálculo da inversa manual para N > 4 pode ter perda de precisão e é lento. O limite de segurança aqui é 4x4.");
+            }
+            
+            const det = this.determinant();
+            if (roundToPrecision(det) === 0) {
+                throw new Error("O determinante é zero. A matriz não possui Inversa.");
+            }
+
+            if (n === 2) {
+                const [a, b, c, d] = [this.data[0][0], this.data[0][1], this.data[1][0], this.data[1][1]];
+                const invDet = 1 / det;
+                const invData = [
+                    [roundToPrecision(d * invDet), roundToPrecision(-b * invDet)],
+                    [roundToPrecision(-c * invDet), roundToPrecision(a * invDet)]
+                ];
+                return new Matrix(2, 2, invData);
+            }
+
+            const adjData = Array(n).fill(0).map(() => Array(n).fill(0));
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    const minor = Matrix.getCofactor(this, i, j);
+                    const sign = ((i + j) % 2 === 0) ? 1 : -1;
+                    adjData[j][i] = roundToPrecision(sign * minor.determinant());
+                }
+            }
+            
+            const invDet = 1 / det;
+            const invData = adjData.map(row => row.map(val => roundToPrecision(val * invDet)));
+
+            return new Matrix(n, n, invData);
+        }
+    }
+
+    // --- FUNÇÕES DE INTERFACE (UI) ---
+
+    // 1. Preenche todos os seletores de tamanho
+    function fillDimensionSelectors() {
+        const selectors = [$rowsA, $colsA, $rowsB, $colsB];
+        selectors.forEach(selector => {
+            for (let i = 1; i <= 10; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = i;
+                selector.appendChild(opt);
+            }
+        });
+        // Valores padrão
+        $rowsA.value = 3; $colsA.value = 3; 
+        $rowsB.value = 3; $colsB.value = 3;
+    }
+
+    // 2. Atualiza as dimensões de uma matriz e regenera os inputs
+    function updateMatrixDimensions(matrixId) {
+        const rowsA = parseInt($rowsA.value);
+        const colsA = parseInt($colsA.value);
+        const rowsB = parseInt($rowsB.value);
+        const colsB = parseInt($colsB.value);
+
+        if (matrixId === 'A') {
+            generateMatrixInputs($matrixAInputs, rowsA, colsA);
+        } else if (matrixId === 'B') {
+            generateMatrixInputs($matrixBInputs, rowsB, colsB);
+        }
+        
+        checkCompatibility(rowsA, colsA, rowsB, colsB);
+        $globalError.textContent = '';
+        $resultDisplay.innerHTML = '';
+        
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    // 3. Verifica e exibe a compatibilidade para a operação atual
+    function checkCompatibility(rowsA, colsA, rowsB, colsB) {
+        $compatibilityInfo.classList.remove('error-message');
+        $compatibilityInfo.classList.add('info-message');
+
+        if (['add', 'sub'].includes(currentOperation)) {
+            if (rowsA === rowsB && colsA === colsB) {
+                $compatibilityInfo.textContent = 'Dimensões compatíveis ($m \times n = p \times q$).';
+            } else {
+                $compatibilityInfo.textContent = `ERRO: As dimensões devem ser iguais ($${rowsA} \times ${colsA} \neq ${rowsB} \times ${colsB}$).`;
+                $compatibilityInfo.classList.remove('info-message');
+                $compatibilityInfo.classList.add('error-message');
+            }
+        } else if (currentOperation === 'mult') {
+            if (colsA === rowsB) {
+                $compatibilityInfo.textContent = `Dimensões compatíveis (Colunas A = Linhas B). Resultado: $${rowsA} \times ${colsB}$.`;
+            } else {
+                $compatibilityInfo.textContent = `ERRO: Para $A \times B$, Colunas de A (${colsA}) devem ser iguais a Linhas de B (${rowsB}).`;
+                $compatibilityInfo.classList.remove('info-message');
+                $compatibilityInfo.classList.add('error-message');
+            }
+        } else {
+            $compatibilityInfo.textContent = '';
+        }
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    }
+
+
+    // 4. Gera os inputs HTML para uma matriz
+    function generateMatrixInputs(container, rows, cols) {
+        container.innerHTML = '';
+        container.style.gridTemplateRows = `repeat(${rows}, auto)`;
+        container.style.gridTemplateColumns = `repeat(${cols}, auto)`;
+        
+        // Define o valor inicial como 0, exceto se for Identidade (só para A)
+        let initialValue = '0';
+        if (currentOperation === 'identity' && container.id === 'matrix-A-inputs' && rows === cols) {
+             initialValue = 'identity';
+        }
+        
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = (initialValue === 'identity' && i === j) ? '1' : '0';
+                input.placeholder = `a${i+1},${j+1}`;
+                container.appendChild(input);
+            }
+        }
+    }
+
+    // 5. Seleção da Operação
+    function setOperation(op) {
+        currentOperation = op;
+        $globalError.textContent = '';
+        $resultDisplay.innerHTML = '';
+        $resultError.textContent = '';
+
+        // Reseta os botões
+        document.querySelectorAll('.operation-button').forEach(btn => btn.classList.remove('selected'));
+        document.querySelector(`.operation-button[data-op="${op}"]`).classList.add('selected');
+        
+        // Esconde tudo o que é opcional
+        $matrixBContainer.style.display = 'none';
+        $dimBGroup.style.display = 'none';
+        $powerInputGroup.style.display = 'none';
+        $ruleInputGroup.style.display = 'none';
+        $operationInfo.textContent = '';
+        $operationInfo.style.color = 'var(--cor-primaria)';
+        
+        const rowsA = parseInt($rowsA.value);
+        const colsA = parseInt($colsA.value);
+        
+        if (['add', 'sub', 'mult'].includes(op)) {
+            // Operações Binárias (A e B)
+            $matrixBContainer.style.display = 'block';
+            $dimBGroup.style.display = 'block';
+            checkCompatibility(rowsA, colsA, parseInt($rowsB.value), parseInt($colsB.value));
+
+            if (op === 'add' || op === 'sub') {
+                $operationInfo.textContent = 'Requer que Matriz A e B tenham as mesmas dimensões.';
+            } else if (op === 'mult') {
+                $operationInfo.textContent = 'Requer Colunas de A = Linhas de B para Multiplicação.';
+            }
+        } else if (op === 'transpose') {
+            $operationInfo.textContent = 'Calcula $A^T$ (Transposta de A). Resultado: $n \times m$.';
+        } else if (op === 'power') {
+            $powerInputGroup.style.display = 'block';
+            $operationInfo.textContent = 'Requer Matriz A quadrada ($m = n$).';
+            if (rowsA !== colsA) {
+                 $operationInfo.textContent += ' Erro: Matriz A não é quadrada.';
+                 $operationInfo.style.color = 'var(--cor-erro)';
+            }
+        } else if (op === 'inverse') {
+            $operationInfo.textContent = 'Calcula $A^{-1}$ (Inversa de A). Requer A quadrada e com determinante $\\neq 0$. Máximo $4 \times 4$.';
+            if (rowsA !== colsA) {
+                 $operationInfo.textContent += ' Erro: Matriz A não é quadrada.';
+                 $operationInfo.style.color = 'var(--cor-erro)';
+            }
+        } else if (op === 'identity') {
+            $operationInfo.textContent = 'Gera uma Matriz Identidade ($I$) de ordem $n \times n$.';
+            // Regenera A com 1s na diagonal (se quadrada)
+            generateMatrixInputs($matrixAInputs, rowsA, colsA); 
+        } else if (op === 'rule') {
+             $ruleInputGroup.style.display = 'block';
+             // *** CORREÇÃO APLICADA AQUI ***
+             $matrixBContainer.style.display = 'block'; 
+             $dimBGroup.style.display = 'block';
+             // ******************************
+             $operationInfo.textContent = 'Define os elementos de A ou B através de uma fórmula (Lei de Formação).';
+        }
+        
+        $resultOperationSymbol.textContent = 'C'; 
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    // 6. Aplica a Lei de Formação à Matriz A ou B
+    function applyRuleToMatrix(matrixName) {
+        try {
+            const formula = document.getElementById('ruleFormula').value;
+            
+            let targetContainer, rows, cols;
+            if (matrixName === 'A') {
+                targetContainer = $matrixAInputs;
+                rows = parseInt($rowsA.value);
+                cols = parseInt($colsA.value);
+            } else if (matrixName === 'B') {
+                targetContainer = $matrixBInputs;
+                rows = parseInt($rowsB.value);
+                cols = parseInt($colsB.value);
+            }
+            
+            const inputs = targetContainer.querySelectorAll('input');
+            
+            // Cria a função para avaliação segura
+            const safeEval = new Function('i', 'j', `return ${formula};`);
+            
+            let k = 0;
+            for (let i = 1; i <= rows; i++) {
+                for (let j = 1; j <= cols; j++) {
+                    const value = safeEval(i, j);
+                    // Formata para o padrão brasileiro
+                    inputs[k].value = roundToPrecision(value).toString().replace('.', ','); 
+                    k++;
+                }
+            }
+            $globalError.textContent = '';
+        } catch (e) {
+            $globalError.textContent = `Erro na Lei de Formação da Matriz ${matrixName}. Verifique a sintaxe: ${e.message}`;
+        }
+    }
+
+    // 7. Executa a operação selecionada
+    function performOperation() {
+        $globalError.textContent = '';
+        $resultError.textContent = '';
+        $resultDisplay.innerHTML = '';
+        
+        try {
+            const rowsA = parseInt($rowsA.value);
+            const colsA = parseInt($colsA.value);
+            const rowsB = parseInt($rowsB.value);
+            const colsB = parseInt($colsB.value);
+
+            // Tenta obter matrizes, usando dimensões atuais dos seletores
+            const A = Matrix.fromHTMLInputs('matrix-A-inputs', rowsA, colsA);
+            let B, C;
+            
+            // --- CÁLCULO DAS OPERAÇÕES ---
+            if (['add', 'sub', 'mult'].includes(currentOperation)) {
+                B = Matrix.fromHTMLInputs('matrix-B-inputs', rowsB, colsB);
+                
+                if (currentOperation === 'add' || currentOperation === 'sub') {
+                    C = Matrix.add(A, B, currentOperation === 'sub');
+                    $resultOperationSymbol.textContent = 'A + B';
+                } else if (currentOperation === 'mult') {
+                    C = Matrix.multiply(A, B);
+                    $resultOperationSymbol.textContent = 'A \times B';
+                }
+
+            } else if (currentOperation === 'transpose') {
+                C = A.transpose();
+                $resultOperationSymbol.textContent = 'A^T';
+
+            } else if (currentOperation === 'power') {
+                const k = parseInt(document.getElementById('powerK').value);
+                C = A.power(k); // Validação de quadrada e k min > 1 está na função
+                $resultOperationSymbol.textContent = `A^${k}`;
+
+            } else if (currentOperation === 'inverse') {
+                C = A.inverse(); // Inclui validação de quadrada e determinante
+                $resultOperationSymbol.textContent = 'A^{-1}';
+                const det = A.determinant();
+                $resultError.textContent = `Determinante (det(A)): ${roundToPrecision(det).toString().replace('.', ',')}`;
+
+            } else if (currentOperation === 'identity') {
+                if (rowsA !== colsA) {
+                    throw new Error("Matriz Identidade deve ser quadrada.");
+                }
+                C = Matrix.identity(A.rows);
+                $resultOperationSymbol.textContent = 'I';
+
+            } else if (currentOperation === 'rule') {
+                 // A lei de formação já gerou o input. O resultado é a matriz A
+                C = A;
+                $resultOperationSymbol.textContent = 'A (Lei de Formação)';
+            } else {
+                throw new Error("Selecione uma operação válida.");
+            }
+            
+            // --- EXIBIÇÃO DO RESULTADO ---
+            displayMatrix(C, 'result-matrix-display');
+
+        } catch (e) {
+            $resultError.textContent = e.message;
+            $resultOperationSymbol.textContent = 'ERRO';
+        }
+        
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    // 8. Formata e exibe a matriz resultante
+    function displayMatrix(M, targetId) {
+        const container = document.getElementById(targetId);
+        let html = '';
+        
+        html += `<span class="matrix-bracket">[</span>`;
+        
+        html += `<div class="result-matrix-grid" style="grid-template-rows: repeat(${M.rows}, auto); grid-template-columns: repeat(${M.cols}, auto);">`;
+        
+        for (let i = 0; i < M.rows; i++) {
+            for (let j = 0; j < M.cols; j++) {
+                const value = roundToPrecision(M.data[i][j]).toString().replace('.', ',');
+                html += `<span>${value}</span>`;
+            }
+        }
+        
+        html += `</div>`;
+        html += `<span class="matrix-bracket">]</span>`;
+        
+        container.innerHTML = html;
+        
+        const maxBracketSize = 10; 
+        const minBracketSize = 4;
+        const bracketSize = Math.min(maxBracketSize, Math.max(minBracketSize, M.rows * 1.5)) + 'em'; 
+        
+        document.querySelectorAll('.matrix-bracket').forEach(span => {
+            span.style.fontSize = bracketSize;
+        });
+    }
+
+    // --- INICIALIZAÇÃO ---
+    document.addEventListener('DOMContentLoaded', () => {
+        fillDimensionSelectors();
+        
+        document.querySelectorAll('.operation-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                setOperation(e.target.dataset.op);
+            });
+        });
+
+        // Configura o estado inicial (Adição 3x3)
+        setOperation(currentOperation); 
+        updateMatrixDimensions('A');
+        updateMatrixDimensions('B'); // Garante que B seja gerado também
+    });
+</script>
+</body>
+</html>

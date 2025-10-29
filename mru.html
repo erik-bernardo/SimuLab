@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRU - Movimento Retilíneo Uniforme</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Variável de largura da sidebar */
+        :root {
+            --sidebar-width: 300px;
+            --header-height: 55px;
+        }
+
+        /* --- ESTILOS DO HEADER --- */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            height: var(--header-height); 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100; 
+            display: flex;
+            align-items: stretch; 
+            border-bottom: 1px solid #ddd; 
+            box-sizing: border-box; 
+        }
+
+        .logo-link {
+            text-decoration: none;
+            color: #D2691E; 
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 25px; 
+            display: flex;
+            align-items: center; 
+            border-right: 1px solid #ddd; 
+            transition: background-color 0.3s;
+        }
+        
+        .logo-link:hover {
+            background-color: #f5f5f5;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: flex-start;
+            flex-grow: 1;
+        }
+
+        .page-title {
+            padding: 0 25px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+
+        /* --- ESTILOS GERAIS DO BODY --- */
+        body {
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            font-family: sans-serif;
+            padding-top: var(--header-height); 
+            overflow: hidden; /* Evita barras de rolagem estranhas */
+        }
+
+        /* --- ESTILO DO PAINEL DE CONTROLE (SIDEBAR) --- */
+        #inputPanel {
+            position: fixed;
+            top: var(--header-height); 
+            left: 0;
+            width: var(--sidebar-width); 
+            height: calc(100vh - var(--header-height)); 
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); 
+            padding: 15px; 
+            box-sizing: border-box;
+            z-index: 10;
+            
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; 
+        }
+
+        /* --- SELETORES DE MODO --- */
+        .mode-selector-group {
+            display: flex;
+            margin-bottom: 15px;
+            border: 1px solid #008CBA;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .mode-selector {
+            flex-grow: 1;
+            padding: 8px 5px;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            background-color: white;
+            color: #008CBA;
+            transition: background-color 0.2s, color 0.2s;
+            border-right: 1px solid #008CBA;
+        }
+        
+        .mode-selector:last-child {
+            border-right: none;
+        }
+
+        .mode-selector.active {
+            background-color: #008CBA;
+            color: white;
+        }
+        
+        .mode-selector:not(.active):hover {
+            background-color: #e0f7ff;
+        }
+        
+        /* --- GRUPOS DE INPUTS --- */
+        .input-group-container {
+            display: flex;
+            flex-direction: column; 
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            width: 100%; 
+        }
+        
+        .dataInput {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        /* Estilo do resultado na sidebar */
+        #resultado {
+            margin-top: 5px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+            min-height: 40px;
+            color: #333;
+        }
+        
+        .formula {
+            font-style: italic;
+            font-family: serif;
+            font-size: 1.1em;
+            color: #333;
+            margin-left: 15px; 
+            line-height: 1.5;
+        }
+        
+        .label {
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: #555;
+            font-weight: bold;
+            display: block; 
+        }
+
+        /* --- ESTILOS DO PLANO CARTESIANO (ÁREA DE VISUALIZAÇÃO) --- */
+        #planoCartesiano {
+            position: fixed;
+            top: var(--header-height); 
+            left: var(--sidebar-width); 
+            width: calc(100% - var(--sidebar-width)); 
+            height: calc(100vh - var(--header-height)); 
+            background-color: white; 
+            z-index: -1; 
+            
+            /* Criação do Grid */
+            background-size: 25px 25px; 
+            background-image: 
+                linear-gradient(to right, lightblue 1px, transparent 1px),
+                linear-gradient(to bottom, lightblue 1px, transparent 1px);
+            
+            background-position: 50% 50%; 
+        }
+
+        /* Criação do eixo x (horizontal) - NO CENTRO VERTICAL */
+        #planoCartesiano::before {
+            content: '';
+            position: absolute;
+            top: 50%; 
+            transform: translateY(-50%); 
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: red; 
+        }
+
+        /* Criação do eixo y (vertical no centro) */
+        #planoCartesiano::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background-color: red; 
+        }
+
+        /* --- ESTILOS DO CORPO / OBJETO --- */
+        #corpo {
+            position: absolute;
+            top: 50%; 
+            transform: translateY(-50%); 
+            width: 20px;
+            height: 20px;
+            background-color: black;
+            border-radius: 50%;
+            z-index: 5;
+            cursor: grab; /* Indica que pode ser arrastado */
+            transition: left 0s linear; 
+        }
+        
+        #corpo:active {
+            cursor: grabbing;
+        }
+        
+        /* Balão de Velocidade */
+        #speedDisplay {
+            position: absolute;
+            bottom: 100%; /* Posiciona acima da bola */
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            padding: 3px 6px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 12px;
+            border-radius: 3px;
+            pointer-events: none; /* Garante que não interfira no clique */
+            opacity: 0; /* Inicialmente escondido */
+            transition: opacity 0.1s;
+        }
+        
+        /* Estilos dos botões */
+        .action-button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            flex-grow: 1;
+        }
+
+        #startStopButton {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #startStopButton:hover:not(:disabled) {
+            background-color: #45a049;
+        }
+        
+        #startStopButton:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #resetButton {
+            background-color: #f44336;
+            color: white;
+        }
+
+        #resetButton:hover {
+            background-color: #da190b;
+        }
+    </style>
+</head>
+<body>
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-book-reader"></i> PLATAFORMA
+        </a>
+        <div class="nav-buttons">
+            <span class="page-title">MRU - MOVIMENTO RETILÍNEO UNIFORME</span>
+        </div>
+    </header>
+    
+    <div id="planoCartesiano"></div>
+
+    <div id="inputPanel">
+        <div class="mode-selector-group">
+            <div class="mode-selector active" data-mode="simulacao">Simulação</div>
+            <div class="mode-selector" data-mode="posicao">Calcular Posição (S)</div>
+            <div class="mode-selector" data-mode="velocidade">Calcular Velocidade (v)</div>
+            <div class="mode-selector" data-mode="tempo">Calcular Tempo (Δt)</div>
+        </div>
+        
+        <div id="resultado">Selecione um modo para começar.</div>
+        
+        <div class="input-group-container">
+            <div class="input-group" data-input-group="s-start">
+                <label class="label">Posição Inicial (S₀) (m) - **ARRASTE A BOLA**</label>
+                <input type="number" id="sStart" class="dataInput" value="0">
+            </div>
+            <div class="input-group" data-input-group="s-end" style="display: none;">
+                <label class="label">Posição Final (S) (m)</label>
+                <input type="number" id="sEnd" class="dataInput" value="10">
+            </div>
+            <div class="input-group" data-input-group="t-start">
+                <label class="label">Tempo Inicial (t₀) (s)</label>
+                <input type="number" id="tStart" class="dataInput" value="0">
+            </div>
+            <div class="input-group" data-input-group="t-end">
+                <label class="label">Tempo Final (t) (s)</label>
+                <input type="number" id="tEnd" class="dataInput" value="10">
+            </div>
+            <div class="input-group" data-input-group="v">
+                <label class="label">Velocidade (v) (m/s)</label>
+                <input type="number" id="velocity" class="dataInput" value="1">
+            </div>
+        </div>
+        
+        <div class="button-row">
+            <button id="startStopButton" class="action-button">Iniciar Simulação</button>
+            <button id="resetButton" class="action-button">Resetar</button>
+        </div>
+    </div>
+    
+    <div id="corpo">
+        <div id="speedDisplay"></div>
+    </div>
+
+    <script>
+        class Calculadora {
+            constructor() {
+                // Constantes
+                this.SIDEBAR_WIDTH = 300; 
+                this.CORPO_WIDTH = 20; 
+                this.tamanhoQuadrado = 25; // 25px por unidade (metro)
+
+                // Elementos DOM
+                this.corpo = document.getElementById('corpo');
+                this.speedDisplay = document.getElementById('speedDisplay'); // Novo elemento
+                this.planoCartesiano = document.getElementById('planoCartesiano');
+                this.sStartInput = document.getElementById('sStart');
+                this.sEndInput = document.getElementById('sEnd');
+                this.tStartInput = document.getElementById('tStart'); 
+                this.tEndInput = document.getElementById('tEnd');    
+                this.velocityInput = document.getElementById('velocity');
+                this.resultadoDiv = document.getElementById('resultado');
+                this.actionButton = document.getElementById('startStopButton'); 
+                this.resetButton = document.getElementById('resetButton');
+                this.modeSelectors = document.querySelectorAll('.mode-selector');
+                
+                // Variáveis de estado
+                this.animacaoID = null;
+                this.tempoInicialAnimacao = 0;
+                this.isSimulando = false;
+                this.isDemonstracao = false; 
+                this.tempoLimiteDemonstracao = null;
+                this.modoAtual = 'simulacao'; 
+                this.isDragging = false; // Estado do arraste
+                
+                this.corpoData = {
+                    posicaoInicial: 0,
+                    velocidade: 0,
+                    tempoTotal: 0
+                };
+                
+                this.configurarListeners();
+                this.setMode('simulacao');
+                this.resetarSimulacao();
+            }
+
+            // --- AUXILIAR DE PARSING ---
+            
+            _parseInput(inputElement) {
+                if (!inputElement || inputElement.value === '') return NaN;
+                return parseFloat(inputElement.value.replace(',', '.'));
+            }
+            
+            // --- CONVERSÃO DE COORDENADAS ---
+            
+            // Converte Posição S (unidades) para Coordenada X (pixels) na tela
+            posicaoToX(s) {
+                const canvasWidth = window.innerWidth - this.SIDEBAR_WIDTH; 
+                const centroX_canvas = canvasWidth / 2;
+                const offsetX_movimento = s * this.tamanhoQuadrado; 
+                // Posição na tela = (Lado Direito da Sidebar) + (Centro do Canvas) + (Offset do Movimento) - (Metade da Bola)
+                return this.SIDEBAR_WIDTH + centroX_canvas + offsetX_movimento - (this.CORPO_WIDTH / 2); 
+            }
+            
+            // Converte Coordenada X (pixels) na tela para Posição S (unidades)
+            xToPosicao(x_tela) {
+                const canvasWidth = window.innerWidth - this.SIDEBAR_WIDTH; 
+                const centroX_canvas = canvasWidth / 2;
+                
+                // Offset do Movimento em pixels
+                const offsetX_movimento = x_tela - this.SIDEBAR_WIDTH - centroX_canvas + (this.CORPO_WIDTH / 2);
+                
+                // Posição S em unidades
+                return offsetX_movimento / this.tamanhoQuadrado;
+            }
+
+
+            // --- CONFIGURAÇÃO DE LISTENERS ---
+            
+            configurarListeners() {
+                this.resetButton.addEventListener('click', () => this.resetarSimulacao());
+                this.actionButton.addEventListener('click', () => {
+                    if (this.isDemonstracao) return; 
+                    if (this.modoAtual === 'simulacao') {
+                        this.toggleSimulacao();
+                    } else {
+                        this.handleOperacoes(this.modoAtual);
+                    }
+                });
+                this.modeSelectors.forEach(selector => {
+                    selector.addEventListener('click', (e) => {
+                        this.setMode(e.target.getAttribute('data-mode'));
+                    });
+                });
+                
+                // Atualiza S₀ se o input for mudado
+                this.sStartInput.addEventListener('change', () => {
+                     this.resetarSimulacao();
+                });
+                // Atualiza v se o input for mudado
+                 this.velocityInput.addEventListener('change', () => {
+                     this.resetarSimulacao();
+                });
+                
+                // LISTENERS DE ARRASTE
+                this.corpo.addEventListener('mousedown', (e) => this.startDrag(e));
+                this.corpo.addEventListener('touchstart', (e) => this.startDrag(e));
+                window.addEventListener('mousemove', (e) => this.drag(e));
+                window.addEventListener('touchmove', (e) => this.drag(e));
+                window.addEventListener('mouseup', () => this.stopDrag());
+                window.addEventListener('touchend', () => this.stopDrag());
+            }
+            
+            // --- LÓGICA DE ARRASTAR O CORPO ---
+            
+            startDrag(e) {
+                if (this.isSimulando || this.modoAtual !== 'simulacao') return; // Apenas permite arrastar na simulação e parado
+                
+                e.preventDefault();
+                this.isDragging = true;
+                this.corpo.style.cursor = 'grabbing';
+            }
+
+            drag(e) {
+                if (!this.isDragging) return;
+                
+                let clientX;
+                if (e.touches) {
+                    clientX = e.touches[0].clientX;
+                } else {
+                    clientX = e.clientX;
+                }
+
+                // Calcula a nova posição X da bola
+                // x_tela = clientX (mouse)
+                let newXPos = clientX;
+                
+                // Mapeia a nova posição X para a posição S em unidades
+                let newS = this.xToPosicao(newXPos);
+                
+                // Arredonda para o múltiplo do tamanho do quadrado (para "encaixar" na grade)
+                newS = Math.round(newS * 4) / 4; // Arredonda para 0.25 unidades
+                
+                // Atualiza o input e a posição visual
+                this.sStartInput.value = newS.toFixed(2);
+                this.corpoData.posicaoInicial = newS;
+                this.atualizaPosicaoCorpo(newS);
+                
+                this.resultadoDiv.innerHTML = `**S₀** definida em **${newS.toFixed(2)}m** (Arraste e solte).`;
+            }
+
+            stopDrag() {
+                if (this.isDragging) {
+                    this.isDragging = false;
+                    this.corpo.style.cursor = 'grab';
+                    this.resetarSimulacao(); // Reseta para aplicar o novo S₀
+                }
+            }
+
+
+            // --- LÓGICA DE MUDANÇA DE MODO ---
+
+            setMode(novoModo) {
+                this.stopSimulacao(); 
+                this.modoAtual = novoModo;
+                
+                this.modeSelectors.forEach(selector => {
+                    selector.classList.remove('active');
+                    if (selector.getAttribute('data-mode') === novoModo) {
+                        selector.classList.add('active');
+                    }
+                });
+
+                this.configurarInputs(novoModo);
+                
+                const isSimulacao = novoModo === 'simulacao';
+                this.actionButton.textContent = isSimulacao ? 'Iniciar Simulação' : 'Calcular e Simular';
+                this.actionButton.style.backgroundColor = isSimulacao ? '#4CAF50' : '#008CBA';
+                
+                this.resetarSimulacao();
+            }
+
+            getModeName(modo) {
+                switch(modo) {
+                    case 'simulacao': return 'Simulação';
+                    case 'posicao': return 'Posição (S)';
+                    case 'velocidade': return 'Velocidade (v)';
+                    case 'tempo': return 'Tempo (Δt)';
+                    default: return '';
+                }
+            }
+            
+            // --- LÓGICA DE SIMULAÇÃO/ANIMAÇÃO UNIFICADA ---
+
+            resetarSimulacao() {
+                this.stopSimulacao();
+                this.actionButton.textContent = (this.modoAtual === 'simulacao') ? 'Iniciar Simulação' : 'Calcular e Simular';
+                this.actionButton.style.backgroundColor = (this.modoAtual === 'simulacao') ? '#4CAF50' : '#008CBA';
+                this.actionButton.disabled = false;
+                
+                this.corpoData.posicaoInicial = this._parseInput(this.sStartInput) || 0;
+                this.corpoData.velocidade = this._parseInput(this.velocityInput) || 0;
+                this.corpoData.tempoTotal = 0; 
+                
+                this.isDemonstracao = false;
+                this.tempoLimiteDemonstracao = null;
+
+                this.atualizaPosicaoCorpo(this.corpoData.posicaoInicial); 
+                this.hideSpeedDisplay();
+                
+                if (this.modoAtual === 'simulacao') {
+                    this.resultadoDiv.innerHTML = `Pronto para simular **MRU (S = S₀ + v·Δt)**. Arraste a bola para definir S₀.`;
+                } else {
+                     this.resultadoDiv.innerHTML = `Pronto para calcular **${this.getModeName(this.modoAtual)}**. Clique em 'Calcular e Simular'.`;
+                }
+            }
+
+            toggleSimulacao() {
+                if (this.isSimulando) {
+                    this.stopSimulacao();
+                    this.actionButton.textContent = 'Continuar Simulação';
+                    this.actionButton.style.backgroundColor = '#f39c12';
+                    this.hideSpeedDisplay();
+                } else {
+                    this.iniciarSimulacao();
+                }
+            }
+
+            iniciarSimulacao() {
+                if (this.isSimulando) return;
+                
+                this.corpoData.posicaoInicial = this._parseInput(this.sStartInput) || 0;
+                this.corpoData.velocidade = this._parseInput(this.velocityInput) || 0;
+                const v = this.corpoData.velocidade;
+                
+                if (isNaN(v)) {
+                     this.resultadoDiv.innerHTML = '<span style="color: red; font-weight: bold;">ERRO:</span> Insira um valor válido para Velocidade (v).';
+                     return;
+                }
+
+                this.isSimulando = true;
+                this.actionButton.textContent = 'Parar Simulação';
+                this.actionButton.style.backgroundColor = '#4CAF50';
+                
+                this.tempoInicialAnimacao = performance.now() - (this.corpoData.tempoTotal * 1000); 
+                
+                this.animacaoID = requestAnimationFrame(this.loopAnimacao.bind(this));
+            }
+
+            stopSimulacao() {
+                if (this.animacaoID) {
+                    cancelAnimationFrame(this.animacaoID);
+                }
+                this.isSimulando = false;
+                this.isDemonstracao = false;
+                this.hideSpeedDisplay();
+            }
+
+            loopAnimacao(timestamp) {
+                if (!this.isSimulando) return;
+                
+                const v = this.corpoData.velocidade;
+                const s0 = this.corpoData.posicaoInicial;
+                const t0 = this._parseInput(this.tStartInput) || 0;
+                const tempoLimiteGlobal = this._parseInput(this.tEndInput); 
+                
+                const tempoDecorridoReal = (timestamp - this.tempoInicialAnimacao) / 1000; 
+                
+                let t_simulacao = tempoDecorridoReal;
+                let deveParar = false;
+
+                // Lógica de Parada para Demonstração/Simulação
+                let tempoLimite = this.isDemonstracao ? this.tempoLimiteDemonstracao : tempoLimiteGlobal;
+
+                if (!isNaN(tempoLimite) && tempoLimite > 0) {
+                    if (t_simulacao >= tempoLimite) {
+                        t_simulacao = tempoLimite;
+                        deveParar = true;
+                    }
+                }
+
+                this.corpoData.tempoTotal = t_simulacao;
+
+                const tempoNaEquacao = t_simulacao - t0;
+                const sAtual = s0 + v * tempoNaEquacao;
+                const tAtual = t_simulacao;
+
+                this.atualizaPosicaoCorpo(sAtual);
+                this.atualizaResultadoAnimacao(s0, v, t0, tAtual, sAtual);
+                this.showSpeedDisplay(v); // Mostra a velocidade
+                
+
+                if (deveParar) {
+                    this.stopSimulacao();
+                    
+                    if (this.isDemonstracao) {
+                        this.actionButton.textContent = 'Demonstração Concluída';
+                        this.actionButton.style.backgroundColor = '#007bb5'; 
+                    } else {
+                        this.actionButton.textContent = 'Simulação Concluída';
+                        this.actionButton.style.backgroundColor = '#007bb5'; 
+                    }
+                    this.actionButton.disabled = false;
+                    this.hideSpeedDisplay();
+
+                } else {
+                    this.animacaoID = requestAnimationFrame(this.loopAnimacao.bind(this));
+                }
+            }
+            
+            // --- ATUALIZAÇÃO VISUAL (Corpo e Resultados) ---
+            
+            showSpeedDisplay(v) {
+                this.speedDisplay.textContent = `v: ${v.toFixed(2)} m/s`;
+                this.speedDisplay.style.opacity = 1;
+            }
+            
+            hideSpeedDisplay() {
+                 this.speedDisplay.style.opacity = 0;
+            }
+
+            atualizaPosicaoCorpo(s) {
+                this.corpo.style.left = `${this.posicaoToX(s)}px`;
+            }
+
+            // Exibe o cálculo instantâneo durante a animação
+            atualizaResultadoAnimacao(s0, v, t0, t, s) {
+                const deltaT = (t - t0) >= 0 ? (t - t0) : 0;
+                
+                // Texto de Status
+                let status = this.isDemonstracao ? '**DEMONSTRAÇÃO:**' : '**SIMULANDO:**';
+                
+                // Cálculo instantâneo
+                this.resultadoDiv.innerHTML = `
+                    ${status} <br>
+                    <p style="margin: 5px 0 0 0;">Equação Horária (S = S₀ + v·Δt):</p>
+                    <p class="formula">S = ${s0.toFixed(2)} + ${v.toFixed(2)} · ${deltaT.toFixed(2)}</p>
+                    <hr style="border-color: #eee; margin: 5px 0;">
+                    <p style="font-weight: bold;">S = ${s.toFixed(2)}m &nbsp;|&nbsp; t = ${t.toFixed(2)}s &nbsp;|&nbsp; Δt = ${deltaT.toFixed(2)}s</p>
+                `;
+            }
+
+            iniciarDemonstracaoCalculo(sStart, v, deltaT) {
+                this.corpoData.posicaoInicial = sStart;
+                this.corpoData.velocidade = v;
+                this.corpoData.tempoTotal = 0; 
+                
+                this.tempoLimiteDemonstracao = deltaT; 
+                this.isDemonstracao = true;
+                
+                this.isSimulando = true;
+                this.actionButton.textContent = 'Demonstrando...';
+                this.actionButton.style.backgroundColor = '#f39c12';
+                this.actionButton.disabled = true;
+
+                this.tempoInicialAnimacao = performance.now();
+                this.animacaoID = requestAnimationFrame(this.loopAnimacao.bind(this));
+            }
+
+
+            // --- FUNÇÕES DE CÁLCULO ---
+
+            handleOperacoes(modoCalculo) {
+                this.stopSimulacao();
+                
+                try {
+                    const sStart = this._parseInput(this.sStartInput);
+                    const sEnd = this._parseInput(this.sEndInput);
+                    const tStart = this._parseInput(this.tStartInput);
+                    const tEnd = this._parseInput(this.tEndInput);
+                    const vInput = this._parseInput(this.velocityInput);
+
+                    if (isNaN(sStart) || isNaN(tStart)) throw new Error("Posição Inicial (S₀) e Tempo Inicial (t₀) são obrigatórios.");
+                    
+                    let output = `<h4 style="color: #008CBA; margin: 0 0 5px 0;">Cálculo de ${this.getModeName(modoCalculo)}:</h4>`;
+
+                    let v_demo = 0;
+                    let deltaT_demo = 0;
+
+                    if (modoCalculo === 'posicao') {
+                        // CÁLCULO DE POSIÇÃO (S = S₀ + v*Δt)
+                        const v = vInput;
+                        const deltaT = tEnd - tStart; 
+                        
+                        if (isNaN(v) || isNaN(tEnd)) throw new Error("Preencha Velocidade (v) e Tempo Final (t).");
+                        if (deltaT < 0) throw new Error("O Intervalo de Tempo (t - t₀) não pode ser negativo.");
+
+                        const sFinal = sStart + v * deltaT;
+                        
+                        output += `
+                            <p style="margin: 5px 0 0 0;">1. **Δt** = ${tEnd.toFixed(2)} - ${tStart.toFixed(2)} = **${deltaT.toFixed(2)} s**</p>
+                            <p style="margin: 10px 0 0 0;">2. **S = S₀ + v · Δt**</p>
+                            <p class="formula">S = ${sStart.toFixed(2)} + ${v.toFixed(2)} · ${deltaT.toFixed(2)}</p>
+                            <hr style="border-color: #ddd; margin: 5px 0;">
+                            <p style="font-size: 1.2em; color: #4CAF50; font-weight: bold;">S = ${sFinal.toFixed(2)} m</p>
+                        `;
+                        v_demo = v;
+                        deltaT_demo = deltaT;
+
+                    } else if (modoCalculo === 'velocidade') {
+                        // CÁLCULO DE VELOCIDADE (v = ΔS / Δt)
+                        if (isNaN(sEnd) || isNaN(tEnd)) throw new Error("Preencha Posição Final (S) e Tempo Final (t).");
+
+                        const deltaS = sEnd - sStart;
+                        const deltaT = tEnd - tStart;
+                        
+                        if (deltaT <= 0) throw new Error("O Intervalo de Tempo (t - t₀) deve ser maior que zero.");
+
+                        const vFinal = deltaS / deltaT;
+
+                        output += `
+                            <p style="margin: 5px 0 0 0;">1. **ΔS** = ${sEnd.toFixed(2)} - ${sStart.toFixed(2)} = **${deltaS.toFixed(2)} m**</p>
+                            <p>2. **Δt** = ${tEnd.toFixed(2)} - ${tStart.toFixed(2)} = **${deltaT.toFixed(2)} s**</p>
+                            <p style="margin: 10px 0 0 0;">3. **v = ΔS / Δt**</p>
+                            <p class="formula">v = ${deltaS.toFixed(2)} / ${deltaT.toFixed(2)}</p>
+                            <hr style="border-color: #ddd; margin: 5px 0;">
+                            <p style="font-size: 1.2em; color: #4CAF50; font-weight: bold;">v = ${vFinal.toFixed(2)} m/s</p>
+                        `;
+
+                        this.velocityInput.value = vFinal.toFixed(2);
+                        v_demo = vFinal;
+                        deltaT_demo = deltaT;
+                    
+                    } else if (modoCalculo === 'tempo') {
+                        // CÁLCULO DE TEMPO (Δt = ΔS / v)
+                        if (isNaN(sEnd) || isNaN(vInput)) throw new Error("Preencha Posição Final (S) e Velocidade (v).");
+                        if (vInput === 0) throw new Error("A Velocidade (v) não pode ser zero.");
+                        
+                        const deltaS = sEnd - sStart;
+                        const v = vInput;
+                        
+                        // Garante que o sinal de deltaT é o mesmo que o de S/v
+                        const deltaTFinal = deltaS / v;
+                        
+                        // O tempo final é o tempo inicial + o tempo decorrido
+                        const tFinal = tStart + Math.abs(deltaTFinal); 
+
+                        output += `
+                            <p style="margin: 5px 0 0 0;">1. **ΔS** = ${sEnd.toFixed(2)} - ${sStart.toFixed(2)} = **${deltaS.toFixed(2)} m**</p>
+                            <p style="margin: 10px 0 0 0;">2. **Δt = ΔS / v**</p>
+                            <p class="formula">Δt = ${deltaS.toFixed(2)} / ${v.toFixed(2)} = **${deltaTFinal.toFixed(2)} s**</p>
+                            <p style="margin: 10px 0 0 0;">3. **t = t₀ + |Δt|**</p>
+                            <p class="formula">t = ${tStart.toFixed(2)} + ${Math.abs(deltaTFinal).toFixed(2)} = **${tFinal.toFixed(2)} s**</p>
+                            <hr style="border-color: #ddd; margin: 5px 0;">
+                            <p style="font-size: 1.2em; color: #4CAF50; font-weight: bold;">Δt = ${deltaTFinal.toFixed(2)} s</p>
+                        `;
+                        
+                        this.tEndInput.value = tFinal.toFixed(2);
+                        v_demo = v;
+                        deltaT_demo = Math.abs(deltaTFinal);
+                    }
+                    
+                    this.resultadoDiv.innerHTML = output;
+
+                    // Inicia a demonstração visual
+                    this.iniciarDemonstracaoCalculo(sStart, v_demo, deltaT_demo);
+
+                } catch (error) {
+                    this.resultadoDiv.innerHTML = `<span style="color: red; font-weight: bold;">ERRO:</span> ${error.message}`;
+                    this.actionButton.disabled = false;
+                }
+            }
+            
+            // --- CONFIGURAÇÕES VISUAIS ---
+
+            redimensionarCanvas() {
+                this.corpoData.posicaoInicial = this._parseInput(this.sStartInput) || 0;
+                this.corpoData.velocidade = this._parseInput(this.velocityInput) || 0;
+                this.atualizaPosicaoCorpo(this.corpoData.posicaoInicial); 
+            }
+            
+            configurarInputs(modo) {
+                const allGroups = ['s-start', 's-end', 't-start', 't-end', 'v'];
+                let gruposAtivos = [];
+                
+                allGroups.forEach(groupSelector => {
+                    const groupElement = document.querySelector(`[data-input-group="${groupSelector}"]`);
+                    if (groupElement) {
+                        groupElement.style.display = 'none';
+                    }
+                });
+                
+                // Mapeamento de quais inputs são necessários por modo
+                if (modo === 'simulacao' || modo === 'posicao') {
+                    // S = S₀ + v*Δt: Precisa de S₀, v, t₀, t
+                    gruposAtivos = ['s-start', 'v', 't-start', 't-end'];
+                    
+                } else if (modo === 'velocidade') {
+                    // v = ΔS / Δt: Precisa de S₀, S, t₀, t
+                    gruposAtivos = ['s-start', 's-end', 't-start', 't-end'];
+                    
+                } else if (modo === 'tempo') {
+                    // Δt = ΔS / v: Precisa de S₀, S, v, t₀
+                    gruposAtivos = ['s-start', 's-end', 'v', 't-start'];
+                }
+                
+                gruposAtivos.forEach(groupSelector => {
+                    const groupElement = document.querySelector(`[data-input-group="${groupSelector}"]`);
+                    if (groupElement) {
+                        groupElement.style.display = 'flex';
+                    }
+                });
+                
+                // Atualiza a label do S₀ para indicar a funcionalidade de arrastar apenas no modo simulação
+                const sStartLabel = document.querySelector('[data-input-group="s-start"] .label');
+                if (sStartLabel) {
+                    sStartLabel.textContent = `Posição Inicial (S₀) (m)${modo === 'simulacao' ? ' - ARRASTE A BOLA' : ''}`;
+                }
+            }
+        }
+
+        // Cria a instância global
+        const calculadora = new Calculadora();
+        window.addEventListener('resize', () => calculadora.redimensionarCanvas());
+        document.addEventListener('DOMContentLoaded', () => {
+            calculadora.setMode('simulacao');
+            calculadora.redimensionarCanvas();
+        });
+    </script>
+</body>
+</html>

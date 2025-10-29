@@ -1,0 +1,856 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Química: Desenho de Estrutura Molecular e Ligações (v. Melhorada)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* ----------------------------------- */
+        /* ESTILOS GERAIS E LAYOUT SIMULADOR */
+        /* ----------------------------------- */
+        :root {
+            --cor-destaque: #D2691E; /* Laranja/Cobre */
+            --cor-fundo: #f0f0f0;
+            --cor-simulacao: #ffffff;
+            --cor-borda: #ccc;
+            --periodic-cell-size: 40px;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--cor-fundo);
+            margin: 0;
+            padding: 0;
+            color: #333;
+            overflow: hidden; 
+        }
+
+        .simulation-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        
+        /* PAINEL ESQUERDO: CONTROLES */
+        .left-panel {
+            flex: 0 0 250px; 
+            display: flex;
+            flex-direction: column;
+            background-color: #f8f8f8; 
+            padding: 15px;
+            box-sizing: border-box;
+            border-right: 1px solid var(--cor-borda);
+            z-index: 10; /* Garante que fique sobre a área de simulação */
+        }
+        
+        .logo-plataforma-left {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--cor-destaque);
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .controls-group {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+
+        .controls-group h4 {
+            margin-top: 0;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: var(--cor-destaque);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #c45e1a;
+        }
+
+        .output-area {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            font-size: 14px;
+        }
+        .output-area p {
+            margin: 5px 0;
+        }
+        
+        /* ÁREA CENTRAL: SIMULAÇÃO */
+        .simulation-area {
+            flex-grow: 1;
+            position: relative;
+            background-color: var(--cor-simulacao);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #molecule-structure {
+            position: relative;
+            width: 80%;
+            height: 80%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px dashed #e0e0e0;
+            border-radius: 10px;
+        }
+
+        /* ELEMENTO COLOCADO (Atom placed in center) */
+        .placed-element {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #3498db;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: grab;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s;
+            z-index: 5;
+        }
+        .placed-element.isCenter {
+            box-shadow: 0 0 0 4px var(--cor-destaque);
+            z-index: 6;
+        }
+        .placed-element:hover {
+            transform: scale(1.1);
+        }
+
+        .atom-symbol {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+        }
+        .atom-count {
+            font-size: 10px;
+            color: #ccc;
+        }
+        .atom-label { /* Label for NOX, removed but kept for structure text */
+            position: absolute;
+            bottom: -15px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* LIGAÇÕES (Bonds) */
+        .bond {
+            position: absolute;
+            height: 4px;
+            background-color: #333;
+            transform-origin: 0 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* PAINEL DIREITO: TABELA PERIÓDICA */
+        .right-panel {
+            flex: 0 0 450px; /* Mais espaço para a tabela completa */
+            background-color: #eee; 
+            padding: 15px;
+            box-sizing: border-box;
+            border-left: 1px solid var(--cor-borda);
+            transition: transform 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .right-panel.hidden {
+            transform: translateX(450px);
+        }
+
+        #periodic-table-grid {
+            display: grid;
+            grid-template-columns: repeat(18, var(--periodic-cell-size));
+            grid-template-rows: repeat(9, var(--periodic-cell-size)); /* 7 períodos + 2 linhas para Lantanídeos/Actinídeos */
+            gap: 2px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            user-select: none;
+        }
+
+        .periodic-cell {
+            width: var(--periodic-cell-size);
+            height: var(--periodic-cell-size);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 3px;
+            cursor: grab;
+            transition: all 0.1s;
+            position: relative;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+        }
+
+        .periodic-cell:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .atomic-symbol {
+            font-size: 14px;
+            color: white;
+        }
+
+        .atomic-number {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Cores de Classificação (Para a Legenda) */
+        .color-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .legend-box {
+            width: 10px;
+            height: 10px;
+            margin-right: 5px;
+            border-radius: 2px;
+        }
+
+        /* Botão para recolher painel */
+        #toggle-panel {
+            position: absolute;
+            right: 0px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 11;
+            width: 30px;
+            height: 60px;
+            background-color: var(--cor-destaque);
+            color: white;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: right 0.3s ease-in-out;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        #toggle-panel.on-edge {
+            right: 0;
+            border-radius: 5px 0 0 5px;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Placeholders para Lantanídeos/Actinídeos */
+        .lanthanide-placeholder, .actinide-placeholder {
+            grid-column: 3 / span 10; /* Coluna 3 até 12 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+            background-color: #ddd;
+            border-radius: 3px;
+        }
+
+        /* Estilos específicos para Lantanídeos/Actinídeos */
+        .periodic-cell[data-type="Lan"] { grid-row: 8; background-color: #FFC0CB; color: #333; } /* Rosa Claro */
+        .periodic-cell[data-type="Act"] { grid-row: 9; background-color: #DA70D6; color: #fff; } /* Orquídea */
+
+
+        /* Ajustes de grid para os placeholders e os elementos */
+        .periodic-cell[data-row="6"][data-col="3"],
+        .periodic-cell[data-row="7"][data-col="3"] {
+            /* Os elementos 57 (La) e 89 (Ac) estão na coluna 3 */
+            grid-column: 3;
+            grid-row: var(--row);
+        }
+
+        .lanthanide-placeholder { grid-row: 6; }
+        .actinide-placeholder { grid-row: 7; }
+
+        /* Esconder os elementos de 58 a 71 (Lanthanides) e 90 a 103 (Actinides) em sua posição original e colocá-los nas linhas 8 e 9. */
+        .periodic-cell[data-row="6"]:not([data-col="3"]):not([data-col="18"]),
+        .periodic-cell[data-row="7"]:not([data-col="3"]):not([data-col="18"]) {
+             /* Estilo padrão para células que não são Lantanídeos/Actinídeos*/
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div class="simulation-container">
+        
+        <div class="left-panel">
+            <div class="logo-plataforma-left">
+                Simulador de Ligações Químicas
+            </div>
+
+            <div class="controls-group">
+                <h4>Átomos na Estrutura</h4>
+                <p>Arraste elementos da tabela para a área central.</p>
+                <div id="atom-counts">
+                    </div>
+                <button id="reset-structure">
+                    <i class="fas fa-trash-alt"></i> Resetar Estrutura
+                </button>
+            </div>
+            
+            <div class="output-area">
+                <p><strong>Status:</strong> <span id="simulation-status">Pronto. Arraste átomos para começar a montar.</span></p>
+                <p><strong>Tipo de Ligação:</strong> <span id="bond-type-output">N/A</span></p>
+                <p><strong>Fórmula:</strong> <span id="formula-output"></span></p>
+            </div>
+        </div>
+
+        <div class="simulation-area">
+            <div id="molecule-structure">
+                <p style="color: #999;">Arraste e solte átomos aqui para montar sua molécula.</p>
+                </div>
+        </div>
+
+        <div class="right-panel" id="right-panel">
+            <h3>Tabela Periódica Completa</h3>
+            <div id="periodic-table-grid">
+                </div>
+            <div class="color-legend">
+                <p><strong>Legenda:</strong></p>
+                <div class="legend-item"><span class="legend-box" style="background-color: #F08080;"></span> Metais Alcalinos / Alcalino-Terrosos</div>
+                <div class="legend-item"><span class="legend-box" style="background-color: #FFA07A;"></span> Metais de Transição</div>
+                <div class="legend-item"><span class="legend-box" style="background-color: #A9A9A9;"></span> Outros Metais</div>
+                <div class="legend-item"><span class="legend-box" style="background-color: #00FA9A;"></span> Semimetais</div>
+                <div class="legend-item"><span class="legend-box" style="background-color: #909090;"></span> Não-Metais</div>
+                <div class="legend-item"><span class="legend-box" style="background-color: #F0E68C;"></span> Halogênios</div>
+                <div class="legend-item"><span class="legend-box" style="background-color: #8A2BE2;"></span> Gases Nobres</div>
+                <div class="legend-item"><span class="legend-box" style="background-color: #FFC0CB;"></span> Lantanídeos</div>
+                <div class="legend-item"><span class="legend-box" style="background-color: #DA70D6;"></span> Actinídeos</div>
+            </div>
+        </div>
+
+        <button id="toggle-panel">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    </div>
+
+    <script>
+        // ==================================================================================================
+        // 1. DADOS DE QUÍMICA (TABELA PERIÓDICA COMPLETA - 118 ELEMENTOS)
+        // 'z': atomic number, 's': symbol, 'n': name, 'v': bonding capacity (valences), 'c': color, 't': type, 'row/col': grid position
+        // ==================================================================================================
+        const ELEMENTS_DATA = [
+            // Period 1
+            { z: 1, s: 'H', n: 'Hidrogênio', v: [1], c: '#ADD8E6', t: 'NM', row: 1, col: 1, mass: 1.008 },
+            { z: 2, s: 'He', n: 'Hélio', v: [0], c: '#8A2BE2', t: 'GN', row: 1, col: 18, mass: 4.003 },
+            // Period 2
+            { z: 3, s: 'Li', n: 'Lítio', v: [1], c: '#F08080', t: 'AM', row: 2, col: 1, mass: 6.94 },
+            { z: 4, s: 'Be', n: 'Berílio', v: [2], c: '#F08080', t: 'AM', row: 2, col: 2, mass: 9.012 },
+            { z: 5, s: 'B', n: 'Boro', v: [3], c: '#00FA9A', t: 'SM', row: 2, col: 13, mass: 10.81 },
+            { z: 6, s: 'C', n: 'Carbono', v: [4], c: '#909090', t: 'NM', row: 2, col: 14, mass: 12.01 },
+            { z: 7, s: 'N', n: 'Nitrogênio', v: [3, 5], c: '#36B3C8', t: 'NM', row: 2, col: 15, mass: 14.01 },
+            { z: 8, s: 'O', n: 'Oxigênio', v: [2], c: '#E33200', t: 'NM', row: 2, col: 16, mass: 16.00 },
+            { z: 9, s: 'F', n: 'Flúor', v: [1], c: '#F0E68C', t: 'Hal', row: 2, col: 17, mass: 19.00 },
+            { z: 10, s: 'Ne', n: 'Neônio', v: [0], c: '#8A2BE2', t: 'GN', row: 2, col: 18, mass: 20.18 },
+            // Period 3
+            { z: 11, s: 'Na', n: 'Sódio', v: [1], c: '#F08080', t: 'AM', row: 3, col: 1, mass: 22.99 },
+            { z: 12, s: 'Mg', n: 'Magnésio', v: [2], c: '#F08080', t: 'AM', row: 3, col: 2, mass: 24.31 },
+            { z: 13, s: 'Al', n: 'Alumínio', v: [3], c: '#A9A9A9', t: 'OM', row: 3, col: 13, mass: 26.98 },
+            { z: 14, s: 'Si', n: 'Silício', v: [4], c: '#00FA9A', t: 'SM', row: 3, col: 14, mass: 28.09 },
+            { z: 15, s: 'P', n: 'Fósforo', v: [3, 5], c: '#FF8C00', t: 'NM', row: 3, col: 15, mass: 30.97 },
+            { z: 16, s: 'S', n: 'Enxofre', v: [2, 4, 6], c: '#FFD700', t: 'NM', row: 3, col: 16, mass: 32.07 },
+            { z: 17, s: 'Cl', n: 'Cloro', v: [1, 3, 5, 7], c: '#F0E68C', t: 'Hal', row: 3, col: 17, mass: 35.45 },
+            { z: 18, s: 'Ar', n: 'Argônio', v: [0], c: '#8A2BE2', t: 'GN', row: 3, col: 18, mass: 39.95 },
+            // Period 4
+            { z: 19, s: 'K', n: 'Potássio', v: [1], c: '#F08080', t: 'AM', row: 4, col: 1, mass: 39.10 },
+            { z: 20, s: 'Ca', n: 'Cálcio', v: [2], c: '#F08080', t: 'AM', row: 4, col: 2, mass: 40.08 },
+            { z: 21, s: 'Sc', n: 'Escândio', v: [3], c: '#FFA07A', t: 'MT', row: 4, col: 3, mass: 44.96 },
+            { z: 22, s: 'Ti', n: 'Titânio', v: [2, 3, 4], c: '#FFA07A', t: 'MT', row: 4, col: 4, mass: 47.87 },
+            { z: 23, s: 'V', n: 'Vanádio', v: [2, 3, 4, 5], c: '#FFA07A', t: 'MT', row: 4, col: 5, mass: 50.94 },
+            { z: 24, s: 'Cr', n: 'Cromo', v: [2, 3, 6], c: '#FFA07A', t: 'MT', row: 4, col: 6, mass: 52.00 },
+            { z: 25, s: 'Mn', n: 'Manganês', v: [2, 4, 7], c: '#FFA07A', t: 'MT', row: 4, col: 7, mass: 54.94 },
+            { z: 26, s: 'Fe', n: 'Ferro', v: [2, 3], c: '#FFA07A', t: 'MT', row: 4, col: 8, mass: 55.85 },
+            { z: 27, s: 'Co', n: 'Cobalto', v: [2, 3], c: '#FFA07A', t: 'MT', row: 4, col: 9, mass: 58.93 },
+            { z: 28, s: 'Ni', n: 'Níquel', v: [2, 3], c: '#FFA07A', t: 'MT', row: 4, col: 10, mass: 58.69 },
+            { z: 29, s: 'Cu', n: 'Cobre', v: [1, 2], c: '#FFA07A', t: 'MT', row: 4, col: 11, mass: 63.55 },
+            { z: 30, s: 'Zn', n: 'Zinco', v: [2], c: '#FFA07A', t: 'MT', row: 4, col: 12, mass: 65.38 },
+            { z: 31, s: 'Ga', n: 'Gálio', v: [3], c: '#A9A9A9', t: 'OM', row: 4, col: 13, mass: 69.72 },
+            { z: 32, s: 'Ge', n: 'Germânio', v: [4], c: '#00FA9A', t: 'SM', row: 4, col: 14, mass: 72.63 },
+            { z: 33, s: 'As', n: 'Arsênio', v: [3, 5], c: '#00FA9A', t: 'SM', row: 4, col: 15, mass: 74.92 },
+            { z: 34, s: 'Se', n: 'Selênio', v: [2, 4, 6], c: '#FFD700', t: 'NM', row: 4, col: 16, mass: 78.96 },
+            { z: 35, s: 'Br', n: 'Bromo', v: [1, 3, 5, 7], c: '#F0E68C', t: 'Hal', row: 4, col: 17, mass: 79.90 },
+            { z: 36, s: 'Kr', n: 'Criptônio', v: [0], c: '#8A2BE2', t: 'GN', row: 4, col: 18, mass: 83.80 },
+            // Period 5
+            { z: 37, s: 'Rb', n: 'Rubídio', v: [1], c: '#F08080', t: 'AM', row: 5, col: 1, mass: 85.47 },
+            { z: 38, s: 'Sr', n: 'Estrôncio', v: [2], c: '#F08080', t: 'AM', row: 5, col: 2, mass: 87.62 },
+            { z: 39, s: 'Y', n: 'Ítrio', v: [3], c: '#FFA07A', t: 'MT', row: 5, col: 3, mass: 88.91 },
+            { z: 40, s: 'Zr', n: 'Zircônio', v: [4], c: '#FFA07A', t: 'MT', row: 5, col: 4, mass: 91.22 },
+            { z: 41, s: 'Nb', n: 'Nióbio', v: [3, 5], c: '#FFA07A', t: 'MT', row: 5, col: 5, mass: 92.91 },
+            { z: 42, s: 'Mo', n: 'Molibdênio', v: [2, 3, 4, 5, 6], c: '#FFA07A', t: 'MT', row: 5, col: 6, mass: 95.96 },
+            { z: 43, s: 'Tc', n: 'Tecnécio', v: [7], c: '#FFA07A', t: 'MT', row: 5, col: 7, mass: 98 },
+            { z: 44, s: 'Ru', n: 'Rutênio', v: [2, 3, 4, 6, 8], c: '#FFA07A', t: 'MT', row: 5, col: 8, mass: 101.1 },
+            { z: 45, s: 'Rh', n: 'Ródio', v: [2, 3], c: '#FFA07A', t: 'MT', row: 5, col: 9, mass: 102.9 },
+            { z: 46, s: 'Pd', n: 'Paládio', v: [2, 4], c: '#FFA07A', t: 'MT', row: 5, col: 10, mass: 106.4 },
+            { z: 47, s: 'Ag', n: 'Prata', v: [1], c: '#FFA07A', t: 'MT', row: 5, col: 11, mass: 107.9 },
+            { z: 48, s: 'Cd', n: 'Cádmio', v: [2], c: '#FFA07A', t: 'MT', row: 5, col: 12, mass: 112.4 },
+            { z: 49, s: 'In', n: 'Índio', v: [3], c: '#A9A9A9', t: 'OM', row: 5, col: 13, mass: 114.8 },
+            { z: 50, s: 'Sn', n: 'Estanho', v: [2, 4], c: '#A9A9A9', t: 'OM', row: 5, col: 14, mass: 118.7 },
+            { z: 51, s: 'Sb', n: 'Antimônio', v: [3, 5], c: '#00FA9A', t: 'SM', row: 5, col: 15, mass: 121.8 },
+            { z: 52, s: 'Te', n: 'Telúrio', v: [2, 4, 6], c: '#00FA9A', t: 'SM', row: 5, col: 16, mass: 127.6 },
+            { z: 53, s: 'I', n: 'Iodo', v: [1, 3, 5, 7], c: '#F0E68C', t: 'Hal', row: 5, col: 17, mass: 126.9 },
+            { z: 54, s: 'Xe', n: 'Xenônio', v: [0], c: '#8A2BE2', t: 'GN', row: 5, col: 18, mass: 131.3 },
+            // Period 6 (La and Placeholder)
+            { z: 55, s: 'Cs', n: 'Césio', v: [1], c: '#F08080', t: 'AM', row: 6, col: 1, mass: 132.9 },
+            { z: 56, s: 'Ba', n: 'Bário', v: [2], c: '#F08080', t: 'AM', row: 6, col: 2, mass: 137.3 },
+            { z: 57, s: 'La', n: 'Lantânio', v: [3], c: '#FFC0CB', t: 'Lan', row: 6, col: 3, mass: 138.9 }, // Start of Lanthanides
+            { z: 72, s: 'Hf', n: 'Háfnio', v: [4], c: '#FFA07A', t: 'MT', row: 6, col: 4, mass: 178.5 },
+            { z: 73, s: 'Ta', n: 'Tântalo', v: [5], c: '#FFA07A', t: 'MT', row: 6, col: 5, mass: 180.9 },
+            { z: 74, s: 'W', n: 'Tungstênio', v: [4, 5, 6], c: '#FFA07A', t: 'MT', row: 6, col: 6, mass: 183.8 },
+            { z: 75, s: 'Re', n: 'Rênio', v: [4, 7], c: '#FFA07A', t: 'MT', row: 6, col: 7, mass: 186.2 },
+            { z: 76, s: 'Os', n: 'Ósmio', v: [4, 6, 8], c: '#FFA07A', t: 'MT', row: 6, col: 8, mass: 190.2 },
+            { z: 77, s: 'Ir', n: 'Irídio', v: [3, 4], c: '#FFA07A', t: 'MT', row: 6, col: 9, mass: 192.2 },
+            { z: 78, s: 'Pt', n: 'Platina', v: [2, 4], c: '#FFA07A', t: 'MT', row: 6, col: 10, mass: 195.1 },
+            { z: 79, s: 'Au', n: 'Ouro', v: [1, 3], c: '#FFA07A', t: 'MT', row: 6, col: 11, mass: 197.0 },
+            { z: 80, s: 'Hg', n: 'Mercúrio', v: [1, 2], c: '#FFA07A', t: 'MT', row: 6, col: 12, mass: 200.6 },
+            { z: 81, s: 'Tl', n: 'Tálio', v: [1, 3], c: '#A9A9A9', t: 'OM', row: 6, col: 13, mass: 204.4 },
+            { z: 82, s: 'Pb', n: 'Chumbo', v: [2, 4], c: '#A9A9A9', t: 'OM', row: 6, col: 14, mass: 207.2 },
+            { z: 83, s: 'Bi', n: 'Bismuto', v: [3, 5], c: '#A9A9A9', t: 'OM', row: 6, col: 15, mass: 209.0 },
+            { z: 84, s: 'Po', n: 'Polônio', v: [4, 6], c: '#00FA9A', t: 'SM', row: 6, col: 16, mass: 209 },
+            { z: 85, s: 'At', n: 'Ástato', v: [1], c: '#F0E68C', t: 'Hal', row: 6, col: 17, mass: 210 },
+            { z: 86, s: 'Rn', n: 'Radônio', v: [0], c: '#8A2BE2', t: 'GN', row: 6, col: 18, mass: 222 },
+            // Period 7 (Ac and Placeholder)
+            { z: 87, s: 'Fr', n: 'Frâncio', v: [1], c: '#F08080', t: 'AM', row: 7, col: 1, mass: 223 },
+            { z: 88, s: 'Ra', n: 'Rádio', v: [2], c: '#F08080', t: 'AM', row: 7, col: 2, mass: 226 },
+            { z: 89, s: 'Ac', n: 'Actínio', v: [3], c: '#DA70D6', t: 'Act', row: 7, col: 3, mass: 227 }, // Start of Actinides
+            { z: 104, s: 'Rf', n: 'Rutherfórdio', v: [4], c: '#FFA07A', t: 'MT', row: 7, col: 4, mass: 267 },
+            { z: 105, s: 'Db', n: 'Dúbnio', v: [5], c: '#FFA07A', t: 'MT', row: 7, col: 5, mass: 268 },
+            { z: 106, s: 'Sg', n: 'Seabórgio', v: [6], c: '#FFA07A', t: 'MT', row: 7, col: 6, mass: 271 },
+            { z: 107, s: 'Bh', n: 'Bóhrio', v: [7], c: '#FFA07A', t: 'MT', row: 7, col: 7, mass: 272 },
+            { z: 108, s: 'Hs', n: 'Hássio', v: [8], c: '#FFA07A', t: 'MT', row: 7, col: 8, mass: 270 },
+            { z: 109, s: 'Mt', n: 'Meitnério', v: [9], c: '#FFA07A', t: 'MT', row: 7, col: 9, mass: 276 },
+            { z: 110, s: 'Ds', n: 'Darmstádtio', v: [10], c: '#FFA07A', t: 'MT', row: 7, col: 10, mass: 281 },
+            { z: 111, s: 'Rg', n: 'Roentgênio', v: [11], c: '#FFA07A', t: 'MT', row: 7, col: 11, mass: 280 },
+            { z: 112, s: 'Cn', n: 'Copernício', v: [12], c: '#FFA07A', t: 'MT', row: 7, col: 12, mass: 285 },
+            { z: 113, s: 'Nh', n: 'Nihônio', v: [3], c: '#A9A9A9', t: 'OM', row: 7, col: 13, mass: 286 },
+            { z: 114, s: 'Fl', n: 'Fleróvio', v: [4], c: '#A9A9A9', t: 'OM', row: 7, col: 14, mass: 289 },
+            { z: 115, s: 'Mc', n: 'Moscóvio', v: [3, 5], c: '#A9A9A9', t: 'OM', row: 7, col: 15, mass: 290 },
+            { z: 116, s: 'Lv', n: 'Livermório', v: [4, 6], c: '#A9A9A9', t: 'OM', row: 7, col: 16, mass: 293 },
+            { z: 117, s: 'Ts', n: 'Tennessino', v: [1], c: '#F0E68C', t: 'Hal', row: 7, col: 17, mass: 294 },
+            { z: 118, s: 'Og', n: 'Oganessônio', v: [0], c: '#8A2BE2', t: 'GN', row: 7, col: 18, mass: 294 },
+            // Lantanídeos (Linha 8)
+            { z: 58, s: 'Ce', n: 'Cério', v: [3, 4], c: '#FFC0CB', t: 'Lan', row: 8, col: 4, mass: 140.1 },
+            { z: 59, s: 'Pr', n: 'Praseodímio', v: [3], c: '#FFC0CB', t: 'Lan', row: 8, col: 5, mass: 140.9 },
+            { z: 60, s: 'Nd', n: 'Neodímio', v: [3], c: '#FFC0CB', t: 'Lan', row: 8, col: 6, mass: 144.2 },
+            { z: 61, s: 'Pm', n: 'Promécio', v: [3], c: '#FFC0CB', t: 'Lan', row: 8, col: 7, mass: 145 },
+            { z: 62, s: 'Sm', n: 'Samário', v: [2, 3], c: '#FFC0CB', t: 'Lan', row: 8, col: 8, mass: 150.4 },
+            { z: 63, s: 'Eu', n: 'Európio', v: [2, 3], c: '#FFC0CB', t: 'Lan', row: 8, col: 9, mass: 152.0 },
+            { z: 64, s: 'Gd', n: 'Gadolínio', v: [3], c: '#FFC0CB', t: 'Lan', row: 8, col: 10, mass: 157.3 },
+            { z: 65, s: 'Tb', n: 'Térbio', v: [3], c: '#FFC0CB', t: 'Lan', row: 8, col: 11, mass: 158.9 },
+            { z: 66, s: 'Dy', n: 'Disprósio', v: [3], c: '#FFC0CB', t: 'Lan', row: 8, col: 12, mass: 162.5 },
+            { z: 67, s: 'Ho', n: 'Hólmio', v: [3], c: '#FFC0CB', t: 'Lan', row: 8, col: 13, mass: 164.9 },
+            { z: 68, s: 'Er', n: 'Érbio', v: [3], c: '#FFC0CB', t: 'Lan', row: 8, col: 14, mass: 167.3 },
+            { z: 69, s: 'Tm', n: 'Túlio', v: [2, 3], c: '#FFC0CB', t: 'Lan', row: 8, col: 15, mass: 168.9 },
+            { z: 70, s: 'Yb', n: 'Itérbio', v: [2, 3], c: '#FFC0CB', t: 'Lan', row: 8, col: 16, mass: 173.0 },
+            { z: 71, s: 'Lu', n: 'Lutécio', v: [3], c: '#FFC0CB', t: 'Lan', row: 8, col: 17, mass: 175.0 },
+            // Actinídeos (Linha 9)
+            { z: 90, s: 'Th', n: 'Tório', v: [4], c: '#DA70D6', t: 'Act', row: 9, col: 4, mass: 232.0 },
+            { z: 91, s: 'Pa', n: 'Protoactínio', v: [4, 5], c: '#DA70D6', t: 'Act', row: 9, col: 5, mass: 231.0 },
+            { z: 92, s: 'U', n: 'Urânio', v: [4, 6], c: '#DA70D6', t: 'Act', row: 9, col: 6, mass: 238.0 },
+            { z: 93, s: 'Np', n: 'Netúnio', v: [3, 4, 5, 6], c: '#DA70D6', t: 'Act', row: 9, col: 7, mass: 237 },
+            { z: 94, s: 'Pu', n: 'Plutônio', v: [3, 4, 5, 6], c: '#DA70D6', t: 'Act', row: 9, col: 8, mass: 244 },
+            { z: 95, s: 'Am', n: 'Amerício', v: [3], c: '#DA70D6', t: 'Act', row: 9, col: 9, mass: 243 },
+            { z: 96, s: 'Cm', n: 'Cúrio', v: [3], c: '#DA70D6', t: 'Act', row: 9, col: 10, mass: 247 },
+            { z: 97, s: 'Bk', n: 'Berquélio', v: [3, 4], c: '#DA70D6', t: 'Act', row: 9, col: 11, mass: 247 },
+            { z: 98, s: 'Cf', n: 'Califórnio', v: [3], c: '#DA70D6', t: 'Act', row: 9, col: 12, mass: 251 },
+            { z: 99, s: 'Es', n: 'Einstênio', v: [3], c: '#DA70D6', t: 'Act', row: 9, col: 13, mass: 252 },
+            { z: 100, s: 'Fm', n: 'Férmio', v: [3], c: '#DA70D6', t: 'Act', row: 9, col: 14, mass: 257 },
+            { z: 101, s: 'Md', n: 'Mendelévio', v: [2, 3], c: '#DA70D6', t: 'Act', row: 9, col: 15, mass: 258 },
+            { z: 102, s: 'No', n: 'Nobélio', v: [2, 3], c: '#DA70D6', t: 'Act', row: 9, col: 16, mass: 259 },
+            { z: 103, s: 'Lr', n: 'Laurêncio', v: [3], c: '#DA70D6', t: 'Act', row: 9, col: 17, mass: 262 }
+        ];
+
+        const ELEMENTS_MAP = new Map(ELEMENTS_DATA.map(el => [el.s, el]));
+
+        // --- Variáveis de Estado ---
+        const simulationArea = document.getElementById('molecule-structure');
+        const periodicTableGrid = document.getElementById('periodic-table-grid');
+        const atomCountsOutput = document.getElementById('atom-counts');
+        const formulaOutput = document.getElementById('formula-output');
+        const simulationStatus = document.getElementById('simulation-status');
+        
+        let placedElements = [];
+        let nextAtomId = 1;
+        let isDraggingAtom = false;
+        let draggedAtomId = null;
+
+        // --- Funções de Ajuda ---
+        function getElementData(symbol) {
+            return ELEMENTS_MAP.get(symbol);
+        }
+
+        // Determina a valência principal para a estrutura (pode ser ajustado)
+        function getPrimaryValence(symbol) {
+            const data = getElementData(symbol);
+            return data ? data.v[0] : 0;
+        }
+
+        // --- 1. Gerar a Tabela Periódica (COMPLETA) ---
+        function generatePeriodicTable() {
+            periodicTableGrid.innerHTML = '';
+
+            // Adicionar placeholders para a parte vazia das Linhas 6 e 7
+            const addPlaceholder = (row, label) => {
+                const placeholder = document.createElement('div');
+                placeholder.className = (label === 'Lantanídeos' ? 'lanthanide-placeholder' : 'actinide-placeholder');
+                placeholder.textContent = label;
+                placeholder.style.gridRow = row;
+                periodicTableGrid.appendChild(placeholder);
+            };
+
+            addPlaceholder(6, 'Lantanídeos (58-71)');
+            addPlaceholder(7, 'Actinídeos (90-103)');
+            
+            // Adicionar elementos
+            ELEMENTS_DATA.forEach(el => {
+                const cell = document.createElement('div');
+                cell.className = 'periodic-cell';
+                cell.setAttribute('draggable', 'true');
+                cell.setAttribute('data-symbol', el.s);
+                cell.setAttribute('data-name', el.n);
+                cell.setAttribute('data-type', el.t);
+                cell.setAttribute('data-row', el.row);
+                cell.setAttribute('data-col', el.col);
+
+                cell.style.backgroundColor = el.c;
+                cell.style.gridRow = el.t === 'Lan' ? 8 : (el.t === 'Act' ? 9 : el.row);
+                cell.style.gridColumn = el.t === 'Lan' ? (el.col - 3) + 3 : (el.t === 'Act' ? (el.col - 3) + 3 : el.col);
+                cell.style.color = (el.c === '#F0E68C' || el.c === '#00FA9A' || el.c === '#A9A9A9') ? '#333' : '#fff';
+
+                cell.innerHTML = `
+                    <span class="atomic-number" style="color: ${el.c === '#F0E68C' || el.c === '#00FA9A' ? '#333' : 'rgba(255, 255, 255, 0.7)'};">${el.z}</span>
+                    <span class="atomic-symbol">${el.s}</span>
+                `;
+
+                // Tratamento especial para Lantanídeos/Actinídeos nas linhas principais
+                if (el.s === 'La') {
+                    cell.style.gridRow = 6;
+                    cell.style.gridColumn = 3;
+                } else if (el.s === 'Ac') {
+                    cell.style.gridRow = 7;
+                    cell.style.gridColumn = 3;
+                }
+
+                periodicTableGrid.appendChild(cell);
+
+                // Drag Start
+                cell.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', JSON.stringify({ symbol: el.s, id: `atom-${nextAtomId}` }));
+                    e.dataTransfer.effectAllowed = 'copy';
+                    simulationStatus.textContent = `Arrastando ${el.n}...`;
+                });
+            });
+        }
+
+        // --- 2. Lógica de Montagem (Desenho das Ligações) ---
+
+        // Função que desenha a ligação entre dois átomos
+        function drawBond(centerAtom, neighborAtom, bondType) {
+            const simRect = simulationArea.getBoundingClientRect();
+            
+            // Coordenadas relativas ao centro da área de simulação
+            const x1 = centerAtom.x - simRect.left - simRect.width / 2;
+            const y1 = centerAtom.y - simRect.top - simRect.height / 2;
+            const x2 = neighborAtom.x - simRect.left - simRect.width / 2;
+            const y2 = neighborAtom.y - simRect.top - simRect.height / 2;
+            
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+            const bondCount = bondType === 'double' ? 2 : (bondType === 'triple' ? 3 : 1);
+            const offset = bondCount > 1 ? 5 : 0; // Offset para linhas múltiplas
+
+            for (let i = 0; i < bondCount; i++) {
+                const bond = document.createElement('div');
+                bond.className = 'bond';
+                
+                // Posição inicial (centro do átomo 1)
+                let startX = x1 + simRect.width / 2;
+                let startY = y1 + simRect.height / 2;
+                
+                // Aplica offset para ligações múltiplas
+                let currentOffset = 0;
+                if (bondCount > 1) {
+                    if (i === 0) currentOffset = -offset;
+                    if (i === 1 && bondCount === 2) currentOffset = offset;
+                    if (i === 1 && bondCount === 3) currentOffset = 0;
+                    if (i === 2 && bondCount === 3) currentOffset = offset;
+                }
+
+                // Ajusta a posição inicial com base no ângulo de rotação
+                if (currentOffset !== 0) {
+                    const angleRad = angle * Math.PI / 180;
+                    const perpAngle = angleRad + Math.PI / 2; // Ângulo perpendicular
+
+                    startX += currentOffset * Math.cos(perpAngle);
+                    startY += currentOffset * Math.sin(perpAngle);
+                }
+
+                // Subtrai o raio do átomo para iniciar a linha na borda
+                const ATOM_RADIUS = 25; 
+                const startCorrectionX = ATOM_RADIUS * Math.cos(angle * Math.PI / 180);
+                const startCorrectionY = ATOM_RADIUS * Math.sin(angle * Math.PI / 180);
+                
+                bond.style.left = `${startX + startCorrectionX}px`;
+                bond.style.top = `${startY + startCorrectionY}px`;
+                bond.style.width = `${distance - 2 * ATOM_RADIUS}px`; // Subtrai o raio dos dois átomos
+                bond.style.transform = `rotate(${angle}deg)`;
+                
+                simulationArea.querySelector('#molecule-structure').appendChild(bond);
+            }
+        }
+
+        // Função principal para renderizar a estrutura (substitui calculateNox)
+        function renderMoleculeStructure() {
+            // Limpa as ligações existentes e os rótulos
+            simulationArea.querySelectorAll('.bond').forEach(b => b.remove());
+            simulationArea.querySelectorAll('.atom-label').forEach(l => l.remove());
+
+            if (placedElements.length === 0) return;
+
+            // 1. Encontra o átomo central (o que não tem a flag isCenter = false, ou o primeiro)
+            let centerAtom = placedElements.find(a => a.isCenter);
+            if (!centerAtom) centerAtom = placedElements[0];
+            
+            // 2. Simplificação da Heurística de Ligações (APENAS PARA VISUALIZAÇÃO)
+            // Esta é uma HEURÍSTICA SIMPLES para desenhar as ligações do átomo central para os vizinhos.
+            
+            let currentCounts = placedElements.reduce((acc, atom) => {
+                acc[atom.symbol] = (acc[atom.symbol] || 0) + 1;
+                return acc;
+            }, {});
+
+            let formula = Object.entries(currentCounts).map(([s, c]) => `${s}${c > 1 ? `₂` : ''}`).join('');
+            formulaOutput.textContent = formula;
+
+
+            if (placedElements.length > 1) {
+                // Heurística: Liga o átomo central a todos os outros átomos.
+                // Isso NÃO é um cálculo de estrutura de Lewis, mas sim uma representação
+                // de como o simulador desenharia as ligações baseado em vizinhança.
+                for (let i = 0; i < placedElements.length; i++) {
+                    const atom = placedElements[i];
+                    
+                    if (atom.id !== centerAtom.id) {
+                         // Simulação de Ligação: Assume uma ligação simples por padrão para visualização
+                         drawBond(centerAtom, atom, 'single');
+                    }
+                }
+
+                simulationStatus.textContent = `Estrutura de ${formula} renderizada (Heurística Simples)`;
+                document.getElementById('bond-type-output').textContent = 'Simples (Padrão)';
+
+            } else {
+                 simulationStatus.textContent = `${centerAtom.name} (${centerAtom.symbol}). Adicione mais átomos para formar uma ligação.`;
+                 document.getElementById('bond-type-output').textContent = 'N/A';
+            }
+
+            renderPlacedElements(); // Garante que os átomos fiquem por cima das ligações
+            updateAtomCounts();
+        }
+
+        // --- 3. Manipulação de Átomos na Área Central ---
+
+        function renderPlacedElements() {
+            // Remove todos os elementos DOM, exceto a mensagem inicial
+            simulationArea.querySelectorAll('.placed-element').forEach(el => el.remove());
+            simulationArea.querySelector('#molecule-structure p').style.display = placedElements.length === 0 ? 'block' : 'none';
+
+            // Linha 712 (Início da função)
+function renderPlacedElements() {
+    
+    // =========================================================
+    // >>>>> CORREÇÃO APLICADA (Verificação de NULL) <<<<<
+    // Se a variável for null, a função termina para evitar o crash.
+    // =========================================================
+    if (!assemblyCanvas) { 
+        console.error("ERRO: O container de montagem ('assembly-canvas') não foi encontrado no DOM. Falha ao renderizar.");
+        return; // IMPORTANTE: Sai da função, evitando o erro na linha 749.
+    }
+    
+    // Limpa o container
+    assemblyCanvas.innerHTML = ''; 
+
+    // Itera e cria os elementos
+    placedElements.forEach(element => {
+        const atomDiv = createAtomElement(element); 
+        
+        // ... (lógicas de estilo, posição e drag - Linhas 716-748) ...
+
+        // Linha 749 (Onde o erro ocorria: assemblyCanvas.appendChild)
+        assemblyCanvas.appendChild(atomDiv); // AGORA SEGURO
+    });
+
+    // ... restante da função (se houver)
+          }
+            
+            // Re-renderiza a estrutura para garantir que as ligações se ajustem à nova posição
+            renderMoleculeStructure();
+        }
+
+        function updateAtomCounts() {
+            const counts = placedElements.reduce((acc, atom) => {
+                acc[atom.symbol] = (acc[atom.symbol] || 0) + 1;
+                return acc;
+            }, {});
+
+            atomCountsOutput.innerHTML = Object.entries(counts)
+                .map(([s, c]) => `<p><strong>${s}</strong>: ${c}</p>`)
+                .join('');
+        }
+        
+        function resetStructure() {
+            placedElements = [];
+            nextAtomId = 1;
+            renderPlacedElements();
+            renderMoleculeStructure(); // Limpa as ligações
+            updateAtomCounts();
+            formulaOutput.textContent = '';
+            simulationStatus.textContent = 'Pronto. Arraste átomos para começar a montar.';
+        }
+
+
+        // --- 4. Event Listeners de Drag and Drop ---
+
+        simulationArea.addEventListener('dragover', (e) => {
+            e.preventDefault(); // Necessário para permitir o drop
+            e.dataTransfer.dropEffect = 'copy';
+        });
+
+        simulationArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const dataString = e.dataTransfer.getData('text/plain');
+
+            try {
+                const data = JSON.parse(dataString);
+                const simRect = simulationArea.getBoundingClientRect();
+
+                // Posição ajustada ao centro do átomo (tamanho: 50x50)
+                const newX = e.clientX - simRect.left - 25; 
+                const newY = e.clientY - simRect.top - 25;
+
+                if (data.isRelocating) {
+                    // Lógica de recolocação
+                    const movedAtom = placedElements.find(a => a.id === data.id);
+                    if (movedAtom) {
+                        movedAtom.x = newX;
+                        movedAtom.y = newY;
+                        renderPlacedElements();
+                        simulationStatus.textContent = `Átomo ${movedAtom.symbol} movido.`;
+                    }
+                } else {
+                    // Lógica de adição de novo átomo (Drag da Tabela Periódica)
+                    const elementData = getElementData(data.symbol);
+                    if (!elementData) return;
+
+                    const newAtom = {
+                        id: `atom-${nextAtomId++}`,
+                        symbol: elementData.s,
+                        name: elementData.n,
+                        x: newX,
+                        y: newY,
+                        color: elementData.c,
+                        valence: getPrimaryValence(elementData.s),
+                        isCenter: placedElements.length === 0 // O primeiro é o centro
+                    };
+                    placedElements.push(newAtom);
+                    renderPlacedElements();
+                    renderMoleculeStructure();
+                    simulationStatus.textContent = `Adicionado ${newAtom.name} (${newAtom.symbol}).`;
+                }
+            } catch (error) {
+                 // Ignora erro de parsing se for um elemento novo (dragged data é só o symbol)
+                 console.error("Erro ao processar drop:", error);
+            } finally {
+                if (draggedAtomId) {
+                    const el = document.getElementById(draggedAtomId);
+                    if(el) el.classList.remove('temp-dragging');
+                    draggedAtomId = null;
+                }
+            }
+        });
+
+
+        // --- 5. LÓGICA DO PAINEL RECOLHÍVEL ---
+        const rightPanel = document.getElementById('right-panel');
+        const toggleButton = document.getElementById('toggle-panel');
+
+        toggleButton.addEventListener('click', () => {
+            const isHidden = rightPanel.classList.toggle('hidden');
+            
+            toggleButton.classList.toggle('on-edge', isHidden);
+            
+            const icon = toggleButton.querySelector('.fas');
+            if (isHidden) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        });
+
+        // --- 6. INICIALIZAÇÃO ---
+        document.getElementById('reset-structure').addEventListener('click', resetStructure);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            generatePeriodicTable();
+            resetStructure(); // Inicia com a tela limpa
+        });
+    </script>
+</body>
+</html>

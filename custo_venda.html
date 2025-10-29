@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Custo e Venda - Matemática Financeira</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* ----------------------------------- */
+        /* VARIÁVEIS E ESTILOS GERAIS (Consistência com a Plataforma) */
+        /* ----------------------------------- */
+        :root {
+            --cor-primaria: #D2691E; /* Cor de Destaque (Laranja/Terra) */
+            --cor-secundaria: #34495e; /* Cor de Texto Principal (Azul Escuro) */
+            --cor-fundo: #f8f8f8;
+            --cor-fundo-card: #ffffff;
+            --cor-borda: #ccc;
+            --cor-financeira: #00796b; /* Destaque para Finanças (Verde Escuro) */
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--cor-fundo);
+            color: var(--cor-secundaria);
+        }
+
+        .content-area {
+            padding: 30px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ----------------------------------- */
+        /* BARRA SUPERIOR DE NAVEGAÇÃO (TOP-BAR) */
+        /* ----------------------------------- */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: stretch; 
+            border-bottom: 1px solid #ddd; 
+        }
+
+        .logo-link {
+            text-decoration: none;
+            color: var(--cor-primaria); 
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 25px; 
+            display: flex;
+            align-items: center; 
+            border-right: 1px solid #ddd; 
+            transition: background-color 0.3s;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: flex-start;
+            flex-grow: 1;
+        }
+
+        .nav-button {
+            background: none;
+            border: none;
+            padding: 15px 25px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background-color 0.3s;
+            border-bottom: 3px solid transparent;
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+        }
+
+        .nav-button.active {
+            color: var(--cor-primaria); 
+            border-bottom: 3px solid var(--cor-primaria);
+        }
+
+        .nav-button .fas {
+             margin-right: 8px;
+             font-size: 14px;
+        }
+        
+        /* ----------------------------------- */
+        /* LAYOUT PRINCIPAL (CALCULADORA) */
+        /* ----------------------------------- */
+
+        h1 {
+            color: var(--cor-financeira);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .calculator-container {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .input-panel, .result-panel {
+            background-color: var(--cor-fundo-card);
+            border: 1px solid var(--cor-borda);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-panel {
+            flex: 2; /* Ocupa mais espaço para os custos */
+        }
+
+        .result-panel {
+            flex: 1; 
+            min-width: 300px;
+        }
+
+        /* ----------------------------------- */
+        /* PAINEL DE ENTRADAS (CUSTOS) */
+        /* ----------------------------------- */
+
+        .cost-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .cost-item input[type="text"] { /* Descrição do custo */
+            flex: 2;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .cost-item input[type="number"] { /* Valor do custo */
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: right;
+        }
+
+        .remove-cost {
+            background: none;
+            border: none;
+            color: #c0392b; /* Vermelho para deletar */
+            cursor: pointer;
+            font-size: 1.1em;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+        
+        .remove-cost:hover {
+            color: #e74c3c;
+        }
+
+        .add-cost-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            background-color: #f0f0f0;
+            border: 1px dashed #ccc;
+            border-radius: 5px;
+            color: #555;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .add-cost-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .profit-input-group {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .profit-input-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .profit-input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--cor-financeira);
+            border-radius: 5px;
+            font-size: 1.1em;
+            text-align: right;
+        }
+        
+        /* ----------------------------------- */
+        /* PAINEL DE RESULTADOS */
+        /* ----------------------------------- */
+
+        .result-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed #eee;
+            font-size: 1.1em;
+        }
+        
+        .result-line:last-of-type {
+            border-bottom: none;
+        }
+
+        .total-cost-line {
+            font-weight: bold;
+            color: var(--cor-secundaria);
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        .final-price-line {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--cor-financeira);
+            padding: 15px 0;
+            border-top: 2px solid var(--cor-financeira);
+        }
+
+        .value {
+            font-weight: bold;
+        }
+
+        /* ----------------------------------- */
+        /* AJUSTE PARA GRANDE QUANTIDADE */
+        /* ----------------------------------- */
+        
+        .bulk-pricing-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .bulk-pricing-section h3 {
+            color: var(--cor-financeira);
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        .bulk-input {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .bulk-input label {
+            flex: 1;
+            font-size: 0.95em;
+        }
+
+        .bulk-input input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* Estilo para o resultado final da seção Bulk (Valor Total) */
+        .bulk-final-result {
+            margin-top: 15px;
+            padding: 10px 0;
+            background-color: #e8f5e9; /* Verde bem claro */
+            border-radius: 5px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2e7d32;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-book-reader"></i> PLATAFORMA
+        </a>
+
+        <div class="nav-buttons">
+            <a href="index.html" class="nav-button active"><i class="fas fa-arrow-up"></i> MATÉRIAS</a>
+            <a href="exercicios_index.html" class="nav-button"><i class="fas fa-arrow-down"></i> EXE. DE APOIO</a>
+            <a href="videoaula_index.html" class="nav-button"><i class="fas fa-arrow-down"></i> VIDEO AULA</a>
+            
+            <button class="nav-button more-options">...</button>
+        </div>
+    </header>
+
+    <main class="content-area">
+
+        <h1><i class="fas fa-cash-register"></i> Calculadora de Custo, Markup e Venda</h1>
+        
+        <div class="calculator-container">
+
+            <div class="input-panel">
+                <h2>1. Definição dos Custos (R$)</h2>
+                <p>Insira todos os custos (diretos e indiretos) envolvidos na produção ou aquisição do item.</p>
+
+                <div id="costInputs">
+                    </div>
+                
+                <button class="add-cost-button" onclick="addCostItem()">
+                    <i class="fas fa-plus-circle"></i> Adicionar Outro Custo
+                </button>
+
+                <div class="profit-input-group">
+                    <h2>2. Margem de Lucro (Markup)</h2>
+                    <label for="profitMargin">Porcentagem de Lucro Desejada (Markup sobre o Custo %):</label>
+                    <input type="number" id="profitMargin" value="30" min="0" max="500" step="1" oninput="calculatePrice()">
+                </div>
+                
+                <p style="margin-top: 20px; font-size: 0.9em; color: #777;">* A fórmula usada é **Markup sobre o Custo** (Preço = Custo × (1 + Markup%)).</p>
+            </div>
+
+            <div class="result-panel">
+                <h2><i class="fas fa-tag"></i> Preço de Venda Sugerido</h2>
+
+                <div class="result-box">
+                    <div class="result-line total-cost-line">
+                        <span>Custo Total do Item:</span>
+                        <span id="totalCost" class="value">R$ 0,00</span>
+                    </div>
+
+                    <div class="result-line">
+                        <span>Markup Aplicado:</span>
+                        <span id="markupValue" class="value">0,00%</span>
+                    </div>
+                    
+                    <div class="result-line final-price-line">
+                        <span>Preço Unitário de Venda:</span>
+                        <span id="finalPrice" class="value">R$ 0,00</span>
+                    </div>
+                </div>
+                
+                <div class="bulk-pricing-section">
+                    <h3>3. Preço para Grande Quantidade</h3>
+                    <p style="font-size: 0.9em;">Ajuste o desconto para vendas em grande volume.</p>
+                    
+                    <div class="bulk-input">
+                        <label for="bulkQuantity">Quantidade Mínima para Desconto:</label>
+                        <input type="number" id="bulkQuantity" value="10" min="1" oninput="calculatePrice()">
+                    </div>
+                    
+                    <div class="bulk-input">
+                        <label for="bulkDiscount">Desconto (em %):</label>
+                        <input type="number" id="bulkDiscount" value="10" min="0" max="100" step="0.5" oninput="calculatePrice()">
+                    </div>
+
+                    <div class="result-line" style="margin-top: 15px;">
+                        <span>Preço Unitário c/ Desconto:</span>
+                        <span id="bulkPrice" class="value">R$ 0,00</span>
+                    </div>
+                    
+                    <div class="bulk-final-result">
+                        <span>Valor Total dos Produtos:</span>
+                        <span id="totalBulkValue" class="value">R$ 0,00</span>
+                    </div>
+                    
+                    <div class="result-line" style="border-bottom: none;">
+                        <span>Lucro % (na Venda Total):</span>
+                        <span id="bulkProfitPercent" class="value" style="color: var(--cor-financeira);">0,00 %</span>
+                    </div>
+                    </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Adiciona itens de custo iniciais
+            addCostItem('Custo Direto (Matéria-prima)', 50.00); 
+            addCostItem('Custo Indireto (Embalagem/Mão de obra)', 5.00);
+            calculatePrice();
+        });
+
+        const costInputsContainer = document.getElementById('costInputs');
+
+        /**
+         * Adiciona um novo campo de custo à lista.
+         */
+        function addCostItem(name = 'Novo Custo', value = 0.00) {
+            const itemDiv = document.createElement('div');
+            itemDiv.classList.add('cost-item');
+
+            itemDiv.innerHTML = `
+                <input type="text" value="${name}" placeholder="Nome do Custo (Ex: Matéria-prima, Impostos)">
+                <input type="number" value="${value.toFixed(2)}" min="0" step="0.01" oninput="calculatePrice()" class="cost-value">
+                <button class="remove-cost" onclick="removeCostItem(this)" title="Remover Custo"><i class="fas fa-trash-alt"></i></button>
+            `;
+            
+            costInputsContainer.appendChild(itemDiv);
+            calculatePrice();
+        }
+
+        /**
+         * Remove um item de custo da lista.
+         */
+        function removeCostItem(button) {
+            button.closest('.cost-item').remove();
+            calculatePrice();
+        }
+
+        /**
+         * Formata um número para o formato de moeda R$.
+         */
+        function formatCurrency(number) {
+            return 'R$ ' + number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        /**
+         * Atualiza o preço para grande quantidade, total e lucro percentual.
+         * @param {number} unitCost - Custo unitário total do produto.
+         * @param {number} unitPriceNoDiscount - Preço unitário final sem desconto.
+         */
+        function updateBulkPricing(unitCost, unitPriceNoDiscount) {
+            const discount = parseFloat(document.getElementById('bulkDiscount').value) || 0;
+            const quantity = parseFloat(document.getElementById('bulkQuantity').value) || 1; 
+            
+            let unitBulkPrice = unitPriceNoDiscount;
+            
+            if (discount > 0 && unitPriceNoDiscount > 0) {
+                // Aplica o desconto percentual
+                const discountFactor = 1 - (discount / 100);
+                unitBulkPrice = unitPriceNoDiscount * discountFactor;
+            }
+            
+            // --- CÁLCULOS DOS NOVOS CAMPOS ---
+            const totalBulkValue = unitBulkPrice * quantity; // Valor dos produtos juntos
+            const totalBulkCost = unitCost * quantity;
+            
+            let bulkProfitPercent = 0;
+            if (totalBulkCost > 0) {
+                // Lucro % = ((Venda Total - Custo Total) / Custo Total) * 100
+                bulkProfitPercent = ((totalBulkValue - totalBulkCost) / totalBulkCost) * 100;
+            } else if (totalBulkValue > 0) {
+                // Se o custo for zero, o lucro é 100% (ou infinito, mas 100% é mais prático)
+                bulkProfitPercent = 100;
+            }
+            
+            // --- EXIBIÇÃO DOS NOVOS RESULTADOS ---
+            document.getElementById('bulkPrice').textContent = formatCurrency(unitBulkPrice);
+            document.getElementById('totalBulkValue').textContent = formatCurrency(totalBulkValue);
+            // Garante que o lucro zero não apareça negativo
+            const percentDisplay = Math.max(0, bulkProfitPercent).toFixed(2).replace('.', ',');
+            document.getElementById('bulkProfitPercent').textContent = percentDisplay + ' %';
+        }
+
+        /**
+         * Função principal para calcular o custo total, o markup e o preço final de venda.
+         */
+        function calculatePrice() {
+            const costValues = document.querySelectorAll('.cost-value');
+            let totalCost = 0;
+            
+            // 1. CALCULA O CUSTO TOTAL
+            costValues.forEach(input => {
+                const value = parseFloat(input.value) || 0;
+                totalCost += value;
+            });
+
+            // 2. OBTÉM A MARGEM DE LUCRO (MARKUP)
+            const markupPercent = parseFloat(document.getElementById('profitMargin').value) || 0;
+            const markupFactor = 1 + (markupPercent / 100);
+
+            // 3. CALCULA O PREÇO DE VENDA (Markup sobre o Custo)
+            const finalPrice = totalCost * markupFactor;
+
+            // 4. EXIBE OS RESULTADOS
+            document.getElementById('totalCost').textContent = formatCurrency(totalCost);
+            document.getElementById('markupValue').textContent = markupPercent.toFixed(2).replace('.', ',') + ' %';
+            document.getElementById('finalPrice').textContent = formatCurrency(finalPrice);
+            
+            // 5. ATUALIZA O PREÇO DE GRANDE QUANTIDADE
+            // Passando o Custo Unitário (totalCost) e o Preço Unitário sem Desconto (finalPrice)
+            updateBulkPricing(totalCost, finalPrice);
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Didática: Porcentagem, Frações e Avançados</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* ----------------------------------- */
+        /* VARIÁVEIS E ESTILOS GERAIS */
+        /* ----------------------------------- */
+        :root {
+            --cor-primaria: #00796b; /* Verde Escuro (Destaque principal) */
+            --cor-secundaria: #34495e; /* Azul Escuro (Texto e fundo de elementos) */
+            --cor-fundo: #f0f4f7;
+            --cor-card: #ffffff;
+            --cor-destaque: #D2691E; /* Cobre (Do logo) */
+            --cor-calc-bg: #e8f5e9; /* Fundo suave para a calculadora */
+            --header-height: 55px;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--cor-fundo);
+            color: var(--cor-secundaria);
+            padding-top: var(--header-height); 
+        }
+
+        /* ----------------------------------- */
+        /* BARRA SUPERIOR (TOP-BAR) */
+        /* ----------------------------------- */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            height: var(--header-height); 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100; 
+            display: flex;
+            align-items: stretch; 
+            border-bottom: 1px solid #ddd; 
+            box-sizing: border-box; 
+        }
+
+        .logo-link {
+            text-decoration: none;
+            color: var(--cor-destaque); 
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 25px; 
+            display: flex;
+            align-items: center; 
+            border-right: 1px solid #ddd; 
+            transition: background-color 0.3s;
+        }
+        
+        .logo-link:hover {
+            background-color: #f5f5f5;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: flex-start;
+            flex-grow: 1;
+        }
+
+        .page-title {
+            padding: 0 25px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* ----------------------------------- */
+        /* LAYOUT PRINCIPAL E CALCULADORA CENTRAL */
+        /* ----------------------------------- */
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: calc(100vh - var(--header-height)); 
+            padding: 40px 20px;
+        }
+
+        .calculator-card {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--cor-card);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+
+        .header-title {
+            background-color: var(--cor-primaria);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.8em;
+            margin: 0;
+        }
+
+        /* --- SELEÇÃO DE MODO (TABS) --- */
+        .mode-selection {
+            display: flex;
+            border-bottom: 2px solid #eee;
+        }
+
+        .mode-button {
+            flex-grow: 1;
+            padding: 15px 10px;
+            text-align: center;
+            font-size: 1em;
+            font-weight: bold;
+            color: var(--cor-secundaria);
+            background-color: #f7f7f7;
+            border: none;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .mode-button.active {
+            color: var(--cor-primaria);
+            background-color: var(--cor-card);
+            border-bottom: 3px solid var(--cor-primaria);
+        }
+        
+        /* --- CONTEÚDO DOS MODOS --- */
+        .mode-content {
+            padding: 30px;
+        }
+
+        .mode-page {
+            display: none;
+            animation: fadeIn 0.4s;
+        }
+        
+        .mode-page.active {
+            display: block;
+        }
+
+        /* --- ENTRADAS DE DADOS --- */
+        .input-group {
+            margin-bottom: 25px;
+            padding: 10px 0;
+            border-bottom: 1px dashed #ccc;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: var(--cor-secundaria);
+            font-size: 0.95em;
+        }
+
+        .input-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Modo 3: Dropdown para Operação */
+        .op-select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1.1em;
+            background-color: #f9f9f9;
+        }
+        
+        .dataInput, .fraction-input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1.1em;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        
+        .dataInput {
+            flex-grow: 1;
+        }
+
+        .fraction-input {
+            width: 80px;
+        }
+
+        .fraction-divider {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #777;
+        }
+
+        .operator {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--cor-destaque);
+        }
+
+        /* --- BOTÃO DE CÁLCULO --- */
+        .calculate-button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--cor-primaria);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        .calculate-button:hover {
+            background-color: #00645a;
+        }
+
+        /* --- ÁREA DE RESULTADO (DIDÁTICO) --- */
+        .result-area {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: var(--cor-calc-bg);
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid var(--cor-primaria);
+        }
+
+        .result-area h3 {
+            color: var(--cor-secundaria);
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        
+        .result-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: var(--cor-destaque);
+            display: block;
+            word-wrap: break-word; 
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            text-align: left;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        
+        .step-by-step strong {
+            color: var(--cor-primaria);
+        }
+        .step-by-step ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .step-by-step li {
+            margin-bottom: 5px;
+            background-color: #fefefe;
+            padding: 8px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-book-reader"></i> PLATAFORMA
+        </a>
+        <div class="nav-buttons">
+            <span class="page-title">Calculadora Didática: Porcentagem, Frações e Avançados</span>
+        </div>
+    </header>
+
+    <div class="main-container">
+
+        <div class="calculator-card">
+            <h2 class="header-title">
+                <i class="fas fa-graduation-cap"></i> Análise e Operações Matemáticas
+            </h2>
+
+            <div class="mode-selection">
+                <button class="mode-button active" data-mode="mode1" onclick="showMode('mode1')">
+                    <i class="fas fa-percent"></i> Porcentagem Simples
+                </button>
+                <button class="mode-button" data-mode="mode2" onclick="showMode('mode2')">
+                    <i class="fas fa-question"></i> Valor como %
+                </button>
+                <button class="mode-button" data-mode="mode3" onclick="showMode('mode3')">
+                    <i class="fas fa-superscript"></i> Avançado e Bases
+                </button>
+            </div>
+
+            <div class="mode-content">
+                
+                <div id="mode1" class="mode-page active">
+                    <p style="font-style: italic; color: #777;">Calcule a parte correspondente a uma porcentagem de um valor.</p>
+                    <div class="input-group">
+                        <label>Calcule **X%** de **Y**</label>
+                        <div class="input-line">
+                            <input type="number" id="m1_percent" class="dataInput" value="25" min="0" step="0.1" placeholder="X (%)">
+                            <span class="operator">% de</span>
+                            <input type="number" id="m1_value" class="dataInput" value="200" min="0" step="0.01" placeholder="Y (Valor)">
+                        </div>
+                    </div>
+                    <button class="calculate-button" onclick="calculate('mode1')">
+                        Calcular Porcentagem
+                    </button>
+                </div>
+                
+                <div id="mode2" class="mode-page">
+                    <p style="font-style: italic; color: #777;">Descubra o percentual que um valor (X) representa em relação a um total (Y).</p>
+                    <div class="input-group">
+                        <label>**X** é quantos % de **Y**?</label>
+                        <div class="input-line">
+                            <input type="number" id="m2_part" class="dataInput" value="50" step="0.01" placeholder="X (Parte)">
+                            <span class="operator">é quantos % de</span>
+                            <input type="number" id="m2_total" class="dataInput" value="250" min="0.01" step="0.01" placeholder="Y (Total)">
+                        </div>
+                    </div>
+                    <button class="calculate-button" onclick="calculate('mode2')">
+                        Calcular Percentual
+                    </button>
+                </div>
+
+                <div id="mode3" class="mode-page">
+                    <p style="font-style: italic; color: #777;">Realize operações com frações, decimais, potências e logaritmos (com passo a passo).</p>
+
+                    <div class="input-group">
+                        <label>Operação:</label>
+                        <div class="input-line" style="gap: 15px;">
+                            <select id="m3_operation" class="op-select" onchange="updateM3Fields()">
+                                <option value="mult">Multiplicação/Fração de Fração (*)</option>
+                                <option value="add">Adição (+)</option>
+                                <option value="sub">Subtração (-)</option>
+                                <option value="div">Divisão (/) </option>
+                                <option value="pow">Potência (Xʸ)</option>
+                                <option value="log">Logaritmo (logᵦa)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="m3_fields_binary">
+                         <div class="input-group">
+                            <label id="m3_label_factor1">Fator 1 (Fração ou Decimal):</label>
+                            <div class="input-line">
+                                <input type="number" id="m3_num1" class="fraction-input" value="1" placeholder="Num">
+                                <span class="fraction-divider">/</span>
+                                <input type="number" id="m3_den1" class="fraction-input" value="2" min="1" placeholder="Den">
+                                <span class="operator">ou</span>
+                                <input type="number" id="m3_dec1" class="dataInput" value="0.5" placeholder="Decimal">
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label id="m3_label_factor2">Fator 2 (Fração ou Decimal):</label>
+                            <div class="input-line">
+                                <input type="number" id="m3_num2" class="fraction-input" value="1" placeholder="Num">
+                                <span class="fraction-divider">/</span>
+                                <input type="number" id="m3_den2" class="fraction-input" value="4" min="1" placeholder="Den">
+                                <span class="operator">ou</span>
+                                <input type="number" id="m3_dec2" class="dataInput" value="0.25" placeholder="Decimal">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="m3_fields_pow" style="display: none;">
+                        <div class="input-group">
+                            <label>Base (X):</label>
+                            <input type="number" id="m3_base_pow" class="dataInput" value="2" placeholder="Base (X)">
+                        </div>
+                        <div class="input-group">
+                            <label>Expoente (Y):</label>
+                            <input type="number" id="m3_exponent_pow" class="dataInput" value="3" placeholder="Expoente (Y)">
+                        </div>
+                    </div>
+
+                    <div id="m3_fields_log" style="display: none;">
+                         <p style="color: var(--cor-primaria); font-weight: bold; margin-bottom: 20px;">
+                            logᵦa (logaritmo de A na base B)
+                        </p>
+                        <div class="input-group">
+                            <label>Logaritmando (A):</label>
+                            <input type="number" id="m3_log_a" class="dataInput" value="8" min="0.0001" placeholder="A">
+                        </div>
+                        <div class="input-group">
+                            <label>Base (B):</label>
+                            <input type="number" id="m3_log_b" class="dataInput" value="2" min="0.0001" placeholder="B">
+                            <p style="font-size: 0.8em; color: #555; margin-top: 5px;">*Usaremos a mudança de base para resolver.</p>
+                        </div>
+                    </div>
+
+                    <button class="calculate-button" onclick="calculate('mode3')">
+                        Executar Operação
+                    </button>
+                </div>
+
+                <div class="result-area">
+                    <h3>Resultado Final:</h3>
+                    <span class="result-value" id="resultValue">0</span>
+                    
+                    <div class="step-by-step">
+                        <strong>Passo a Passo:</strong>
+                        <ul id="stepByStepList">
+                            </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentMode = 'mode1';
+
+        /**
+         * Alterna o modo de cálculo e limpa resultados.
+         */
+        function showMode(modeId) {
+            currentMode = modeId;
+            document.querySelectorAll('.mode-page').forEach(page => page.classList.remove('active'));
+            document.getElementById(modeId).classList.add('active');
+            document.querySelectorAll('.mode-button').forEach(button => {
+                button.classList.remove('active');
+                if (button.dataset.mode === modeId) {
+                    button.classList.add('active');
+                }
+            });
+            document.getElementById('resultValue').textContent = '0';
+            document.getElementById('stepByStepList').innerHTML = '<li>Aguardando cálculo...</li>';
+            
+            if (modeId === 'mode3') {
+                updateM3Fields();
+            }
+        }
+        
+        /**
+         * Alterna a visibilidade dos campos do Modo 3 com base na operação selecionada.
+         */
+        function updateM3Fields() {
+            const operation = document.getElementById('m3_operation').value;
+            const binaryFields = document.getElementById('m3_fields_binary');
+            const powFields = document.getElementById('m3_fields_pow');
+            const logFields = document.getElementById('m3_fields_log');
+
+            binaryFields.style.display = 'none';
+            powFields.style.display = 'none';
+            logFields.style.display = 'none';
+
+            if (['mult', 'add', 'sub', 'div'].includes(operation)) {
+                binaryFields.style.display = 'block';
+            } else if (operation === 'pow') {
+                powFields.style.display = 'block';
+            } else if (operation === 'log') {
+                logFields.style.display = 'block';
+            }
+        }
+
+        /**
+         * Lê os fatores de entrada (fração ou decimal) e retorna o valor decimal e os passos.
+         */
+        function getFactorValue(numId, denId, decId, name, steps) {
+            const num = parseFloat(document.getElementById(numId).value);
+            const den = parseFloat(document.getElementById(denId).value);
+            const dec = parseFloat(document.getElementById(decId).value);
+
+            let value = 0;
+            let explanation = '';
+
+            // Prioriza o Decimal se for um número válido
+            if (!isNaN(dec)) {
+                value = dec;
+                explanation = `${name} (Decimal): ${formatNumber(dec)}`;
+            } else if (!isNaN(num) && !isNaN(den) && den !== 0) {
+                // Se o decimal não for usado, usa a Fração
+                value = num / den;
+                explanation = `${name} (Fração): ${num}/${den} = ${formatNumber(value, false, 5)} (Decimal)`;
+            } else {
+                steps.push(`ERRO: ${name} inválido ou zero. Certifique-se de preencher um campo. Se deseja zero, use o decimal.`);
+                return null;
+            }
+            
+            steps.push(`Lendo ${name}: ${explanation}`);
+            return value;
+        }
+
+        /**
+         * Função principal para calcular com base no modo ativo.
+         */
+        function calculate(mode) {
+            let result = 0;
+            let steps = [];
+            const resultList = document.getElementById('stepByStepList');
+            
+            try {
+                let operation = '';
+
+                if (mode === 'mode1') {
+                    // MODO 1: X% de Y
+                    const percent = parseFloat(document.getElementById('m1_percent').value) || 0;
+                    const value = parseFloat(document.getElementById('m1_value').value) || 0;
+                    
+                    steps.push(`**Objetivo:** Calcular ${formatNumber(percent)}% de ${formatNumber(value)}.`);
+                    steps.push(`**Passo 1 (Converter %):** ${formatNumber(percent)}% é convertido para o decimal: ${formatNumber(percent)} / 100 = ${formatNumber(percent / 100)}.`);
+                    result = value * (percent / 100);
+                    steps.push(`**Passo 2 (Multiplicar):** ${formatNumber(value)} * ${formatNumber(percent / 100)} = **${formatNumber(result)}**.`);
+
+                } else if (mode === 'mode2') {
+                    // MODO 2: X é quantos % de Y? (Regra de Três)
+                    const part = parseFloat(document.getElementById('m2_part').value) || 0;
+                    const total = parseFloat(document.getElementById('m2_total').value) || 0;
+
+                    if (total === 0) {
+                        steps.push('ERRO: O Valor Total (Y) deve ser maior que zero.');
+                        result = 0;
+                    } else {
+                        steps.push(`**Objetivo:** Descobrir qual a porcentagem de ${formatNumber(part)} em relação a ${formatNumber(total)}.`);
+                        steps.push(`**Passo 1 (Razão):** Dividir a parte pelo total: ${formatNumber(part)} / ${formatNumber(total)} = ${formatNumber(part / total, false, 5)}.`);
+                        result = (part / total) * 100;
+                        steps.push(`**Passo 2 (Converter para %):** Multiplicar o resultado por 100: ${formatNumber(part / total, false, 5)} * 100 = **${formatNumber(result, true)}**.`);
+                    }
+
+                } else if (mode === 'mode3') {
+                    // MODO 3: Avançado
+                    // Define 'operation' DENTRO do escopo do mode3
+                    operation = document.getElementById('m3_operation').value; 
+                    steps.push(`**Operação Selecionada:** ${operation.toUpperCase()}.`);
+
+                    if (operation === 'pow') {
+                        // POTÊNCIA: X^Y
+                        const base = parseFloat(document.getElementById('m3_base_pow').value);
+                        const exponent = parseFloat(document.getElementById('m3_exponent_pow').value);
+                        
+                        if (isNaN(base) || isNaN(exponent)) {
+                            steps.push('ERRO: Base e Expoente devem ser números válidos.');
+                            result = 0;
+                        } else {
+                            steps.push(`**Objetivo:** Calcular a potência: ${formatNumber(base)} ^ ${formatNumber(exponent)}.`);
+                            result = Math.pow(base, exponent);
+                            steps.push(`**Passo 1:** A potência ${formatNumber(base)}<sup>${formatNumber(exponent)}</sup> significa multiplicar a base por si mesma ${exponent} vezes (se o expoente for inteiro).`);
+                            steps.push(`**Resultado:** ${formatNumber(base)} ^ ${formatNumber(exponent)} = **${formatNumber(result)}**.`);
+                        }
+
+                    } else if (operation === 'log') {
+                        // LOGARITMO: logᵦa
+                        const a = parseFloat(document.getElementById('m3_log_a').value); // Logaritmando
+                        const b = parseFloat(document.getElementById('m3_log_b').value); // Base
+                        
+                        if (isNaN(a) || isNaN(b) || a <= 0 || b <= 0 || b === 1) {
+                            steps.push('ERRO: Logaritmando (A) e Base (B) devem ser positivos. A Base (B) não pode ser 1.');
+                            result = 0;
+                        } else {
+                            steps.push(`**Objetivo:** Calcular logarítmo de ${formatNumber(a)} na base ${formatNumber(b)} (log${formatNumber(b)}${formatNumber(a)}).`);
+                            steps.push(`**Passo 1 (Mudança de Base):** Usamos a fórmula de mudança de base para bases mais simples (como a base natural 'e' ou base 10), pois a relação logᵦa = log(a) / log(b) sempre se aplica, permitindo **igualar as bases** implicitamente para resolver.`);
+                            const logA = Math.log(a); // logaritmo natural
+                            const logB = Math.log(b); // logaritmo natural
+                            steps.push(`log(A) = log(${formatNumber(a)}) ≈ ${formatNumber(logA, false, 5)}`);
+                            steps.push(`log(B) = log(${formatNumber(b)}) ≈ ${formatNumber(logB, false, 5)}`);
+                            
+                            result = logA / logB;
+                            steps.push(`**Passo 2 (Divisão):** ${formatNumber(logA, false, 5)} / ${formatNumber(logB, false, 5)} = **${formatNumber(result, false, 5)}**.`);
+                        }
+
+                    } else {
+                        // OPERAÇÕES BINÁRIAS: +, -, *, /
+                        const factor1 = getFactorValue('m3_num1', 'm3_den1', 'm3_dec1', 'Fator 1', steps);
+                        const factor2 = getFactorValue('m3_num2', 'm3_den2', 'm3_dec2', 'Fator 2', steps);
+                        
+                        if (factor1 === null || factor2 === null) return;
+                        
+                        steps.push(`**Objetivo:** Calcular ${formatNumber(factor1)} ${operation} ${formatNumber(factor2)}.`);
+
+                        if (operation === 'mult') {
+                            result = factor1 * factor2;
+                            steps.push(`**Cálculo:** ${formatNumber(factor1)} * ${formatNumber(factor2)} = **${formatNumber(result)}**.`);
+                        } else if (operation === 'add') {
+                            result = factor1 + factor2;
+                            steps.push(`**Cálculo:** ${formatNumber(factor1)} + ${formatNumber(factor2)} = **${formatNumber(result)}**.`);
+                        } else if (operation === 'sub') {
+                            result = factor1 - factor2;
+                            steps.push(`**Cálculo:** ${formatNumber(factor1)} - ${formatNumber(factor2)} = **${formatNumber(result)}**.`);
+                        } else if (operation === 'div') {
+                            if (factor2 === 0) {
+                                steps.push('ERRO: Divisão por zero não é permitida.');
+                                result = 0;
+                            } else {
+                                result = factor1 / factor2;
+                                steps.push(`**Cálculo:** ${formatNumber(factor1)} / ${formatNumber(factor2)} = **${formatNumber(result, false, 5)}**.`);
+                            }
+                        }
+                    }
+                }
+
+                // Exibir resultado
+                const isPercentMode = (mode === 'mode2');
+                const isHighPrecisionMode = (mode === 'mode3' && (operation === 'log' || operation === 'div'));
+                
+                document.getElementById('resultValue').textContent = formatNumber(result, isPercentMode, isHighPrecisionMode ? 5 : 2);
+                
+            } catch (e) {
+                steps.push('ERRO: Ocorreu um erro inesperado no cálculo. Verifique os valores de entrada.');
+                document.getElementById('resultValue').textContent = 'ERRO';
+                console.error(e);
+            }
+            
+            // Exibir passos
+            resultList.innerHTML = steps.map(step => `<li>${step}</li>`).join('');
+            
+            // Se o cálculo foi bem-sucedido, adiciona o resultado ao topo dos passos
+            if (steps.length > 0 && !steps[0].includes('ERRO')) {
+                 resultList.innerHTML = `<li><span style="color: var(--cor-destaque);">Resultado Final: ${document.getElementById('resultValue').textContent}</span></li>` + resultList.innerHTML;
+            }
+        }
+
+        /**
+         * Formata o número para exibição, ajustando para vírgula e precisão.
+         */
+        function formatNumber(number, isPercentage = false, precision = 2) {
+            if (typeof number !== 'number' || isNaN(number)) return 'Inválido';
+            
+            const p = Math.max(0, precision); 
+            let formatted = number.toFixed(p).replace('.', ',');
+            
+            // Remove zeros extras no final para números inteiros (exceto em modo de alta precisão)
+            if (!isPercentage && p > 2) {
+                 if (formatted.endsWith(',00000')) {
+                     formatted = formatted.replace(/,0+$/, '');
+                 }
+            } else if (!isPercentage) {
+                // Remove o ,00 se for inteiro (ex: 50,00 -> 50)
+                formatted = formatted.replace(/,00$/, ''); 
+            }
+
+            return formatted + (isPercentage ? '%' : '');
+        }
+
+        // Inicializa o modo 1 e o cálculo ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            showMode('mode1');
+            calculate('mode1');
+        });
+    </script>
+</body>
+</html>

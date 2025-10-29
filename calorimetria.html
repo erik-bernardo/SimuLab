@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Calorimetria - Visual</title>
+    
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* --- Variáveis de Estilo --- */
+        :root {
+            --sidebar-width: 420px;
+            --header-height: 55px;
+            --cor-primaria: #ff5722; /* Laranja Escuro (Energia/Calor) */
+            --cor-secundaria: #ff9800; /* Laranja Médio */
+            --cor-fundo-pagina: #f4f7f6;
+            --cor-destaque: #00bcd4; 
+            --cor-erro: #c0392b; 
+        }
+
+        /* --- Estrutura Geral --- */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--cor-fundo-pagina);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            padding-top: var(--header-height);
+        }
+        
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: var(--header-height);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding: 0;
+        }
+
+        .title-display {
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--cor-primaria);
+            padding: 0 25px;
+            border-right: 1px solid #ddd;
+            height: 100%;
+        }
+        .title-display .fas { margin-right: 10px; }
+        
+        .nav-buttons {
+            display: flex;
+            align-items: stretch;
+            flex-grow: 1;
+        }
+
+        .nav-button {
+            background-color: transparent;
+            color: #555;
+            border: none;
+            padding: 0 15px; 
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s, color 0.2s;
+            border-left: 1px solid #eee;
+        }
+        
+        .nav-button.active {
+            color: var(--cor-primaria);
+            border-bottom: 3px solid var(--cor-primaria);
+        }
+
+        /* --- Sidebar (Painel de Controle) --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height)); 
+            background-color: #ffffff;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto; 
+            position: fixed;
+            left: 0;
+            top: var(--header-height);
+            z-index: 10;
+        }
+
+        h1 {
+            color: var(--cor-primaria);
+            font-size: 1.5em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #455a64;
+            font-size: 0.95em;
+        }
+        .input-group input[type="number"], .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+        .input-group input[type="number"] {
+             text-align: right;
+        }
+        .input-unit {
+            display: block;
+            font-size: 0.8em;
+            color: #777;
+            text-align: right;
+            margin-top: -5px;
+            margin-bottom: 10px;
+        }
+        .operation-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        .operation-button { flex-grow: 1; padding: 12px; border: none; border-radius: 6px; background-color: #ffccbc; color: var(--cor-primaria); font-weight: bold; cursor: pointer; transition: background-color 0.2s, box-shadow 0.2s; font-size: 0.9em; }
+        .operation-button.selected { background-color: var(--cor-primaria); color: white; box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2); }
+        .operation-button:not(.selected):hover { background-color: #ffab91; }
+        
+        #calculate-button {
+            width: 100%; 
+            padding: 15px; 
+            background-color: var(--cor-primaria); 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 1.1em; 
+            cursor: pointer; 
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+        #calculate-button:hover { background-color: #e64a19; }
+
+        /* --- Área Principal (Resultado e Visualização) --- */
+        .main-area {
+            flex-grow: 1;
+            padding: 20px;
+            box-sizing: border-box;
+            margin-left: var(--sidebar-width); 
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #result-container {
+            padding: 25px;
+            background-color: #fff3e0;
+            border: 2px solid var(--cor-secundaria);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        #result-container h2 {
+            color: var(--cor-secundaria);
+            border-bottom: 2px solid #ffcc80;
+            padding-bottom: 10px;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        #result-display {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: var(--cor-primaria);
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        #formula-display {
+            text-align: center;
+            font-size: 1.2em;
+            color: #555;
+            padding-top: 10px;
+            border-top: 1px dashed #ccc;
+            min-height: 20px;
+        }
+
+        .error-message {
+            color: var(--cor-erro);
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 0.95em;
+        }
+
+        /* --- VISUALIZAÇÃO DE FASES --- */
+        #visualization-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+        }
+
+        #state-visual {
+            width: 150px;
+            height: 150px;
+            margin: 40px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 1s ease-in-out;
+            perspective: 600px; /* Mantém a perspectiva para o cubo */
+        }
+
+        /* Elemento que muda de forma */
+        .visual-element {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            background-color: #ccc;
+            transition: all 1s ease-in-out, box-shadow 1s, opacity 1s;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+        }
+
+        /* ------------------ ESTADO SÓLIDO (CUBO) ------------------ */
+        #state-visual.solid-icon .visual-element {
+            transform: rotateX(20deg) rotateY(45deg); /* Simula 3D */
+            opacity: 1;
+            border-radius: 5px;
+            /* Estilo para simular o cubo (2.5D) */
+            box-shadow: 
+                -10px 10px 0 0 rgba(0, 0, 0, 0.1), /* Sombra lateral */
+                -15px 15px 0 0 rgba(0, 0, 0, 0.05); /* Sombra de fundo */
+        }
+
+        /* ------------------ ESTADO LÍQUIDO (GOTA/CÍRCULO) ------------------ */
+        #state-visual.liquid-icon .visual-element {
+            transform: none;
+            opacity: 0.8;
+            border-radius: 50%; /* Círculo/Gota simplificada */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border-width: 2px;
+        }
+        
+        /* ------------------ ESTADO GASOSO (NUVEM/DIFUSO) ------------------ */
+        #state-visual.gas-icon .visual-element {
+            width: 150px; 
+            height: 150px;
+            transform: scale(1);
+            opacity: 0.2; /* Transparente */
+            border-radius: 50%;
+            /* Efeito de nuvem/difusão */
+            box-shadow: 0 0 30px 15px rgba(var(--base-color-rgb), 0.7);
+            border: none;
+        }
+        
+        #current-state-text {
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--cor-secundaria);
+        }
+        
+    </style>
+</head>
+<body>
+
+<header class="top-bar">
+    <div class="title-display">
+        <i class="fas fa-fire-alt"></i> Simulador de Calorimetria
+    </div>
+
+    <div class="nav-buttons">
+        <button class="nav-button active">
+            <i class="fas fa-calculator"></i> CALORIMETRIA
+        </button>
+        <button class="nav-button">
+            <i class="fas fa-square-root-alt"></i> MATEMÁTICA
+        </button>
+        <button class="nav-button">
+            <i class="fas fa-flask"></i> QUÍMICA
+        </button>
+    </div>
+</header>
+
+<div class="sidebar">
+    <h1>Configuração</h1>
+
+    <div class="input-group">
+        <label for="substancia">Substância:</label>
+        <select id="substancia" onchange="updateUnitsAndSubstance()">
+            <option value="water">Água</option>
+            <option value="ethanol">Etanol</option>
+            <option value="iron">Ferro</option>
+            <option value="copper">Cobre</option>
+            <option value="aluminum">Alumínio</option>
+            <option value="mercury">Mercúrio</option>
+            <option value="oxygen">Oxigênio (Gás)</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label>Unidades de Energia:</label>
+        <div class="config-section">
+            <select id="unitQ" onchange="updateUnitsAndSubstance()">
+                <option value="cal_g">cal / g</option>
+                <option value="cal_kg">cal / kg</option>
+                <option value="J_g">J / g</option>
+                <option value="J_kg">J / kg</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="input-group">
+        <label for="massa">Massa ($m$):</label>
+        <input type="number" id="massa" value="100" min="0" step="0.1">
+        <span class="input-unit" id="unit-massa">g</span>
+    </div>
+    
+    <div class="input-group">
+        <label>Selecione o Tipo de Calor:</label>
+        <div class="operation-buttons" id="operation-buttons">
+            <button class="operation-button selected" data-op="sensivel">Calor Sensível ($Q = m \cdot c \cdot \Delta T$)</button>
+            <button class="operation-button" data-op="latente_fusao">Calor Latente (Fusão)</button>
+            <button class="operation-button" data-op="latente_vaporizacao">Calor Latente (Vaporização)</button>
+        </div>
+    </div>
+
+    <div class="input-group" id="sensivel-inputs">
+        <label for="temperaturaInicial">Temperatura Inicial ($T_i$):</label>
+        <input type="number" id="temperaturaInicial" value="0" step="1">
+        
+        <label for="temperaturaFinal">Temperatura Final ($T_f$):</label>
+        <input type="number" id="temperaturaFinal" value="10" step="1">
+        
+        <label for="calorEspecifico">Calor Específico ($c$):</label>
+        <input type="number" id="calorEspecifico" value="1.0" min="0" step="0.001">
+        <span class="input-unit" id="unit-c">cal / (g $\cdot$ °C)</span>
+    </div>
+
+    <div class="input-group" id="latente-inputs" style="display: none;">
+        <label for="calorLatente">Calor Latente ($L$):</label>
+        <input type="number" id="calorLatente" value="80" step="0.1">
+        <span class="input-unit" id="unit-L">cal / g</span>
+        <div style="font-size: 0.9em; margin-top: 10px; color: #555;">
+             *A temperatura será automaticamente definida como a de mudança de fase.
+        </div>
+    </div>
+    
+    <button id="calculate-button" onclick="calcularCalor()">
+        CALCULAR CALOR (Q)
+    </button>
+    <div class="error-message" id="global-error"></div>
+</div>
+
+<div class="main-area">
+    <div id="result-container">
+        <h2><i class="fas fa-bolt"></i> Resultado do Calor ($Q$)</h2>
+        
+        <div id="result-display">
+            Aguardando cálculo...
+        </div>
+        
+        <div id="formula-display">
+            Fórmula: $Q = m \cdot c \cdot \Delta T$
+        </div>
+        
+        <div class="error-message" id="result-error"></div>
+    </div>
+    
+    <div id="visualization-area">
+        <h2>Visualização da Substância</h2>
+        
+        <div id="state-visual" class="solid-icon">
+            <div class="visual-element"></div>
+        </div>
+        
+        <div id="current-state-text">Sólido ($T = 0 \text{ °C}$ / $T_{fusão} = 0 \text{ °C}$)</div>
+    </div>
+
+</div>
+
+<script>
+    // --- VARIÁVEIS DE ESTADO E DOM ---
+    let currentOperation = 'sensivel'; 
+
+    const $resultDisplay = document.getElementById('result-display');
+    const $formulaDisplay = document.getElementById('formula-display');
+    const $globalError = document.getElementById('global-error');
+    // Renomeando para $stateVisual para refletir a nova função, mas mantendo $cube no código abaixo
+    // para minimizar alterações, já que é o elemento principal que muda de classe.
+    const $cube = document.getElementById('state-visual'); 
+    const $stateText = document.getElementById('current-state-text');
+    const $massa = document.getElementById('massa');
+    const $substancia = document.getElementById('substancia');
+    const $unitQ = document.getElementById('unitQ');
+    const $calorEspecifico = document.getElementById('calorEspecifico');
+    const $calorLatente = document.getElementById('calorLatente');
+    const $ti = document.getElementById('temperaturaInicial');
+    const $tf = document.getElementById('temperaturaFinal');
+    const $sensivelInputs = document.getElementById('sensivel-inputs');
+    const $latenteInputs = document.getElementById('latente-inputs');
+    const $visualElement = document.querySelector('#state-visual .visual-element');
+
+
+    // --- CONSTANTES FÍSICAS E CORES (em cal/g°C e cal/g) ---
+    // Valores de referências arredondados para demonstração.
+    const SUBSTANCE_DATA = {
+        water: {
+            name: 'Água', Ts: 0, Tv: 100,
+            cs: 0.5, cl: 1.0, cg: 0.48, 
+            Lf: 80, Lv: 540,
+            colors: { solid: '16, 100, 160', liquid: '41, 128, 185', gas: '174, 214, 241' } // Azul
+        },
+        ethanol: {
+            name: 'Etanol', Ts: -114, Tv: 78,
+            cs: 0.5, cl: 0.58, cg: 0.4, 
+            Lf: 24.9, Lv: 204,
+            colors: { solid: '128, 55, 0', liquid: '192, 114, 0', gas: '247, 220, 111' } // Laranja/Amarelo
+        },
+        iron: {
+            name: 'Ferro', Ts: 1538, Tv: 2862,
+            cs: 0.107, cl: 0.16, cg: 0.05, 
+            Lf: 67, Lv: 6340,
+            colors: { solid: '192, 57, 43', liquid: '243, 156, 18', gas: '255, 255, 255' } // Vermelho/Metal
+        },
+        copper: {
+            name: 'Cobre', Ts: 1085, Tv: 2562,
+            cs: 0.092, cl: 0.12, cg: 0.05, 
+            Lf: 48.9, Lv: 2260,
+            colors: { solid: '184, 91, 0', liquid: '255, 120, 0', gas: '255, 180, 100' } // Cobre
+        },
+        aluminum: {
+            name: 'Alumínio', Ts: 660, Tv: 2519,
+            cs: 0.215, cl: 0.25, cg: 0.05, 
+            Lf: 95, Lv: 2700,
+            colors: { solid: '178, 190, 195', liquid: '119, 140, 163', gas: '220, 220, 220' } // Cinza/Aluminio
+        },
+        mercury: {
+            name: 'Mercúrio', Ts: -38.8, Tv: 356.7,
+            cs: 0.033, cl: 0.033, cg: 0.01, 
+            Lf: 2.82, Lv: 68,
+            colors: { solid: '70, 70, 70', liquid: '150, 150, 150', gas: '200, 200, 200' } // Prateado
+        },
+        oxygen: {
+            name: 'Oxigênio', Ts: -218.8, Tv: -182.9,
+            cs: 0.25, cl: 0.40, cg: 0.22, 
+            Lf: 3.3, Lv: 51,
+            colors: { solid: '200, 220, 255', liquid: '100, 150, 200', gas: '230, 240, 255' } // Azul Claro (Gás)
+        }
+    };
+    
+    // Fatores de Conversão: 1 cal = 4.186 J; 1 kg = 1000 g
+    const CONVERSION_FACTORS = {
+        'cal': 1,
+        'J': 4.186,
+        'g': 1,
+        'kg': 1000
+    };
+
+    // --- UTILS ---
+    function roundToPrecision(num, precision = 4) {
+        if (Math.abs(num) < 1e-10) return 0; 
+        return parseFloat(num.toFixed(precision));
+    }
+
+    // --- FUNÇÕES DE LÓGICA ---
+
+    /** Obtém o calor específico (c) ou calor latente (L) convertendo unidades. */
+    function getConvertedValue(valueType, phase, substanceKey) {
+        const sub = SUBSTANCE_DATA[substanceKey];
+        const [unitQ, unitM] = $unitQ.value.split('_'); 
+        let baseValue;
+
+        if (valueType === 'c') {
+            baseValue = sub[`c${phase}`]; 
+        } else { 
+            baseValue = sub[phase]; 
+        }
+
+        if (baseValue === undefined) return 0;
+
+        let convertedValue = baseValue;
+        if (unitQ === 'J') {
+            convertedValue = baseValue * CONVERSION_FACTORS['J']; 
+        }
+        
+        if (unitM === 'kg') {
+            convertedValue = convertedValue * CONVERSION_FACTORS['kg'];
+        }
+        
+        return roundToPrecision(convertedValue, 4);
+    }
+    
+    /** Atualiza o estado da visualização (cor, transparência, texto) */
+    function updateVisualization(substanceKey, T_final, stateName) {
+        const sub = SUBSTANCE_DATA[substanceKey];
+        const T_melt = sub.Ts;
+        const T_boil = sub.Tv;
+        const colors = sub.colors;
+
+        let currentState;
+        let visualClass;
+
+        // 1. Determina o estado final
+        if (stateName) {
+            currentState = stateName; 
+        } else if (T_final <= T_melt) {
+            currentState = 'solid';
+        } else if (T_final >= T_boil) {
+            currentState = 'gas';
+        } else {
+            currentState = 'liquid';
+        }
+        
+        // 2. Define a classe visual para mudar a forma (cubo, gota, nuvem)
+        visualClass = `${currentState}-icon`;
+        $cube.className = visualClass;
+        
+        // 3. Lógica de Cor (Calor Sensível: Escurece com a Temperatura)
+        let minT, maxT;
+
+        if (currentState === 'solid') {
+            minT = T_melt - 200; 
+            maxT = T_melt;
+        } else if (currentState === 'liquid') {
+            minT = T_melt;
+            maxT = T_boil;
+        } else if (currentState === 'gas') {
+            minT = T_boil;
+            maxT = T_boil + 200; 
+        }
+        
+        // Normaliza T_final (0 a 1)
+        let normalizedT = 0.5; 
+        if (maxT > minT) {
+            normalizedT = Math.min(1, Math.max(0, (T_final - minT) / (maxT - minT)));
+        }
+
+        // Fator de sombreamento: Vai de 1.0 (claro, T baixa) a 0.6 (escuro, T alta)
+        let shadeFactor = 1 - (normalizedT * 0.4); 
+        
+        const baseRGB = colors[currentState].split(',').map(c => parseInt(c.trim()));
+        
+        const finalR = Math.round(baseRGB[0] * shadeFactor);
+        const finalG = Math.round(baseRGB[1] * shadeFactor);
+        const finalB = Math.round(baseRGB[2] * shadeFactor);
+        const finalColor = `rgb(${finalR}, ${finalG}, ${finalB})`;
+
+        $cube.style.setProperty('--base-color-rgb', colors[currentState]);
+
+        // 4. Aplica a cor ao elemento interno
+        if ($visualElement) {
+            $visualElement.style.backgroundColor = finalColor;
+        }
+        
+        // 5. Atualiza texto final (formato brasileiro)
+        const T_final_formated = T_final.toFixed(1).replace('.', ',');
+        const T_fusao_formated = sub.Ts.toFixed(1).replace('.', ',');
+        $stateText.innerHTML = `${currentState.charAt(0).toUpperCase() + currentState.slice(1)} ($T_{final} = ${T_final_formated} \text{ °C}$ / $T_{fusão} = ${T_fusao_formated} \text{ °C}$)`;
+    }
+    
+    /** Atualiza o calor específico/latente e as unidades na UI */
+    function updateUnitsAndSubstance() {
+        const subKey = $substancia.value;
+        const sub = SUBSTANCE_DATA[subKey];
+        const op = currentOperation;
+        const [unitQ, unitM] = $unitQ.value.split('_');
+
+        document.getElementById('unit-massa').textContent = unitM;
+        
+        let unitText;
+        let value;
+
+        if (op === 'sensivel') {
+            const T_i = parseFloat($ti.value.replace(',', '.')) || 0; 
+            let phase = 'l'; 
+            if (T_i <= sub.Ts) phase = 's';
+            else if (T_i >= sub.Tv) phase = 'g';
+
+            value = getConvertedValue('c', phase, subKey);
+            $calorEspecifico.value = value.toString();
+            
+            unitText = `${unitQ} / (${unitM} $\cdot$ °C)`;
+            document.getElementById('unit-c').innerHTML = unitText;
+            updateVisualization(subKey, T_i); 
+            
+        } else if (op === 'latente_fusao') {
+            value = getConvertedValue('L', 'Lf', subKey);
+            $calorLatente.value = value.toString();
+            
+            unitText = `${unitQ} / ${unitM}`;
+            document.getElementById('unit-L').innerHTML = unitText;
+            updateVisualization(subKey, sub.Ts, 'solid');
+            
+        } else if (op === 'latente_vaporizacao') {
+            value = getConvertedValue('L', 'Lv', subKey);
+            $calorLatente.value = value.toString();
+
+            unitText = `${unitQ} / ${unitM}`;
+            document.getElementById('unit-L').innerHTML = unitText;
+            updateVisualization(subKey, sub.Tv, 'liquid');
+        }
+
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    }
+    
+    /** Alterna os inputs e a fórmula na UI */
+    function setOperation(op) {
+        currentOperation = op;
+        $globalError.textContent = '';
+        $resultDisplay.textContent = 'Aguardando cálculo...';
+        
+        document.querySelectorAll('.operation-button').forEach(btn => btn.classList.remove('selected'));
+        document.querySelector(`.operation-button[data-op="${op}"]`).classList.add('selected');
+        
+        $sensivelInputs.style.display = 'none';
+        $latenteInputs.style.display = 'none';
+
+        if (op === 'sensivel') {
+            $sensivelInputs.style.display = 'block';
+            $formulaDisplay.innerHTML = 'Fórmula: $Q = m \cdot c \cdot \\Delta T$';
+        } else {
+            $latenteInputs.style.display = 'block';
+            $formulaDisplay.innerHTML = 'Fórmula: $Q = m \cdot L$';
+        }
+        
+        updateUnitsAndSubstance();
+    }
+
+
+    // 3. FUNÇÃO PRINCIPAL DE CÁLCULO
+    function calcularCalor() {
+        $globalError.textContent = '';
+
+        try {
+            const m = parseFloat($massa.value.replace(',', '.'));
+            
+            if (isNaN(m) || m <= 0) {
+                throw new Error("Massa (m) deve ser um valor positivo.");
+            }
+            
+            let Q;
+            let Tf_calc;
+            let state;
+
+            if (currentOperation === 'sensivel') {
+                const c_text = $calorEspecifico.value.replace(',', '.');
+                const c = parseFloat(c_text);
+                const Ti = parseFloat($ti.value.replace(',', '.'));
+                const Tf = parseFloat($tf.value.replace(',', '.'));
+                
+                if (isNaN(c) || c < 0) throw new Error("Calor Específico (c) é inválido.");
+                if (isNaN(Ti) || isNaN(Tf)) throw new Error("Temperaturas T_i e T_f são inválidas.");
+                
+                const deltaT = Tf - Ti;
+                
+                Q = m * c * deltaT;
+                Tf_calc = Tf;
+
+            } else { 
+                const L_text = $calorLatente.value.replace(',', '.');
+                const L = parseFloat(L_text);
+                
+                if (isNaN(L)) throw new Error("Calor Latente (L) é inválido.");
+                
+                Q = m * L;
+                
+                const subKey = $substancia.value;
+                const sub = SUBSTANCE_DATA[subKey];
+
+                if (currentOperation === 'latente_fusao') {
+                    Tf_calc = sub.Ts;
+                    state = 'liquid'; // Transiciona de sólido para líquido
+                } else { 
+                    Tf_calc = sub.Tv;
+                    state = 'gas'; // Transiciona de líquido para gás
+                }
+            }
+            
+            const Q_rounded = roundToPrecision(Q, 2);
+            const unitQ = $unitQ.value.split('_')[0];
+            const Q_formatted = Q_rounded.toString().replace('.', ',');
+            
+            $resultDisplay.textContent = `${Q_formatted} ${unitQ}`;
+            
+            updateVisualization($substancia.value, Tf_calc, state);
+
+        } catch (e) {
+            $globalError.textContent = `ERRO: ${e.message}`;
+            $resultDisplay.textContent = 'ERRO';
+            $cube.className = 'solid-icon';
+            $visualElement.style.backgroundColor = 'gray';
+            $stateText.textContent = 'ERRO DE CÁLCULO';
+        }
+    }
+
+    // --- INICIALIZAÇÃO ---
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.operation-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                setOperation(e.target.dataset.op);
+            });
+        });
+
+        $substancia.addEventListener('change', updateUnitsAndSubstance);
+        $unitQ.addEventListener('change', updateUnitsAndSubstance);
+        
+        // Eventos para atualização visual ao digitar a temperatura
+        $ti.addEventListener('input', () => updateVisualization($substancia.value, parseFloat($ti.value.replace(',', '.')) || 0));
+        $tf.addEventListener('input', () => updateVisualization($substancia.value, parseFloat($tf.value.replace(',', '.')) || 0));
+
+        setOperation(currentOperation); 
+    });
+</script>
+</body>
+</html>

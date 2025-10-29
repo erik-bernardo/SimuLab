@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela Periódica Interativa Completa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Variável para a altura do cabeçalho */
+        :root {
+            --header-height: 55px; 
+        }
+        
+        /* ----------------------------------- */
+        /* ESTILOS DO HEADER (Navegação) */
+        /* ----------------------------------- */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            height: var(--header-height); 
+            
+            /* Torna o cabeçalho fixo no topo */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100; 
+            
+            display: flex;
+            align-items: stretch; 
+            border-bottom: 1px solid #ddd; 
+            box-sizing: border-box; 
+        }
+
+        .logo-link {
+            text-decoration: none;
+            color: #D2691E; /* Cor de destaque */
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 25px; 
+            display: flex;
+            align-items: center; 
+            border-right: 1px solid #ddd; 
+            transition: background-color 0.3s;
+        }
+        
+        .logo-link:hover {
+            background-color: #f5f5f5;
+        }
+
+        .logo-link .fas {
+            margin-right: 10px;
+        }
+
+        /* --- ESTILOS GERAIS --- */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            /* O padding-top compensa a altura do cabeçalho fixo */
+            padding: var(--header-height) 0 20px 0; 
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            /* Adicionado padding para garantir o espaçamento correto */
+            padding-top: 20px; 
+        }
+
+        /* --- CONTAINER PRINCIPAL --- */
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            width: 100%;
+            padding: 0 20px; /* Adicionado padding lateral */
+            box-sizing: border-box;
+        }
+
+        /* --- ESTILOS DA TABELA PERIÓDICA (GRID) --- */
+        #tabelaPeriodica {
+            display: grid;
+            grid-template-columns: repeat(18, 1fr); /* 18 colunas (grupos) */
+            /* ALTERAÇÃO AQUI: Aumentei a altura da linha 9 para 40px */
+            grid-template-rows: repeat(8, 1fr) 40px auto auto; /* 8 períodos + ESPAÇO + Lantanídeos/Actinídeos */
+            gap: 2px;
+            width: 70%;
+            border: 1px solid #ccc; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilo base do elemento */
+        .elemento {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px 2px;
+            height: 60px; 
+            font-size: 10px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            user-select: none;
+            position: relative;
+        }
+        
+        .elemento:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .simbolo {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            flex-grow: 1; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Posicionamento do Número Atômico */
+        .numero-atomico {
+            position: absolute;
+            top: 2px;
+            left: 5px;
+            font-size: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        /* Posicionamento do Peso Atômico */
+        .peso-atomico {
+            font-size: 8px;
+            color: #555;
+            position: absolute;
+            bottom: 2px;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .vazio {
+            background-color: transparent;
+            border: none;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        /* Nova classe para o espaçamento entre a tabela principal e o bloco inferior */
+        .espacamento {
+            grid-column: 1 / span 18; 
+            grid-row: 9; /* Linha de espaçamento */
+            height: 1px; /* Garante que a linha tenha a altura definida no grid-template-rows */
+        }
+        
+        /* Contêineres inferiores para Lantanídeos e Actinídeos */
+        #lantanideos-container, #actinideos-container {
+            grid-column: 2 / span 16; 
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            padding: 10px 0;
+            height: 60px; 
+            border-left: none; 
+            border-right: none;
+            border-bottom: 1px solid #ccc;
+            background-color: #eee;
+        }
+
+        /* Ajuste do grid-row: 10 e 11 agora, pois o espaçamento é a linha 9 */
+        #lantanideos-container { grid-row: 10; }
+        #actinideos-container { grid-row: 11; border-bottom: 1px solid #ccc; }
+        
+        /* Para manter o tamanho correto dos elementos L/A (15 elementos por linha) */
+        #lantanideos-container .elemento, #actinideos-container .elemento {
+            flex-basis: calc(100% / 14); 
+            max-width: calc(100% / 14);
+            border-top: none; 
+            border-bottom: none;
+        }
+
+        /* --- ESTILOS DO PAINEL DE DETALHES --- */
+        #painelDetalhes {
+            width: 30%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: sticky;
+            top: calc(var(--header-height) + 20px); /* Ajustado para ficar abaixo do cabeçalho */
+            height: fit-content; 
+        }
+
+        #detalhesElemento {
+            width: 100%;
+            min-height: 400px;
+            color: #555;
+        }
+
+        .detalhe-grande {
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            padding: 20px 10px;
+            margin-bottom: 20px;
+            border: 2px solid #D2691E;
+        }
+        
+        .simbolo-detalhe {
+            font-size: 80px;
+            font-weight: bold;
+            line-height: 1;
+            color: #D2691E;
+            margin: 0;
+        }
+        
+        .nome-detalhe {
+            font-size: 24px;
+            font-weight: 500;
+            margin-top: 5px;
+            color: #333;
+        }
+
+        .info-linha {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #777;
+            text-align: left;
+        }
+
+        .info-valor {
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .classe-display {
+            font-size: 14px;
+            font-style: italic;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        
+        /* --- CLASSES DE CORES (Mapeadas para a classificação padrão) --- */
+        .nao-metal { background-color: #ffcccc; color: #a00; }
+        .metal-alcalino { background-color: #ffc996; color: #a30; }
+        .gas-nobre { background-color: #cceeff; color: #008080; }
+        .alcalino-terroso { background-color: #f8c09d; color: #933; }
+        .metal-pos-transicao { background-color: #d1b9d1; color: #505; }
+        .semimetal { background-color: #cce8c5; color: #353; }
+        .halogenio { background-color: #c5e8c5; color: #070; }
+        .metal-transicao { background-color: #e0e0e0; color: #555; }
+        .lantanideo { background-color: #f0cce0; color: #800080; }
+        .actinideo { background-color: #cce0e0; color: #404080; }
+
+    </style>
+</head>
+<body>
+    
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-book-reader"></i> PLATAFORMA
+        </a>
+    </header>
+
+    <h1>Tabela Periódica Interativa Completa</h1>
+
+    <div class="container">
+        
+        <div id="tabelaPeriodica">
+            <div class="vazio" style="grid-column: 1 / span 18; grid-row: 1;"></div>
+            
+            <div class="elemento nao-metal" data-z="1" style="grid-column: 1 / span 1; grid-row: 2;">
+                <span class="numero-atomico">1</span><span class="simbolo">H</span><span class="peso-atomico">1,008</span>
+            </div>
+            <div class="vazio" style="grid-column: 2 / span 16; grid-row: 2;"></div>
+            <div class="elemento gas-nobre" data-z="2" style="grid-column: 18 / span 1; grid-row: 2;">
+                <span class="numero-atomico">2</span><span class="simbolo">He</span><span class="peso-atomico">4,003</span>
+            </div>
+
+            <div class="elemento metal-alcalino" data-z="3" style="grid-column: 1 / span 1; grid-row: 3;"><span class="numero-atomico">3</span><span class="simbolo">Li</span><span class="peso-atomico">6,94</span></div>
+            <div class="elemento alcalino-terroso" data-z="4" style="grid-column: 2 / span 1; grid-row: 3;"><span class="numero-atomico">4</span><span class="simbolo">Be</span><span class="peso-atomico">9,012</span></div>
+            <div class="vazio" style="grid-column: 3 / span 10; grid-row: 3;"></div>
+            <div class="elemento semimetal" data-z="5" style="grid-column: 13 / span 1; grid-row: 3;"><span class="numero-atomico">5</span><span class="simbolo">B</span><span class="peso-atomico">10,81</span></div>
+            <div class="elemento nao-metal" data-z="6" style="grid-column: 14 / span 1; grid-row: 3;"><span class="numero-atomico">6</span><span class="simbolo">C</span><span class="peso-atomico">12,01</span></div>
+            <div class="elemento nao-metal" data-z="7" style="grid-column: 15 / span 1; grid-row: 3;"><span class="numero-atomico">7</span><span class="simbolo">N</span><span class="peso-atomico">14,01</span></div>
+            <div class="elemento nao-metal" data-z="8" style="grid-column: 16 / span 1; grid-row: 3;"><span class="numero-atomico">8</span><span class="simbolo">O</span><span class="peso-atomico">16</span></div>
+            <div class="elemento halogenio" data-z="9" style="grid-column: 17 / span 1; grid-row: 3;"><span class="numero-atomico">9</span><span class="simbolo">F</span><span class="peso-atomico">19</span></div>
+            <div class="elemento gas-nobre" data-z="10" style="grid-column: 18 / span 1; grid-row: 3;"><span class="numero-atomico">10</span><span class="simbolo">Ne</span><span class="peso-atomico">20,18</span></div>
+
+            <div class="elemento metal-alcalino" data-z="11" style="grid-column: 1 / span 1; grid-row: 4;"><span class="numero-atomico">11</span><span class="simbolo">Na</span><span class="peso-atomico">22,99</span></div>
+            <div class="elemento alcalino-terroso" data-z="12" style="grid-column: 2 / span 1; grid-row: 4;"><span class="numero-atomico">12</span><span class="simbolo">Mg</span><span class="peso-atomico">24,31</span></div>
+            <div class="vazio" style="grid-column: 3 / span 10; grid-row: 4;"></div>
+            <div class="elemento metal-pos-transicao" data-z="13" style="grid-column: 13 / span 1; grid-row: 4;"><span class="numero-atomico">13</span><span class="simbolo">Al</span><span class="peso-atomico">26,98</span></div>
+            <div class="elemento semimetal" data-z="14" style="grid-column: 14 / span 1; grid-row: 4;"><span class="numero-atomico">14</span><span class="simbolo">Si</span><span class="peso-atomico">28,09</span></div>
+            <div class="elemento nao-metal" data-z="15" style="grid-column: 15 / span 1; grid-row: 4;"><span class="numero-atomico">15</span><span class="simbolo">P</span><span class="peso-atomico">30,97</span></div>
+            <div class="elemento nao-metal" data-z="16" style="grid-column: 16 / span 1; grid-row: 4;"><span class="numero-atomico">16</span><span class="simbolo">S</span><span class="peso-atomico">32,07</span></div>
+            <div class="elemento halogenio" data-z="17" style="grid-column: 17 / span 1; grid-row: 4;"><span class="numero-atomico">17</span><span class="simbolo">Cl</span><span class="peso-atomico">35,45</span></div>
+            <div class="elemento gas-nobre" data-z="18" style="grid-column: 18 / span 1; grid-row: 4;"><span class="numero-atomico">18</span><span class="simbolo">Ar</span><span class="peso-atomico">39,95</span></div>
+            
+            <div class="elemento metal-alcalino" data-z="19" style="grid-column: 1 / span 1; grid-row: 5;"><span class="numero-atomico">19</span><span class="simbolo">K</span><span class="peso-atomico">39,10</span></div>
+            <div class="elemento alcalino-terroso" data-z="20" style="grid-column: 2 / span 1; grid-row: 5;"><span class="numero-atomico">20</span><span class="simbolo">Ca</span><span class="peso-atomico">40,08</span></div>
+            <div class="elemento metal-transicao" data-z="21" style="grid-column: 3 / span 1; grid-row: 5;"><span class="numero-atomico">21</span><span class="simbolo">Sc</span><span class="peso-atomico">44,96</span></div>
+            <div class="elemento metal-transicao" data-z="22" style="grid-column: 4 / span 1; grid-row: 5;"><span class="numero-atomico">22</span><span class="simbolo">Ti</span><span class="peso-atomico">47,87</span></div>
+            <div class="elemento metal-transicao" data-z="23" style="grid-column: 5 / span 1; grid-row: 5;"><span class="numero-atomico">23</span><span class="simbolo">V</span><span class="peso-atomico">50,94</span></div>
+            <div class="elemento metal-transicao" data-z="24" style="grid-column: 6 / span 1; grid-row: 5;"><span class="numero-atomico">24</span><span class="simbolo">Cr</span><span class="peso-atomico">52</span></div>
+            <div class="elemento metal-transicao" data-z="25" style="grid-column: 7 / span 1; grid-row: 5;"><span class="numero-atomico">25</span><span class="simbolo">Mn</span><span class="peso-atomico">54,94</span></div>
+            <div class="elemento metal-transicao" data-z="26" style="grid-column: 8 / span 1; grid-row: 5;"><span class="numero-atomico">26</span><span class="simbolo">Fe</span><span class="peso-atomico">55,85</span></div>
+            <div class="elemento metal-transicao" data-z="27" style="grid-column: 9 / span 1; grid-row: 5;"><span class="numero-atomico">27</span><span class="simbolo">Co</span><span class="peso-atomico">58,93</span></div>
+            <div class="elemento metal-transicao" data-z="28" style="grid-column: 10 / span 1; grid-row: 5;"><span class="numero-atomico">28</span><span class="simbolo">Ni</span><span class="peso-atomico">58,69</span></div>
+            <div class="elemento metal-transicao" data-z="29" style="grid-column: 11 / span 1; grid-row: 5;"><span class="numero-atomico">29</span><span class="simbolo">Cu</span><span class="peso-atomico">63,55</span></div>
+            <div class="elemento metal-transicao" data-z="30" style="grid-column: 12 / span 1; grid-row: 5;"><span class="numero-atomico">30</span><span class="simbolo">Zn</span><span class="peso-atomico">65,38</span></div>
+            <div class="elemento metal-pos-transicao" data-z="31" style="grid-column: 13 / span 1; grid-row: 5;"><span class="numero-atomico">31</span><span class="simbolo">Ga</span><span class="peso-atomico">69,72</span></div>
+            <div class="elemento semimetal" data-z="32" style="grid-column: 14 / span 1; grid-row: 5;"><span class="numero-atomico">32</span><span class="simbolo">Ge</span><span class="peso-atomico">72,63</span></div>
+            <div class="elemento semimetal" data-z="33" style="grid-column: 15 / span 1; grid-row: 5;"><span class="numero-atomico">33</span><span class="simbolo">As</span><span class="peso-atomico">74,92</span></div>
+            <div class="elemento nao-metal" data-z="34" style="grid-column: 16 / span 1; grid-row: 5;"><span class="numero-atomico">34</span><span class="simbolo">Se</span><span class="peso-atomico">78,97</span></div>
+            <div class="elemento halogenio" data-z="35" style="grid-column: 17 / span 1; grid-row: 5;"><span class="numero-atomico">35</span><span class="simbolo">Br</span><span class="peso-atomico">79,90</span></div>
+            <div class="elemento gas-nobre" data-z="36" style="grid-column: 18 / span 1; grid-row: 5;"><span class="numero-atomico">36</span><span class="simbolo">Kr</span><span class="peso-atomico">83,80</span></div>
+            
+            <div class="elemento metal-alcalino" data-z="37" style="grid-column: 1 / span 1; grid-row: 6;"><span class="numero-atomico">37</span><span class="simbolo">Rb</span><span class="peso-atomico">85,47</span></div>
+            <div class="elemento alcalino-terroso" data-z="38" style="grid-column: 2 / span 1; grid-row: 6;"><span class="numero-atomico">38</span><span class="simbolo">Sr</span><span class="peso-atomico">87,62</span></div>
+            <div class="elemento metal-transicao" data-z="39" style="grid-column: 3 / span 1; grid-row: 6;"><span class="numero-atomico">39</span><span class="simbolo">Y</span><span class="peso-atomico">88,91</span></div>
+            <div class="elemento metal-transicao" data-z="40" style="grid-column: 4 / span 1; grid-row: 6;"><span class="numero-atomico">40</span><span class="simbolo">Zr</span><span class="peso-atomico">91,22</span></div>
+            <div class="elemento metal-transicao" data-z="41" style="grid-column: 5 / span 1; grid-row: 6;"><span class="numero-atomico">41</span><span class="simbolo">Nb</span><span class="peso-atomico">92,91</span></div>
+            <div class="elemento metal-transicao" data-z="42" style="grid-column: 6 / span 1; grid-row: 6;"><span class="numero-atomico">42</span><span class="simbolo">Mo</span><span class="peso-atomico">95,96</span></div>
+            <div class="elemento metal-transicao" data-z="43" style="grid-column: 7 / span 1; grid-row: 6;"><span class="numero-atomico">43</span><span class="simbolo">Tc</span><span class="peso-atomico">98</span></div>
+            <div class="elemento metal-transicao" data-z="44" style="grid-column: 8 / span 1; grid-row: 6;"><span class="numero-atomico">44</span><span class="simbolo">Ru</span><span class="peso-atomico">101,1</span></div>
+            <div class="elemento metal-transicao" data-z="45" style="grid-column: 9 / span 1; grid-row: 6;"><span class="numero-atomico">45</span><span class="simbolo">Rh</span><span class="peso-atomico">102,9</span></div>
+            <div class="elemento metal-transicao" data-z="46" style="grid-column: 10 / span 1; grid-row: 6;"><span class="numero-atomico">46</span><span class="simbolo">Pd</span><span class="peso-atomico">106,4</span></div>
+            <div class="elemento metal-transicao" data-z="47" style="grid-column: 11 / span 1; grid-row: 6;"><span class="numero-atomico">47</span><span class="simbolo">Ag</span><span class="peso-atomico">107,9</span></div>
+            <div class="elemento metal-transicao" data-z="48" style="grid-column: 12 / span 1; grid-row: 6;"><span class="numero-atomico">48</span><span class="simbolo">Cd</span><span class="peso-atomico">112,4</span></div>
+            <div class="elemento metal-pos-transicao" data-z="49" style="grid-column: 13 / span 1; grid-row: 6;"><span class="numero-atomico">49</span><span class="simbolo">In</span><span class="peso-atomico">114,8</span></div>
+            <div class="elemento metal-pos-transicao" data-z="50" style="grid-column: 14 / span 1; grid-row: 6;"><span class="numero-atomico">50</span><span class="simbolo">Sn</span><span class="peso-atomico">118,7</span></div>
+            <div class="elemento semimetal" data-z="51" style="grid-column: 15 / span 1; grid-row: 6;"><span class="numero-atomico">51</span><span class="simbolo">Sb</span><span class="peso-atomico">121,8</span></div>
+            <div class="elemento nao-metal" data-z="52" style="grid-column: 16 / span 1; grid-row: 6;"><span class="numero-atomico">52</span><span class="simbolo">Te</span><span class="peso-atomico">127,6</span></div>
+            <div class="elemento halogenio" data-z="53" style="grid-column: 17 / span 1; grid-row: 6;"><span class="numero-atomico">53</span><span class="simbolo">I</span><span class="peso-atomico">126,9</span></div>
+            <div class="elemento gas-nobre" data-z="54" style="grid-column: 18 / span 1; grid-row: 6;"><span class="numero-atomico">54</span><span class="simbolo">Xe</span><span class="peso-atomico">131,3</span></div>
+
+            <div class="elemento metal-alcalino" data-z="55" style="grid-column: 1 / span 1; grid-row: 7;"><span class="numero-atomico">55</span><span class="simbolo">Cs</span><span class="peso-atomico">132,9</span></div>
+            <div class="elemento alcalino-terroso" data-z="56" style="grid-column: 2 / span 1; grid-row: 7;"><span class="numero-atomico">56</span><span class="simbolo">Ba</span><span class="peso-atomico">137,3</span></div>
+            <div class="lantanideo elemento" data-z="57-71" style="grid-column: 3 / span 1; grid-row: 7;"><span class="numero-atomico">57-71</span><span class="simbolo">La-Lu</span><span class="peso-atomico">Lantanídeos</span></div>
+            <div class="elemento metal-transicao" data-z="72" style="grid-column: 4 / span 1; grid-row: 7;"><span class="numero-atomico">72</span><span class="simbolo">Hf</span><span class="peso-atomico">178,5</span></div>
+            <div class="elemento metal-transicao" data-z="73" style="grid-column: 5 / span 1; grid-row: 7;"><span class="numero-atomico">73</span><span class="simbolo">Ta</span><span class="peso-atomico">180,9</span></div>
+            <div class="elemento metal-transicao" data-z="74" style="grid-column: 6 / span 1; grid-row: 7;"><span class="numero-atomico">74</span><span class="simbolo">W</span><span class="peso-atomico">183,8</span></div>
+            <div class="elemento metal-transicao" data-z="75" style="grid-column: 7 / span 1; grid-row: 7;"><span class="numero-atomico">75</span><span class="simbolo">Re</span><span class="peso-atomico">186,2</span></div>
+            <div class="elemento metal-transicao" data-z="76" style="grid-column: 8 / span 1; grid-row: 7;"><span class="numero-atomico">76</span><span class="simbolo">Os</span><span class="peso-atomico">190,2</span></div>
+            <div class="elemento metal-transicao" data-z="77" style="grid-column: 9 / span 1; grid-row: 7;"><span class="numero-atomico">77</span><span class="simbolo">Ir</span><span class="peso-atomico">192,2</span></div>
+            <div class="elemento metal-transicao" data-z="78" style="grid-column: 10 / span 1; grid-row: 7;"><span class="numero-atomico">78</span><span class="simbolo">Pt</span><span class="peso-atomico">195,1</span></div>
+            <div class="elemento metal-transicao" data-z="79" style="grid-column: 11 / span 1; grid-row: 7;"><span class="numero-atomico">79</span><span class="simbolo">Au</span><span class="peso-atomico">197</span></div>
+            <div class="elemento metal-transicao" data-z="80" style="grid-column: 12 / span 1; grid-row: 7;"><span class="numero-atomico">80</span><span class="simbolo">Hg</span><span class="peso-atomico">200,6</span></div>
+            <div class="elemento metal-pos-transicao" data-z="81" style="grid-column: 13 / span 1; grid-row: 7;"><span class="numero-atomico">81</span><span class="simbolo">Tl</span><span class="peso-atomico">204,4</span></div>
+            <div class="elemento metal-pos-transicao" data-z="82" style="grid-column: 14 / span 1; grid-row: 7;"><span class="numero-atomico">82</span><span class="simbolo">Pb</span><span class="peso-atomico">207,2</span></div>
+            <div class="elemento metal-pos-transicao" data-z="83" style="grid-column: 15 / span 1; grid-row: 7;"><span class="numero-atomico">83</span><span class="simbolo">Bi</span><span class="peso-atomico">209</span></div>
+            <div class="elemento semimetal" data-z="84" style="grid-column: 16 / span 1; grid-row: 7;"><span class="numero-atomico">84</span><span class="simbolo">Po</span><span class="peso-atomico">209</span></div>
+            <div class="elemento halogenio" data-z="85" style="grid-column: 17 / span 1; grid-row: 7;"><span class="numero-atomico">85</span><span class="simbolo">At</span><span class="peso-atomico">210</span></div>
+            <div class="elemento gas-nobre" data-z="86" style="grid-column: 18 / span 1; grid-row: 7;"><span class="numero-atomico">86</span><span class="simbolo">Rn</span><span class="peso-atomico">222</span></div>
+
+            <div class="elemento metal-alcalino" data-z="87" style="grid-column: 1 / span 1; grid-row: 8;"><span class="numero-atomico">87</span><span class="simbolo">Fr</span><span class="peso-atomico">223</span></div>
+            <div class="elemento alcalino-terroso" data-z="88" style="grid-column: 2 / span 1; grid-row: 8;"><span class="numero-atomico">88</span><span class="simbolo">Ra</span><span class="peso-atomico">226</span></div>
+            <div class="actinideo elemento" data-z="89-103" style="grid-column: 3 / span 1; grid-row: 8;"><span class="numero-atomico">89-103</span><span class="simbolo">Ac-Lr</span><span class="peso-atomico">Actinídeos</span></div>
+            <div class="elemento metal-transicao" data-z="104" style="grid-column: 4 / span 1; grid-row: 8;"><span class="numero-atomico">104</span><span class="simbolo">Rf</span><span class="peso-atomico">267</span></div>
+            <div class="elemento metal-transicao" data-z="105" style="grid-column: 5 / span 1; grid-row: 8;"><span class="numero-atomico">105</span><span class="simbolo">Db</span><span class="peso-atomico">268</span></div>
+            <div class="elemento metal-transicao" data-z="106" style="grid-column: 6 / span 1; grid-row: 8;"><span class="numero-atomico">106</span><span class="simbolo">Sg</span><span class="peso-atomico">271</span></div>
+            <div class="elemento metal-transicao" data-z="107" style="grid-column: 7 / span 1; grid-row: 8;"><span class="numero-atomico">107</span><span class="simbolo">Bh</span><span class="peso-atomico">272</span></div>
+            <div class="elemento metal-transicao" data-z="108" style="grid-column: 8 / span 1; grid-row: 8;"><span class="numero-atomico">108</span><span class="simbolo">Hs</span><span class="peso-atomico">270</span></div>
+            <div class="elemento metal-transicao" data-z="109" style="grid-column: 9 / span 1; grid-row: 8;"><span class="numero-atomico">109</span><span class="simbolo">Mt</span><span class="peso-atomico">276</span></div>
+            <div class="elemento metal-transicao" data-z="110" style="grid-column: 10 / span 1; grid-row: 8;"><span class="numero-atomico">110</span><span class="simbolo">Ds</span><span class="peso-atomico">281</span></div>
+            <div class="elemento metal-transicao" data-z="111" style="grid-column: 11 / span 1; grid-row: 8;"><span class="numero-atomico">111</span><span class="simbolo">Rg</span><span class="peso-atomico">280</span></div>
+            <div class="elemento metal-transicao" data-z="112" style="grid-column: 12 / span 1; grid-row: 8;"><span class="numero-atomico">112</span><span class="simbolo">Cn</span><span class="peso-atomico">285</span></div>
+            <div class="elemento metal-pos-transicao" data-z="113" style="grid-column: 13 / span 1; grid-row: 8;"><span class="numero-atomico">113</span><span class="simbolo">Nh</span><span class="peso-atomico">286</span></div>
+            <div class="elemento metal-pos-transicao" data-z="114" style="grid-column: 14 / span 1; grid-row: 8;"><span class="numero-atomico">114</span><span class="simbolo">Fl</span><span class="peso-atomico">289</span></div>
+            <div class="elemento metal-pos-transicao" data-z="115" style="grid-column: 15 / span 1; grid-row: 8;"><span class="numero-atomico">115</span><span class="simbolo">Mc</span><span class="peso-atomico">290</span></div>
+            <div class="elemento halogenio" data-z="116" style="grid-column: 16 / span 1; grid-row: 8;"><span class="numero-atomico">116</span><span class="simbolo">Lv</span><span class="peso-atomico">293</span></div>
+            <div class="elemento halogenio" data-z="117" style="grid-column: 17 / span 1; grid-row: 8;"><span class="numero-atomico">117</span><span class="simbolo">Ts</span><span class="peso-atomico">294</span></div>
+            <div class="elemento gas-nobre" data-z="118" style="grid-column: 18 / span 1; grid-row: 8;"><span class="numero-atomico">118</span><span class="simbolo">Og</span><span class="peso-atomico">294</span></div>
+            
+            <div class="espacamento"></div>
+
+            <div id="lantanideos-container">
+                <div class="elemento lantanideo" data-z="57"><span class="numero-atomico">57</span><span class="simbolo">La</span><span class="peso-atomico">138,9</span></div>
+                <div class="elemento lantanideo" data-z="58"><span class="numero-atomico">58</span><span class="simbolo">Ce</span><span class="peso-atomico">140,1</span></div>
+                <div class="elemento lantanideo" data-z="59"><span class="numero-atomico">59</span><span class="simbolo">Pr</span><span class="peso-atomico">140,9</span></div>
+                <div class="elemento lantanideo" data-z="60"><span class="numero-atomico">60</span><span class="simbolo">Nd</span><span class="peso-atomico">144,2</span></div>
+                <div class="elemento lantanideo" data-z="61"><span class="numero-atomico">61</span><span class="simbolo">Pm</span><span class="peso-atomico">145</span></div>
+                <div class="elemento lantanideo" data-z="62"><span class="numero-atomico">62</span><span class="simbolo">Sm</span><span class="peso-atomico">150,4</span></div>
+                <div class="elemento lantanideo" data-z="63"><span class="numero-atomico">63</span><span class="simbolo">Eu</span><span class="peso-atomico">152</span></div>
+                <div class="elemento lantanideo" data-z="64"><span class="numero-atomico">64</span><span class="simbolo">Gd</span><span class="peso-atomico">157,3</span></div>
+                <div class="elemento lantanideo" data-z="65"><span class="numero-atomico">65</span><span class="simbolo">Tb</span><span class="peso-atomico">158,9</span></div>
+                <div class="elemento lantanideo" data-z="66"><span class="numero-atomico">66</span><span class="simbolo">Dy</span><span class="peso-atomico">162,5</span></div>
+                <div class="elemento lantanideo" data-z="67"><span class="numero-atomico">67</span><span class="simbolo">Ho</span><span class="peso-atomico">164,9</span></div>
+                <div class="elemento lantanideo" data-z="68"><span class="numero-atomico">68</span><span class="simbolo">Er</span><span class="peso-atomico">167,3</span></div>
+                <div class="elemento lantanideo" data-z="69"><span class="numero-atomico">69</span><span class="simbolo">Tm</span><span class="peso-atomico">168,9</span></div>
+                <div class="elemento lantanideo" data-z="70"><span class="numero-atomico">70</span><span class="simbolo">Yb</span><span class="peso-atomico">173</span></div>
+                <div class="elemento lantanideo" data-z="71"><span class="numero-atomico">71</span><span class="simbolo">Lu</span><span class="peso-atomico">175</span></div>
+            </div>
+
+            <div id="actinideos-container">
+                <div class="elemento actinideo" data-z="89"><span class="numero-atomico">89</span><span class="simbolo">Ac</span><span class="peso-atomico">227</span></div>
+                <div class="elemento actinideo" data-z="90"><span class="numero-atomico">90</span><span class="simbolo">Th</span><span class="peso-atomico">232</span></div>
+                <div class="elemento actinideo" data-z="91"><span class="numero-atomico">91</span><span class="simbolo">Pa</span><span class="peso-atomico">231</span></div>
+                <div class="elemento actinideo" data-z="92"><span class="numero-atomico">92</span><span class="simbolo">U</span><span class="peso-atomico">238</span></div>
+                <div class="elemento actinideo" data-z="93"><span class="numero-atomico">93</span><span class="simbolo">Np</span><span class="peso-atomico">237</span></div>
+                <div class="elemento actinideo" data-z="94"><span class="numero-atomico">94</span><span class="simbolo">Pu</span><span class="peso-atomico">244</span></div>
+                <div class="elemento actinideo" data-z="95"><span class="numero-atomico">95</span><span class="simbolo">Am</span><span class="peso-atomico">243</span></div>
+                <div class="elemento actinideo" data-z="96"><span class="numero-atomico">96</span><span class="simbolo">Cm</span><span class="peso-atomico">247</span></div>
+                <div class="elemento actinideo" data-z="97"><span class="numero-atomico">97</span><span class="simbolo">Bk</span><span class="peso-atomico">247</span></div>
+                <div class="elemento actinideo" data-z="98"><span class="numero-atomico">98</span><span class="simbolo">Cf</span><span class="peso-atomico">251</span></div>
+                <div class="elemento actinideo" data-z="99"><span class="numero-atomico">99</span><span class="simbolo">Es</span><span class="peso-atomico">252</span></div>
+                <div class="elemento actinideo" data-z="100"><span class="numero-atomico">100</span><span class="simbolo">Fm</span><span class="peso-atomico">257</span></div>
+                <div class="elemento actinideo" data-z="101"><span class="numero-atomico">101</span><span class="simbolo">Md</span><span class="peso-atomico">258</span></div>
+                <div class="elemento actinideo" data-z="102"><span class="numero-atomico">102</span><span class="simbolo">No</span><span class="peso-atomico">259</span></div>
+                <div class="elemento actinideo" data-z="103"><span class="numero-atomico">103</span><span class="simbolo">Lr</span><span class="peso-atomico">262</span></div>
+            </div>
+        </div>
+
+        <div id="painelDetalhes">
+            <h2>Detalhes do Elemento</h2>
+            <div id="detalhesElemento">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // DADOS COMPLETOS DA TABELA PERIÓDICA (Apenas um trecho para exemplo)
+        const DADOS_ELEMENTOS = {
+            "1": { "nome": "Hidrogênio", "simbolo": "H", "z": 1, "massa": "1,008", "pf": "-259,1", "densidade": "0,000089 g/cm³", "classe": "nao-metal" },
+            "2": { "nome": "Hélio", "simbolo": "He", "z": 2, "massa": "4,003", "pf": "-272,2", "densidade": "0,000178 g/cm³", "classe": "gas-nobre" },
+            "3": { "nome": "Lítio", "simbolo": "Li", "z": 3, "massa": "6,94", "pf": "180,5", "densidade": "0,534 g/cm³", "classe": "metal-alcalino" },
+            "4": { "nome": "Berílio", "simbolo": "Be", "z": 4, "massa": "9,012", "pf": "1287", "densidade": "1,85 g/cm³", "classe": "alcalino-terroso" },
+            "5": { "nome": "Boro", "simbolo": "B", "z": 5, "massa": "10,81", "pf": "2076", "densidade": "2,34 g/cm³", "classe": "semimetal" },
+            "6": { "nome": "Carbono", "simbolo": "C", "z": 6, "massa": "12,01", "pf": "3550 (sublima)", "densidade": "2,26 (Grafite) g/cm³", "classe": "nao-metal" },
+            "7": { "nome": "Nitrogênio", "simbolo": "N", "z": 7, "massa": "14,01", "pf": "-210", "densidade": "0,00125 g/cm³", "classe": "nao-metal" },
+            "8": { "nome": "Oxigênio", "simbolo": "O", "z": 8, "massa": "16", "pf": "-218,8", "densidade": "0,00143 g/cm³", "classe": "nao-metal" },
+            "9": { "nome": "Flúor", "simbolo": "F", "z": 9, "massa": "19", "pf": "-219,6", "densidade": "0,0017 g/cm³", "classe": "halogenio" },
+            "10": { "nome": "Neônio", "simbolo": "Ne", "z": 10, "massa": "20,18", "pf": "-248,6", "densidade": "0,0009 g/cm³", "classe": "gas-nobre" },
+            "11": { "nome": "Sódio", "simbolo": "Na", "z": 11, "massa": "22,99", "pf": "97,7", "densidade": "0,968 g/cm³", "classe": "metal-alcalino" },
+            "12": { "nome": "Magnésio", "simbolo": "Mg", "z": 12, "massa": "24,31", "pf": "650", "densidade": "1,738 g/cm³", "classe": "alcalino-terroso" },
+            "13": { "nome": "Alumínio", "simbolo": "Al", "z": 13, "massa": "26,98", "pf": "660,3", "densidade": "2,7 g/cm³", "classe": "metal-pos-transicao" },
+            "14": { "nome": "Silício", "simbolo": "Si", "z": 14, "massa": "28,09", "pf": "1414", "densidade": "2,33 g/cm³", "classe": "semimetal" },
+            "15": { "nome": "Fósforo", "simbolo": "P", "z": 15, "massa": "30,97", "pf": "44,1 (P. branco)", "densidade": "1,82 (P. branco) g/cm³", "classe": "nao-metal" },
+            "16": { "nome": "Enxofre", "simbolo": "S", "z": 16, "massa": "32,07", "pf": "115,2", "densidade": "2,07 g/cm³", "classe": "nao-metal" },
+            "17": { "nome": "Cloro", "simbolo": "Cl", "z": 17, "massa": "35,45", "pf": "-101,5", "densidade": "0,0032 g/cm³", "classe": "halogenio" },
+            "18": { "nome": "Argônio", "simbolo": "Ar", "z": 18, "massa": "39,95", "pf": "-189,4", "densidade": "0,00178 g/cm³", "classe": "gas-nobre" },
+            "19": { "nome": "Potássio", "simbolo": "K", "z": 19, "massa": "39,10", "pf": "63,3", "densidade": "0,89 g/cm³", "classe": "metal-alcalino" },
+            "20": { "nome": "Cálcio", "simbolo": "Ca", "z": 20, "massa": "40,08", "pf": "842", "densidade": "1,55 g/cm³", "classe": "alcalino-terroso" },
+            "21": { "nome": "Escândio", "simbolo": "Sc", "z": 21, "massa": "44,96", "pf": "1541", "densidade": "2,99 g/cm³", "classe": "metal-transicao" },
+            "22": { "nome": "Titânio", "simbolo": "Ti", "z": 22, "massa": "47,87", "pf": "1668", "densidade": "4,506 g/cm³", "classe": "metal-transicao" },
+            "23": { "nome": "Vanádio", "simbolo": "V", "z": 23, "massa": "50,94", "pf": "1910", "densidade": "6,11 g/cm³", "classe": "metal-transicao" },
+            "24": { "nome": "Cromo", "simbolo": "Cr", "z": 24, "massa": "52", "pf": "1857", "densidade": "7,19 g/cm³", "classe": "metal-transicao" },
+            "25": { "nome": "Manganês", "simbolo": "Mn", "z": 25, "massa": "54,94", "pf": "1246", "densidade": "7,21 g/cm³", "classe": "metal-transicao" },
+            "26": { "nome": "Ferro", "simbolo": "Fe", "z": 26, "massa": "55,85", "pf": "1538", "densidade": "7,87 g/cm³", "classe": "metal-transicao" },
+            "27": { "nome": "Cobalto", "simbolo": "Co", "z": 27, "massa": "58,93", "pf": "1495", "densidade": "8,9 g/cm³", "classe": "metal-transicao" },
+            "28": { "nome": "Níquel", "simbolo": "Ni", "z": 28, "massa": "58,69", "pf": "1455", "densidade": "8,9 g/cm³", "classe": "metal-transicao" },
+            "29": { "nome": "Cobre", "simbolo": "Cu", "z": 29, "massa": "63,55", "pf": "1085", "densidade": "8,96 g/cm³", "classe": "metal-transicao" },
+            "30": { "nome": "Zinco", "simbolo": "Zn", "z": 30, "massa": "65,38", "pf": "419,5", "densidade": "7,14 g/cm³", "classe": "metal-transicao" },
+            "31": { "nome": "Gálio", "simbolo": "Ga", "z": 31, "massa": "69,72", "pf": "29,8", "densidade": "5,91 g/cm³", "classe": "metal-pos-transicao" },
+            "32": { "nome": "Germânio", "simbolo": "Ge", "z": 32, "massa": "72,63", "pf": "938,2", "densidade": "5,32 g/cm³", "classe": "semimetal" },
+            "33": { "nome": "Arsênio", "simbolo": "As", "z": 33, "massa": "74,92", "pf": "817 (sublima)", "densidade": "5,72 g/cm³", "classe": "semimetal" },
+            "34": { "nome": "Selênio", "simbolo": "Se", "z": 34, "massa": "78,97", "pf": "221", "densidade": "4,81 g/cm³", "classe": "nao-metal" },
+            "35": { "nome": "Bromo", "simbolo": "Br", "z": 35, "massa": "79,90", "pf": "-7,2", "densidade": "3,1 g/cm³", "classe": "halogenio" },
+            "36": { "nome": "Criptônio", "simbolo": "Kr", "z": 36, "massa": "83,80", "pf": "-157,4", "densidade": "0,0037 g/cm³", "classe": "gas-nobre" },
+            "37": { "nome": "Rubídio", "simbolo": "Rb", "z": 37, "massa": "85,47", "pf": "39,3", "densidade": "1,53 g/cm³", "classe": "metal-alcalino" },
+            "38": { "nome": "Estrôncio", "simbolo": "Sr", "z": 38, "massa": "87,62", "pf": "777", "densidade": "2,64 g/cm³", "classe": "alcalino-terroso" },
+            "39": { "nome": "Ítrio", "simbolo": "Y", "z": 39, "massa": "88,91", "pf": "1522", "densidade": "4,47 g/cm³", "classe": "metal-transicao" },
+            "40": { "nome": "Zircônio", "simbolo": "Zr", "z": 40, "massa": "91,22", "pf": "1855", "densidade": "6,51 g/cm³", "classe": "metal-transicao" },
+            "41": { "nome": "Nióbio", "simbolo": "Nb", "z": 41, "massa": "92,91", "pf": "2477", "densidade": "8,57 g/cm³", "classe": "metal-transicao" },
+            "42": { "nome": "Molibdênio", "simbolo": "Mo", "z": 42, "massa": "95,96", "pf": "2623", "densidade": "10,28 g/cm³", "classe": "metal-transicao" },
+            "43": { "nome": "Tecnécio", "simbolo": "Tc", "z": 43, "massa": "98", "pf": "2157", "densidade": "11,5 g/cm³", "classe": "metal-transicao" },
+            "44": { "nome": "Rutênio", "simbolo": "Ru", "z": 44, "massa": "101,1", "pf": "2334", "densidade": "12,45 g/cm³", "classe": "metal-transicao" },
+            "45": { "nome": "Ródio", "simbolo": "Rh", "z": 45, "massa": "102,9", "pf": "1964", "densidade": "12,41 g/cm³", "classe": "metal-transicao" },
+            "46": { "nome": "Paládio", "simbolo": "Pd", "z": 46, "massa": "106,4", "pf": "1555", "densidade": "12,02 g/cm³", "classe": "metal-transicao" },
+            "47": { "nome": "Prata", "simbolo": "Ag", "z": 47, "massa": "107,9", "pf": "961,8", "densidade": "10,49 g/cm³", "classe": "metal-transicao" },
+            "48": { "nome": "Cádmio", "simbolo": "Cd", "z": 48, "massa": "112,4", "pf": "321,1", "densidade": "8,65 g/cm³", "classe": "metal-transicao" },
+            "49": { "nome": "Índio", "simbolo": "In", "z": 49, "massa": "114,8", "pf": "156,6", "densidade": "7,31 g/cm³", "classe": "metal-pos-transicao" },
+            "50": { "nome": "Estanho", "simbolo": "Sn", "z": 50, "massa": "118,7", "pf": "232", "densidade": "7,26 g/cm³", "classe": "metal-pos-transicao" },
+            "51": { "nome": "Antimônio", "simbolo": "Sb", "z": 51, "massa": "121,8", "pf": "630,6", "densidade": "6,697 g/cm³", "classe": "semimetal" },
+            "52": { "nome": "Telúrio", "simbolo": "Te", "z": 52, "massa": "127,6", "pf": "449,6", "densidade": "6,24 g/cm³", "classe": "nao-metal" },
+            "53": { "nome": "Iodo", "simbolo": "I", "z": 53, "massa": "126,9", "pf": "113,7", "densidade": "4,93 g/cm³", "classe": "halogenio" },
+            "54": { "nome": "Xenônio", "simbolo": "Xe", "z": 54, "massa": "131,3", "pf": "-111,8", "densidade": "0,0059 g/cm³", "classe": "gas-nobre" },
+            "55": { "nome": "Césio", "simbolo": "Cs", "z": 55, "massa": "132,9", "pf": "28,5", "densidade": "1,87 g/cm³", "classe": "metal-alcalino" },
+            "56": { "nome": "Bário", "simbolo": "Ba", "z": 56, "massa": "137,3", "pf": "727", "densidade": "3,51 g/cm³", "classe": "alcalino-terroso" },
+            "57": { "nome": "Lantânio", "simbolo": "La", "z": 57, "massa": "138,9", "pf": "920", "densidade": "6,16 g/cm³", "classe": "lantanideo" },
+            "58": { "nome": "Cério", "simbolo": "Ce", "z": 58, "massa": "140,1", "pf": "795", "densidade": "6,77 g/cm³", "classe": "lantanideo" },
+            "59": { "nome": "Praseodímio", "simbolo": "Pr", "z": 59, "massa": "140,9", "pf": "935", "densidade": "6,77 g/cm³", "classe": "lantanideo" },
+            "60": { "nome": "Neodímio", "simbolo": "Nd", "z": 60, "massa": "144,2", "pf": "1021", "densidade": "7,01 g/cm³", "classe": "lantanideo" },
+            "61": { "nome": "Promécio", "simbolo": "Pm", "z": 61, "massa": "145", "pf": "1042", "densidade": "7,26 g/cm³", "classe": "lantanideo" },
+            "62": { "nome": "Samário", "simbolo": "Sm", "z": 62, "massa": "150,4", "pf": "1072", "densidade": "7,52 g/cm³", "classe": "lantanideo" },
+            "63": { "nome": "Európio", "simbolo": "Eu", "z": 63, "massa": "152", "pf": "822", "densidade": "5,24 g/cm³", "classe": "lantanideo" },
+            "64": { "nome": "Gadolínio", "simbolo": "Gd", "z": 64, "massa": "157,3", "pf": "1313", "densidade": "7,90 g/cm³", "classe": "lantanideo" },
+            "65": { "nome": "Térbio", "simbolo": "Tb", "z": 65, "massa": "158,9", "pf": "1356", "densidade": "8,23 g/cm³", "classe": "lantanideo" },
+            "66": { "nome": "Disprósio", "simbolo": "Dy", "z": 66, "massa": "162,5", "pf": "1407", "densidade": "8,55 g/cm³", "classe": "lantanideo" },
+            "67": { "nome": "Hólmio", "simbolo": "Ho", "z": 67, "massa": "164,9", "pf": "1474", "densidade": "8,79 g/cm³", "classe": "lantanideo" },
+            "68": { "nome": "Érbio", "simbolo": "Er", "z": 68, "massa": "167,3", "pf": "1529", "densidade": "9,06 g/cm³", "classe": "lantanideo" },
+            "69": { "nome": "Túlio", "simbolo": "Tm", "z": 69, "massa": "168,9", "pf": "1545", "densidade": "9,32 g/cm³", "classe": "lantanideo" },
+            "70": { "nome": "Itérbio", "simbolo": "Yb", "z": 70, "massa": "173", "pf": "819", "densidade": "6,90 g/cm³", "classe": "lantanideo" },
+            "71": { "nome": "Lutécio", "simbolo": "Lu", "z": 71, "massa": "175", "pf": "1663", "densidade": "9,84 g/cm³", "classe": "lantanideo" },
+            "72": { "nome": "Háfnio", "simbolo": "Hf", "z": 72, "massa": "178,5", "pf": "2233", "densidade": "13,31 g/cm³", "classe": "metal-transicao" },
+            "73": { "nome": "Tântalo", "simbolo": "Ta", "z": 73, "massa": "180,9", "pf": "3017", "densidade": "16,69 g/cm³", "classe": "metal-transicao" },
+            "74": { "nome": "Tungstênio", "simbolo": "W", "z": 74, "massa": "183,8", "pf": "3422", "densidade": "19,25 g/cm³", "classe": "metal-transicao" },
+            "75": { "nome": "Rênio", "simbolo": "Re", "z": 75, "massa": "186,2", "pf": "3186", "densidade": "21,02 g/cm³", "classe": "metal-transicao" },
+            "76": { "nome": "Ósmio", "simbolo": "Os", "z": 76, "massa": "190,2", "pf": "3033", "densidade": "22,59 g/cm³", "classe": "metal-transicao" },
+            "77": { "nome": "Irídio", "simbolo": "Ir", "z": 77, "massa": "192,2", "pf": "2446", "densidade": "22,56 g/cm³", "classe": "metal-transicao" },
+            "78": { "nome": "Platina", "simbolo": "Pt", "z": 78, "massa": "195,1", "pf": "1768", "densidade": "21,45 g/cm³", "classe": "metal-transicao" },
+            "79": { "nome": "Ouro", "simbolo": "Au", "z": 79, "massa": "197", "pf": "1064", "densidade": "19,3 g/cm³", "classe": "metal-transicao" },
+            "80": { "nome": "Mercúrio", "simbolo": "Hg", "z": 80, "massa": "200,6", "pf": "-38,8", "densidade": "13,53 g/cm³", "classe": "metal-transicao" },
+            "81": { "nome": "Tálio", "simbolo": "Tl", "z": 81, "massa": "204,4", "pf": "304", "densidade": "11,85 g/cm³", "classe": "metal-pos-transicao" },
+            "82": { "nome": "Chumbo", "simbolo": "Pb", "z": 82, "massa": "207,2", "pf": "327,5", "densidade": "11,34 g/cm³", "classe": "metal-pos-transicao" },
+            "83": { "nome": "Bismuto", "simbolo": "Bi", "z": 83, "massa": "209", "pf": "271,4", "densidade": "9,78 g/cm³", "classe": "metal-pos-transicao" },
+            "84": { "nome": "Polônio", "simbolo": "Po", "z": 84, "massa": "209", "pf": "254", "densidade": "9,32 g/cm³", "classe": "semimetal" },
+            "85": { "nome": "Ástato", "simbolo": "At", "z": 85, "massa": "210", "pf": "302", "densidade": "6,35 (est.) g/cm³", "classe": "halogenio" },
+            "86": { "nome": "Radônio", "simbolo": "Rn", "z": 86, "massa": "222", "pf": "-71", "densidade": "0,0097 g/cm³", "classe": "gas-nobre" },
+            "87": { "nome": "Frâncio", "simbolo": "Fr", "z": 87, "massa": "223", "pf": "27", "densidade": "1,87 (est.) g/cm³", "classe": "metal-alcalino" },
+            "88": { "nome": "Rádio", "simbolo": "Ra", "z": 88, "massa": "226", "pf": "700", "densidade": "5,5 g/cm³", "classe": "alcalino-terroso" },
+            "89": { "nome": "Actínio", "simbolo": "Ac", "z": 89, "massa": "227", "pf": "1050", "densidade": "10,07 g/cm³", "classe": "actinideo" },
+            "90": { "nome": "Tório", "simbolo": "Th", "z": 90, "massa": "232", "pf": "1750", "densidade": "11,7 g/cm³", "classe": "actinideo" },
+            "91": { "nome": "Protactínio", "simbolo": "Pa", "z": 91, "massa": "231", "pf": "1568", "densidade": "15,37 g/cm³", "classe": "actinideo" },
+            "92": { "nome": "Urânio", "simbolo": "U", "z": 92, "massa": "238", "pf": "1132", "densidade": "19,1 g/cm³", "classe": "actinideo" },
+            "93": { "nome": "Netúnio", "simbolo": "Np", "z": 93, "massa": "237", "pf": "644", "densidade": "20,25 g/cm³", "classe": "actinideo" },
+            "94": { "nome": "Plutônio", "simbolo": "Pu", "z": 94, "massa": "244", "pf": "640", "densidade": "19,84 g/cm³", "classe": "actinideo" },
+            "95": { "nome": "Amerício", "simbolo": "Am", "z": 95, "massa": "243", "pf": "1173", "densidade": "13,6 g/cm³", "classe": "actinideo" },
+            "96": { "nome": "Cúrio", "simbolo": "Cm", "z": 96, "massa": "247", "pf": "1345", "densidade": "13,5 g/cm³", "classe": "actinideo" },
+            "97": { "nome": "Berquélio", "simbolo": "Bk", "z": 97, "massa": "247", "pf": "986", "densidade": "14,8 g/cm³", "classe": "actinideo" },
+            "98": { "nome": "Califórnio", "simbolo": "Cf", "z": 98, "massa": "251", "pf": "900", "densidade": "15,1 g/cm³", "classe": "actinideo" },
+            "99": { "nome": "Einstênio", "simbolo": "Es", "z": 99, "massa": "252", "pf": "860", "densidade": "13,5 g/cm³", "classe": "actinideo" },
+            "100": { "nome": "Férmio", "simbolo": "Fm", "z": 100, "massa": "257", "pf": "1527", "densidade": "14,1 g/cm³", "classe": "actinideo" },
+            "101": { "nome": "Mendelévio", "simbolo": "Md", "z": 101, "massa": "258", "pf": "827", "densidade": "10,3 g/cm³", "classe": "actinideo" },
+            "102": { "nome": "Nobélio", "simbolo": "No", "z": 102, "massa": "259", "pf": "827", "densidade": "9,9 g/cm³", "classe": "actinideo" },
+            "103": { "nome": "Laurêncio", "simbolo": "Lr", "z": 103, "massa": "262", "pf": "1627", "densidade": "15,6 g/cm³", "classe": "actinideo" },
+            "104": { "nome": "Rutherfórdio", "simbolo": "Rf", "z": 104, "massa": "267", "pf": "(2400)", "densidade": "(23,2) g/cm³", "classe": "metal-transicao" },
+            "105": { "nome": "Dúbnio", "simbolo": "Db", "z": 105, "massa": "268", "pf": "1267", "densidade": "39,1 g/cm³", "classe": "metal-transicao" },
+            "106": { "nome": "Seabórgio", "simbolo": "Sg", "z": 106, "massa": "271", "pf": "2300", "densidade": "35,0 g/cm³", "classe": "metal-transicao" },
+            "107": { "nome": "Bóhrio", "simbolo": "Bh", "z": 107, "massa": "272", "pf": "1627", "densidade": "37,1 g/cm³", "classe": "metal-transicao" },
+            "108": { "nome": "Hássio", "simbolo": "Hs", "z": 108, "massa": "270", "pf": "1267", "densidade": "40,7 g/cm³", "classe": "metal-transicao" },
+            "109": { "nome": "Meitnério", "simbolo": "Mt", "z": 109, "massa": "276", "pf": "1527", "densidade": "37,4 g/cm³", "classe": "metal-transicao" },
+            "110": { "nome": "Darmstádio", "simbolo": "Ds", "z": 110, "massa": "281", "pf": "1527", "densidade": "34,8 g/cm³", "classe": "metal-transicao" },
+            "111": { "nome": "Roentgênio", "simbolo": "Rg", "z": 111, "massa": "280", "pf": "1064", "densidade": "28,7 g/cm³", "classe": "metal-transicao" },
+            "112": { "nome": "Copernício", "simbolo": "Cn", "z": 112, "massa": "285", "pf": "27", "densidade": "14,0 g/cm³", "classe": "metal-transicao" },
+            "113": { "nome": "Nihônio", "simbolo": "Nh", "z": 113, "massa": "286", "pf": "430", "densidade": "16,0 g/cm³", "classe": "metal-pos-transicao" },
+            "114": { "nome": "Fleróvio", "simbolo": "Fl", "z": 114, "massa": "289", "pf": "70", "densidade": "14,0 g/cm³", "classe": "metal-pos-transicao" },
+            "115": { "nome": "Moscóvio", "simbolo": "Mc", "z": 115, "massa": "290", "pf": "400", "densidade": "13,5 g/cm³", "classe": "metal-pos-transicao" },
+            "116": { "nome": "Livermório", "simbolo": "Lv", "z": 116, "massa": "293", "pf": "250", "densidade": "12,9 g/cm³", "classe": "halogenio" },
+            "117": { "nome": "Tenessino", "simbolo": "Ts", "z": 117, "massa": "294", "pf": "350", "densidade": "7,2 g/cm³", "classe": "halogenio" },
+            "118": { "nome": "Oganessônio", "simbolo": "Og", "z": 118, "massa": "294", "pf": "-15", "densidade": "0,005 g/cm³", "classe": "gas-nobre" }
+        };
+
+        const tabela = document.getElementById('tabelaPeriodica');
+        const detalhesPainel = document.getElementById('detalhesElemento');
+
+        // Função para mapear o nome da classe do JSON para a classe CSS
+        function getCssClassName(z, classificacao) {
+            if (z >= 57 && z <= 71) return 'lantanideo';
+            if (z >= 89 && z <= 103) return 'actinideo';
+
+            // O seu JSON usa 'metal-alcalino', 'alcalino-terroso', 'gas-nobre', etc.
+            return classificacao;
+        }
+
+        // Função principal que exibe os detalhes do elemento
+        function exibirDetalhes(z) {
+            const dados = DADOS_ELEMENTOS[z];
+            if (!dados) return;
+
+            // Formata o valor da densidade, retirando parênteses de estimativas para exibição no card
+            const densidadeFormatada = dados.densidade.replace(/ \(([^)]+)\)/, '');
+            const classeDisplay = dados.classe.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+
+
+            detalhesPainel.innerHTML = `
+                <div class="detalhe-grande">
+                    <span class="simbolo-detalhe">${dados.simbolo}</span>
+                    <p class="nome-detalhe">${dados.nome}</p>
+                </div>
+                
+                <div class="info-linha">
+                    <span class="info-label">Nº Atômico</span>
+                    <span class="info-valor">${dados.z}</span>
+                </div>
+                <div class="info-linha">
+                    <span class="info-label">Massa Atômica</span>
+                    <span class="info-valor">${dados.massa} u</span>
+                </div>
+                <div class="info-linha">
+                    <span class="info-label">Ponto de Fusão</span>
+                    <span class="info-valor">${dados.pf} °C</span>
+                </div>
+                <div class="info-linha">
+                    <span class="info-label">Classe</span>
+                    <span class="info-valor classe-display">${classeDisplay}</span>
+                </div>
+                <div class="info-linha">
+                    <span class="info-label">Densidade</span>
+                    <span class="info-valor">${dados.densidade}</span>
+                </div>
+            `;
+        }
+
+        // Adiciona a classe de cor correta para cada elemento dinamicamente
+        document.querySelectorAll('.elemento').forEach(el => {
+            const z = el.dataset.z;
+            if(z && DADOS_ELEMENTOS[z]) {
+                const classificacaoDoc = DADOS_ELEMENTOS[z].classe;
+                const cssClass = getCssClassName(z, classificacaoDoc);
+                el.classList.add(cssClass);
+                // Define a cor da borda no estado inicial
+                DADOS_ELEMENTOS[z].corClasse = getComputedStyle(el).color;
+            }
+        });
+
+
+        // Adiciona o event listener a toda a tabela (Mantido)
+        tabela.addEventListener('click', (event) => {
+            let elementoClicado = event.target.closest('.elemento');
+
+            if (elementoClicado && elementoClicado.dataset.z && elementoClicado.dataset.z.indexOf('-') === -1) {
+                const z = elementoClicado.dataset.z;
+                exibirDetalhes(z);
+                
+                // Destaque visual:
+                document.querySelectorAll('.elemento').forEach(el => el.style.border = '1px solid #ddd');
+                // Usa a cor da classe para o destaque da borda
+                elementoClicado.style.border = `2px solid ${DADOS_ELEMENTOS[z].corClasse}`; 
+            }
+        });
+
+        // Exibir um elemento inicial ao carregar a página
+        exibirDetalhes("1"); 
+    </script>
+</body>
+</html>

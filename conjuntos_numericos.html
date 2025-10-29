@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador de Conjuntos Numéricos - Matemática</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* ----------------------------------- */
+        /* VARIÁVEIS E ESTILOS GERAIS */
+        /* ----------------------------------- */
+        :root {
+            --cor-primaria: #D2691E; /* Cor de Destaque (Laranja/Terra) */
+            --cor-secundaria: #34495e; /* Cor de Texto Principal (Azul Escuro) */
+            --cor-matematica: #9c27b0; /* Roxo para Matemática */
+            --cor-fundo: #f8f8f8;
+            --cor-fundo-card: #ffffff;
+            --cor-borda: #ccc;
+            
+            /* Cores dos Conjuntos */
+            --cor-N: #fbc02d; /* Amarelo (Naturais) */
+            --cor-Z: #1565c0; /* Azul (Inteiros) */
+            --cor-Q: #00897b; /* Verde-água (Racionais) */
+            --cor-I: #d84315; /* Laranja (Irracionais) */
+            --cor-R: #4a148c; /* Roxo Escuro (Reais) */
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--cor-fundo);
+            color: var(--cor-secundaria);
+        }
+
+        .content-area {
+            padding: 30px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ----------------------------------- */
+        /* TOP BAR (Mantida) */
+        /* ----------------------------------- */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: stretch; 
+            border-bottom: 1px solid #ddd; 
+        }
+
+        .logo-link {
+            text-decoration: none;
+            color: var(--cor-primaria); 
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 25px; 
+            display: flex;
+            align-items: center; 
+            border-right: 1px solid #ddd; 
+            transition: background-color 0.3s;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: flex-start;
+            flex-grow: 1;
+        }
+
+        .nav-button {
+            background: none;
+            border: none;
+            padding: 15px 25px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background-color 0.3s;
+            border-bottom: 3px solid transparent;
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+        }
+
+        .nav-button.active {
+            color: var(--cor-primaria); 
+            border-bottom: 3px solid var(--cor-primaria);
+        }
+
+        .nav-button .fas {
+             margin-right: 8px;
+             font-size: 14px;
+        }
+
+        /* ----------------------------------- */
+        /* EXPLORADOR E DIAGRAMA (LAYOUT) */
+        /* ----------------------------------- */
+
+        h1 {
+            color: var(--cor-matematica);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        .explorer-container {
+            display: flex;
+            flex-wrap: wrap; 
+            gap: 30px;
+            background-color: var(--cor-fundo-card);
+            border: 1px solid var(--cor-borda);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .selector-panel {
+            flex: 1;
+            min-width: 350px;
+        }
+
+        .definition-box {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            min-height: 250px;
+        }
+        
+        .definition-box h2 {
+            margin-top: 0;
+            padding-left: 0;
+            border-left: none;
+            color: var(--cor-secundaria);
+            font-size: 1.4em;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        /* ----------------------------------- */
+        /* DIAGRAMA E LEGENDAS */
+        /* ----------------------------------- */
+        
+        .diagram-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+            min-width: 400px;
+        }
+
+        .venn-diagram {
+            display: inline-block;
+            position: relative;
+            width: 450px;
+            height: 350px;
+            margin-bottom: 20px;
+        }
+
+        .set-ring {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            box-sizing: border-box;
+            background-color: rgba(255, 255, 255, 0); 
+            border: 3px solid rgba(0, 0, 0, 0.2); 
+            transition: all 0.4s ease-in-out;
+            cursor: pointer;
+        }
+        
+        /* Cores Base dos Conjuntos */
+        .r-set { background-color: rgba(74, 20, 140, 0.1); border-color: var(--cor-R); top: 0; left: 0; width: 100%; height: 100%; }
+        .q-set { background-color: rgba(0, 137, 123, 0.1); border-color: var(--cor-Q); top: 50px; left: 20px; width: 60%; height: 60%; flex-direction: column; padding-top: 50px; }
+        .i-set { background-color: rgba(216, 67, 21, 0.1); border-color: var(--cor-I); top: 70px; right: 20px; width: 35%; height: 35%; }
+        .z-set { background-color: rgba(21, 101, 192, 0.1); border-color: var(--cor-Z); position: relative; top: -40px; left: -10px; width: 70%; height: 70%; }
+        .n-set { background-color: rgba(251, 192, 45, 0.1); border-color: var(--cor-N); position: relative; top: -20px; width: 60%; height: 60%; }
+        
+        /* ESTILO DE DESTAQUE (HIGHLIGHT) */
+        .highlight-r { background-color: var(--cor-R); border-color: #311b92; color: white; }
+        .highlight-q { background-color: var(--cor-Q); border-color: #00695c; color: white; }
+        .highlight-i { background-color: var(--cor-I); border-color: #bf360c; color: white; }
+        .highlight-z { background-color: var(--cor-Z); border-color: #0d47a1; color: white; }
+        .highlight-n { background-color: var(--cor-N); border-color: #f9a825; color: var(--cor-secundaria); }
+
+        /* SEÇÃO: LEGENDA */
+        .legend-section {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            width: 100%;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 8px;
+            border: 1px solid #ccc;
+        }
+
+        /* ----------------------------------- */
+        /* VERIFICADOR NUMÉRICO */
+        /* ----------------------------------- */
+        
+        .number-checker-section {
+            margin-top: 40px;
+            padding: 25px;
+            background-color: var(--cor-fundo-card);
+            border: 1px solid var(--cor-borda);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .checker-input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            align-items: center;
+        }
+        
+        #numberInput {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid var(--cor-matematica);
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .check-button {
+            padding: 10px 20px;
+            background-color: var(--cor-matematica);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .checker-result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            background-color: #f7f7f7;
+        }
+        
+        .checker-result-box strong {
+            color: var(--cor-secundaria);
+        }
+        
+        .set-tag {
+            display: inline-block;
+            padding: 5px 10px;
+            margin-right: 8px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            font-size: 0.9em;
+        }
+        
+        .tag-R { background-color: var(--cor-R); }
+        .tag-Q { background-color: var(--cor-Q); }
+        .tag-I { background-color: var(--cor-I); }
+        .tag-Z { background-color: var(--cor-Z); }
+        .tag-N { background-color: var(--cor-N); color: var(--cor-secundaria); }
+        
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <a href="index.html" class="logo-link">
+            <i class="fas fa-book-reader"></i> PLATAFORMA
+        </a>
+
+        <div class="nav-buttons">
+            <a href="index.html" class="nav-button active"><i class="fas fa-arrow-up"></i> MATÉRIAS</a>
+            <a href="exercicios_index.html" class="nav-button"><i class="fas fa-arrow-down"></i> EXE. DE APOIO</a>
+            <a href="videoaula_index.html" class="nav-button"><i class="fas fa-arrow-down"></i> VIDEO AULA</a>
+            
+            <button class="nav-button more-options">...</button>
+        </div>
+    </header>
+
+    <main class="content-area">
+
+        <h1><i class="fas fa-calculator"></i> Explorador Interativo dos Conjuntos Numéricos</h1>
+        
+        <div class="explorer-container">
+
+            <div class="selector-panel">
+                <div class="select-group">
+                    <label for="setSelector"><i class="fas fa-hand-pointer"></i> SELECIONE O CONJUNTO PARA VER A DEFINIÇÃO:</label>
+                    <select id="setSelector" onchange="exploreSet(this.value)">
+                        <option value="none">-- Selecione um Conjunto para Explorar --</option>
+                        <option value="N">Naturais (N)</option>
+                        <option value="Z">Inteiros (Z)</option>
+                        <option value="Q">Racionais (Q)</option>
+                        <option value="I">Irracionais (I)</option>
+                        <option value="R">Reais (R)</option>
+                    </select>
+                </div>
+                
+                <div class="definition-box" id="definitionBox">
+                    <h2><i class="fas fa-info-circle"></i> Definição e Inclusão</h2>
+                    <p>Ao selecionar um conjunto (ou clicar no diagrama), a descrição aparecerá aqui. O diagrama ao lado irá se iluminar, mostrando todos os conjuntos que ele contém.</p>
+                </div>
+            </div>
+
+            <div class="diagram-wrapper">
+                <div class="venn-diagram">
+                    <div class="set-ring r-set" id="set-R" onclick="exploreSet('R')">
+                        <div class="set-ring q-set" id="set-Q" onclick="exploreSet('Q')">
+                            <div class="set-ring z-set" id="set-Z" onclick="exploreSet('Z')">
+                                <div class="set-ring n-set" id="set-N" onclick="exploreSet('N')">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="set-ring i-set" id="set-I" onclick="exploreSet('I')" style="position: absolute; right: 20px; bottom: 50px;">
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <div class="legend-section">
+                    <div class="legend-item"><div class="color-box" style="background-color: var(--cor-R);"></div>Reais (R)</div>
+                    <div class="legend-item"><div class="color-box" style="background-color: var(--cor-Q);"></div>Racionais (Q)</div>
+                    <div class="legend-item"><div class="color-box" style="background-color: var(--cor-I);"></div>Irracionais (I)</div>
+                    <div class="legend-item"><div class="color-box" style="background-color: var(--cor-Z);"></div>Inteiros (Z)</div>
+                    <div class="legend-item"><div class="color-box" style="background-color: var(--cor-N);"></div>Naturais (N)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="number-checker-section">
+            <h2><i class="fas fa-question-circle"></i> Verificador Numérico</h2>
+            <p>Digite um número, fração ou constante matemática para ver a qual(is) conjunto(s) ele pertence. (Ex: 5, -1/2, 0.333, pi, 2pi, alfa)</p>
+            <div class="checker-input-group">
+                <input type="text" id="numberInput" placeholder="Ex: pi, 2pi, e, 5, -1/2, sqrt(2)">
+                <button class="check-button" onclick="checkNumber()">VERIFICAR</button>
+            </div>
+            
+            <div class="checker-result-box" id="checkerResultBox" style="display: none;">
+                <p>O número <strong id="numberDisplay"></strong> pertence aos conjuntos:</p>
+                <div id="setTagsContainer"></div>
+            </div>
+        </div>
+
+    </main>
+    
+    <script>
+        const setDefinitions = {
+            'N': {
+                name: 'Conjunto dos Naturais (N)',
+                definition: 'São os números inteiros e positivos, utilizados para contagem. Geralmente, inclui o zero.',
+                examples: 'Exemplos: {0, 1, 2, 3, 4, ...}',
+                inclusion: 'O conjunto Naturais (N) está contido em todos os outros conjuntos (Z, Q, R).'
+            },
+            'Z': {
+                name: 'Conjunto dos Inteiros (Z)',
+                definition: 'Inclui todos os números Naturais (N) e seus opostos (os números negativos inteiros).',
+                examples: 'Exemplos: {..., -3, -2, -1, 0, 1, 2, 3, ...}',
+                inclusion: 'Contém os Naturais (N). Está contido nos Racionais (Q) e Reais (R).'
+            },
+            'Q': {
+                name: 'Conjunto dos Racionais (Q)',
+                definition: 'Inclui todos os Inteiros (Z) e todos os números que podem ser escritos como uma fração (a/b). Inclui decimais exatos e dízimas periódicas.',
+                examples: 'Exemplos: {1/2, -0.75, 5, -10/3, 0.333...}',
+                inclusion: 'Contém os Inteiros (Z) e os Naturais (N). Está contido nos Reais (R).'
+            },
+            'I': {
+                name: 'Conjunto dos Irracionais (I)',
+                definition: 'Formado por números que NÃO podem ser escritos como fração, resultando em decimais infinitos e não periódicos.',
+                examples: 'Exemplos: {pi (π), raiz quadrada de 2 (√2), e (número de Euler)}',
+                inclusion: 'É um conjunto separado dos Racionais (Q), mas está contido nos Reais (R).'
+            },
+            'R': {
+                name: 'Conjunto dos Reais (R)',
+                definition: 'É o conjunto de todos os números Racionais (Q) e Irracionais (I). É o conjunto mais abrangente no Ensino Médio.',
+                examples: 'Inclui: todos os inteiros, frações, dízimas, raízes não exatas, pi.',
+                inclusion: 'Contém todos os outros conjuntos (N, Z, Q, I).'
+            }
+        };
+
+        /**
+         * Reseta os estilos de destaque de todos os conjuntos.
+         */
+        function resetHighlights() {
+            document.querySelectorAll('.set-ring').forEach(ring => {
+                ring.classList.remove('highlight-r', 'highlight-q', 'highlight-i', 'highlight-z', 'highlight-n');
+            });
+        }
+
+        /**
+         * Explora e exibe as informações do conjunto selecionado.
+         */
+        function exploreSet(setKey) {
+            const definitionBox = document.getElementById('definitionBox');
+            const selector = document.getElementById('setSelector');
+
+            resetHighlights();
+            
+            if (setKey === 'none') {
+                definitionBox.innerHTML = `
+                    <h2><i class="fas fa-info-circle"></i> Definição e Inclusão</h2>
+                    <p>Ao selecionar um conjunto (ou clicar no diagrama), a descrição aparecerá aqui. O diagrama ao lado irá se iluminar, mostrando todos os conjuntos que ele contém.</p>
+                `;
+                return;
+            }
+
+            const data = setDefinitions[setKey];
+            
+            // 1. ATUALIZA O SELETOR (se a chamada veio do clique no diagrama)
+            selector.value = setKey;
+
+            // 2. ATUALIZA O PAINEL DE DEFINIÇÃO
+            definitionBox.innerHTML = `
+                <h2><i class="fas fa-check-circle"></i> ${data.name}</h2>
+                <p>${data.definition}</p>
+                <strong>Exemplos:</strong>
+                <p>${data.examples}</p>
+                <strong>Inclusão no Diagrama:</strong>
+                <p>${data.inclusion}</p>
+            `;
+
+            // 3. ATUALIZA OS DESTAQUES NO DIAGRAMA
+            
+            // Destaque o conjunto em si e seus superconjuntos
+            document.getElementById('set-R').classList.add('highlight-r'); // Todos estão nos Reais
+            if (setKey === 'N') {
+                document.getElementById('set-Q').classList.add('highlight-q');
+                document.getElementById('set-Z').classList.add('highlight-z');
+                document.getElementById('set-N').classList.add('highlight-n');
+            } else if (setKey === 'Z') {
+                document.getElementById('set-Q').classList.add('highlight-q');
+                document.getElementById('set-Z').classList.add('highlight-z');
+            } else if (setKey === 'Q') {
+                document.getElementById('set-Q').classList.add('highlight-q');
+            } else if (setKey === 'I') {
+                document.getElementById('set-I').classList.add('highlight-i');
+            }
+        }
+        
+        /**
+         * Verifica a qual(is) conjunto(s) o número/constante pertence.
+         */
+        function checkNumber() {
+            // Remove espaços, converte para minúsculas e padroniza vírgulas para pontos.
+            let input = document.getElementById('numberInput').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, ''); 
+            const numberDisplay = document.getElementById('numberDisplay');
+            const tagsContainer = document.getElementById('setTagsContainer');
+            const resultBox = document.getElementById('checkerResultBox');
+            
+            tagsContainer.innerHTML = '';
+            resultBox.style.display = 'block';
+
+            // Armazena o input original para exibição
+            let originalInput = document.getElementById('numberInput').value.trim();
+            numberDisplay.textContent = originalInput;
+
+            // --- 1. CLASSIFICAÇÃO DE CONSTANTES E SÍMBOLOS ESPECIAIS ---
+            
+            // Números Irracionais e constantes conhecidas
+            const knownIrrationals = ['pi', 'e', 'sqrt(2)', 'raiz(2)'];
+            const knownIrrationalExpressions = ['2pi', '2*pi'];
+
+            // Símbolos reconhecidos como Reais Simbólicos (Não-numéricos)
+            const knownRealsSymbols = ['alpha', 'alfa', 'beta', 'gama', 'omega'];
+
+            // A) SÍMBOLOS NÃO-NUMÉRICOS (Real Simbólico)
+            if (knownRealsSymbols.includes(input)) {
+                tagsContainer.innerHTML = '<p style="color: #666;">Símbolo reconhecido como: </p>';
+                addTag('R', 'Reais (Simbólico)');
+                return;
+            }
+
+            // B) NÚMEROS IRRACIONAIS E EXPRESSÕES COM PI
+            if (knownIrrationals.includes(input) || knownIrrationalExpressions.includes(input) || input.includes('pi')) {
+                 addTag('I', 'Irracionais');
+                 addTag('R', 'Reais');
+                 return;
+            }
+            
+            // --- 2. CLASSIFICAÇÃO NUMÉRICA ---
+            
+            let val = NaN;
+            
+            // Tenta avaliar frações
+            if (input.includes('/')) {
+                const parts = input.split('/');
+                if (parts.length === 2) {
+                    const numerator = parseFloat(parts[0]);
+                    const denominator = parseFloat(parts[1]);
+                    if (!isNaN(numerator) && !isNaN(denominator) && denominator !== 0) {
+                        val = numerator / denominator;
+                    }
+                }
+            } else {
+                // Tenta avaliar como float
+                val = parseFloat(input);
+            }
+            
+            if (isNaN(val)) {
+                tagsContainer.innerHTML = '<p style="color: #c0392b;">Entrada Inválida ou Não-Numérica.</p>';
+                return;
+            }
+            
+            // --- 3. TESTE DE PERTENCIMENTO ---
+            
+            // A) Reais (R)
+            addTag('R', 'Reais');
+
+            // B) Racionais (Q)
+            addTag('Q', 'Racionais');
+
+            // C) Inteiros (Z)
+            // Verifica se é inteiro (com tolerância devido a imprecisão do float)
+            const isInteger = Math.abs(val - Math.round(val)) < 1e-9;
+            
+            if (isInteger) {
+                addTag('Z', 'Inteiros');
+                
+                // D) Naturais (N)
+                if (Math.round(val) >= 0) {
+                    addTag('N', 'Naturais');
+                }
+            }
+        }
+
+        /**
+         * Adiciona uma tag de conjunto ao resultado do verificador.
+         */
+        function addTag(setKey, setName) {
+            const tagsContainer = document.getElementById('setTagsContainer');
+            const tag = document.createElement('span');
+            tag.classList.add('set-tag', `tag-${setKey}`);
+            tag.textContent = setName;
+            tagsContainer.appendChild(tag);
+        }
+
+    </script>
+</body>
+</html>
