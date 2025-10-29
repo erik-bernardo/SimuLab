@@ -5,39 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Flappy Bird Programável com Blocos</title>
     <style>
-        body { margin: 0; display: flex; height: 100vh; background-color: #eee; font-family: sans-serif; }
-        #gameContainer { padding: 10px; display: flex; flex-direction: column; align-items: center; background-color: #70c5ce; }
-        canvas { border: 1px solid #000; display: block; background-color: #70c5ce; margin-bottom: 10px; }
-        #runCodeBtn, #resetGameBtn { padding: 8px 15px; font-size: 1em; margin: 5px; cursor: pointer; border-radius: 5px; border: none; color: white; }
+        body { margin: 0; display: flex; height: 100vh; background-color: #eee; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        
+        /* Ajuste para telas pequenas (layout de coluna) */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            #gameContainer { width: 100%; order: 1; /* Jogo aparece primeiro */ }
+            #blocklyContainer { height: 60vh; /* Blockly ocupa 60% da altura */ order: 2; }
+            #blocklyDiv { height: 100%; }
+        }
+
+        /* Layout para telas maiores (lado a lado) */
+        @media (min-width: 769px) {
+            #gameContainer { width: 340px; /* Largura fixa para o jogo */ }
+            #blocklyContainer { flex-grow: 1; /* Blockly ocupa o resto */ }
+            #blocklyDiv { height: 100vh; width: 100%; }
+        }
+
+        #gameContainer { 
+            padding: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            background-color: #70c5ce; 
+            box-sizing: border-box; /* Garante que padding não afete a largura */
+            flex-shrink: 0; /* Impede que o container do jogo encolha */
+        }
+        
+        canvas { 
+            border: 1px solid #000; 
+            display: block; 
+            background-color: #70c5ce; 
+            margin-bottom: 10px; 
+            max-width: 100%; /* Garante que o canvas não estoure a tela */
+            box-sizing: border-box;
+        }
+        
+        #buttonContainer { display: flex; justify-content: center; width: 100%; }
+        
+        #runCodeBtn, #resetGameBtn { 
+            padding: 10px 15px; 
+            font-size: 1em; 
+            font-weight: bold;
+            margin: 5px; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            border: none; 
+            color: white; 
+            flex-grow: 1; /* Faz os botões ocuparem o espaço */
+            max-width: 150px; /* Limita a largura dos botões */
+            transition: background-color 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
         #runCodeBtn { background-color: #198754; } /* Verde */
         #runCodeBtn:hover { background-color: #157347; }
+        
         #resetGameBtn { background-color: #0d6efd; } /* Azul */
         #resetGameBtn:hover { background-color: #0b5ed7; }
-        #blocklyContainer { flex-grow: 1; display: flex; flex-direction: column; }
-        #blocklyDiv { height: 100%; width: 100%; }
+        
         /* Esconde scrollbars */
         html, body { overflow: hidden; }
+        
         /* Ícones nos botões */
-        button i { margin-right: 5px; }
+        button i { margin-right: 8px; }
     </style>
+    
+    <!-- 1. Scripts do Blockly (via CDN - a forma mais fácil) -->
+    <!-- Note que removi suas referências locais para 'blockly/...' pois já estamos usando a CDN -->
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/msg/pt-br.js"></script>
+    
+    <!-- 2. Ícones (Font Awesome) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <script src="blockly/blockly_compressed.js"></script>
-    <script src="blockly/blocks_compressed.js"></script>
-    <script src="blockly/javascript_compressed.js"></script>
-    <script src="blockly/msg/js/pt-br.js"></script> <script src="js/custom_blocks.js"></script> <script src="js/game.js"></script>         </head>
+</head>
 <body>
 
+    <!-- Container do Jogo -->
     <div id="gameContainer">
         <canvas id="flappyCanvas" width="320" height="480"></canvas>
-        <button id="runCodeBtn" title="Executa a lógica dos blocos e reinicia o jogo"><i class="fas fa-play"></i> Executar Blocos</button>
-        <button id="resetGameBtn" title="Reinicia o jogo com a lógica atual"><i class="fas fa-redo"></i> Reiniciar Jogo</button>
+        <div id="buttonContainer">
+            <button id="runCodeBtn" title="Executa a lógica dos blocos e inicia o jogo"><i class="fas fa-play"></i> Executar</button>
+            <button id="resetGameBtn" title="Reinicia o jogo com a lógica atual"><i class="fas fa-redo"></i> Reiniciar</button>
+        </div>
     </div>
 
+    <!-- Container do Blockly -->
     <div id="blocklyContainer">
         <div id="blocklyDiv"></div>
     </div>
 
+    <!-- 3. Caixa de Ferramentas (Toolbox) - Seu XML está perfeito! -->
     <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
         <category name="Eventos" colour="#FFD500">
             <block type="when_game_starts"></block>
@@ -48,55 +108,705 @@
         </category>
         <category name="Ações do Pássaro" colour="#4C97FF">
             <block type="bird_flap">
-                 <value name="STRENGTH"> <shadow type="math_number"> <field name="NUM">8</field> </shadow> </value>
+                <value name="STRENGTH"> <shadow type="math_number"> <field name="NUM">8</field> </shadow> </value>
             </block>
-             <block type="bird_set_y">
-                 <value name="YPOS"> <shadow type="math_number"> <field name="NUM">240</field> </shadow> </value>
-             </block>
+            <block type="bird_set_y">
+                <value name="YPOS"> <shadow type="math_number"> <field name="NUM">240</field> </shadow> </value>
+            </block>
         </category>
         <category name="Controle do Jogo" colour="#5BB75B">
             <block type="set_gravity">
-                 <value name="GRAVITY"> <shadow type="math_number"> <field name="NUM">0.5</field> </shadow> </value>
+                <value name="GRAVITY"> <shadow type="math_number"> <field name="NUM">0.5</field> </shadow> </value>
             </block>
             <block type="set_pipe_speed">
                 <value name="SPEED"> <shadow type="math_number"> <field name="NUM">2</field> </shadow> </value>
             </block>
-             <block type="set_pipe_gap">
-                 <value name="GAP"> <shadow type="math_number"> <field name="NUM">100</field> </shadow> </value>
-             </block>
-             <block type="set_pipe_frequency">
-                 <value name="FREQUENCY"> <shadow type="math_number"> <field name="NUM">90</field> </shadow> </value>
-             </block>
+            <block type="set_pipe_gap">
+                <value name="GAP"> <shadow type="math_number"> <field name="NUM">100</field> </shadow> </value>
+            </block>
+            <block type="set_pipe_frequency">
+                <value name="FREQUENCY"> <shadow type="math_number"> <field name="NUM">90</field> </shadow> </value>
+            </block>
             <block type="add_score">
-                 <value name="POINTS"> <shadow type="math_number"> <field name="NUM">1</field> </shadow> </value>
+                <value name="POINTS"> <shadow type="math_number"> <field name="NUM">1</field> </shadow> </value>
             </block>
             <block type="game_over"></block>
             <block type="restart_game"></block>
         </category>
         <category name="Valores" colour="#A55BFF">
-             <block type="get_bird_y"></block>
-             <block type="get_bird_velocity"></block>
-             <block type="get_score"></block>
+            <block type="get_bird_y"></block>
+            <block type="get_bird_velocity"></block>
+            <block type="get_score"></block>
         </category>
-         <category name="Lógica" colour="%{BKY_LOGIC_HUE}">
-             <block type="controls_if"></block>
-             <block type="logic_compare"></block>
-             <block type="logic_operation"></block>
-             <block type="logic_negate"></block>
-             <block type="logic_boolean"></block>
-         </category>
-         <category name="Matemática" colour="%{BKY_MATH_HUE}">
-             <block type="math_number"> <field name="NUM">0</field> </block>
-             <block type="math_arithmetic"></block>
-             <block type="math_random_int">
+        <category name="Lógica" colour="%{BKY_LOGIC_HUE}">
+            <block type="controls_if"></block>
+            <block type="logic_compare"></block>
+            <block type="logic_operation"></block>
+            <block type="logic_negate"></block>
+            <block type="logic_boolean"></block>
+        </category>
+        <category name="Matemática" colour="%{BKY_MATH_HUE}">
+            <block type="math_number"> <field name="NUM">0</field> </block>
+            <block type="math_arithmetic"></block>
+            <block type="math_random_int">
                 <value name="FROM"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
                 <value name="TO"><shadow type="math_number"><field name="NUM">100</field></shadow></value>
-             </block>
-         </category>
-          <category name="Variáveis" colour="%{BKY_VARIABLES_HUE}" custom="VARIABLE"></category>
+            </block>
+        </category>
+        <category name="Variáveis" colour="%{BKY_VARIABLES_HUE}" custom="VARIABLE"></category>
     </xml>
 
-    <script src="js/main.js"></script>
+    <!-- 
+      4. TODO O JAVASCRIPT
+      Isso combina 'custom_blocks.js', 'game.js' e 'main.js' em um só lugar.
+    -->
+    <script>
+        // Objeto global para armazenar as funções geradas pelo Blockly
+        // O motor do jogo irá chamar essas funções
+        let userCode = {
+            onGameStart: () => {},
+            onClick: () => {},
+            onHitObstacle: () => {},
+            onPassPipe: () => {},
+            onFrame: () => {}
+        };
 
+        // --- Início: Bloco 1: Definição dos Blocos Customizados (era custom_blocks.js) ---
+
+        (function defineCustomBlocks() {
+            // --- BLOCOS DE EVENTOS ---
+            const eventColor = "#FFD500";
+            
+            Blockly.Blocks['when_game_starts'] = {
+                init: function() {
+                    this.appendDummyInput().appendField("quando o jogo começar");
+                    this.appendStatementInput("DO").setCheck(null);
+                    this.setColour(eventColor);
+                    this.setTooltip("Executa o código quando o jogo é iniciado ou reiniciado.");
+                    this.setHelpUrl("");
+                }
+            };
+            Blockly.JavaScript['when_game_starts'] = function(block) {
+                var statements_do = Blockly.JavaScript.statementToCode(block, 'DO');
+                return `userCode.onGameStart = () => {\n${statements_do}};\n`;
+            };
+
+            Blockly.Blocks['when_click_or_tap'] = {
+                init: function() {
+                    this.appendDummyInput().appendField("quando clicar/tocar na tela");
+                    this.appendStatementInput("DO").setCheck(null);
+                    this.setColour(eventColor);
+                    this.setTooltip("Executa o código quando o usuário clica ou toca na tela do jogo.");
+                }
+            };
+            Blockly.JavaScript['when_click_or_tap'] = function(block) {
+                var statements_do = Blockly.JavaScript.statementToCode(block, 'DO');
+                return `userCode.onClick = () => {\n${statements_do}};\n`;
+            };
+
+            Blockly.Blocks['when_hit_obstacle'] = {
+                init: function() {
+                    this.appendDummyInput().appendField("quando bater em um obstáculo");
+                    this.appendStatementInput("DO").setCheck(null);
+                    this.setColour(eventColor);
+                    this.setTooltip("Executa o código quando o pássaro colide com um cano ou com o chão.");
+                }
+            };
+            Blockly.JavaScript['when_hit_obstacle'] = function(block) {
+                var statements_do = Blockly.JavaScript.statementToCode(block, 'DO');
+                return `userCode.onHitObstacle = () => {\n${statements_do}};\n`;
+            };
+
+            Blockly.Blocks['when_pass_pipe'] = {
+                init: function() {
+                    this.appendDummyInput().appendField("quando passar por um cano");
+                    this.appendStatementInput("DO").setCheck(null);
+                    this.setColour(eventColor);
+                    this.setTooltip("Executa o código quando o pássaro passa com sucesso por um par de canos.");
+                }
+            };
+            Blockly.JavaScript['when_pass_pipe'] = function(block) {
+                var statements_do = Blockly.JavaScript.statementToCode(block, 'DO');
+                return `userCode.onPassPipe = () => {\n${statements_do}};\n`;
+            };
+
+            Blockly.Blocks['every_frame'] = {
+                init: function() {
+                    this.appendDummyInput().appendField("a cada frame (quadro)");
+                    this.appendStatementInput("DO").setCheck(null);
+                    this.setColour(eventColor);
+                    this.setTooltip("Executa o código continuamente, em cada frame do jogo. (Use com cuidado!)");
+                }
+            };
+            Blockly.JavaScript['every_frame'] = function(block) {
+                var statements_do = Blockly.JavaScript.statementToCode(block, 'DO');
+                return `userCode.onFrame = () => {\n${statements_do}};\n`;
+            };
+
+            // --- BLOCOS DE AÇÕES DO PÁSSARO ---
+            const birdColor = "#4C97FF";
+
+            Blockly.Blocks['bird_flap'] = {
+                init: function() {
+                    this.appendValueInput("STRENGTH")
+                        .setCheck("Number")
+                        .appendField("bater asas (subir) com força");
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour(birdColor);
+                    this.setTooltip("Faz o pássaro subir com uma determinada força.");
+                }
+            };
+            Blockly.JavaScript['bird_flap'] = function(block) {
+                var value_strength = Blockly.JavaScript.valueToCode(block, 'STRENGTH', Blockly.JavaScript.ORDER_ATOMIC) || 8;
+                return `game.flap(${value_strength});\n`;
+            };
+
+            Blockly.Blocks['bird_set_y'] = {
+                init: function() {
+                    this.appendValueInput("YPOS")
+                        .setCheck("Number")
+                        .appendField("definir posição Y do pássaro para");
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour(birdColor);
+                    this.setTooltip("Define a posição vertical (Y) do pássaro. 0 é o topo, 480 é o fundo.");
+                }
+            };
+            Blockly.JavaScript['bird_set_y'] = function(block) {
+                var value_ypos = Blockly.JavaScript.valueToCode(block, 'YPOS', Blockly.JavaScript.ORDER_ATOMIC) || 240;
+                return `game.setBirdY(${value_ypos});\n`;
+            };
+            
+            // --- BLOCOS DE CONTROLE DO JOGO ---
+            const gameControlColor = "#5BB75B";
+
+            Blockly.Blocks['set_gravity'] = {
+                init: function() {
+                    this.appendValueInput("GRAVITY")
+                        .setCheck("Number")
+                        .appendField("definir gravidade para");
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour(gameControlColor);
+                    this.setTooltip("Define a força da gravidade que puxa o pássaro para baixo.");
+                }
+            };
+            Blockly.JavaScript['set_gravity'] = function(block) {
+                var value_gravity = Blockly.JavaScript.valueToCode(block, 'GRAVITY', Blockly.JavaScript.ORDER_ATOMIC) || 0.5;
+                return `game.setGravity(${value_gravity});\n`;
+            };
+
+            Blockly.Blocks['set_pipe_speed'] = {
+                init: function() {
+                    this.appendValueInput("SPEED")
+                        .setCheck("Number")
+                        .appendField("definir velocidade dos canos para");
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour(gameControlColor);
+                    this.setTooltip("Define a velocidade com que os canos se movem da direita para a esquerda.");
+                }
+            };
+            Blockly.JavaScript['set_pipe_speed'] = function(block) {
+                var value_speed = Blockly.JavaScript.valueToCode(block, 'SPEED', Blockly.JavaScript.ORDER_ATOMIC) || 2;
+                return `game.setPipeSpeed(${value_speed});\n`;
+            };
+
+            Blockly.Blocks['set_pipe_gap'] = {
+                init: function() {
+                    this.appendValueInput("GAP")
+                        .setCheck("Number")
+                        .appendField("definir vão (abertura) dos canos para");
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour(gameControlColor);
+                    this.setTooltip("Define o tamanho da abertura vertical entre os canos.");
+                }
+            };
+            Blockly.JavaScript['set_pipe_gap'] = function(block) {
+                var value_gap = Blockly.JavaScript.valueToCode(block, 'GAP', Blockly.JavaScript.ORDER_ATOMIC) || 100;
+                return `game.setPipeGap(${value_gap});\n`;
+            };
+
+            Blockly.Blocks['set_pipe_frequency'] = {
+                init: function() {
+                    this.appendValueInput("FREQUENCY")
+                        .setCheck("Number")
+                        .appendField("definir frequência dos canos (em frames)");
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour(gameControlColor);
+                    this.setTooltip("Define a cada quantos frames um novo cano aparece. Menor = mais canos.");
+                }
+            };
+            Blockly.JavaScript['set_pipe_frequency'] = function(block) {
+                var value_frequency = Blockly.JavaScript.valueToCode(block, 'FREQUENCY', Blockly.JavaScript.ORDER_ATOMIC) || 90;
+                return `game.setPipeFrequency(${value_frequency});\n`;
+            };
+
+            Blockly.Blocks['add_score'] = {
+                init: function() {
+                    this.appendValueInput("POINTS")
+                        .setCheck("Number")
+                        .appendField("adicionar ao placar");
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour(gameControlColor);
+                    this.setTooltip("Adiciona um valor ao placar atual.");
+                }
+            };
+            Blockly.JavaScript['add_score'] = function(block) {
+                var value_points = Blockly.JavaScript.valueToCode(block, 'POINTS', Blockly.JavaScript.ORDER_ATOMIC) || 1;
+                return `game.addScore(${value_points});\n`;
+            };
+
+            Blockly.Blocks['game_over'] = {
+                init: function() {
+                    this.appendDummyInput().appendField("fim de jogo");
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour(gameControlColor);
+                    this.setTooltip("Termina o jogo imediatamente.");
+                }
+            };
+            Blockly.JavaScript['game_over'] = function(block) {
+                return 'game.endGame();\n';
+            };
+            
+            Blockly.Blocks['restart_game'] = {
+                init: function() {
+                    this.appendDummyInput().appendField("reiniciar jogo");
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour(gameControlColor);
+                    this.setTooltip("Reinicia o jogo (sem recompilar os blocos).");
+                }
+            };
+            Blockly.JavaScript['restart_game'] = function(block) {
+                return 'game.resetAndStart();\n';
+            };
+
+            // --- BLOCOS DE VALORES ---
+            const valueColor = "#A55BFF";
+
+            Blockly.Blocks['get_bird_y'] = {
+                init: function() {
+                    this.appendDummyInput().appendField("posição Y do pássaro");
+                    this.setOutput(true, "Number");
+                    this.setColour(valueColor);
+                    this.setTooltip("Retorna a posição vertical (Y) atual do pássaro.");
+                }
+            };
+            Blockly.JavaScript['get_bird_y'] = function(block) {
+                return ['game.getBirdY()', Blockly.JavaScript.ORDER_FUNCTION_CALL];
+            };
+
+            Blockly.Blocks['get_bird_velocity'] = {
+                init: function() {
+                    this.appendDummyInput().appendField("velocidade Y do pássaro");
+                    this.setOutput(true, "Number");
+                    this.setColour(valueColor);
+                    this.setTooltip("Retorna a velocidade vertical (Y) atual do pássaro (positiva = caindo).");
+                }
+            };
+            Blockly.JavaScript['get_bird_velocity'] = function(block) {
+                return ['game.getBirdVelocity()', Blockly.JavaScript.ORDER_FUNCTION_CALL];
+            };
+
+            Blockly.Blocks['get_score'] = {
+                init: function() {
+                    this.appendDummyInput().appendField("placar atual");
+                    this.setOutput(true, "Number");
+                    this.setColour(valueColor);
+                    this.setTooltip("Retorna o placar atual.");
+                }
+            };
+            Blockly.JavaScript['get_score'] = function(block) {
+                return ['game.getScore()', Blockly.JavaScript.ORDER_FUNCTION_CALL];
+            };
+        })();
+        // --- Fim: Bloco 1 ---
+
+
+        // --- Início: Bloco 2: Motor do Jogo (era game.js) ---
+        
+        // Colocamos o jogo dentro de um objeto 'game' para evitar poluir o escopo global
+        // e para que os blocos possam chamar `game.funcao()`
+        const game = (function() {
+            const canvas = document.getElementById('flappyCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Estado do Jogo
+            let bird, pipes, gameState, frameCount, score;
+            
+            // Parâmetros configuráveis (valores padrão)
+            let gravity = 0.5;
+            let pipeSpeed = 2;
+            let pipeGap = 100;
+            let pipeFrequency = 90; // a cada 90 frames
+
+            // Objeto do pássaro (usamos retângulos simples)
+            bird = {
+                x: 50,
+                y: canvas.height / 2,
+                width: 20,
+                height: 20,
+                velocity: 0,
+                color: '#FFD700' // Amarelo
+            };
+
+            // Array para os canos
+            pipes = [];
+            
+            // Estado inicial
+            gameState = 'ready'; // 'ready', 'playing', 'over'
+            frameCount = 0;
+            score = 0;
+
+            function reset() {
+                // Reseta o estado do jogo para os valores iniciais
+                bird.y = canvas.height / 2;
+                bird.velocity = 0;
+                pipes = [];
+                score = 0;
+                frameCount = 0;
+                gameState = 'ready';
+
+                // Reseta os parâmetros para os padrões,
+                // eles serão redefinidos pelo userCode.onGameStart()
+                gravity = 0.5;
+                pipeSpeed = 2;
+                pipeGap = 100;
+                pipeFrequency = 90;
+            }
+            
+            function addPipe() {
+                // Cria um novo par de canos
+                const gapY = Math.floor(Math.random() * (canvas.height - pipeGap - 100)) + 50; // Posição aleatória do vão
+                
+                // Cano de cima
+                pipes.push({
+                    x: canvas.width,
+                    y: 0,
+                    width: 40,
+                    height: gapY,
+                    color: '#28A745' // Verde
+                });
+                
+                // Cano de baixo
+                pipes.push({
+                    x: canvas.width,
+                    y: gapY + pipeGap,
+                    width: 40,
+                    height: canvas.height - gapY - pipeGap,
+                    color: '#28A745'
+                });
+            }
+            
+            function checkCollision(pipe) {
+                // Checagem de colisão AABB (Axis-Aligned Bounding Box)
+                return bird.x < pipe.x + pipe.width &&
+                       bird.x + bird.width > pipe.x &&
+                       bird.y < pipe.y + pipe.height &&
+                       bird.y + bird.height > pipe.y;
+            }
+            
+            function update() {
+                if (gameState !== 'playing') return;
+
+                // --- Lógica do Pássaro ---
+                bird.velocity += gravity;
+                bird.y += bird.velocity;
+
+                // Checa colisão com o chão
+                if (bird.y + bird.height > canvas.height) {
+                    bird.y = canvas.height - bird.height;
+                    bird.velocity = 0;
+                    api.endGame(true); // 'true' indica que foi colisão
+                    return;
+                }
+                
+                // Checa colisão com o teto
+                if (bird.y < 0) {
+                    bird.y = 0;
+                    bird.velocity = 0;
+                    api.endGame(true); // 'true' indica que foi colisão
+                    return;
+                }
+                
+                // --- Lógica dos Canos ---
+                frameCount++;
+                if (frameCount % pipeFrequency === 0) {
+                    addPipe();
+                }
+                
+                for (let i = pipes.length - 1; i >= 0; i--) {
+                    let pipe = pipes[i];
+                    pipe.x -= pipeSpeed; // Move o cano
+
+                    // Checa colisão com o cano
+                    if (checkCollision(pipe)) {
+                        api.endGame(true); // 'true' indica que foi colisão
+                        return;
+                    }
+
+                    // Checa passagem (pontuação)
+                    // (Consideramos "passou" quando a borda direita do cano passa a borda esquerda do pássaro)
+                    // Usamos `pipe.passed` para pontuar apenas uma vez
+                    if (pipe.x + pipe.width < bird.x && !pipe.passed) {
+                        pipe.passed = true;
+                        // Como são pares de canos, só pontuamos no cano de cima
+                        if (pipe.height > 0) { // Uma forma simples de identificar o cano de cima
+                             try {
+                                userCode.onPassPipe();
+                            } catch (e) {
+                                console.error("Erro no bloco 'quando passar por um cano':", e);
+                            }
+                        }
+                    }
+
+                    // Remove canos que saíram da tela
+                    if (pipe.x + pipe.width < 0) {
+                        pipes.splice(i, 1);
+                    }
+                }
+                
+                // --- Lógica de Frame do Usuário ---
+                try {
+                    userCode.onFrame();
+                } catch (e) {
+                    console.error("Erro no bloco 'a cada frame':", e);
+                }
+            }
+
+            function draw() {
+                // Limpa a tela (fundo do jogo)
+                ctx.fillStyle = '#70c5ce';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Desenha os canos
+                ctx.fillStyle = '#28A745';
+                for (let pipe of pipes) {
+                    ctx.fillRect(pipe.x, pipe.y, pipe.width, pipe.height);
+                    // Adiciona uma borda para ficar mais bonito
+                    ctx.strokeStyle = '#000';
+                    ctx.strokeRect(pipe.x, pipe.y, pipe.width, pipe.height);
+                }
+
+                // Desenha o pássaro
+                ctx.fillStyle = bird.color;
+                ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
+                ctx.strokeStyle = '#000';
+                ctx.strokeRect(bird.x, bird.y, bird.width, bird.height);
+                
+                // Desenha o placar
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '30px Arial';
+                ctx.fillText(score, canvas.width / 2, 50);
+
+                // Mensagens de estado
+                if (gameState === 'ready') {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = '20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText("Aperte 'Executar Blocos'", canvas.width / 2, canvas.height / 2 - 20);
+                    ctx.fillText("para começar", canvas.width / 2, canvas.height / 2 + 10);
+                    ctx.textAlign = 'left';
+                } else if (gameState === 'over') {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = '30px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText("FIM DE JOGO", canvas.width / 2, canvas.height / 2 - 20);
+                    ctx.font = '20px Arial';
+                    ctx.fillText(`Placar: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
+                    ctx.fillText("Clique para reiniciar", canvas.width / 2, canvas.height / 2 + 50);
+                    ctx.textAlign = 'left';
+                }
+            }
+
+            function gameLoop() {
+                update();
+                draw();
+                requestAnimationFrame(gameLoop); // Mantém o loop rodando
+            }
+
+            // --- API Pública do Jogo (o que os blocos podem chamar) ---
+            const api = {
+                flap: (strength) => {
+                    if (gameState === 'playing') {
+                        bird.velocity = -strength;
+                    }
+                },
+                setBirdY: (y) => {
+                    if (gameState === 'playing') {
+                        bird.y = y;
+                        bird.velocity = 0; // Reseta a velocidade para evitar pulos estranhos
+                    }
+                },
+                setGravity: (g) => gravity = Math.max(0, g), // Evita gravidade negativa
+                setPipeSpeed: (s) => pipeSpeed = Math.max(0, s),
+                setPipeGap: (g) => pipeGap = Math.max(50, g), // Mínimo de 50px
+                setPipeFrequency: (f) => pipeFrequency = Math.max(30, f), // Mínimo de 30 frames
+                addScore: (p) => score += p,
+                endGame: (fromCollision = false) => {
+                    if (gameState !== 'over') {
+                        gameState = 'over';
+                        // Só chama o evento de colisão se o jogo terminou por uma
+                        if (fromCollision) {
+                            try {
+                                userCode.onHitObstacle();
+                            } catch (e) {
+                                console.error("Erro no bloco 'quando bater em um obstáculo':", e);
+                            }
+                        }
+                    }
+                },
+                resetAndStart: () => {
+                     // Reinicia e chama o onGameStart novamente
+                    reset();
+                    gameState = 'playing';
+                    try {
+                        userCode.onGameStart();
+                    } catch (e) {
+                        console.error("Erro no bloco 'quando o jogo começar':", e);
+                    }
+                },
+                // Funções 'get' para os blocos de valor
+                getBirdY: () => bird.y,
+                getBirdVelocity: () => bird.velocity,
+                getScore: () => score,
+                
+                // Funções de controle interno
+                _internalReset: reset, // Usado pelos botões
+                _internalStart: () => { // Usado pelos botões
+                    if (gameState === 'ready') {
+                        gameState = 'playing';
+                        try {
+                            userCode.onGameStart();
+                        } catch (e) {
+                            console.error("Erro no bloco 'quando o jogo começar':", e);
+                        }
+                    }
+                },
+                _internalClick: () => { // Usado pelo clique na tela
+                    if (gameState === 'playing') {
+                        try {
+                            userCode.onClick();
+                        } catch (e) {
+                            console.error("Erro no bloco 'quando clicar/tocar':", e);
+                        }
+                    } else if (gameState === 'over') {
+                        // Se clicar em 'fim de jogo', reinicia com o código atual
+                        api.resetAndStart();
+                    }
+                },
+                _getGameState: () => gameState,
+                _runLoop: () => {
+                    reset();
+                    gameLoop(); // Inicia o loop principal do jogo
+                }
+            };
+
+            return api;
+        })();
+        
+        // Expor o 'game' para a 'window' para que o `eval()` do Blockly possa acessá-lo
+        window.game = game;
+        
+        // --- Fim: Bloco 2 ---
+        
+        
+        // --- Início: Bloco 3: Inicialização (era main.js) ---
+        
+        (function main() {
+            // 1. Injeta o Blockly
+            const blocklyDiv = document.getElementById('blocklyDiv');
+            const toolbox = document.getElementById('toolbox');
+            const workspace = Blockly.inject(blocklyDiv, {
+                toolbox: toolbox,
+                zoom: { controls: true, wheel: true, startScale: 0.9, maxScale: 3, minScale: 0.3 },
+                trashcan: true,
+                renderer: 'zelos' // Um renderizador mais moderno
+            });
+
+            // 2. Define o idioma (já que carregamos o script pt-br)
+            Blockly.setLocale(Blockly.Msg['pt-br']);
+            
+            // 3. Função para compilar e executar o código
+            function compileAndRun() {
+                // Reseta todas as funções do usuário para o padrão
+                userCode = {
+                    onGameStart: () => {},
+                    onClick: () => {},
+                    onHitObstacle: () => {},
+                    onPassPipe: () => {},
+                    onFrame: () => {}
+                };
+                
+                // Gera o código JavaScript
+                window.LoopTrap = 1000; // Proteção contra loops infinitos
+                Blockly.JavaScript.INFINITE_LOOP_TRAP = 'if (--window.LoopTrap == 0) throw "Loop infinito.";\n';
+                const code = Blockly.JavaScript.workspaceToCode(workspace);
+                
+                console.log("Código gerado:\n", code);
+
+                try {
+                    // Executa o código gerado, que irá popular o objeto 'userCode'
+                    eval(code);
+                } catch (e) {
+                    console.error("Erro ao avaliar o código dos blocos:", e);
+                    alert("Erro no seu código: " + e);
+                }
+                
+                // Reseta o jogo e inicia, disparando o onGameStart
+                game._internalReset();
+                game._internalStart();
+            }
+            
+            // 4. Conecta os botões
+            document.getElementById('runCodeBtn').addEventListener('click', compileAndRun);
+            
+            document.getElementById('resetGameBtn').addEventListener('click', () => {
+                // Apenas reinicia o jogo com o código já compilado
+                if (game._getGameState() === 'ready') {
+                    // Se o jogo não começou, 'resetar' é o mesmo que 'executar'
+                    compileAndRun();
+                } else {
+                    game.resetAndStart();
+                }
+            });
+            
+            // 5. Conecta o clique/toque no canvas
+            const canvas = document.getElementById('flappyCanvas');
+            canvas.addEventListener('mousedown', (e) => {
+                e.preventDefault(); // Impede seleção de texto
+                game._internalClick();
+            });
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // Impede zoom/scroll
+                game._internalClick();
+            }, { passive: false });
+            
+            // 6. Redimensiona o Blockly quando a janela muda
+            // (Especialmente útil para alternar entre retrato/paisagem em celulares)
+            function onResize() {
+                // Força o Blockly a se reajustar ao tamanho do seu container
+                Blockly.svgResize(workspace);
+            }
+            window.addEventListener('resize', onResize);
+            onResize(); // Chama uma vez para o ajuste inicial
+            
+            // 7. Inicia o loop do jogo
+            game._runLoop();
+            
+        })();
+        // --- Fim: Bloco 3 ---
+        
+    </script>
 </body>
 </html>
