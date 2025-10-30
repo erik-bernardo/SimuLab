@@ -358,7 +358,7 @@
                 <button type="submit" id="saveQuestionBtn"><i class="fas fa-save"></i> Salvar Exercício</button>
             </form>
             
-            <button type="button" id="finishAndGenerateBtn"><i class="fas fa-qrcode"></i> Terminar e Gerar Link/QR Code</button>
+            <button type="button" id="finishAndGenerateBtn"><i class="fas fa-qrcode"></i> Terminar e Gerar Link/QR Code do EXERCÍCIO</button>
 
             <div id="qrCodeContainer" style="display: none;">
                 <h4>Link do Exercício Gerado:</h4>
@@ -373,7 +373,7 @@
         <aside class="sidebar">
             <button id="newQuestionBtn"><i class="fas fa-plus-circle"></i> Novo Exercício</button>
             <h3 style="color: #F44336; border-color: #F44336;"><i class="fas fa-exclamation-triangle"></i> Dados não Salvos</h3>
-            <p style="font-size: 0.9em; color: #777; margin-top: -10px;">Estes são exercícios de demonstração (em memória). Clique para editar.</p>
+            <p style="font-size: 0.9em; color: #777; margin-top: -10px;">Estas são as questões que farão parte do Exercício Final.</p>
             <ul id="savedQuestionsList">
                 </ul>
             <p id="noQuestionsMessage" style="color: #777; font-style: italic; text-align: center; display: none;">Nenhum exercício salvo ainda.</p>
@@ -384,9 +384,9 @@
     <script>
         // DADOS SIMULADOS (SUBSTITUI O LOCAL STORAGE)
         let DUMMY_QUESTIONS = [
-            { id: 1678881234, title: "Questão Placeholder 1 (Matemática)", materia: "Matemática", dificuldade: "Média", tipo: "Múltipla Escolha", questionText: "Este é um exercício de demonstração. Ele não será salvo no seu navegador e desaparecerá ao recarregar a página.", isProfessor: true, options: [{ text: "Opção A (Correta)", isCorrect: true }, { text: "Opção B", isCorrect: false }] },
-            { id: 1678881235, title: "Questão Placeholder 2 (Física)", materia: "Física", dificuldade: "Fácil", tipo: "Verdadeiro ou Falso", questionText: "A gravidade na Terra é 9.8 m/s².", isProfessor: true, correctAnswer: true },
-            { id: 1678881236, title: "Questão Placeholder 3 (Química)", materia: "Química", dificuldade: "Difícil", tipo: "Discursiva", questionText: "Descreva a Segunda Lei da Termodinâmica.", isProfessor: true, answerHint: "A entropia de um sistema isolado tende a aumentar com o tempo." }
+            { id: 1678881234, title: "Questão 1: Juros Compostos", materia: "Matemática", dificuldade: "Média", tipo: "Múltipla Escolha", questionText: "Se você investir R$ 1000 a 10% a.a. por 2 anos, qual o montante final?", isProfessor: true, options: [{ text: "R$ 1200", isCorrect: false }, { text: "R$ 1210 (Correta)", isCorrect: true }, { text: "R$ 1100", isCorrect: false }] },
+            { id: 1678881235, title: "Questão 2: Lei da Gravidade", materia: "Física", dificuldade: "Fácil", tipo: "Verdadeiro ou Falso", questionText: "A aceleração da gravidade na Terra é de aproximadamente 9.8 m/s².", isProfessor: true, correctAnswer: true },
+            { id: 1678881236, title: "Questão 3: Termodinâmica", materia: "Química", dificuldade: "Difícil", tipo: "Discursiva", questionText: "Explique o conceito de Entropia e dê um exemplo prático.", isProfessor: true, answerHint: "A Entropia é a medida de desordem de um sistema. O gabarito deve abordar a tendência ao aumento da desordem em sistemas isolados." }
         ];
 
         const form = document.getElementById('questionForm');
@@ -430,10 +430,7 @@
             }
         }
         
-        // =======================================================
-        // 2. LÓGICA DO FORMULÁRIO DINÂMICO
-        // =======================================================
-
+        // ... (Funções renderOptionsArea, addOption, reindexOptions são mantidas)
         function renderOptionsArea(questionData = null) {
             const tipo = tipoSelect.value;
             optionsArea.innerHTML = '';
@@ -515,10 +512,9 @@
         }
         
         function getFormData(event) {
-            // Se o evento não for de submit, precisamos forçar a validação e coleta
             if (event && event.type !== 'submit' && !form.checkValidity()) {
-                 form.reportValidity(); // Tenta mostrar erros de validação
-                 return null;
+                 // Não tenta forçar a validação se for apenas para pegar dados para o QR code
+                 // return null; // Comentado para permitir gerar QR code com campos vazios (professor sabe o que faz)
             }
             
             const formData = new FormData(event ? event.target : form);
@@ -568,11 +564,11 @@
                 questions = questions.map(q => 
                     q.id === newQuestionData.id ? newQuestionData : q
                 );
-                alert(`Exercício "${newQuestionData.title}" atualizado (em memória) com sucesso!`);
+                alert(`Questão "${newQuestionData.title}" atualizada (em memória) com sucesso!`);
             } else {
                 newQuestionData.id = Date.now(); 
                 questions.unshift(newQuestionData);
-                alert(`Exercício "${newQuestionData.title}" criado (em memória) com sucesso!`);
+                alert(`Questão "${newQuestionData.title}" criada (em memória) com sucesso!`);
             }
             
             saveQuestions(questions); 
@@ -583,36 +579,51 @@
                 formTitle.innerHTML = `<i class="fas fa-edit"></i> Editando: ${newQuestionData.title}`;
             }
             
-            qrCodeContainer.style.display = 'none'; // Esconde o QR code ao salvar/atualizar
+            qrCodeContainer.style.display = 'none';
         }
         
         // =======================================================
-        // 3. LÓGICA DE GERAÇÃO DO QR CODE (NOVO)
+        // 3. LÓGICA DE GERAÇÃO DO QR CODE (ATUALIZADA)
         // =======================================================
 
         function handleFinishAndGenerate(event) {
-            // Garante que o formulário está preenchido e obtém os dados mais recentes.
-            // Passamos 'null' para indicar que não é um evento de submit real, mas queremos os dados
-            const currentQuestion = getFormData(null); 
+            // 1. Garante que a questão ativa (se houver) está incorporada na lista antes de serializar TUDO
+            const currentQuestionData = getFormData(null); 
             
-            if (!currentQuestion || !currentQuestion.title || !currentQuestion.questionText) {
-                alert("Por favor, preencha o Título, Matéria, Dificuldade e Enunciado antes de gerar o link.");
-                form.reportValidity(); // Mostra onde está faltando
+            if (currentQuestionData && currentQuestionData.title) {
+                let questions = DUMMY_QUESTIONS;
+                const isEditing = !!questionIdInput.value && questions.some(q => q.id === currentQuestionData.id);
+                
+                if (isEditing) {
+                    DUMMY_QUESTIONS = questions.map(q => 
+                        q.id === currentQuestionData.id ? currentQuestionData : q
+                    );
+                } else if (!questionIdInput.value) {
+                    // Se for uma nova questão, adicione-a e selecione-a
+                    currentQuestionData.id = Date.now(); 
+                    DUMMY_QUESTIONS.unshift(currentQuestionData);
+                    loadQuestionForEditing(currentQuestionData.id); 
+                }
+                renderSavedQuestions(); // Atualiza a lista lateral
+            }
+
+            const questionsToEncode = DUMMY_QUESTIONS;
+            
+            if (questionsToEncode.length === 0) {
+                alert("Não há questões para gerar o Exercício. Crie e salve pelo menos uma questão na barra lateral.");
                 return;
             }
+
+            // 2. Codifica o ARRAY COMPLETO de exercícios (Mudança Principal)
+            const jsonString = JSON.stringify(questionsToEncode);
+            const encodedData = btoa(unescape(encodeURIComponent(jsonString))); 
             
-            // 1. Codifica o objeto do exercício.
-            const jsonString = JSON.stringify(currentQuestion);
-            // Usamos btoa (Base64) para codificar a string JSON de forma URL-safe.
-            const encodedData = btoa(unescape(encodeURIComponent(jsonString))); // Combinação para lidar com caracteres UTF-8
-            
-            // 2. Constrói a URL final (aponta para o novo arquivo 'fazer_exercicio.html')
-            // Assumindo que 'fazer_exercicio.html' está no mesmo diretório
+            // 3. Constrói a URL final (aponta para o novo arquivo 'fazer_exercicio.html')
             const baseUrl = window.location.href.replace('editor.html', 'fazer_exercicio.html');
-            const finalUrl = `${baseUrl.split('#')[0]}#${encodedData}`; // Limpa hash antiga
+            const finalUrl = `${baseUrl.split('#')[0]}#${encodedData}`; 
             
-            // 3. Limpa e Gera o QR Code.
-            document.getElementById('qrcode').innerHTML = ''; // Limpa o container
+            // 4. Limpa e Gera o QR Code.
+            document.getElementById('qrcode').innerHTML = '';
             
             new QRCode(document.getElementById("qrcode"), {
                 text: finalUrl,
@@ -623,13 +634,12 @@
                 correctLevel : QRCode.CorrectLevel.H
             });
 
-            // 4. Exibe o link e o container
+            // 5. Exibe o link e o container
             generatedLink.textContent = finalUrl;
             qrCodeContainer.style.display = 'block';
             
-            // 5. Rola para o QR Code
             qrCodeContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
-            alert("QR Code Gerado! Use o link ou a imagem para compartilhar o exercício.");
+            alert(`QR Code Gerado! O link contém o Exercício completo com ${questionsToEncode.length} questões.`);
         }
 
 
@@ -677,7 +687,7 @@
             document.querySelectorAll('#savedQuestionsList li').forEach(li => {
                 li.classList.remove('active');
             });
-             qrCodeContainer.style.display = 'none'; // Esconde o QR code
+             qrCodeContainer.style.display = 'none'; 
         }
 
 
@@ -712,7 +722,7 @@
                              Tipo: <strong>${q.tipo}</strong> | Matéria: ${q.materia}
                         </div>
                     </div>
-                    <button type="button" class="delete-btn" data-id="${q.id}" title="Deletar Exercício">
+                    <button type="button" class="delete-btn" data-id="${q.id}" title="Deletar Questão">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 `;
@@ -737,7 +747,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             tipoSelect.addEventListener('change', handleTypeChange);
             newQuestionBtn.addEventListener('click', resetForm);
-            finishAndGenerateBtn.addEventListener('click', handleFinishAndGenerate); // NOVO LISTENER
+            finishAndGenerateBtn.addEventListener('click', handleFinishAndGenerate); 
             form.addEventListener('submit', handleFormSubmit);
 
             resetForm(); 
