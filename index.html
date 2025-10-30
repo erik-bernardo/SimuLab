@@ -198,7 +198,7 @@
         
         <div class="search-wrapper">
             <div class="search-container">
-                <input type="text" class="search-input" id="globalSearchInput" placeholder="Buscar em todo o site (e.g., matrizes, games/quimica)...">
+                <input type="text" class="search-input" id="globalSearchInput" placeholder="Buscar por 'queda livre', 'matriz', 'juros' ou 'game'...">
                 <button class="search-button">
                     <i class="fas fa-search"></i>
                 </button>
@@ -272,22 +272,52 @@
             const searchButton = document.querySelector('.search-button');
             const suggestionsList = document.getElementById('searchSuggestions');
             
-            // 1. ÍNDICE DE CONTEÚDOS E ARQUIVOS (MAIS DETALHADO)
-            // Agora, cada item mapeia um termo de busca para um ARQUIVO REAL.
+            // 1. O SEU ÍNDICE MANUAL DE CONTEÚDOS E ARQUIVOS (AGORA COMPLETO).
             const searchIndex = [
-                // Matemática (Simuladores e Exercícios)
-                { term: "Simulador de Matrizes", path: "Matemática > Simulador", url: "simulacoes/matrizes.html" },
-                { term: "Exercícios de Matrizes", path: "Matemática > Exercícios", url: "exercicios/matrizes.html" },
-                { term: "Simulador de Juros", path: "Matemática > Financeira (Sim)", url: "simulacoes/juros.html" },
-                { term: "Funções de 2º Grau", path: "Matemática > Análise (Ex)", url: "exercicios/funcoes.html" },
+                // Simuladores (Matemática)
+                { term: "Sim. Cálculo de Matriz", path: "Matemática > Simulador", url: "simulacoes/matriz.html" },
+                { term: "Sim. Análise de Funções", path: "Matemática > Análise", url: "simulacoes/funcoes.html" },
+                { term: "Sim. Juros Simples", path: "Matemática > Financeira", url: "simulacoes/juros_simples.html" },
+                { term: "Sim. Juros Compostos", path: "Matemática > Financeira", url: "simulacoes/juros_compostos.html" },
+                { term: "Sim. Desconto Simples", path: "Matemática > Financeira", url: "simulacoes/desconto_simples.html" },
+                { term: "Sim. Custo e Venda", path: "Matemática > Financeira", url: "simulacoes/custo_venda.html" },
+                { term: "Sim. Regra 50-30", path: "Matemática > Financeira", url: "simulacoes/50-30.html" },
+                { term: "Sim. CET (Custo Efetivo Total)", path: "Matemática > Financeira", url: "simulacoes/cet.html" },
+                { term: "Sim. Rendas e Amortização", path: "Matemática > Financeira", url: "simulacoes/rendas.html" },
+                { term: "Sim. Porcentagem", path: "Matemática > Fundamentos", url: "simulacoes/porcentagem.html" },
+                { term: "Sim. Probabilidade", path: "Matemática > Estatística", url: "simulacoes/probabilidade.html" },
+                { term: "Sim. Análise Combinatória", path: "Matemática > Análise", url: "simulacoes/combinatoria.html" },
+                { term: "Sim. Sequências Numéricas", path: "Matemática > Álgebra", url: "simulacoes/sequencias_numericas.html" },
+                { term: "Sim. Conjuntos Numéricos", path: "Matemática > Fundamentos", url: "simulacoes/conjuntos_numericos.html" },
+                { term: "Sim. Geometria Plana", path: "Matemática > Geometria", url: "simulacoes/geometria_plana.html" },
+                { term: "Sim. Geometria Analítica", path: "Matemática > Geometria", url: "simulacoes/geo_analitica.html" },
+                { term: "Sim. Arcos e Ângulos", path: "Matemática > Trigonometria", url: "simulacoes/arcos_angulos.html" },
+
+                // Simuladores (Física)
+                { term: "Sim. Queda Livre", path: "Física > Cinemática", url: "simulacoes/queda_livre.html" },
+                { term: "Sim. MRU (Mov. Retilíneo Uniforme)", path: "Física > Cinemática", url: "simulacoes/mru.html" },
+                { term: "Sim. MRUV (Mov. Retilíneo Uniforme Variado)", path: "Física > Cinemática", url: "simulacoes/mruv.html" },
+                { term: "Sim. Gravitação Universal", path: "Física > Mecânica", url: "simulacoes/gravitacao_universal.html" },
+                { term: "Sim. Conservação de Energia", path: "Física > Mecânica", url: "simulacoes/energia.html" },
+                { term: "Sim. Hidrostática", path: "Física > Mecânica", url: "simulacoes/hidrostatica.html" },
+                { term: "Sim. Ondas", path: "Física > Ondulatória", url: "simulacoes/ondas.html" },
+                { term: "Sim. Calorimetria", path: "Física > Termologia", url: "simulacoes/calorimetria.html" },
+                { term: "Sim. Dilatação Térmica", path: "Física > Termologia", url: "simulacoes/dilatacao_termica.html" },
+                { term: "Sim. Escalas Termométricas", path: "Física > Termologia", url: "simulacoes/escalas_termometricas.html" },
                 
-                // Física (Simuladores e Conteúdo)
-                { term: "Simulador Queda Livre", path: "Física > Mecânica (Sim)", url: "simulacoes/queda_livre.html" },
-                { term: "Conteúdo Eletrostática", path: "Física > Eletricidade", url: "fisica.html#eletricidade" },
-                
-                // Química (Simulador e Games)
-                { term: "Simulador Tabela Periódica", path: "Química > Geral (Sim)", url: "simulacoes/tabela_periodica.html" },
-                { term: "Game de Química", path: "Química > Jogo", url: "games/quimica.html" },
+                // Simuladores (Química)
+                { term: "Sim. Tabela Periódica", path: "Química > Geral", url: "simulacoes/tabela_periodica.html" },
+                { term: "Sim. Ligações Químicas", path: "Química > Geral", url: "simulacoes/ligacoes.html" },
+                { term: "Sim. Reações Químicas", path: "Química > Geral", url: "simulacoes/reacoes.html" },
+                { term: "Sim. Ácidos e Bases", path: "Química > Inorgânica", url: "simulacoes/acidos_bases.html" },
+                { term: "Sim. NOX (Nº Oxidação)", path: "Química > RedOx", url: "simulacoes/nox.html" },
+                { term: "Sim. Estequiometria", path: "Química > Cálculos", url: "simulacoes/estequiometria.html" },
+                { term: "Sim. Soluções", path: "Química > Físico-Química", url: "simulacoes/solucoes.html" },
+
+                // Games
+                { term: "Game Flappy Blocks", path: "Jogos > Física", url: "games/flappy-blocks/index.html" },
+                { term: "Game Labirinto", path: "Jogos > Matemática", url: "games/labirinto.html" },
+                { term: "Game Akinator", path: "Jogos > Geral", url: "games/make-your-akinator.html" },
                 
                 // Outros
                 { term: "Simulador IDE Virtual", path: "Programação > Testador", url: "teste.html" }
@@ -298,9 +328,9 @@
                 const query = searchInput.value.trim().toLowerCase();
                 suggestionsList.innerHTML = ''; 
 
-                if (query.length > 1) { // Diminuído para 2 para pegar 'ma' ou 'qu'
+                if (query.length > 1) { // Permite buscar com 2 caracteres
                     const filtered = searchIndex.filter(item => 
-                        // Busca no termo, caminho e URL (para pegar "simulador/matriz.html")
+                        // O filtro busca no termo, caminho e URL (o nome do arquivo)
                         item.term.toLowerCase().includes(query) || 
                         item.path.toLowerCase().includes(query) ||
                         item.url.toLowerCase().includes(query)
@@ -309,10 +339,10 @@
                     if (filtered.length > 0) {
                         filtered.forEach(item => {
                             const li = document.createElement('li');
-                            // Exibe o termo e o tipo/caminho do recurso
+                            // Exibe o termo principal e o caminho amigável
                             li.innerHTML = `
                                 <strong>${item.term}</strong>
-                                <span class="suggestion-path">${item.path} (Abrir: ${item.url.split('/')[0]})</span>
+                                <span class="suggestion-path">${item.path} (Arquivo: ${item.url})</span>
                             `;
                             li.addEventListener('click', () => {
                                 // Redireciona para o arquivo exato ao clicar na sugestão
@@ -339,7 +369,7 @@
                 }
             });
 
-            // 4. Lógica de Pesquisa no Clique do Botão (como fallback)
+            // 4. Lógica de Pesquisa no Clique do Botão (fallback)
             searchButton.addEventListener('click', performSearch);
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
