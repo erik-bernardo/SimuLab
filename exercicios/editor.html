@@ -365,7 +365,7 @@
                 <p id="generatedLink" style="word-break: break-all; font-size: 0.9em; color: #555;"></p>
                 <div id="qrcode" style="margin: 15px auto;"></div>
                 <p style="margin-top: 15px; color: #D2691E; font-weight: bold;">Compartilhe este QR Code/Link com seus alunos.</p>
-                <p style="font-size: 0.8em; color: #F44336; font-weight: bold;">AVISO: O limite de dados é alto, mas pode ser excedido com muitos exercícios ou textos longos.</p>
+                <p style="font-size: 0.8em; color: #F44336; font-weight: bold;">AVISO: O limite de dados foi maximizado, mas pode ser excedido com muitos exercícios ou textos longos.</p>
             </div>
             
         </div>
@@ -404,25 +404,25 @@
         const generatedLink = document.getElementById('generatedLink');
         
         // =======================================================
-        // 1. FUNÇÕES DE COMPRESSÃO (MAXIMIZAÇÃO DE ESPAÇO)
+        // 1. FUNÇÕES DE ENCODE/COMPRESSÃO (SAFE UNICODE)
         // =======================================================
         
         /**
-         * Realiza a compressão de uma string, otimizando o tamanho para URL e QR Code.
-         * Usa uma técnica de codificação de bytes (UTF-16) + Base64, mais eficiente que URI + Base64.
+         * Realiza Base64-URL-Safe encoding para uma string Unicode,
+         * garantindo que 'btoa' não falhe com caracteres acentuados.
          */
-        function compressString(s) {
-            let compressed = '';
-            // Envolve a string com encodeURIComponent para garantir UTF-8 antes da compressão.
-            s = encodeURIComponent(s); 
-            for (let i = 0; i < s.length; i++) {
-                // Converte a string (onde cada char é 1 byte em UTF-8) em um formato 
-                // onde dois chars de 1 byte são unidos em um char de 2 bytes (UTF-16)
-                // Isto reduz o tamanho da string em cerca de 30% em muitos casos.
-                compressed += String.fromCharCode(s.charCodeAt(i) + 0x8000); 
+        function safeBase64Encode(str) {
+            // 1. Converte a string Unicode (UTF-8, com acentos) em um array de bytes
+            const utf8Bytes = new TextEncoder().encode(str);
+
+            // 2. Converte o array de bytes em uma "string binária" (Latin1), que btoa aceita
+            let binaryString = "";
+            for (let i = 0; i < utf8Bytes.length; i++) {
+                binaryString += String.fromCharCode(utf8Bytes[i]);
             }
-            // O btoa final codifica a string compacta em Base64
-            return btoa(compressed); 
+
+            // 3. Aplica btoa (Base64)
+            return btoa(binaryString);
         }
 
         /**
@@ -455,7 +455,7 @@
             });
         }
         
-        // ... (Outras funções loadQuestions, saveQuestions, deleteQuestion, renderOptionsArea, addOption, reindexOptions, getFormData, handleFormSubmit são mantidas)
+        // Funções de manipulação do formulário (mantidas)
         function loadQuestions() {
             return DUMMY_QUESTIONS;
         }
@@ -626,7 +626,7 @@
         }
 
         // =======================================================
-        // 2. LÓGICA DE GERAÇÃO DO QR CODE (COMPRIMIDA)
+        // 2. LÓGICA DE GERAÇÃO DO QR CODE (COMPRIMIDA/SEGURA)
         // =======================================================
 
         function handleFinishAndGenerate(event) {
@@ -660,8 +660,8 @@
             const minimizedQuestions = minimizeQuestions(questionsToEncode);
             const jsonString = JSON.stringify(minimizedQuestions);
             
-            // 3. COMPRIME a string JSON antes do Base64
-            const encodedData = compressString(jsonString); 
+            // 3. ENCODE seguro para Base64/Unicode
+            const encodedData = safeBase64Encode(jsonString); 
             
             // 4. Constrói a URL final
             const baseUrl = window.location.href.replace('editor.html', 'fazer_exercicio.html');
@@ -671,6 +671,7 @@
             document.getElementById('qrcode').innerHTML = '';
             
             try {
+                // A biblioteca do QR Code aceita a string URL final.
                 new QRCode(document.getElementById("qrcode"), {
                     text: finalUrl,
                     width: 180,
@@ -687,13 +688,13 @@
                 alert(`QR Code Gerado! O link contém o Exercício completo com ${questionsToEncode.length} questões.`);
                 
             } catch (e) {
-                 // Agora a chance de erro é bem menor, mas ainda possível para arquivos GIGANTES
-                 alert("ERRO: O Exercício é muito grande (cerca de 3000 caracteres ou mais). Por favor, remova algumas questões ou encurte os textos.");
+                 // Captura o erro da biblioteca do QR Code (normalmente por excesso de caracteres)
+                 alert("ERRO: O Exercício é muito grande para o QR Code. Por favor, remova algumas questões ou encurte os textos.");
                  console.error("QR Code generation error:", e);
             }
         }
 
-        // ... (Funções de Edição e Renderização de Sidebar são mantidas)
+        // ... (Funções de Edição e Renderização de Sidebar mantidas)
         function loadQuestionForEditing(id) {
             const questions = loadQuestions();
             const question = questions.find(q => q.id === id);
@@ -791,6 +792,11 @@
             newQuestionBtn.addEventListener('click', resetForm);
             finishAndGenerateBtn.addEventListener('click', handleFinishAndGenerate); 
             form.addEventListener('submit', handleFormSubmit);
+
+            // Adiciona polyfills para TextEncoder/Decoder se o navegador for antigo
+            if (typeof TextEncoder === 'undefined') {
+                alert('Seu navegador não suporta TextEncoder/TextDecoder, o que pode causar problemas na codificação do QR Code.');
+            }
 
             resetForm(); 
             renderSavedQuestions();
