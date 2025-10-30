@@ -146,7 +146,7 @@
         }
 
         /* ----------------------------------- */
-        /* LINKS DE NAVEGAÇÃO E SEÇÕES DA LANDING PAGE */
+        /* LINKS DE NAVEGAÇÃO E SEÇÕES DA LANDING PAGE (Sem Alterações Relevantes) */
         /* ----------------------------------- */
         .nav-links { display: flex; align-items: center; }
         .nav-link { text-decoration: none; color: #555; font-size: 14px; font-weight: bold; padding: 0 15px; transition: color 0.3s, background-color 0.3s; display: flex; align-items: center; text-transform: uppercase; height: 100%; }
@@ -172,7 +172,7 @@
         .info-card h4 { color: #333; margin-top: 0; }
         footer { background-color: #333; color: white; text-align: center; padding: 20px 0; font-size: 0.9em; }
 
-        /* RESPONSIVIDADE BÁSICA */
+        /* RESPONSIVIDADE BÁSICA (Permanece igual) */
         @media (max-width: 768px) {
             .top-bar { padding: 0 20px; flex-wrap: wrap; }
             .search-wrapper { order: 3; width: 100%; margin: 10px 0 0 0; }
@@ -198,7 +198,7 @@
         
         <div class="search-wrapper">
             <div class="search-container">
-                <input type="text" class="search-input" id="globalSearchInput" placeholder="Buscar por 'matrizes', 'queda livre', 'game' (aceita erros de digitação)...">
+                <input type="text" class="search-input" id="globalSearchInput" placeholder="Buscar por 'queda livre', 'matriz', 'juros' ou 'game'...">
                 <button class="search-button">
                     <i class="fas fa-search"></i>
                 </button>
@@ -267,47 +267,6 @@
     </footer>
 
     <script>
-        /* =======================================================
-           FUNÇÕES DE DISTÂNCIA DE LEVENSHTEIN (PARA FUZZY SEARCH)
-           ======================================================= */
-        function getLevenshteinDistance(s1, s2) {
-            s1 = s1.toLowerCase();
-            s2 = s2.toLowerCase();
-
-            var costs = new Array();
-            for (var i = 0; i <= s1.length; i++) {
-                var lastValue = i;
-                for (var j = 0; j <= s2.length; j++) {
-                    if (i == 0)
-                        costs[j] = j;
-                    else if (j > 0) {
-                        var newValue = costs[j - 1];
-                        if (s1.charAt(i - 1) != s2.charAt(j - 1))
-                            newValue = Math.min(Math.min(newValue, lastValue),
-                                costs[j]) + 1;
-                        costs[j - 1] = lastValue;
-                        lastValue = newValue;
-                    }
-                }
-                if (i > 0)
-                    costs[s2.length] = lastValue;
-            }
-            return costs[s2.length];
-        }
-
-        function getSimilarityPercentage(s1, s2) {
-            const maxLen = Math.max(s1.length, s2.length);
-            if (maxLen === 0) return 100; // strings vazias são 100% iguais
-            const distance = getLevenshteinDistance(s1, s2);
-            // Fórmula: 1 - (Distância / Tamanho Máximo)
-            const similarity = 1 - (distance / maxLen);
-            return similarity * 100;
-        }
-
-
-        /* =======================================================
-           LÓGICA PRINCIPAL
-           ======================================================= */
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('globalSearchInput');
             const searchButton = document.querySelector('.search-button');
@@ -361,28 +320,22 @@
                 { term: "Game Akinator", path: "Jogos > Geral", url: "games/make-your-akinator.html" },
                 
                 // Outros
-                { term: "Simulador IDE Virtual", path: "Programação > Testador", url: "teste.html" }
+                { term: "Simulador IDE Virtual", path: "Programação > Testador", url: "codeTester.html" }
             ];
 
-            // 2. Lógica de Autocomplete (Sugestões com Fuzzy Search)
+            // 2. Lógica de Autocomplete (Sugestões)
             searchInput.addEventListener('input', () => {
                 const query = searchInput.value.trim().toLowerCase();
                 suggestionsList.innerHTML = ''; 
 
-                if (query.length > 2) { // Mínimo de 3 caracteres para ativar a Fuzzy Search
-                    const MIN_SIMILARITY = 65; // Define o limiar de 65% de similaridade
+                if (query.length > 1) { // Permite buscar com 2 caracteres
+                    const filtered = searchIndex.filter(item => 
+                        // O filtro busca no termo, caminho e URL (o nome do arquivo)
+                        item.term.toLowerCase().includes(query) || 
+                        item.path.toLowerCase().includes(query) ||
+                        item.url.toLowerCase().includes(query)
+                    ).slice(0, 5); 
 
-                    const filtered = searchIndex.filter(item => {
-                        // Combina todos os termos relevantes do item (term, path, url) em uma única string grande.
-                        const itemString = `${item.term} ${item.path} ${item.url}`.toLowerCase();
-                        
-                        // Calcula a similaridade entre a busca do usuário (query) e o item.
-                        const similarity = getSimilarityPercentage(query, itemString);
-                        
-                        // O item é uma correspondência se a similaridade for maior que o limiar (65%).
-                        return similarity >= MIN_SIMILARITY;
-                    }).slice(0, 5); 
-                
                     if (filtered.length > 0) {
                         filtered.forEach(item => {
                             const li = document.createElement('li');
@@ -403,7 +356,6 @@
                     } else {
                         suggestionsList.style.display = 'none';
                     }
-
                 } else {
                     suggestionsList.style.display = 'none';
                 }
@@ -429,32 +381,21 @@
                 const searchTerm = searchInput.value.trim().toLowerCase();
                 suggestionsList.style.display = 'none'; 
 
-                if (searchTerm.length > 2) {
-                     // Define o limiar de 65% também para a busca no botão
-                    const MIN_SIMILARITY_BUTTON = 65; 
-
-                    // Tenta encontrar a MELHOR correspondência (a de maior similaridade)
-                    let bestMatch = null;
-                    let highestSimilarity = 0;
-
-                    searchIndex.forEach(item => {
-                        const itemString = `${item.term} ${item.path} ${item.url}`.toLowerCase();
-                        const similarity = getSimilarityPercentage(searchTerm, itemString);
-                        
-                        if (similarity > highestSimilarity && similarity >= MIN_SIMILARITY_BUTTON) {
-                            highestSimilarity = similarity;
-                            bestMatch = item;
-                        }
-                    });
-
-                    if (bestMatch) {
-                        window.location.href = bestMatch.url;
+                if (searchTerm.length > 1) {
+                    // Tenta encontrar a primeira correspondência e redireciona
+                    const match = searchIndex.find(item => 
+                        item.term.toLowerCase().includes(searchTerm) || 
+                        item.url.toLowerCase().includes(searchTerm)
+                    );
+                    
+                    if (match) {
+                        window.location.href = match.url;
                     } else {
                         alert(`Pesquisa: "${searchTerm}" não encontrou um arquivo correspondente. Redirecionando para a página de Matérias.`);
                         window.location.href = 'materias.html'; 
                     }
                 } else {
-                    alert('Por favor, digite pelo menos 3 caracteres para iniciar a busca.');
+                    alert('Por favor, digite pelo menos 2 caracteres para iniciar a busca.');
                 }
             }
         });
