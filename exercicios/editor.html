@@ -365,7 +365,7 @@
                 <p id="generatedLink" style="word-break: break-all; font-size: 0.9em; color: #555;"></p>
                 <div id="qrcode" style="margin: 15px auto;"></div>
                 <p style="margin-top: 15px; color: #D2691E; font-weight: bold;">Compartilhe este QR Code/Link com seus alunos.</p>
-                <p style="font-size: 0.8em; color: #F44336;">Atenção: O link só funcionará enquanto os arquivos `editor.html` e `fazer_exercicio.html` estiverem no mesmo diretório.</p>
+                <p style="font-size: 0.8em; color: #F44336;">Atenção: O link só funcionará enquanto os arquivos `editor.html` e `fazer_exercicio.html` estiverem no mesmo diretório. **A codificação é limitada a 3-4 questões complexas.**</p>
             </div>
             
         </div>
@@ -513,8 +513,7 @@
         
         function getFormData(event) {
             if (event && event.type !== 'submit' && !form.checkValidity()) {
-                 // Não tenta forçar a validação se for apenas para pegar dados para o QR code
-                 // return null; // Comentado para permitir gerar QR code com campos vazios (professor sabe o que faz)
+                 // return null; 
             }
             
             const formData = new FormData(event ? event.target : form);
@@ -583,10 +582,11 @@
         }
         
         // =======================================================
-        // 3. LÓGICA DE GERAÇÃO DO QR CODE (ATUALIZADA)
+        // 3. LÓGICA DE GERAÇÃO DO QR CODE (CORRIGIDA)
         // =======================================================
 
         function handleFinishAndGenerate(event) {
+            
             // 1. Garante que a questão ativa (se houver) está incorporada na lista antes de serializar TUDO
             const currentQuestionData = getFormData(null); 
             
@@ -604,7 +604,7 @@
                     DUMMY_QUESTIONS.unshift(currentQuestionData);
                     loadQuestionForEditing(currentQuestionData.id); 
                 }
-                renderSavedQuestions(); // Atualiza a lista lateral
+                renderSavedQuestions();
             }
 
             const questionsToEncode = DUMMY_QUESTIONS;
@@ -614,9 +614,11 @@
                 return;
             }
 
-            // 2. Codifica o ARRAY COMPLETO de exercícios (Mudança Principal)
+            // 2. Codifica o ARRAY COMPLETO de exercícios (Lógica CORRIGIDA: Mais curta e compatível com UTF-8)
             const jsonString = JSON.stringify(questionsToEncode);
-            const encodedData = btoa(unescape(encodeURIComponent(jsonString))); 
+            
+            // CORREÇÃO: Usando a codificação padrão de Base64 para URLs que suporta UTF-8
+            const encodedData = btoa(encodeURIComponent(jsonString)); 
             
             // 3. Constrói a URL final (aponta para o novo arquivo 'fazer_exercicio.html')
             const baseUrl = window.location.href.replace('editor.html', 'fazer_exercicio.html');
@@ -642,11 +644,7 @@
             alert(`QR Code Gerado! O link contém o Exercício completo com ${questionsToEncode.length} questões.`);
         }
 
-
-        // =======================================================
-        // 4. LÓGICA DE EDIÇÃO (CARREGAMENTO DAS ABAS)
-        // =======================================================
-
+        // ... (Funções loadQuestionForEditing, resetForm, renderSavedQuestions, handleTypeChange são mantidas)
         function loadQuestionForEditing(id) {
             const questions = loadQuestions();
             const question = questions.find(q => q.id === id);
@@ -740,6 +738,7 @@
         function handleTypeChange() {
             renderOptionsArea();
         }
+
 
         // =======================================================
         // 6. INICIALIZAÇÃO
