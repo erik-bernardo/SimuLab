@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimuLab - Fazer Exercício</title>
+    <link rel="icon" type="image/png" href="dados/logo-icon.png"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .top-bar {
+            background-color: #D2691E;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: white;
+            width: 100%;
+            padding: 15px 40px;
+            text-align: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 30px 20px;
+            padding: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #D2691E;
+            border-bottom: 2px solid #D2691E;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        .meta-info p {
+            margin: 5px 0;
+            font-size: 0.95em;
+            color: #555;
+        }
+        .question-body {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-left: 5px solid #007bff;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+        .options-list li {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .options-list li:hover {
+            background-color: #f0f0f0;
+        }
+        input[type="radio"], input[type="checkbox"] {
+            margin-right: 10px;
+            min-width: 18px;
+            height: 18px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+            resize: vertical;
+        }
+        .error-message {
+            text-align: center;
+            color: #F44336;
+            font-size: 1.2em;
+            margin-top: 50px;
+        }
+        #submitBtn {
+            width: 100%;
+            padding: 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        #submitBtn:hover {
+            background-color: #45a049;
+        }
+        #feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: none;
+        }
+        .correct {
+            background-color: #e6ffed;
+            color: #1a7a35;
+        }
+        .incorrect {
+            background-color: #ffe6e6;
+            color: #a02828;
+        }
+        /* Para Discursiva */
+        .answer-hint {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header class="top-bar">
+        <h2>SimuLab - Exercício de Professor</h2>
+    </header>
+
+    <div id="exerciseContainer" class="container" style="display: none;">
+        <h1 id="exerciseTitle"></h1>
+        
+        <div class="meta-info">
+            <p><i class="fas fa-book"></i> Matéria: <span id="exerciseMateria"></span></p>
+            <p><i class="fas fa-star"></i> Dificuldade: <span id="exerciseDificuldade"></span></p>
+            <p><i class="fas fa-list-alt"></i> Tipo: <span id="exerciseTipo"></span></p>
+        </div>
+
+        <h3>Enunciado:</h3>
+        <div class="question-body" id="questionBody"></div>
+        
+        <form id="answerForm">
+            <div id="answerArea"></div>
+
+            <button type="submit" id="submitBtn"><i class="fas fa-check-circle"></i> Responder</button>
+        </form>
+        
+        <div id="feedback"></div>
+
+    </div>
+
+    <div id="errorMessage" class="error-message" style="display: block;">
+        Carregando exercício...
+    </div>
+
+    <script>
+        /**
+         * Lida com caracteres UTF-8 codificados em Base64 para URL.
+         */
+        function decodeBase64(str) {
+            // Decodifica a Base64 e lida com a codificação URI para UTF-8
+            return decodeURIComponent(atob(str).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+
+        /**
+         * Renderiza o exercício com base nos dados decodificados.
+         */
+        function renderExercise(question) {
+            document.getElementById('exerciseTitle').textContent = question.title || 'Exercício';
+            document.getElementById('exerciseMateria').textContent = question.materia || 'Não Informada';
+            document.getElementById('exerciseDificuldade').textContent = question.dificuldade || 'Não Informada';
+            document.getElementById('exerciseTipo').textContent = question.tipo || 'Desconhecido';
+            document.getElementById('questionBody').textContent = question.questionText || 'Enunciado não encontrado.';
+            
+            const answerArea = document.getElementById('answerArea');
+            answerArea.innerHTML = ''; // Limpa a área
+            
+            // Renderização da área de resposta baseada no tipo
+            if (question.tipo === 'Múltipla Escolha' && question.options) {
+                const ul = document.createElement('ul');
+                ul.classList.add('options-list');
+                
+                question.options.forEach((option, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <input type="radio" name="studentAnswer" id="option${index}" value="${index}" required>
+                        <label for="option${index}">${option.text}</label>
+                    `;
+                    ul.appendChild(li);
+                });
+                answerArea.appendChild(ul);
+                
+            } else if (question.tipo === 'Verdadeiro ou Falso') {
+                answerArea.innerHTML = `
+                    <ul class="options-list">
+                        <li>
+                            <input type="radio" name="studentAnswer" id="ansTrue" value="true" required>
+                            <label for="ansTrue">Verdadeiro</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="studentAnswer" id="ansFalse" value="false" required>
+                            <label for="ansFalse">Falso</label>
+                        </li>
+                    </ul>
+                `;
+            } else if (question.tipo === 'Discursiva') {
+                answerArea.innerHTML = `
+                    <textarea name="studentAnswer" rows="8" placeholder="Digite sua resposta aqui..."></textarea>
+                `;
+                // Para Discursiva, remove o botão de Responder e adiciona o gabarito.
+                document.getElementById('submitBtn').style.display = 'none';
+                
+                if (question.answerHint) {
+                     document.getElementById('answerArea').insertAdjacentHTML('afterend', 
+                        `<div class="answer-hint"><strong>Critérios de Correção (Apenas para Professor):</strong><br>${question.answerHint}</div>`
+                    );
+                } else {
+                    document.getElementById('answerArea').insertAdjacentHTML('afterend', 
+                        `<div class="answer-hint"><strong>Atenção:</strong> Esta é uma questão discursiva, a correção deve ser manual.</div>`
+                    );
+                }
+            }
+            
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('exerciseContainer').style.display = 'block';
+        }
+
+
+        /**
+         * Verifica a resposta do aluno (apenas para Múltipla Escolha e V/F).
+         */
+        function checkAnswer(event, question) {
+            event.preventDefault();
+            const form = event.target;
+            const feedback = document.getElementById('feedback');
+            
+            feedback.style.display = 'block';
+            
+            if (question.tipo === 'Múltipla Escolha') {
+                const selectedOption = form.querySelector('input[name="studentAnswer"]:checked');
+                if (!selectedOption) return; // Não deveria acontecer por causa do required
+                
+                const selectedIndex = parseInt(selectedOption.value);
+                const isCorrect = question.options[selectedIndex].isCorrect;
+
+                if (isCorrect) {
+                    feedback.className = 'correct';
+                    feedback.innerHTML = '<i class="fas fa-check"></i> Resposta Correta! Parabéns.';
+                } else {
+                    const correctAnswerText = question.options.find(opt => opt.isCorrect)?.text || 'N/A';
+                    feedback.className = 'incorrect';
+                    feedback.innerHTML = `<i class="fas fa-times"></i> Resposta Incorreta. A resposta correta era: ${correctAnswerText}.`;
+                }
+
+            } else if (question.tipo === 'Verdadeiro ou Falso') {
+                const selectedAnswer = form.querySelector('input[name="studentAnswer"]:checked')?.value === 'true';
+                const isCorrect = selectedAnswer === question.correctAnswer;
+                
+                 if (isCorrect) {
+                    feedback.className = 'correct';
+                    feedback.innerHTML = '<i class="fas fa-check"></i> Resposta Correta! Parabéns.';
+                } else {
+                    const correctAnswerText = question.correctAnswer ? 'Verdadeiro' : 'Falso';
+                    feedback.className = 'incorrect';
+                    feedback.innerHTML = `<i class="fas fa-times"></i> Resposta Incorreta. A resposta correta era: ${correctAnswerText}.`;
+                }
+
+            } else {
+                // Discursiva: Não deve chegar aqui, mas como fallback
+                feedback.className = 'incorrect';
+                feedback.innerHTML = '<i class="fas fa-info-circle"></i> Esta é uma questão discursiva, a correção deve ser feita pelo professor.';
+            }
+        }
+
+
+        // =======================================================
+        // LÓGICA DE INICIALIZAÇÃO
+        // =======================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.substring(1); // Pega o valor após o '#'
+            
+            if (!hash) {
+                document.getElementById('errorMessage').innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i> Erro: Nenhum exercício encontrado no link.
+                    <p style="font-size: 0.8em; margin-top: 10px;">O link deve ser gerado pelo Criador de Exercícios (editor.html).</p>
+                `;
+                return;
+            }
+
+            try {
+                // 1. Decodifica o Base64 e o JSON
+                const jsonString = decodeBase64(hash);
+                const questionData = JSON.parse(jsonString);
+                
+                if (!questionData.title) throw new Error("Dados de exercício incompletos.");
+
+                // 2. Renderiza o exercício
+                renderExercise(questionData);
+
+                // 3. Adiciona o listener para o formulário de resposta
+                if (questionData.tipo !== 'Discursiva') {
+                    document.getElementById('answerForm').addEventListener('submit', (e) => checkAnswer(e, questionData));
+                } else {
+                    // Remove o listener para discursiva (que só tem o botão se for copiado)
+                    document.getElementById('answerForm').addEventListener('submit', (e) => {
+                         e.preventDefault();
+                         document.getElementById('feedback').className = 'incorrect';
+                         document.getElementById('feedback').innerHTML = '<i class="fas fa-info-circle"></i> Esta é uma questão discursiva, a correção deve ser feita pelo professor.';
+                         document.getElementById('feedback').style.display = 'block';
+                    });
+                }
+                
+            } catch (e) {
+                console.error("Erro ao carregar ou decodificar o exercício:", e);
+                 document.getElementById('errorMessage').innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i> Erro: Não foi possível decodificar o exercício. O link pode estar corrompido.
+                    <p style="font-size: 0.8em; margin-top: 10px;">Detalhes: ${e.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
