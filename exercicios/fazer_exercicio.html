@@ -173,31 +173,31 @@
     </div>
 
     <script>
-        // =======================================================
-        // 1. FUNÇÃO DE DESCOMPRESSÃO (REVERSA DO QR CODE)
-        // =======================================================
-
-        /**
-         * Reverte a compressão de uma string, restaurando o JSON original.
-         * Desfaz a codificação de bytes (UTF-16) + Base64, e o encodeURIComponent.
-         */
-        function decompressString(compressed) {
-            let decompressed = '';
-            // 1. Desfaz o Base64
-            const binaryString = atob(compressed);
-            
-            // 2. Desfaz a codificação de bytes (UTF-16)
-            for (let i = 0; i < binaryString.length; i++) {
-                decompressed += String.fromCharCode(binaryString.charCodeAt(i) - 0x8000);
-            }
-            
-            // 3. Desfaz o encodeURIComponent para restaurar acentos (UTF-8)
-            return decodeURIComponent(decompressed);
-        }
-
         // Variável global para armazenar os dados do exercício.
         let questionArray = []; 
         let totalCheckableQuestions = 0;
+
+        // =======================================================
+        // 1. FUNÇÃO DE DECODE/DESCOMPRESSÃO (SAFE UNICODE)
+        // =======================================================
+
+        /**
+         * Realiza Base64-URL-Safe decoding para uma string Unicode.
+         */
+        function safeBase64Decode(encoded) {
+            // 1. Desfaz btoa (Base64) para a "string binária" (Latin1)
+            const binaryString = atob(encoded);
+
+            // 2. Converte a string binária de volta para um array de bytes
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            // 3. Decodifica o array de bytes (UTF-8) para a string original Unicode
+            return new TextDecoder().decode(bytes);
+        }
 
         // =======================================================
         // 2. FUNÇÃO DE MAXIMIZAÇÃO (REVERSA DA MINIMIZAÇÃO)
@@ -402,8 +402,8 @@
             }
 
             try {
-                // 1. DESCOMPRIME a Base64 e o JSON
-                const jsonString = decompressString(hash);
+                // 1. Descodifica a Base64 de forma segura
+                const jsonString = safeBase64Decode(hash);
                 // O JSON descompactado é o array minimizado
                 const minimizedQuestions = JSON.parse(jsonString); 
                 
