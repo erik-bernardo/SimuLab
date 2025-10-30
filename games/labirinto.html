@@ -77,6 +77,7 @@
             color: white;
             padding: 20px 10px;
             box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto; /* Permite rolagem no painel de blocos */
         }
         
         .area-programacao {
@@ -126,7 +127,6 @@
         }
         
         #workspace-blocos {
-            /* ESTILO DE BLOCOS DE PROGRAMAÇÃO APRIMORADO */
             min-height: 400px; 
             border: 2px dashed #a0a0a0; 
             padding: 15px; 
@@ -160,9 +160,45 @@
              border: 2px solid #CCAA00;
              color: #333;
         }
+        
+        /* NOVO: Bloco de Loop */
+        .bloco-loop {
+            background-color: #3498db; /* Azul para loops */
+            border: 2px solid #2980b9;
+            padding: 10px 15px 5px 15px; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        .loop-container {
+            background-color: rgba(0, 0, 0, 0.1);
+            border: 1px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 5px;
+            min-height: 50px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .loop-placeholder {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8em;
+            text-align: center;
+            font-weight: normal;
+            margin: 0;
+        }
+        
+        /* Indentação para blocos dentro do loop */
+        .loop-container > .bloco {
+            margin-left: 15px; 
+            width: auto; 
+        }
+
 
         .passos-counter {
-            /* ESTILO DE INPUT DENTRO DO BLOCO */
             width: 40px; 
             text-align: center;
             border: 1px solid white;
@@ -170,6 +206,14 @@
             background-color: rgba(255, 255, 255, 0.3);
             color: white;
             padding: 3px 5px;
+            font-weight: bold;
+        }
+        
+        /* CORREÇÃO: Cor dos inputs em blocos que não são azuis */
+        .bloco-loop .passos-counter,
+        .bloco[data-type^="girar"] .passos-counter { 
+             color: #333;
+             background-color: white;
         }
         
         .drop-target {
@@ -216,7 +260,7 @@
         .celula-fim { background-color: #FF4500; color: white; }
 
         .player {
-            width: 20%; /* Player ocupa 90% da célula */
+            width: 20%; 
             height: 20%; 
             background-color: #1E90FF;
             border-radius: 5px;
@@ -235,7 +279,6 @@
         .player i {
             font-size: 24px; 
             transition: transform 0.3s ease-in-out;
-            /* Rotação é controlada totalmente pelo JS para precisão */
         }
 
     </style>
@@ -271,7 +314,16 @@
             <div class="bloco-paleta-wrapper">
                 <div class="bloco" draggable="true" data-type="girar-esquerda">GIRAR 90° ESQUERDA <i class="fas fa-angle-left"></i></div>
             </div>
-            
+
+            <h2><i class="fas fa-sync-alt"></i> Comandos de Controle</h2>
+            <div class="bloco-paleta-wrapper">
+                <div class="bloco bloco-loop" draggable="true" data-type="loop">
+                    REPETIR <input type="number" value="3" min="1" max="10" class="passos-counter loop-counter"> VEZES
+                    <div class="loop-container">
+                        <p class="loop-placeholder">Arraste comandos aqui</p>
+                    </div>
+                </div>
+            </div>
             <p style="font-size: 0.8em; color: #ccc; margin-top: 20px;">
                 * Crie a sequência de movimentos para chegar ao ponto final.
             </p>
@@ -322,20 +374,20 @@
             };
 
             const LEVELS = [
-                // NÍVEL 1: Apenas movimento horizontal
+                // NÍVEL 1: Introdução ao Loop e Rotação. Solução: Girar D, Loop(4) [Mover 1]
                 {
                     map: [
+                        [0, 0, 0, 0, 3],
                         [0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0],
-                        [2, 0, 0, 0, 3] 
+                        [2, 0, 0, 0, 0] 
                     ],
                     start: { x: 0, y: 4 },
-                    end: { x: 4, y: 4 },
-                    goal: "Mova 4 passos para a direita (Leste) para chegar ao FIM. Você já está virado para o Norte (cima) e precisa girar!"
+                    end: { x: 4, y: 0 },
+                    goal: "Chegue ao FIM (4,0). Use o bloco REPETIR para mover os 4 passos."
                 },
-                // NÍVEL 2: Sequência e Rotação Simples
+                // NÍVEL 2: Sequência e Loop
                 {
                     map: [
                         [0, 0, 0, 3, 0],
@@ -346,9 +398,9 @@
                     ],
                     start: { x: 0, y: 4 },
                     end: { x: 3, y: 0 },
-                    goal: "Chegue ao FIM (3,0). Sua solução exigirá rotação!"
+                    goal: "Chegue ao FIM (3,0). Sua solução exige rotação e loops aninhados."
                 },
-                // NÍVEL 3: Paredes
+                // NÍVEL 3: Paredes e Loop
                 {
                     map: [
                         [1, 1, 0, 3, 1],
@@ -359,7 +411,7 @@
                     ],
                     start: { x: 0, y: 4 },
                     end: { x: 3, y: 0 },
-                    goal: "Chegue ao FIM (3,0). Cuidado com as paredes!"
+                    goal: "Chegue ao FIM (3,0). Cuidado com as paredes! Pense na sequência 'Mover, Girar, Mover'."
                 }
             ];
             
@@ -369,7 +421,7 @@
             let END_POS = LEVELS[currentLevel].end;
             
             
-            // --- FUNÇÃO DE LOG (CORRIGIDA) ---
+            // --- FUNÇÃO DE LOG ---
             const log = (message, isError = false) => {
                 logDisplay.style.color = isError ? '#f44336' : '#1E90FF';
                 logDisplay.textContent = message;
@@ -401,6 +453,7 @@
 
             const updatePlayerVisuals = () => {
                 const playerElement = document.getElementById('player');
+                if (!playerElement) return; // Checagem de segurança
                 
                 // Posição: (Offset de 0.05 para centralizar o player de 90%)
                 const xOffset = playerState.x * CELL_SIZE + (CELL_SIZE * 0.05); 
@@ -446,67 +499,132 @@
                 log(`Nível ${currentLevel + 1} carregado. Crie a sequência!`);
                 statusJogo.textContent = `Objetivo: ${LEVELS[currentLevel].goal}`;
 
-                workspace.innerHTML = '';
+                // NÂO reseta o workspace para o usuário não perder a solução
+                // workspace.innerHTML = ''; 
             };
             window.resetSimulador = resetSimulador;
 
-            // --- LÓGICA DE CRIAÇÃO E DROP DE BLOCOS (Mantida) ---
+            // --- LÓGICA DE DRAG AND DROP COM ANINHAMENTO ---
             
+            const addLoopDropListeners = (container) => {
+                container.addEventListener('dragover', handleDragOver);
+                container.addEventListener('dragleave', handleDragLeave);
+                container.addEventListener('drop', handleDrop);
+            };
+
             const createCopy = (original) => {
                 const clone = original.cloneNode(true);
                 clone.setAttribute('draggable', 'true');
                 clone.classList.remove('bloco-paleta-wrapper');
                 
-                if (clone.getAttribute('data-type') === 'mover-passos') {
+                const type = clone.getAttribute('data-type');
+                
+                // Lógica de manipulação de Input
+                if (type === 'mover-passos' || type === 'loop') {
                     const originalInput = original.querySelector('.passos-counter');
                     const cloneInput = clone.querySelector('.passos-counter');
                     if (originalInput && cloneInput) {
                         cloneInput.value = originalInput.value;
+                        // Previne que a interação com o input comece o drag
                         cloneInput.addEventListener('change', (e) => { e.stopPropagation(); });
+                        cloneInput.addEventListener('mousedown', (e) => { e.stopPropagation(); });
                     }
+                }
+                
+                // Lógica específica para o bloco de Loop
+                if (type === 'loop') {
+                    // Remove o placeholder da cópia da paleta
+                    const placeholder = clone.querySelector('.loop-placeholder');
+                    if (placeholder) placeholder.remove(); 
+                    
+                    // Adiciona os listeners de drop ao container interno do bloco clonado
+                    addLoopDropListeners(clone.querySelector('.loop-container'));
                 }
                 
                 return clone;
             };
-
+            
+            // Handlers de Drag (Usando o `dragstart` da paleta, sem modificar)
             painelBlocos.querySelectorAll('.bloco').forEach(bloco => {
                 bloco.addEventListener('dragstart', (e) => {
-                    draggedBlock = bloco;
-                    e.dataTransfer.setData('text/plain', 'dragging');
+                    // Só permite arrastar se não for um input (para não conflitar com a alteração do valor)
+                    if (e.target.tagName !== 'INPUT') { 
+                        draggedBlock = bloco;
+                        e.dataTransfer.setData('text/plain', 'dragging');
+                    } else {
+                         e.preventDefault();
+                    }
                 });
             });
 
-            workspace.addEventListener('dragover', (e) => {
+            // Handlers de Drop (Refatorados para permitir aninhamento)
+            const handleDragOver = (e) => {
                 e.preventDefault();
-                workspace.classList.add('drop-target');
-            });
-            workspace.addEventListener('dragleave', (e) => {
-                workspace.classList.remove('drop-target');
-            });
+                // Verifica se o bloco que está sendo arrastado não é o próprio loop se for arrastar para dentro de um loop
+                if (e.currentTarget.classList.contains('loop-container') && draggedBlock.getAttribute('data-type') === 'loop') {
+                    // Não permita loop dentro de loop por simplicidade
+                } else {
+                    e.currentTarget.classList.add('drop-target');
+                }
+            };
             
-            workspace.addEventListener('drop', (e) => {
+            const handleDragLeave = (e) => {
+                e.currentTarget.classList.remove('drop-target');
+            };
+
+            const handleDrop = (e) => {
                 e.preventDefault();
-                workspace.classList.remove('drop-target');
+                e.currentTarget.classList.remove('drop-target');
                 
                 if (!draggedBlock) return;
                 
+                const dropTarget = e.currentTarget;
+                
+                // Impedir loop aninhado (loop dentro de loop)
+                if (dropTarget.classList.contains('loop-container') && draggedBlock.getAttribute('data-type') === 'loop') {
+                    log("Aviso: Não é permitido aninhar loops neste simulador.", true);
+                    draggedBlock = null;
+                    return;
+                }
+                
+                // Cria uma cópia nova da paleta
                 const clone = createCopy(draggedBlock);
-                workspace.appendChild(clone);
+                dropTarget.appendChild(clone); 
+                
+                // Se o drop target for um loop container, remove o placeholder se ele existir
+                if (dropTarget.classList.contains('loop-container')) {
+                    const placeholder = dropTarget.querySelector('.loop-placeholder');
+                    if (placeholder) placeholder.remove();
+                }
+
+
                 log(`Comando "${clone.textContent.trim().split('\n')[0].trim()}" adicionado à sequência.`);
                 
                 draggedBlock = null; 
-            });
-
-            // --- LÓGICA DE EXECUÇÃO DO CÓDIGO (Mantida) ---
+            };
             
+            // Adiciona listeners ao workspace principal
+            addLoopDropListeners(workspace);
+
+            // --- LÓGICA DE EXECUÇÃO COM RECURSÃO (LOOP) ---
+            
+            const executeRotate = async (angle) => { 
+                playerState.direction = (playerState.direction + angle) % 360;
+                if (playerState.direction < 0) playerState.direction += 360; 
+                updatePlayerVisuals();
+                log(`GIRANDO para ${playerState.direction}°`);
+                await new Promise(r => setTimeout(r, 400)); 
+                return true;
+            };
+
             const executeMove = async (steps) => {
-                for (let i = 0; i < steps; i++) {
+                 for (let i = 0; i < steps; i++) {
                     await new Promise(r => setTimeout(r, 400)); 
                     
                     let newX = playerState.x;
                     let newY = playerState.y;
 
-                    // Mapeamento da Direção
+                    // Mapeamento da Direção (0: Norte, 90: Leste, 180: Sul, 270: Oeste)
                     if (playerState.direction === 0) newY--;
                     else if (playerState.direction === 90) newX++;
                     else if (playerState.direction === 180) newY++;
@@ -530,17 +648,63 @@
                     
                     // Checa Fim
                     if (playerState.x === END_POS.x && playerState.y === END_POS.y) {
-                         return false; 
+                         return false; // Retorna false para interromper o loop de passos, mas sinaliza que o destino foi alcançado.
                     }
                 }
                 return true; 
             };
             
-            const executeRotate = (angle) => {
-                playerState.direction = (playerState.direction + angle) % 360;
-                if (playerState.direction < 0) playerState.direction += 360; 
-                updatePlayerVisuals();
-                log(`GIRANDO para ${playerState.direction}°`);
+            // Novo: Função recursiva para executar uma lista de comandos
+            const executeProgram = async (commands) => {
+                let success = true;
+
+                for (let i = 0; i < commands.length; i++) {
+                    const bloco = commands[i];
+                    
+                    // Destaque do bloco em execução
+                    bloco.style.boxShadow = '0 0 15px yellow';
+                    
+                    // Condição de parada de emergência
+                    if (playerState.x === END_POS.x && playerState.y === END_POS.y) {
+                        bloco.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                        success = true; 
+                        break;
+                    }
+                    
+                    const type = bloco.getAttribute('data-type');
+                    
+                    if (type === 'mover-passos') {
+                        const stepsInput = bloco.querySelector('.passos-counter');
+                        const steps = parseInt(stepsInput ? stepsInput.value : 1);
+                        success = await executeMove(steps);
+                        if (!success && (playerState.x !== END_POS.x || playerState.y !== END_POS.y)) break; // Quebra se for erro (não fim)
+                    } else if (type === 'girar-direita') {
+                        success = await executeRotate(90);
+                    } else if (type === 'girar-esquerda') {
+                        success = await executeRotate(-90);
+                    } else if (type === 'loop') {
+                        const loopCounterInput = bloco.querySelector('.loop-counter');
+                        const repetitions = parseInt(loopCounterInput ? loopCounterInput.value : 1);
+                        const nestedCommands = Array.from(bloco.querySelector('.loop-container').children);
+
+                        if (nestedCommands.length === 0) {
+                             log(`Aviso: Bloco REPETIR está vazio. Pulando.`, false);
+                        } else {
+                            for (let r = 0; r < repetitions; r++) {
+                                log(`Loop: Executando repetição ${r + 1} de ${repetitions}`);
+                                // Chamada recursiva para os comandos internos
+                                success = await executeProgram(nestedCommands);
+                                if (!success || (playerState.x === END_POS.x && playerState.y === END_POS.y)) break;
+                            }
+                        }
+                        if (!success) break;
+                    }
+
+                    // Remove destaque
+                    bloco.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                }
+
+                return success;
             };
 
             window.executarCodigo = async () => {
@@ -549,6 +713,7 @@
 
                 if (playerState.isMoving) { log("Aguarde a execução atual terminar.", true); return; }
                 
+                // Reset de estado
                 playerState.x = START_POS.x;
                 playerState.y = START_POS.y;
                 playerState.direction = 0; 
@@ -557,32 +722,11 @@
                 
                 await new Promise(r => setTimeout(r, 500)); 
                 
-                let success = true;
-
-                for (let i = 0; i < program.length; i++) {
-                    const bloco = program[i];
-                    bloco.style.boxShadow = '0 0 15px yellow';
-                    
-                    const type = bloco.getAttribute('data-type');
-                    
-                    if (playerState.x === END_POS.x && playerState.y === END_POS.y) break; 
-                    
-                    if (type === 'mover-passos') {
-                        const stepsInput = bloco.querySelector('.passos-counter');
-                        const steps = parseInt(stepsInput ? stepsInput.value : 1);
-                        success = await executeMove(steps);
-                        if (!success) break;
-                    } else if (type === 'girar-direita') {
-                        executeRotate(90);
-                    } else if (type === 'girar-esquerda') {
-                        executeRotate(-90);
-                    }
-
-                    bloco.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'; 
-                }
+                let success = await executeProgram(program); // Chamada inicial
 
                 playerState.isMoving = false;
                 
+                // Lógica de Sucesso/Falha
                 if (playerState.x === END_POS.x && playerState.y === END_POS.y) {
                     log(`SUCESSO! Nível ${currentLevel + 1} concluído!`, false);
                     statusJogo.textContent = `SUCESSO: Nível ${currentLevel + 1} completo! Carregando próximo...`;
@@ -593,6 +737,8 @@
                 } else if (success) { 
                     log("Sequência executada. Não chegou ao FIM.", true);
                     statusJogo.textContent = 'FALHA: Não chegou ao destino. Tente outra sequência.';
+                } else {
+                    statusJogo.textContent = 'FALHA: Movimento inválido ou colisão.';
                 }
             };
             
