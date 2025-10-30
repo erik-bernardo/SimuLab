@@ -173,11 +173,26 @@
     </div>
 
     <script>
+        // =======================================================
+        // 1. FUNÇÃO DE DESCOMPRESSÃO (REVERSA DO QR CODE)
+        // =======================================================
+
         /**
-         * Lida com Base64 + URI (UTF-8).
+         * Reverte a compressão de uma string, restaurando o JSON original.
+         * Desfaz a codificação de bytes (UTF-16) + Base64, e o encodeURIComponent.
          */
-        function decodeBase64(str) {
-             return decodeURIComponent(atob(str));
+        function decompressString(compressed) {
+            let decompressed = '';
+            // 1. Desfaz o Base64
+            const binaryString = atob(compressed);
+            
+            // 2. Desfaz a codificação de bytes (UTF-16)
+            for (let i = 0; i < binaryString.length; i++) {
+                decompressed += String.fromCharCode(binaryString.charCodeAt(i) - 0x8000);
+            }
+            
+            // 3. Desfaz o encodeURIComponent para restaurar acentos (UTF-8)
+            return decodeURIComponent(decompressed);
         }
 
         // Variável global para armazenar os dados do exercício.
@@ -185,7 +200,7 @@
         let totalCheckableQuestions = 0;
 
         // =======================================================
-        // 1. FUNÇÃO DE MAXIMIZAÇÃO (REVERSA DO QR CODE)
+        // 2. FUNÇÃO DE MAXIMIZAÇÃO (REVERSA DA MINIMIZAÇÃO)
         // =======================================================
         /**
          * Restaura os nomes completos das chaves do objeto para o uso na renderização.
@@ -376,7 +391,7 @@
 
 
         // =======================================================
-        // 2. LÓGICA DE INICIALIZAÇÃO
+        // 3. LÓGICA DE INICIALIZAÇÃO
         // =======================================================
         document.addEventListener('DOMContentLoaded', () => {
             const hash = window.location.hash.substring(1); 
@@ -387,9 +402,9 @@
             }
 
             try {
-                // 1. Decodifica o Base64 e o JSON
-                const jsonString = decodeBase64(hash);
-                // O JSON decodificado é o array minimizado
+                // 1. DESCOMPRIME a Base64 e o JSON
+                const jsonString = decompressString(hash);
+                // O JSON descompactado é o array minimizado
                 const minimizedQuestions = JSON.parse(jsonString); 
                 
                 if (!Array.isArray(minimizedQuestions) || minimizedQuestions.length === 0) {
