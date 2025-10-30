@@ -174,10 +174,9 @@
 
     <script>
         /**
-         * Lida com caracteres UTF-8 codificados em Base64 para URL. (CORRIGIDO)
+         * Lida com Base64 + URI (UTF-8).
          */
         function decodeBase64(str) {
-             // Decodifica a Base64 e o URI, suportando UTF-8
              return decodeURIComponent(atob(str));
         }
 
@@ -185,8 +184,42 @@
         let questionArray = []; 
         let totalCheckableQuestions = 0;
 
+        // =======================================================
+        // 1. FUNÇÃO DE MAXIMIZAÇÃO (REVERSA DO QR CODE)
+        // =======================================================
         /**
-         * Renderiza o exercício com base nos dados decodificados.
+         * Restaura os nomes completos das chaves do objeto para o uso na renderização.
+         */
+        function maximizeQuestions(minimizedQuestions) {
+            return minimizedQuestions.map(mq => {
+                const full = {
+                    id: mq.id,
+                    title: mq.t,
+                    materia: mq.m,
+                    dificuldade: mq.d,
+                    questionText: mq.tx,
+                };
+                
+                // Restaura o nome completo do tipo com base na primeira letra
+                if (mq.ty === 'M') {
+                    full.tipo = 'Múltipla Escolha';
+                    full.options = mq.opts.map(opt => ({
+                        text: opt.txt,
+                        isCorrect: opt.c
+                    }));
+                } else if (mq.ty === 'V') {
+                    full.tipo = 'Verdadeiro ou Falso';
+                    full.correctAnswer = mq.a;
+                } else if (mq.ty === 'D') {
+                    full.tipo = 'Discursiva';
+                    full.answerHint = mq.h;
+                }
+                return full;
+            });
+        }
+
+        /**
+         * Renderiza o exercício com base nos dados decodificados (agora um array).
          */
         function renderExercise(questions) {
             questionArray = questions;
@@ -197,7 +230,6 @@
                  return;
             }
 
-            // O título principal do exercício será o título da primeira questão, por exemplo
             document.getElementById('mainTitle').textContent = `Exercício: ${questions[0].materia} (${questions.length} Questões)`;
             
             const questionsArea = document.getElementById('questionsArea');
@@ -239,7 +271,6 @@
                         </ul>
                     `;
                 } else if (q.tipo === 'Discursiva') {
-                    // Discursiva não conta para a pontuação automática, mas requer resposta
                     answerInputHtml = `
                         <p style="color: #F44336; font-weight: bold;">(Correção Manual)</p>
                         <textarea name="q_${q.id}" rows="5" placeholder="Digite sua resposta aqui..." required></textarea>
@@ -282,14 +313,13 @@
                 const studentAnswerInput = form.querySelector(`[name="q_${q.id}"]:checked, [name="q_${q.id}"]`);
                 
                 if (!studentAnswerInput && q.tipo !== 'Discursiva') {
-                    // Isso só deve acontecer se houver um erro de validação (required)
                     return; 
                 }
 
                 if (q.tipo === 'Múltipla Escolha') {
                     totalQuestionsChecked++;
                     const selectedIndex = parseInt(studentAnswerInput.value);
-                    const isCorrect = q.options[selectedIndex].isCorrect;
+                    const isCorrect = q.options.find((opt, i) => i === selectedIndex)?.isCorrect;
 
                     if (isCorrect) {
                         correctAnswers++;
@@ -320,9 +350,8 @@
                     resultClass = 'manual-check';
                     resultText = 'Requer correção manual do professor.';
                     
-                    // Se houver gabarito, mostra para o professor
                     if (q.answerHint) {
-                         resultText += ` (Gabarito: ${q.answerHint})`;
+                         resultText += ` (Gabarito/Critérios: ${q.answerHint})`;
                     }
                 }
 
@@ -342,44 +371,44 @@
             resultsDiv.style.display = 'block';
             resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
             
-            // Desabilita o botão de submit após o primeiro clique
             document.getElementById('submitBtn').disabled = true; 
         }
 
 
         // =======================================================
-        // LÓGICA DE INICIALIZAÇÃO
+        // 2. LÓGICA DE INICIALIZAÇÃO
         // =======================================================
         document.addEventListener('DOMContentLoaded', () => {
             const hash = window.location.hash.substring(1); 
             
             if (!hash) {
-                document.getElementById('errorMessage').innerHTML = `
-                    <i class="fas fa-exclamation-triangle"></i> Erro: Nenhum exercício encontrado no link.
-                    <p style="font-size: 0.8em; margin-top: 10px;">O link deve ser gerado pelo Criador de Exercícios (editor.html).</p>
-                `;
+                document.getElementById('errorMessage').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erro: Nenhum exercício encontrado no link.`;
                 return;
             }
 
             try {
                 // 1. Decodifica o Base64 e o JSON
                 const jsonString = decodeBase64(hash);
-                const questions = JSON.parse(jsonString); // Agora esperamos um ARRAY
+                // O JSON decodificado é o array minimizado
+                const minimizedQuestions = JSON.parse(jsonString); 
                 
-                if (!Array.isArray(questions) || questions.length === 0) {
+                if (!Array.isArray(minimizedQuestions) || minimizedQuestions.length === 0) {
                      throw new Error("Dados de exercício inválidos ou vazios.");
                 }
 
-                // 2. Renderiza o exercício completo
+                // 2. Maximiza o array para a renderização
+                const questions = maximizeQuestions(minimizedQuestions);
+
+                // 3. Renderiza o exercício completo
                 renderExercise(questions);
 
-                // 3. Adiciona o listener para o formulário de resposta (verificação completa)
+                // 4. Adiciona o listener para o formulário de resposta
                 document.getElementById('answerForm').addEventListener('submit', checkAllAnswers);
                 
             } catch (e) {
                 console.error("Erro ao carregar ou decodificar o exercício:", e);
                  document.getElementById('errorMessage').innerHTML = `
-                    <i class="fas fa-exclamation-triangle"></i> Erro: Não foi possível decodificar o exercício. O link pode estar corrompido.
+                    <i class="fas fa-exclamation-triangle"></i> Erro: Não foi possível decodificar o exercício. O link pode estar corrompido ou ser grande demais.
                     <p style="font-size: 0.8em; margin-top: 10px;">Detalhes: ${e.message}</p>
                 `;
             }
