@@ -107,7 +107,6 @@
             stroke: #2c3e50; /* Cor da onda */
             stroke-width: 3;
             fill: none;
-            transition: d 0.5s ease; /* Transição para o formato da onda */
         }
 
         /* Linha de Referência (Eixo) */
@@ -165,7 +164,7 @@
         <div class="simulation-area">
             <svg id="wave-svg" width="100%" height="100%" viewBox="0 0 800 150" preserveAspectRatio="xMidYMid meet">
                 <line x1="0" y1="75" x2="800" y2="75" class="reference-line" />
-                <path id="wave-path" class="wave-path" d="M0,75 C200,25 400,125 600,75 S800,125 800,75"></path>
+                <path id="wave-path" class="wave-path" d="M0,75"></path>
             </svg>
         </div>
 
@@ -196,47 +195,36 @@
             let unit;
             let missingVariable;
 
-            // Contagem de campos preenchidos
+            // 1. Validação e Determinação do Cálculo
             const filledCount = [vInput.value, lambdaInput.value, fInput.value].filter(val => val.trim() !== '').length;
 
-            if (filledCount < 2) {
+            if (filledCount < 2 || filledCount > 2) {
                 alert('Por favor, preencha exatamente DOIS dos três campos (v, λ, f) para calcular o terceiro.');
-                resultsDiv.textContent = 'Erro: Faltam dados.';
+                resultsDiv.textContent = 'Erro: Faltam ou sobram dados.';
                 periodDiv.textContent = 'Erro';
                 return;
             }
-            
-            // 1. Lógica de Cálculo (v = λ * f)
-            
-            if (isNaN(v) && !isNaN(lambda) && !isNaN(f)) {
-                // Calcular Velocidade (v)
+
+            if (isNaN(v) && !isNaN(lambda) && !isNaN(f) && lambda > 0 && f > 0) {
                 calculatedValue = lambda * f;
                 unit = 'm/s';
                 missingVariable = 'v';
-            } else if (isNaN(lambda) && !isNaN(v) && !isNaN(f)) {
-                // Calcular Comprimento de Onda (λ)
+            } else if (isNaN(lambda) && !isNaN(v) && !isNaN(f) && v > 0 && f > 0) {
                 calculatedValue = v / f;
                 unit = 'm';
                 missingVariable = 'λ';
-            } else if (isNaN(f) && !isNaN(v) && !isNaN(lambda)) {
-                // Calcular Frequência (f)
+            } else if (isNaN(f) && !isNaN(v) && !isNaN(lambda) && v > 0 && lambda > 0) {
                 calculatedValue = v / lambda;
                 unit = 'Hz';
                 missingVariable = 'f';
             } else {
-                alert('Erro: Certifique-se de que apenas UM campo está vazio e os valores são positivos.');
+                alert('Erro: Verifique se os valores são positivos e válidos.');
                 return;
             }
 
             // 2. Cálculo do Período (T = 1/f)
+            let finalF = (missingVariable === 'f') ? calculatedValue : f;
             let periodValue;
-            let finalF;
-            
-            if (missingVariable === 'f') {
-                finalF = calculatedValue;
-            } else {
-                finalF = f;
-            }
             
             if (finalF > 0) {
                 periodValue = 1 / finalF;
@@ -250,64 +238,29 @@
             calculatedLabel.textContent = missingVariable;
             resultsDiv.textContent = `${calculatedValue.toFixed(3)} ${unit}`;
             
-            // 4. Atualização da Visualização da Onda
+            // 4. Atualização da Visualização da Onda (Corrigido o erro de sintaxe SVG)
             
-            let finalLambda;
-            if (missingVariable === 'λ') {
-                finalLambda = calculatedValue;
-            } else {
-                finalLambda = lambda;
-            }
-            
-            // Ajusta a visualização para o comprimento de onda calculado (λ)
-            // Usamos uma escala para mapear o lambda real para o SVG (800px de largura)
-            // Se lambda for 4, queremos 2 ciclos. Se for 8, queremos 1 ciclo.
+            let finalLambda = (missingVariable === 'λ') ? calculatedValue : lambda;
             
             const svgWidth = 800;
-            const waveAmplitude = 50; // Amplitude fixa para visualização
+            const waveAmplitude = 50; 
             const referenceY = 75;
-            
-            // O número de ciclos na tela deve ser inversamente proporcional ao lambda
-            // Usamos um fator de escala para que valores de lambda mais altos resultem em menos ciclos.
-            // Exemplo: se lambda for 4, queremos 2 ciclos (400px/ciclo). Se lambda for 2, queremos 4 ciclos.
-            const cycles = Math.min(Math.max(2 * (4 / finalLambda), 1), 6); // Limita entre 1 e 6 ciclos
-
-            const dPath = `M0,${referenceY} `;
-            
-            // Usamos a função seno (ou uma aproximação cúbica) para desenhar a onda
-            // Aqui, usamos curvas de Bézier (C) para o SVG.
-            // Para 2 ciclos: M0,75 C200,25 200,125 400,75 C600,25 600,125 800,75
-            
-            let pathData = `M0,${referenceY}`;
-            let segmentWidth = svgWidth / cycles;
-
-            for (let i = 0; i < cycles; i++) {
-                const startX = i * segmentWidth;
-                const endX = (i + 1) * segmentWidth;
-                const controlX1 = startX + segmentWidth / 2;
-                const controlX2 = controlX1;
-                
-                // Ponto de crista (máximo) e vale (mínimo)
-                const isCrest = i % 2 === 0;
-                const y1 = isCrest ? referenceY - waveAmplitude : referenceY + waveAmplitude;
-                const y2 = isCrest ? referenceY + waveAmplitude : referenceY - waveAmplitude;
-
-                // Desenha a primeira metade do ciclo
-                pathData += ` C${startX + segmentWidth / 4},${y1} ${startX + segmentWidth / 4 * 3},${y1} ${endX},${referenceY}`;
-            }
-
-            // O código acima é complexo de ajustar em tempo real.
-            // Vamos usar uma simplificação mais robusta (usando a função seno implícita na curva cúbica)
-            // para que a forma mude de maneira visível.
-            
             const numSegments = 100;
-            pathData = `M0,${referenceY}`;
+            
+            // Ajusta o fator de ciclo para que a visualização seja proporcional ao Comprimento de Onda (λ)
+            // Se lambda é grande (onda longa), o ciclo é pequeno.
+            const cycles = Math.min(Math.max(2 * (4 / finalLambda), 1), 6); 
 
-            for (let i = 0; i <= numSegments; i++) {
+            let pathData = `M0,${referenceY}`; // Ponto inicial (0, 75)
+            
+            // Começa do segundo ponto para usar o comando LineTo (L)
+            for (let i = 1; i <= numSegments; i++) {
                 const x = i * (svgWidth / numSegments);
-                // A frequência na visualização é ajustada pelo "cycles"
+                // Gera o Y baseado na função seno, modulada pelo fator 'cycles'
                 const y = referenceY + waveAmplitude * Math.sin((x / svgWidth) * 2 * Math.PI * cycles);
-                pathData += (i === 0 ? "" : " L") + x + "," + y;
+                
+                // Concatenação CORRIGIDA: L x,y
+                pathData += ` L${x.toFixed(2)},${y.toFixed(2)}`; 
             }
             
             document.getElementById('wave-path').setAttribute('d', pathData);
