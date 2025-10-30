@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimuLab - Criador de Exercícios</title>
+    <link rel="icon" type="image/png" href="dados/logo-icon.png"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+
+    <style>
+        /* Cores: #D2691E (Principal/Laranja), #f8f8f8 (Fundo), #007bff (Ação Secundária) */
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        /* ----------------------------------- */
+        /* BARRA SUPERIOR E ESTRUTURA GERAL */
+        /* ----------------------------------- */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 10px 40px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .logo-link {
+            text-decoration: none;
+            color: #D2691E;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .page-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .main-content {
+            flex: 2; 
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar {
+            flex: 1; 
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        /* ----------------------------------- */
+        /* FORMULÁRIO GERAL */
+        /* ----------------------------------- */
+        h2 {
+            color: #D2691E;
+            font-size: 2em;
+            margin-top: 0;
+            border-bottom: 2px solid #D2691E;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        h3 {
+             color: #333;
+             border-bottom: 1px solid #eee;
+             padding-bottom: 5px;
+             margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"], 
+        textarea, 
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+        
+        textarea {
+            resize: vertical;
+        }
+        
+        .inline-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .inline-group > .form-group {
+            flex: 1;
+        }
+        
+        /* ----------------------------------- */
+        /* OPÇÕES (MÚLTIPLA ESCOLHA) e Botões */
+        /* ----------------------------------- */
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        
+        .option-item input[type="radio"],
+        .option-item input[type="checkbox"] {
+            margin: 0;
+            width: auto;
+            min-width: 20px; 
+            height: 20px;
+        }
+        
+        .option-item input[type="text"] {
+            flex-grow: 1;
+        }
+        
+        .add-option-btn, .remove-option-btn {
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .add-option-btn {
+            background-color: #4CAF50; 
+            margin-top: 10px;
+        }
+        
+        .remove-option-btn {
+            background-color: #F44336; 
+        }
+
+        /* Estilo para o botão SALVAR */
+        #saveQuestionBtn {
+            width: 100%;
+            padding: 15px;
+            background-color: #D2691E;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        #saveQuestionBtn:hover {
+            background-color: #c05c18;
+        }
+        
+        /* Estilo para o botão GERAR QR CODE (NOVO) */
+        #finishAndGenerateBtn {
+            width: 100%; 
+            padding: 15px; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            font-size: 1.1em; 
+            cursor: pointer; 
+            margin-top: 10px; 
+            transition: background-color 0.3s;
+        }
+        
+        #finishAndGenerateBtn:hover {
+            background-color: #0056b3;
+        }
+        
+        /* Estilos da Sidebar (Abas) */
+        .sidebar h3 {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        
+        #newQuestionBtn {
+             width: 100%;
+             padding: 10px;
+             margin-bottom: 15px;
+             background-color: #007bff;
+             color: white;
+             border: none;
+             border-radius: 4px;
+             cursor: pointer;
+             font-weight: bold;
+        }
+        
+        #savedQuestionsList {
+            list-style: none;
+            padding: 0;
+        }
+
+        #savedQuestionsList li {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 5px solid #007bff;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            cursor: pointer; 
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+        
+        #savedQuestionsList li.active {
+            background-color: #dbeaff; 
+            border-left: 5px solid #D2691E;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .question-info {
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+        
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #F44336;
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-left: 10px;
+            transition: color 0.2s;
+        }
+        
+        /* Estilo do Container do QR Code (NOVO) */
+        #qrCodeContainer {
+            margin-top: 30px; 
+            text-align: center; 
+            padding: 25px; 
+            border: 2px dashed #D2691E; 
+            border-radius: 10px; 
+            background-color: #fffaf0;
+        }
+
+        /* ----------------------------------- */
+        /* RESPONSIVIDADE */
+        /* ----------------------------------- */
+        @media (max-width: 900px) {
+            .page-container {
+                flex-direction: column;
+            }
+            .inline-group {
+                flex-direction: column;
+                gap: 0;
+            }
+            .sidebar {
+                position: static;
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="top-bar">
+        <a href="exercicios.html" class="logo-link">
+            <i class="fas fa-arrow-left" style="margin-right: 15px;"></i>
+            SimuLab - Criador de Exercícios (Professor)
+        </a>
+    </header>
+
+    <div class="page-container">
+        
+        <div class="main-content">
+            <h2 id="formTitle"><i class="fas fa-file-alt"></i> Criar Novo Exercício</h2>
+            
+            <form id="questionForm">
+                <input type="hidden" id="questionId" value=""> 
+
+                <h3>Informações Básicas</h3>
+                
+                <div class="inline-group">
+                    <div class="form-group">
+                        <label for="title">Título do Exercício:</label>
+                        <input type="text" id="title" name="title" required placeholder="Ex: Cálculo de Juros Compostos">
+                    </div>
+                </div>
+                
+                <div class="inline-group">
+                    <div class="form-group">
+                        <label for="materia">Matéria:</label>
+                        <select id="materia" name="materia" required>
+                            <option value="">Selecione a Matéria</option>
+                            <option value="Matemática">Matemática</option>
+                            <option value="Física">Física</option>
+                            <option value="Química">Química</option>
+                            <option value="Português">Português</option>
+                            <option value="Programação">Programação</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dificuldade">Nível de Dificuldade:</label>
+                        <select id="dificuldade" name="dificuldade" required>
+                            <option value="">Selecione a Dificuldade</option>
+                            <option value="Fácil">Fácil</option>
+                            <option value="Média">Média</option>
+                            <option value="Difícil">Difícil</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tipo">Tipo de Exercício:</label>
+                        <select id="tipo" name="tipo" required>
+                            <option value="">Selecione o Tipo</option>
+                            <option value="Múltipla Escolha">Múltipla Escolha</option>
+                            <option value="Verdadeiro ou Falso">Verdadeiro ou Falso</option>
+                            <option value="Discursiva">Discursiva</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <h3>Enunciado</h3>
+                <div class="form-group">
+                    <label for="questionText">Corpo do Exercício / Enunciado:</label>
+                    <textarea id="questionText" name="questionText" rows="6" required placeholder="Insira aqui o texto completo do seu exercício..."></textarea>
+                </div>
+                
+                <div id="optionsArea">
+                    </div>
+
+                <button type="submit" id="saveQuestionBtn"><i class="fas fa-save"></i> Salvar Exercício</button>
+            </form>
+            
+            <button type="button" id="finishAndGenerateBtn"><i class="fas fa-qrcode"></i> Terminar e Gerar Link/QR Code</button>
+
+            <div id="qrCodeContainer" style="display: none;">
+                <h4>Link do Exercício Gerado:</h4>
+                <p id="generatedLink" style="word-break: break-all; font-size: 0.9em; color: #555;"></p>
+                <div id="qrcode" style="margin: 15px auto;"></div>
+                <p style="margin-top: 15px; color: #D2691E; font-weight: bold;">Compartilhe este QR Code/Link com seus alunos.</p>
+                <p style="font-size: 0.8em; color: #F44336;">Atenção: O link só funcionará enquanto os arquivos `editor.html` e `fazer_exercicio.html` estiverem no mesmo diretório.</p>
+            </div>
+            
+        </div>
+        
+        <aside class="sidebar">
+            <button id="newQuestionBtn"><i class="fas fa-plus-circle"></i> Novo Exercício</button>
+            <h3 style="color: #F44336; border-color: #F44336;"><i class="fas fa-exclamation-triangle"></i> Dados não Salvos</h3>
+            <p style="font-size: 0.9em; color: #777; margin-top: -10px;">Estes são exercícios de demonstração (em memória). Clique para editar.</p>
+            <ul id="savedQuestionsList">
+                </ul>
+            <p id="noQuestionsMessage" style="color: #777; font-style: italic; text-align: center; display: none;">Nenhum exercício salvo ainda.</p>
+        </aside>
+
+    </div>
+
+    <script>
+        // DADOS SIMULADOS (SUBSTITUI O LOCAL STORAGE)
+        let DUMMY_QUESTIONS = [
+            { id: 1678881234, title: "Questão Placeholder 1 (Matemática)", materia: "Matemática", dificuldade: "Média", tipo: "Múltipla Escolha", questionText: "Este é um exercício de demonstração. Ele não será salvo no seu navegador e desaparecerá ao recarregar a página.", isProfessor: true, options: [{ text: "Opção A (Correta)", isCorrect: true }, { text: "Opção B", isCorrect: false }] },
+            { id: 1678881235, title: "Questão Placeholder 2 (Física)", materia: "Física", dificuldade: "Fácil", tipo: "Verdadeiro ou Falso", questionText: "A gravidade na Terra é 9.8 m/s².", isProfessor: true, correctAnswer: true },
+            { id: 1678881236, title: "Questão Placeholder 3 (Química)", materia: "Química", dificuldade: "Difícil", tipo: "Discursiva", questionText: "Descreva a Segunda Lei da Termodinâmica.", isProfessor: true, answerHint: "A entropia de um sistema isolado tende a aumentar com o tempo." }
+        ];
+
+        const form = document.getElementById('questionForm');
+        const formTitle = document.getElementById('formTitle');
+        const questionIdInput = document.getElementById('questionId');
+        const tipoSelect = document.getElementById('tipo');
+        const optionsArea = document.getElementById('optionsArea');
+        const savedQuestionsList = document.getElementById('savedQuestionsList');
+        const noQuestionsMessage = document.getElementById('noQuestionsMessage');
+        const newQuestionBtn = document.getElementById('newQuestionBtn');
+        
+        // NOVOS ELEMENTOS
+        const finishAndGenerateBtn = document.getElementById('finishAndGenerateBtn');
+        const qrCodeContainer = document.getElementById('qrCodeContainer');
+        const generatedLink = document.getElementById('generatedLink');
+        
+        // =======================================================
+        // 1. FUNÇÕES DE DADOS (EM MEMÓRIA)
+        // =======================================================
+        
+        function loadQuestions() {
+            return DUMMY_QUESTIONS;
+        }
+
+        function saveQuestions(questions) {
+            DUMMY_QUESTIONS = questions;
+            renderSavedQuestions();
+        }
+
+        function deleteQuestion(idToDelete) {
+            if (!confirm("Tem certeza que deseja deletar este exercício? Esta ação não pode ser desfeita até o recarregamento da página.")) return;
+            
+            const initialLength = DUMMY_QUESTIONS.length;
+            DUMMY_QUESTIONS = DUMMY_QUESTIONS.filter(q => q.id !== idToDelete);
+
+            if (DUMMY_QUESTIONS.length < initialLength) {
+                 saveQuestions(DUMMY_QUESTIONS);
+                 if (parseInt(questionIdInput.value) === idToDelete) {
+                     resetForm(); 
+                 }
+            }
+        }
+        
+        // =======================================================
+        // 2. LÓGICA DO FORMULÁRIO DINÂMICO
+        // =======================================================
+
+        function renderOptionsArea(questionData = null) {
+            const tipo = tipoSelect.value;
+            optionsArea.innerHTML = '';
+            
+            if (tipo === 'Múltipla Escolha') {
+                optionsArea.innerHTML = `
+                    <h3>Opções de Resposta (<span style="color: red;">Marque a Correta</span>)</h3>
+                    <div id="multipleChoiceOptions">
+                        </div>
+                    <button type="button" class="add-option-btn" id="addOptionBtn">
+                        <i class="fas fa-plus"></i> Adicionar Opção
+                    </button>
+                `;
+                document.getElementById('addOptionBtn').addEventListener('click', () => addOption());
+                
+                const initialOptions = (questionData && questionData.options) ? questionData.options : [
+                    { text: '', isCorrect: false }, 
+                    { text: '', isCorrect: false }
+                ];
+                initialOptions.forEach(opt => addOption(opt.text, opt.isCorrect));
+
+            } else if (tipo === 'Verdadeiro ou Falso') {
+                 const currentAnswer = questionData ? (questionData.correctAnswer ? 'true' : 'false') : 'true';
+                 optionsArea.innerHTML = `
+                    <h3>Resposta Correta</h3>
+                    <div class="form-group">
+                        <label for="correctAnswerVF">Qual a resposta correta para o enunciado?</label>
+                        <select id="correctAnswerVF" name="correctAnswerVF" required>
+                            <option value="true" ${currentAnswer === 'true' ? 'selected' : ''}>Verdadeiro</option>
+                            <option value="false" ${currentAnswer === 'false' ? 'selected' : ''}>Falso</option>
+                        </select>
+                        <p style="color: #999; font-size: 0.9em; margin-top: 5px;">Selecione se o enunciado é Verdadeiro ou Falso.</p>
+                    </div>
+                `;
+            } else if (tipo === 'Discursiva') {
+                 const currentHint = questionData ? questionData.answerHint : '';
+                 optionsArea.innerHTML = `
+                    <h3>Padrão de Resposta (Gabarito / Critérios)</h3>
+                    <div class="form-group">
+                        <label for="correctAnswerDiscursiva">Padrão de Resposta / Critérios de Correção:</label>
+                        <textarea id="correctAnswerDiscursiva" name="correctAnswerDiscursiva" rows="3" placeholder="Insira o gabarito detalhado ou os critérios para correção manual...">${currentHint}</textarea>
+                    </div>
+                `;
+            }
+            qrCodeContainer.style.display = 'none'; // Esconde o QR code ao alterar o formulário
+        }
+
+        function addOption(text = '', isCorrect = false) {
+            const container = document.getElementById('multipleChoiceOptions');
+            const index = container.children.length;
+
+            const optionDiv = document.createElement('div');
+            optionDiv.classList.add('option-item');
+            optionDiv.innerHTML = `
+                <input type="radio" name="correctOption" value="${index}" ${isCorrect ? 'checked' : ''} required>
+                <input type="text" name="optionText" placeholder="Texto da Opção" value="${text}" required>
+                <button type="button" class="remove-option-btn"><i class="fas fa-trash"></i></button>
+            `;
+            
+            optionDiv.querySelector('.remove-option-btn').addEventListener('click', function() {
+                if (container.children.length > 2) { 
+                    container.removeChild(optionDiv);
+                    reindexOptions();
+                } else {
+                    alert("O exercício de Múltipla Escolha deve ter pelo menos duas opções.");
+                }
+            });
+
+            container.appendChild(optionDiv);
+        }
+        
+        function reindexOptions() {
+            const container = document.getElementById('multipleChoiceOptions');
+            const optionItems = container.querySelectorAll('.option-item');
+            optionItems.forEach((item, index) => {
+                const radio = item.querySelector('input[type="radio"]');
+                radio.value = index;
+            });
+        }
+        
+        function getFormData(event) {
+            // Se o evento não for de submit, precisamos forçar a validação e coleta
+            if (event && event.type !== 'submit' && !form.checkValidity()) {
+                 form.reportValidity(); // Tenta mostrar erros de validação
+                 return null;
+            }
+            
+            const formData = new FormData(event ? event.target : form);
+            const question = {
+                id: questionIdInput.value ? parseInt(questionIdInput.value) : Date.now(), 
+                isProfessor: true, 
+                title: formData.get('title'),
+                materia: formData.get('materia'),
+                dificuldade: formData.get('dificuldade'),
+                tipo: formData.get('tipo'),
+                questionText: formData.get('questionText'),
+                topico: formData.get('title') 
+            };
+            
+            if (question.tipo === 'Múltipla Escolha') {
+                const optionTexts = [];
+                document.querySelectorAll('input[name="optionText"]').forEach(input => {
+                    optionTexts.push(input.value);
+                });
+                
+                const correctIndex = parseInt(formData.get('correctOption')); 
+                
+                question.options = optionTexts.map((text, index) => ({
+                    text: text,
+                    isCorrect: index === correctIndex
+                }));
+
+            } else if (question.tipo === 'Verdadeiro ou Falso') {
+                question.correctAnswer = formData.get('correctAnswerVF') === 'true'; 
+            } else if (question.tipo === 'Discursiva') {
+                question.answerHint = formData.get('correctAnswerDiscursiva'); 
+            }
+            
+            return question;
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+
+            const newQuestionData = getFormData(event);
+            if (!newQuestionData) return;
+
+            let questions = DUMMY_QUESTIONS;
+            const isEditing = !!questionIdInput.value && questions.some(q => q.id === newQuestionData.id);
+            
+            if (isEditing) {
+                questions = questions.map(q => 
+                    q.id === newQuestionData.id ? newQuestionData : q
+                );
+                alert(`Exercício "${newQuestionData.title}" atualizado (em memória) com sucesso!`);
+            } else {
+                newQuestionData.id = Date.now(); 
+                questions.unshift(newQuestionData);
+                alert(`Exercício "${newQuestionData.title}" criado (em memória) com sucesso!`);
+            }
+            
+            saveQuestions(questions); 
+            
+            if (!isEditing) {
+                loadQuestionForEditing(newQuestionData.id);
+            } else {
+                formTitle.innerHTML = `<i class="fas fa-edit"></i> Editando: ${newQuestionData.title}`;
+            }
+            
+            qrCodeContainer.style.display = 'none'; // Esconde o QR code ao salvar/atualizar
+        }
+        
+        // =======================================================
+        // 3. LÓGICA DE GERAÇÃO DO QR CODE (NOVO)
+        // =======================================================
+
+        function handleFinishAndGenerate(event) {
+            // Garante que o formulário está preenchido e obtém os dados mais recentes.
+            // Passamos 'null' para indicar que não é um evento de submit real, mas queremos os dados
+            const currentQuestion = getFormData(null); 
+            
+            if (!currentQuestion || !currentQuestion.title || !currentQuestion.questionText) {
+                alert("Por favor, preencha o Título, Matéria, Dificuldade e Enunciado antes de gerar o link.");
+                form.reportValidity(); // Mostra onde está faltando
+                return;
+            }
+            
+            // 1. Codifica o objeto do exercício.
+            const jsonString = JSON.stringify(currentQuestion);
+            // Usamos btoa (Base64) para codificar a string JSON de forma URL-safe.
+            const encodedData = btoa(unescape(encodeURIComponent(jsonString))); // Combinação para lidar com caracteres UTF-8
+            
+            // 2. Constrói a URL final (aponta para o novo arquivo 'fazer_exercicio.html')
+            // Assumindo que 'fazer_exercicio.html' está no mesmo diretório
+            const baseUrl = window.location.href.replace('editor.html', 'fazer_exercicio.html');
+            const finalUrl = `${baseUrl.split('#')[0]}#${encodedData}`; // Limpa hash antiga
+            
+            // 3. Limpa e Gera o QR Code.
+            document.getElementById('qrcode').innerHTML = ''; // Limpa o container
+            
+            new QRCode(document.getElementById("qrcode"), {
+                text: finalUrl,
+                width: 180,
+                height: 180,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            // 4. Exibe o link e o container
+            generatedLink.textContent = finalUrl;
+            qrCodeContainer.style.display = 'block';
+            
+            // 5. Rola para o QR Code
+            qrCodeContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            alert("QR Code Gerado! Use o link ou a imagem para compartilhar o exercício.");
+        }
+
+
+        // =======================================================
+        // 4. LÓGICA DE EDIÇÃO (CARREGAMENTO DAS ABAS)
+        // =======================================================
+
+        function loadQuestionForEditing(id) {
+            const questions = loadQuestions();
+            const question = questions.find(q => q.id === id);
+
+            if (!question) return;
+
+            questionIdInput.value = question.id;
+            formTitle.innerHTML = `<i class="fas fa-edit"></i> Editando: ${question.title}`;
+            
+            document.getElementById('title').value = question.title;
+            document.getElementById('materia').value = question.materia;
+            document.getElementById('dificuldade').value = question.dificuldade;
+            document.getElementById('tipo').value = question.tipo;
+            document.getElementById('questionText').value = question.questionText;
+
+            tipoSelect.removeEventListener('change', handleTypeChange);
+            renderOptionsArea(question);
+            tipoSelect.addEventListener('change', handleTypeChange);
+
+            document.querySelectorAll('#savedQuestionsList li').forEach(li => {
+                li.classList.remove('active');
+            });
+            document.querySelector(`#savedQuestionsList li[data-id="${id}"]`).classList.add('active');
+            
+            document.querySelector(`#savedQuestionsList li[data-id="${id}"]`).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function resetForm() {
+            form.reset();
+            questionIdInput.value = '';
+            formTitle.innerHTML = `<i class="fas fa-file-alt"></i> Criar Novo Exercício`;
+            
+            if (!tipoSelect.value) {
+                tipoSelect.value = 'Múltipla Escolha';
+            }
+            renderOptionsArea(); 
+            
+            document.querySelectorAll('#savedQuestionsList li').forEach(li => {
+                li.classList.remove('active');
+            });
+             qrCodeContainer.style.display = 'none'; // Esconde o QR code
+        }
+
+
+        // =======================================================
+        // 5. RENDERIZAÇÃO DA SIDEBAR (AS ABAS)
+        // =======================================================
+
+        function renderSavedQuestions() {
+            const questions = loadQuestions();
+            savedQuestionsList.innerHTML = '';
+
+            if (questions.length === 0) {
+                noQuestionsMessage.style.display = 'block';
+                return;
+            }
+            
+            noQuestionsMessage.style.display = 'none';
+
+            questions.forEach(q => {
+                const li = document.createElement('li');
+                li.setAttribute('data-id', q.id);
+                
+                if (parseInt(questionIdInput.value) === q.id) {
+                    li.classList.add('active');
+                    formTitle.innerHTML = `<i class="fas fa-edit"></i> Editando: ${q.title}`;
+                }
+                
+                li.innerHTML = `
+                    <div class="question-info">
+                        <span class="title">${q.title}</span> 
+                        <div class="meta">
+                             Tipo: <strong>${q.tipo}</strong> | Matéria: ${q.materia}
+                        </div>
+                    </div>
+                    <button type="button" class="delete-btn" data-id="${q.id}" title="Deletar Exercício">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `;
+                
+                li.querySelector('.question-info').addEventListener('click', () => loadQuestionForEditing(q.id));
+                li.querySelector('.delete-btn').addEventListener('click', (e) => {
+                    e.stopPropagation(); 
+                    deleteQuestion(q.id);
+                });
+                
+                savedQuestionsList.appendChild(li);
+            });
+        }
+
+        function handleTypeChange() {
+            renderOptionsArea();
+        }
+
+        // =======================================================
+        // 6. INICIALIZAÇÃO
+        // =======================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            tipoSelect.addEventListener('change', handleTypeChange);
+            newQuestionBtn.addEventListener('click', resetForm);
+            finishAndGenerateBtn.addEventListener('click', handleFinishAndGenerate); // NOVO LISTENER
+            form.addEventListener('submit', handleFormSubmit);
+
+            resetForm(); 
+            renderSavedQuestions();
+        });
+    </script>
+</body>
+</html>
