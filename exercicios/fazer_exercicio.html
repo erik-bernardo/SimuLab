@@ -174,12 +174,11 @@
 
     <script>
         /**
-         * Lida com caracteres UTF-8 codificados em Base64 para URL.
+         * Lida com caracteres UTF-8 codificados em Base64 para URL. (CORRIGIDO)
          */
         function decodeBase64(str) {
-            return decodeURIComponent(atob(str).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
+             // Decodifica a Base64 e o URI, suportando UTF-8
+             return decodeURIComponent(atob(str));
         }
 
         // Variável global para armazenar os dados do exercício.
@@ -187,7 +186,7 @@
         let totalCheckableQuestions = 0;
 
         /**
-         * Renderiza o exercício com base nos dados decodificados (agora um array).
+         * Renderiza o exercício com base nos dados decodificados.
          */
         function renderExercise(questions) {
             questionArray = questions;
