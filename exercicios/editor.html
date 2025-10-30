@@ -365,7 +365,7 @@
                 <p id="generatedLink" style="word-break: break-all; font-size: 0.9em; color: #555;"></p>
                 <div id="qrcode" style="margin: 15px auto;"></div>
                 <p style="margin-top: 15px; color: #D2691E; font-weight: bold;">Compartilhe este QR Code/Link com seus alunos.</p>
-                <p style="font-size: 0.8em; color: #F44336;">Atenção: O link só funcionará enquanto os arquivos `editor.html` e `fazer_exercicio.html` estiverem no mesmo diretório. **A codificação é limitada a 3-4 questões complexas.**</p>
+                <p style="font-size: 0.8em; color: #F44336;">Atenção: O link só funcionará enquanto os arquivos `editor.html` e `fazer_exercicio.html` estiverem no mesmo diretório.</p>
             </div>
             
         </div>
@@ -430,7 +430,7 @@
             }
         }
         
-        // ... (Funções renderOptionsArea, addOption, reindexOptions são mantidas)
+        // Funções de manipulação do formulário (mantidas)
         function renderOptionsArea(questionData = null) {
             const tipo = tipoSelect.value;
             optionsArea.innerHTML = '';
@@ -475,7 +475,7 @@
                     </div>
                 `;
             }
-            qrCodeContainer.style.display = 'none'; // Esconde o QR code ao alterar o formulário
+            qrCodeContainer.style.display = 'none';
         }
 
         function addOption(text = '', isCorrect = false) {
@@ -512,10 +512,6 @@
         }
         
         function getFormData(event) {
-            if (event && event.type !== 'submit' && !form.checkValidity()) {
-                 // return null; 
-            }
-            
             const formData = new FormData(event ? event.target : form);
             const question = {
                 id: questionIdInput.value ? parseInt(questionIdInput.value) : Date.now(), 
@@ -580,6 +576,39 @@
             
             qrCodeContainer.style.display = 'none';
         }
+
+        // =======================================================
+        // 2. FUNÇÃO DE MINIMIZAÇÃO (PARA QR CODE)
+        // =======================================================
+        /**
+         * Reduz os nomes das chaves do objeto para otimizar o tamanho da string de QR Code.
+         * Ex: { title: "Questão 1..." } vira { t: "Questão 1..." }
+         */
+        function minimizeQuestions(questions) {
+            return questions.map(q => {
+                const minimized = {
+                    id: q.id,
+                    t: q.title, // 't' para title
+                    m: q.materia, // 'm' para materia
+                    d: q.dificuldade, // 'd' para dificuldade
+                    // Usa a primeira letra do tipo (M, V, D) para economizar espaço
+                    ty: q.tipo.substring(0, 1), 
+                    tx: q.questionText, // 'tx' para questionText
+                };
+
+                if (q.tipo === 'Múltipla Escolha' && q.options) {
+                    minimized.opts = q.options.map(opt => ({
+                        txt: opt.text, // 'txt' para option text
+                        c: opt.isCorrect // 'c' para isCorrect
+                    }));
+                } else if (q.tipo === 'Verdadeiro ou Falso') {
+                    minimized.a = q.correctAnswer; // 'a' para answer (true/false)
+                } else if (q.tipo === 'Discursiva') {
+                    minimized.h = q.answerHint; // 'h' para hint/gabarito
+                }
+                return minimized;
+            });
+        }
         
         // =======================================================
         // 3. LÓGICA DE GERAÇÃO DO QR CODE (CORRIGIDA)
@@ -587,9 +616,8 @@
 
         function handleFinishAndGenerate(event) {
             
-            // 1. Garante que a questão ativa (se houver) está incorporada na lista antes de serializar TUDO
+            // 1. Garante que a questão ativa está na lista
             const currentQuestionData = getFormData(null); 
-            
             if (currentQuestionData && currentQuestionData.title) {
                 let questions = DUMMY_QUESTIONS;
                 const isEditing = !!questionIdInput.value && questions.some(q => q.id === currentQuestionData.id);
@@ -599,7 +627,6 @@
                         q.id === currentQuestionData.id ? currentQuestionData : q
                     );
                 } else if (!questionIdInput.value) {
-                    // Se for uma nova questão, adicione-a e selecione-a
                     currentQuestionData.id = Date.now(); 
                     DUMMY_QUESTIONS.unshift(currentQuestionData);
                     loadQuestionForEditing(currentQuestionData.id); 
@@ -610,41 +637,47 @@
             const questionsToEncode = DUMMY_QUESTIONS;
             
             if (questionsToEncode.length === 0) {
-                alert("Não há questões para gerar o Exercício. Crie e salve pelo menos uma questão na barra lateral.");
+                alert("Não há questões para gerar o Exercício.");
                 return;
             }
 
-            // 2. Codifica o ARRAY COMPLETO de exercícios (Lógica CORRIGIDA: Mais curta e compatível com UTF-8)
-            const jsonString = JSON.stringify(questionsToEncode);
+            // 2. Minimiza e Serializa o ARRAY COMPLETO (redução de tamanho crítica para o QR code)
+            const minimizedQuestions = minimizeQuestions(questionsToEncode);
+            const jsonString = JSON.stringify(minimizedQuestions);
             
-            // CORREÇÃO: Usando a codificação padrão de Base64 para URLs que suporta UTF-8
+            // 3. Codifica (Base64 + URI) e Constrói a URL
             const encodedData = btoa(encodeURIComponent(jsonString)); 
             
-            // 3. Constrói a URL final (aponta para o novo arquivo 'fazer_exercicio.html')
             const baseUrl = window.location.href.replace('editor.html', 'fazer_exercicio.html');
             const finalUrl = `${baseUrl.split('#')[0]}#${encodedData}`; 
             
             // 4. Limpa e Gera o QR Code.
             document.getElementById('qrcode').innerHTML = '';
             
-            new QRCode(document.getElementById("qrcode"), {
-                text: finalUrl,
-                width: 180,
-                height: 180,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
+            try {
+                new QRCode(document.getElementById("qrcode"), {
+                    text: finalUrl,
+                    width: 180,
+                    height: 180,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
 
-            // 5. Exibe o link e o container
-            generatedLink.textContent = finalUrl;
-            qrCodeContainer.style.display = 'block';
-            
-            qrCodeContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
-            alert(`QR Code Gerado! O link contém o Exercício completo com ${questionsToEncode.length} questões.`);
+                // 5. Exibe o link e o container
+                generatedLink.textContent = finalUrl;
+                qrCodeContainer.style.display = 'block';
+                qrCodeContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                alert(`QR Code Gerado! O link contém o Exercício completo com ${questionsToEncode.length} questões.`);
+                
+            } catch (e) {
+                 // Captura o erro da biblioteca e avisa o professor
+                 alert("ERRO: O Exercício é muito grande para o QR Code. Por favor, remova algumas questões ou encurte os textos.");
+                 console.error("QR Code generation error:", e);
+            }
         }
 
-        // ... (Funções loadQuestionForEditing, resetForm, renderSavedQuestions, handleTypeChange são mantidas)
+        // ... (Funções de Edição e Renderização de Sidebar mantidas)
         function loadQuestionForEditing(id) {
             const questions = loadQuestions();
             const question = questions.find(q => q.id === id);
@@ -687,11 +720,6 @@
             });
              qrCodeContainer.style.display = 'none'; 
         }
-
-
-        // =======================================================
-        // 5. RENDERIZAÇÃO DA SIDEBAR (AS ABAS)
-        // =======================================================
 
         function renderSavedQuestions() {
             const questions = loadQuestions();
@@ -739,9 +767,8 @@
             renderOptionsArea();
         }
 
-
         // =======================================================
-        // 6. INICIALIZAÇÃO
+        // 4. INICIALIZAÇÃO
         // =======================================================
         document.addEventListener('DOMContentLoaded', () => {
             tipoSelect.addEventListener('change', handleTypeChange);
