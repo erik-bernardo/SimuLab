@@ -27,10 +27,16 @@
             background-color: white;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             display: flex;
-            justify-content: space-between;
+            justify-content: space-between; 
             align-items: stretch;
             border-bottom: 1px solid #ddd;
-            padding: 0 40px; /* Adiciona padding lateral */
+            padding: 0 40px; 
+            min-height: 70px;
+        }
+        
+        .logo-area {
+            display: flex;
+            align-items: center;
         }
 
         .logo-link {
@@ -43,20 +49,108 @@
             padding: 15px 0;
         }
 
-        .logo-link .fas {
-            margin-right: 10px;
-        }
         .logo-image {
-    /* Define uma altura máxima para a imagem */
-        max-height: 70px; 
-    /* Garante que a imagem se ajuste ao tamanho e não estique */
-        width: auto;     
-    /* Remove a margem extra, se houver */
-         object-fit: fill;
+            max-height: 50px; 
+            width: auto;
+            object-fit: fill;
         }
+        
+        /* ----------------------------------- */
+        /* ESTILOS DA BARRA DE PESQUISA E SUGESTÕES (NOVO) */
+        /* ----------------------------------- */
+        .search-wrapper {
+            position: relative; /* Pai para posicionar as sugestões */
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            max-width: 400px;
+            margin: 0 20px;
+        }
+        
+        .search-container {
+            display: flex;
+            width: 100%;
+        }
+
+        .search-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-right: none;
+            border-radius: 5px 0 0 5px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #D2691E;
+            box-shadow: 0 0 5px rgba(210, 105, 30, 0.5);
+        }
+
+        .search-button {
+            padding: 10px 15px;
+            background-color: #D2691E;
+            color: white;
+            border: 1px solid #D2691E;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .search-button:hover {
+            background-color: #c05c18;
+            border-color: #c05c18;
+        }
+        
+        /* Lista de Sugestões */
+        .search-suggestions {
+            position: absolute;
+            top: 100%; /* Coloca abaixo do input */
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid #D2691E;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000; /* Garante que fique acima de outros elementos */
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: none; /* Escondida por padrão */
+        }
+        
+        .search-suggestions li {
+            padding: 10px 15px;
+            cursor: pointer;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .search-suggestions li:last-child {
+            border-bottom: none;
+        }
+
+        .search-suggestions li:hover {
+            background-color: #ffebcc; /* Cor suave da Matemática */
+            font-weight: bold;
+        }
+        
+        .suggestion-path {
+            font-size: 0.8em;
+            color: #777;
+            display: block;
+        }
+
+        /* ----------------------------------- */
+        /* LINKS DE NAVEGAÇÃO */
+        /* ----------------------------------- */
         .nav-links {
             display: flex;
-            align-items: stretch;
+            align-items: center; 
         }
 
         .nav-link {
@@ -69,6 +163,7 @@
             display: flex;
             align-items: center;
             text-transform: uppercase;
+            height: 100%; 
         }
 
         .nav-link:hover {
@@ -82,140 +177,34 @@
             padding: 0 20px;
             margin-left: 20px;
         }
-        .nav-link.main-action:hover {
-             background-color: #c05c18; /* Cor mais escura no hover */
-             color: white;
-        }
 
+        .nav-link.main-action:hover {
+            background-color: #c05c18; 
+            color: white;
+        }
 
         /* ----------------------------------- */
         /* SEÇÕES DA LANDING PAGE */
         /* ----------------------------------- */
-
-        /* 1. SEÇÃO PRINCIPAL (HERO) */
-        .hero-section {
-            background-color: #f0f0f0;
-            padding: 80px 40px;
-            text-align: center;
-        }
-
-        .hero-section h2 {
-            font-size: 2.5em;
-            color: #D2691E;
-            margin-bottom: 10px;
-        }
-
-        .hero-section p {
-            font-size: 1.2em;
-            color: #555;
-            max-width: 700px;
-            margin: 0 auto 30px;
-        }
-
-        .hero-button {
-            background-color: #D2691E;
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            padding: 12px 30px;
-            border-radius: 5px;
-            font-size: 1.1em;
-            transition: background-color 0.3s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .hero-button:hover {
-            background-color: #c05c18;
-        }
-        
-        /* 2. SEÇÃO DE DESTAQUE (Simulador/Módulos) */
-        .feature-section {
-            padding: 60px 40px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            gap: 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .feature-text {
-            flex: 1;
-            text-align: left;
-        }
-
-        .feature-text h3 {
-            color: #D2691E;
-            font-size: 2em;
-            margin-bottom: 15px;
-        }
-
-        .feature-image-container {
-            flex: 1;
-            max-width: 500px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .feature-image-container img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* 3. SEÇÃO "SAIBA MAIS" (Recursos Extras) */
-        .info-section {
-            background-color: white;
-            padding: 60px 40px;
-            text-align: center;
-            border-top: 1px solid #eee;
-        }
-        
-        .info-section h3 {
-            color: #333;
-            font-size: 1.8em;
-            margin-bottom: 30px;
-        }
-        
-        .info-grid {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-        }
-
-        .info-card {
-            flex-basis: 30%;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            transition: box-shadow 0.3s;
-        }
-
-        .info-card:hover {
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .info-card i {
-            font-size: 2em;
-            color: #D2691E;
-            margin-bottom: 10px;
-        }
-
-        .info-card h4 {
-            color: #333;
-            margin-top: 0;
-        }
-
-        /* 4. RODAPÉ */
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 20px 0;
-            font-size: 0.9em;
-        }
+        /* (Estilos de Hero, Feature, Info e Footer permanecem os mesmos) */
+        .hero-section { background-color: #f0f0f0; padding: 80px 40px; text-align: center; }
+        .hero-section h2 { font-size: 2.5em; color: #D2691E; margin-bottom: 10px; }
+        .hero-section p { font-size: 1.2em; color: #555; max-width: 700px; margin: 0 auto 30px; }
+        .hero-button { background-color: #D2691E; color: white; text-decoration: none; font-weight: bold; padding: 12px 30px; border-radius: 5px; font-size: 1.1em; transition: background-color 0.3s; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+        .hero-button:hover { background-color: #c05c18; }
+        .feature-section { padding: 60px 40px; display: flex; justify-content: space-around; align-items: center; gap: 40px; max-width: 1200px; margin: 0 auto; }
+        .feature-text { flex: 1; text-align: left; }
+        .feature-text h3 { color: #D2691E; font-size: 2em; margin-bottom: 15px; }
+        .feature-image-container { flex: 1; max-width: 500px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); overflow: hidden; }
+        .feature-image-container img { width: 100%; height: auto; display: block; }
+        .info-section { background-color: white; padding: 60px 40px; text-align: center; border-top: 1px solid #eee; }
+        .info-section h3 { color: #333; font-size: 1.8em; margin-bottom: 30px; }
+        .info-grid { display: flex; justify-content: center; gap: 30px; }
+        .info-card { flex-basis: 30%; padding: 20px; border-radius: 8px; border: 1px solid #ddd; transition: box-shadow 0.3s; }
+        .info-card:hover { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+        .info-card i { font-size: 2em; color: #D2691E; margin-bottom: 10px; }
+        .info-card h4 { color: #333; margin-top: 0; }
+        footer { background-color: #333; color: white; text-align: center; padding: 20px 0; font-size: 0.9em; }
 
 
         /* ----------------------------------- */
@@ -224,12 +213,34 @@
         @media (max-width: 768px) {
             .top-bar {
                 padding: 0 20px;
+                flex-wrap: wrap; 
+            }
+            .search-wrapper {
+                order: 3; 
+                width: 100%;
+                margin: 10px 0 0 0;
+            }
+            .search-input {
+                 border-radius: 5px; /* Arredonda em telas pequenas */
+                 border-right: 1px solid #ccc;
+            }
+            .search-button {
+                border-radius: 5px;
+                margin-left: 10px;
+            }
+            .search-container {
+                display: block;
+            }
+            .search-suggestions {
+                 border-radius: 5px;
+                 width: 100%;
+                 margin-top: 50px; /* Desce um pouco para não cobrir o botão */
             }
             .nav-link {
                 padding: 0 10px;
             }
             .feature-section {
-                flex-direction: column; /* Coloca a imagem e o texto um abaixo do outro */
+                flex-direction: column; 
                 text-align: center;
             }
             .feature-text {
@@ -246,9 +257,22 @@
 </head>
 <body>
     <header class="top-bar">
-        <a href="index.html" class="logo-link">
-             <img src="dados/simulab_banner.png" alt="SimuLab Logo " class="logo-image">
-        </a>
+        <div class="logo-area">
+            <a href="index.html" class="logo-link">
+                 <img src="dados/simulab_banner.png" alt="SimuLab Logo" class="logo-image">
+            </a>
+        </div>
+        
+        <div class="search-wrapper">
+            <div class="search-container">
+                <input type="text" class="search-input" id="globalSearchInput" placeholder="Buscar em todo o site (e.g., queda livre, funções)...">
+                <button class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <ul class="search-suggestions" id="searchSuggestions">
+                </ul>
+        </div>
 
         <nav class="nav-links">
             <a href="sobre.html" class="nav-link">Sobre o Projeto</a>
@@ -262,7 +286,7 @@
         <section class="hero-section" id="home">
             <h2>Transforme seu Aprendizado em Resultados.</h2>
             <p>
-                Sua plataforma completa de estudos para Ensino Médio e Curiosidades. 
+                Sua plataforma completa de estudos para Ensino Médio e Curiosidades.
                 Acesse todo o conteúdo programático, exercícios de apoio e simulações interativas.
             </p>
             <a href="materias.html" class="hero-button">COMECE A ESTUDAR AGORA <i class="fas fa-arrow-right"></i></a>
@@ -270,47 +294,136 @@
 
         <section class="feature-section" id="simulador">
             <div class="feature-text">
-                <h3>Simulador em Destaque: Tabela Periodica</h3>
+                <h3>Simulador em Destaque: Tabela Periódica</h3>
                 <p>
-                Entenda de forma prática como as famílias, períodos e propriedades influenciam o comportamento dos elementos químicos. Nossa ferramenta interativa de Química Geral descomplica a visualização das tendências (eletronegatividade, raio atômico, energia de ionização) e a identificação de metais, ametais e gases nobres.              
+                Entenda de forma prática como as famílias, períodos e propriedades influenciam o comportamento dos elementos químicos. Nossa ferramenta interativa de Química Geral descomplica a visualização das tendências (eletronegatividade, raio atômico, energia de ionização) e a identificação de metais, ametais e gases nobres.
                 <p>
                     <a href="simulacoes/tabela_periodica.html" class="hero-button" style="background-color: #555;">Ver Simulação <i class="fas fa-calculator"></i></a>
                 </p>
             </div>
-            
+
             <div class="feature-image-container">
                 <img src="dados/tabela.png" alt="Visualização da Tabela Periódica Interativa">
-                </div>
+            </div>
         </section>
 
         <section class="info-section" id="recursos">
             <h3>Nossos Pilares Educacionais</h3>
             <div class="info-grid">
-                
                 <div class="info-card">
                     <i class="fas fa-globe-americas"></i>
                     <h4>Cobertura Completa</h4>
                     <p>Todo o conteúdo de Química, Física, Matemática e Programação em um só lugar, seguindo o currículo padrão.</p>
                 </div>
-                
                 <div class="info-card">
                     <i class="fas fa-chalkboard-teacher"></i>
                     <h4>Foco na Prática</h4>
                     <p>Exercícios de fixação e simuladores interativos (Matemática Financeira, Física) para solidificar o conhecimento.</p>
                 </div>
-                
                 <div class="info-card">
                     <i class="fas fa-lightbulb"></i>
                     <h4>Inovação e Expansão</h4>
                     <p>Nosso projeto está sempre evoluindo, adicionando novas matérias, simuladores e videoaulas a cada mês.</p>
                 </div>
-                
             </div>
         </section>
     </main>
-    
+
     <footer>
         &copy; 2025 Plataforma Educacional. Todos os direitos reservados.
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('globalSearchInput');
+            const searchButton = document.querySelector('.search-button');
+            const suggestionsList = document.getElementById('searchSuggestions');
+            
+            // 1. LISTA DE CONTEÚDOS E SEUS RESPECTIVOS LINKS/ANCLAS (IMPORTANTE!)
+            // Esta lista simula o índice de busca do seu site.
+            const searchIndex = [
+                { term: "Queda Livre", path: "Física > Cinemática", url: "fisica.html#cinematica" },
+                { term: "Função Afim", path: "Matemática > Funções", url: "matematica.html#analise" },
+                { term: "Equações de 2º Grau", path: "Matemática > Álgebra", url: "matematica.html#fundamentos" },
+                { term: "Tabela Periódica", path: "Química > Geral", url: "quimica.html#geral" },
+                { term: "Massa Molar", path: "Química > Estequiometria", url: "quimica.html#estequiometria" },
+                { term: "Gravitação Universal", path: "Física > Mecânica", url: "fisica.html#mecanica" },
+                { term: "Juros Simples", path: "Matemática > Financeira", url: "matematica.html#financeira" },
+                { term: "Leis de Newton", path: "Física > Dinâmica", url: "fisica.html#mecanica" },
+                { term: "Óxidos e Sais", path: "Química > Inorgânica", url: "quimica.html#inorganica" },
+                { term: "Probabilidade", path: "Matemática > Estatística", url: "matematica.html#estatistica" }
+            ];
+
+            // 2. Lógica de Autocomplete (Sugestões)
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.trim().toLowerCase();
+                suggestionsList.innerHTML = ''; 
+
+                if (query.length > 2) {
+                    const filtered = searchIndex.filter(item => 
+                        item.term.toLowerCase().includes(query) || item.path.toLowerCase().includes(query)
+                    ).slice(0, 5); // Limita a 5 sugestões
+
+                    if (filtered.length > 0) {
+                        filtered.forEach(item => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `
+                                <strong>${item.term}</strong>
+                                <span class="suggestion-path">${item.path}</span>
+                            `;
+                            li.addEventListener('click', () => {
+                                // Redireciona ao clicar na sugestão
+                                window.location.href = item.url;
+                                searchInput.value = item.term;
+                                suggestionsList.style.display = 'none';
+                            });
+                            suggestionsList.appendChild(li);
+                        });
+                        suggestionsList.style.display = 'block';
+                    } else {
+                        suggestionsList.style.display = 'none';
+                    }
+                } else {
+                    suggestionsList.style.display = 'none';
+                }
+            });
+
+            // 3. Ocultar sugestões quando o usuário clica fora
+            document.addEventListener('click', (e) => {
+                const searchWrapper = document.querySelector('.search-wrapper');
+                if (!searchWrapper.contains(e.target)) {
+                    suggestionsList.style.display = 'none';
+                }
+            });
+
+            // 4. Lógica de Pesquisa no Clique do Botão (como fallback)
+            searchButton.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+
+            function performSearch() {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                suggestionsList.style.display = 'none'; // Esconde as sugestões
+
+                if (searchTerm.length > 2) {
+                    const exactMatch = searchIndex.find(item => item.term.toLowerCase() === searchTerm);
+                    
+                    if (exactMatch) {
+                        // Se houver uma correspondência exata, redireciona
+                        window.location.href = exactMatch.url;
+                    } else {
+                        // Se não houver, alerta a pesquisa e redireciona para a página de matérias como um fallback
+                        alert(`Pesquisando amplamente por: "${searchTerm}".`);
+                        window.location.href = 'materias.html'; // Sugere ir para a página de categorias
+                    }
+                } else {
+                    alert('Por favor, digite pelo menos 3 caracteres para iniciar a busca.');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
