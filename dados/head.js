@@ -8,16 +8,55 @@ document.addEventListener('DOMContentLoaded', function() {
     // -----------------------------------
     // 1. DADOS DE SUGESTÕES DE PESQUISA (DUMMY DATA)
     // -----------------------------------
-    const SEARCH_ITEMS = [
-        { title: "Cálculo de Juros Compostos", path: "Matemática (Financeira)", link: "exercicios.html?q=juros" },
-        { title: "Sistemas de Equações Lineares", path: "Matemática (Álgebra)", link: "exercicios.html?q=sistemas" },
-        { title: "Aceleração em Queda Livre", path: "Física (Cinemática)", link: "exercicios.html?q=queda" },
-        { title: "Propriedades da Tabela Periódica", path: "Química (Geral)", link: "exercicios.html?q=tabela" },
-        { title: "Sintaxe Básica de JavaScript", path: "Programação (Front-end)", link: "exercicios.html?q=javascript" },
-        { title: "Primeira Lei de Newton", path: "Física (Mecânica)", link: "exercicios.html?q=newton" },
-        { title: "Concordância Verbal e Nominal", path: "Português (Gramática)", link: "exercicios.html?q=concordancia" },
-        // Adicione mais itens conforme necessário
-    ];
+     const searchIndex = [
+                // Simuladores (Matemática)
+                { term: "Sim. Cálculo de Matriz", path: "Matemática > Simulador", url: "simulacoes/matriz.html" },
+                { term: "Sim. Análise de Funções", path: "Matemática > Análise", url: "simulacoes/funcoes.html" },
+                { term: "Sim. Juros Simples", path: "Matemática > Financeira", url: "simulacoes/juros_simples.html" },
+                { term: "Sim. Juros Compostos", path: "Matemática > Financeira", url: "simulacoes/juros_compostos.html" },
+                { term: "Sim. Desconto Simples", path: "Matemática > Financeira", url: "simulacoes/desconto_simples.html" },
+                { term: "Sim. Custo e Venda", path: "Matemática > Financeira", url: "simulacoes/custo_venda.html" },
+                { term: "Sim. Regra 50-30", path: "Matemática > Financeira", url: "simulacoes/50-30.html" },
+                { term: "Sim. CET (Custo Efetivo Total)", path: "Matemática > Financeira", url: "simulacoes/cet.html" },
+                { term: "Sim. Rendas e Amortização", path: "Matemática > Financeira", url: "simulacoes/rendas.html" },
+                { term: "Sim. Porcentagem", path: "Matemática > Fundamentos", url: "simulacoes/porcentagem.html" },
+                { term: "Sim. Probabilidade", path: "Matemática > Estatística", url: "simulacoes/probabilidade.html" },
+                { term: "Sim. Análise Combinatória", path: "Matemática > Análise", url: "simulacoes/combinatoria.html" },
+                { term: "Sim. Sequências Numéricas", path: "Matemática > Álgebra", url: "simulacoes/sequencias_numericas.html" },
+                { term: "Sim. Conjuntos Numéricos", path: "Matemática > Fundamentos", url: "simulacoes/conjuntos_numericos.html" },
+                { term: "Sim. Geometria Plana", path: "Matemática > Geometria", url: "simulacoes/geometria_plana.html" },
+                { term: "Sim. Geometria Analítica", path: "Matemática > Geometria", url: "simulacoes/geo_analitica.html" },
+                { term: "Sim. Arcos e Ângulos", path: "Matemática > Trigonometria", url: "simulacoes/arcos_angulos.html" },
+
+                // Simuladores (Física)
+                { term: "Sim. Queda Livre", path: "Física > Cinemática", url: "simulacoes/queda_livre.html" },
+                { term: "Sim. MRU (Mov. Retilíneo Uniforme)", path: "Física > Cinemática", url: "simulacoes/mru.html" },
+                { term: "Sim. MRUV (Mov. Retilíneo Uniforme Variado)", path: "Física > Cinemática", url: "simulacoes/mruv.html" },
+                { term: "Sim. Gravitação Universal", path: "Física > Mecânica", url: "simulacoes/gravitacao_universal.html" },
+                { term: "Sim. Conservação de Energia", path: "Física > Mecânica", url: "simulacoes/energia.html" },
+                { term: "Sim. Hidrostática", path: "Física > Mecânica", url: "simulacoes/hidrostatica.html" },
+                { term: "Sim. Ondas", path: "Física > Ondulatória", url: "simulacoes/ondas.html" },
+                { term: "Sim. Calorimetria", path: "Física > Termologia", url: "simulacoes/calorimetria.html" },
+                { term: "Sim. Dilatação Térmica", path: "Física > Termologia", url: "simulacoes/dilatacao_termica.html" },
+                { term: "Sim. Escalas Termométricas", path: "Física > Termologia", url: "simulacoes/escalas_termometricas.html" },
+                
+                // Simuladores (Química)
+                { term: "Sim. Tabela Periódica", path: "Química > Geral", url: "simulacoes/tabela_periodica.html" },
+                { term: "Sim. Ligações Químicas", path: "Química > Geral", url: "simulacoes/ligacoes.html" },
+                { term: "Sim. Reações Químicas", path: "Química > Geral", url: "simulacoes/reacoes.html" },
+                { term: "Sim. Ácidos e Bases", path: "Química > Inorgânica", url: "simulacoes/acidos_bases.html" },
+                { term: "Sim. NOX (Nº Oxidação)", path: "Química > RedOx", url: "simulacoes/nox.html" },
+                { term: "Sim. Estequiometria", path: "Química > Cálculos", url: "simulacoes/estequiometria.html" },
+                { term: "Sim. Soluções", path: "Química > Físico-Química", url: "simulacoes/solucoes.html" },
+
+                // Games
+                { term: "Game Flappy Blocks", path: "Jogos > Física", url: "games/flappy-blocks/index.html" },
+                { term: "Game Labirinto", path: "Jogos > Matemática", url: "games/labirinto.html" },
+                { term: "Game Akinator", path: "Jogos > Geral", url: "games/make-your-akinator.html" },
+                
+                // Outros
+                { term: "Simulador IDE Virtual", path: "Programação > Testador", url: "codeTester.html" }
+            ];
 
     // -----------------------------------
     // 2. FUNÇÕES DE BUSCA E SUGESTÃO
