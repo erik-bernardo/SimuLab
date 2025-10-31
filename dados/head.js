@@ -237,100 +237,96 @@ document.addEventListener('DOMContentLoaded', () => {
     document.head.appendChild(styleSheet);
     
     // 2. INJETA O CABEÇALHO HTML NO INÍCIO DO <body>
-    const headerPlaceholder = document.createElement('div');
-    headerPlaceholder.innerHTML = headerHTML;
-    document.body.prepend(headerPlaceholder.firstChild);
+    // MÉTODO CORRIGIDO: Injeta o HTML diretamente como uma string no topo do body.
+    // Isso garante que os elementos existam no DOM antes de tentarmos buscá-los.
+    document.body.insertAdjacentHTML('afterbegin', headerHTML);
 
 
     // --- PARTE 2: LÓGICA DE BUSCA E AUTOCOMPLETE ---
+    
+    // 3. REFERÊNCIAS DE ELEMENTOS (agora que foram injetados)
+    const searchInput = document.getElementById('globalSearchInput');
+    const suggestionsList = document.getElementById('searchSuggestions');
+    // Seletor mais específico para o botão de pesquisa
+    const searchButton = document.querySelector('.top-bar button.search-button'); 
+    
+    // BLOCO DE SEGURANÇA FINAL: Se qualquer elemento falhar, apenas reporta e para.
+    if (!searchInput || !searchButton || !suggestionsList) {
+        console.error("ERRO GRAVE: O cabeçalho foi injetado, mas elementos críticos de busca não foram encontrados.");
+        console.error("Verifique a ortografia dos IDs e classes no headerHTML.");
+        return; 
+    }
+    
+    // 4. FUNÇÃO PRINCIPAL DE PESQUISA
+    function performSearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        suggestionsList.style.display = 'none'; 
 
-    // Usa setTimeout para garantir que a injeção do HTML terminou antes de tentar buscar os elementos e anexar eventos.
-    setTimeout(() => {
-        
-        // 3. REFERÊNCIAS DE ELEMENTOS (agora que foram injetados)
-        const searchInput = document.getElementById('globalSearchInput');
-        const suggestionsList = document.getElementById('searchSuggestions');
-        // Seletor mais específico para o botão de pesquisa
-        const searchButton = document.querySelector('.top-bar button.search-button'); 
-        
-        // BLOCO DE SEGURANÇA FINAL: Se qualquer elemento falhar após o atraso, apenas reporta e para.
-        if (!searchInput || !searchButton || !suggestionsList) {
-            console.error("ERRO: Elementos de busca do cabeçalho não foram encontrados no DOM (Falha na injeção ou timing).");
-            return; 
-        }
-        
-        // 4. FUNÇÃO PRINCIPAL DE PESQUISA
-        function performSearch() {
-            const searchTerm = searchInput.value.trim().toLowerCase();
-            suggestionsList.style.display = 'none'; 
-
-            if (searchTerm.length > 1) {
-                const match = SEARCH_INDEX.find(item => 
-                    item.term.toLowerCase().includes(searchTerm) || 
-                    item.url.toLowerCase().includes(searchTerm)
-                );
-                
-                if (match) {
-                    window.location.href = match.url;
-                } else {
-                    alert(`Pesquisa: "${searchTerm}" não encontrou um arquivo correspondente. Redirecionando para a página de Matérias.`);
-                    window.location.href = 'materias.html'; 
-                }
+        if (searchTerm.length > 1) {
+            const match = SEARCH_INDEX.find(item => 
+                item.term.toLowerCase().includes(searchTerm) || 
+                item.url.toLowerCase().includes(searchTerm)
+            );
+            
+            if (match) {
+                window.location.href = match.url;
             } else {
-                alert('Por favor, digite pelo menos 2 caracteres para iniciar a busca.');
+                alert(`Pesquisa: "${searchTerm}" não encontrou um arquivo correspondente. Redirecionando para a página de Matérias.`);
+                window.location.href = 'materias.html'; 
             }
+        } else {
+            alert('Por favor, digite pelo menos 2 caracteres para iniciar a busca.');
         }
+    }
 
-        // 5. LÓGICA DE AUTOCOMPLETE
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.trim().toLowerCase();
-            suggestionsList.innerHTML = ''; 
+    // 5. LÓGICA DE AUTOCOMPLETE
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.trim().toLowerCase();
+        suggestionsList.innerHTML = ''; 
 
-            if (query.length > 1) { 
-                const filtered = SEARCH_INDEX.filter(item => 
-                    item.term.toLowerCase().includes(query) || 
-                    item.path.toLowerCase().includes(query) ||
-                    item.url.toLowerCase().includes(query)
-                ).slice(0, 5); 
+        if (query.length > 1) { 
+            const filtered = SEARCH_INDEX.filter(item => 
+                item.term.toLowerCase().includes(query) || 
+                item.path.toLowerCase().includes(query) ||
+                item.url.toLowerCase().includes(query)
+            ).slice(0, 5); 
 
-                if (filtered.length > 0) {
-                    filtered.forEach(item => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `
-                            <strong>${item.term}</strong>
-                            <span class="suggestion-path">${item.path} (Arquivo: ${item.url})</span>
-                        `;
-                        li.addEventListener('click', () => {
-                            window.location.href = item.url;
-                            searchInput.value = item.term;
-                            suggestionsList.style.display = 'none';
-                        });
-                        suggestionsList.appendChild(li);
+            if (filtered.length > 0) {
+                filtered.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <strong>${item.term}</strong>
+                        <span class="suggestion-path">${item.path} (Arquivo: ${item.url})</span>
+                    `;
+                    li.addEventListener('click', () => {
+                        window.location.href = item.url;
+                        searchInput.value = item.term;
+                        suggestionsList.style.display = 'none';
                     });
-                    suggestionsList.style.display = 'block';
-                } else {
-                    suggestionsList.style.display = 'none';
-                }
+                    suggestionsList.appendChild(li);
+                });
+                suggestionsList.style.display = 'block';
             } else {
                 suggestionsList.style.display = 'none';
             }
-        });
+        } else {
+            suggestionsList.style.display = 'none';
+        }
+    });
 
-        // 6. ATRIBUIÇÃO DOS EVENTOS
-        searchButton.addEventListener('click', performSearch);
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
+    // 6. ATRIBUIÇÃO DOS EVENTOS
+    searchButton.addEventListener('click', performSearch);
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
 
-        // 7. Ocultar sugestões quando o usuário clica fora
-        document.addEventListener('click', (e) => {
-            const searchWrapper = document.querySelector('.search-wrapper');
-            if (searchWrapper && !searchWrapper.contains(e.target)) {
-                suggestionsList.style.display = 'none';
-            }
-        });
-    }, 100); // Atraso de 100ms para garantir que o DOM injetado esteja renderizado
-
+    // 7. Ocultar sugestões quando o usuário clica fora
+    document.addEventListener('click', (e) => {
+        const searchWrapper = document.querySelector('.search-wrapper');
+        if (searchWrapper && !searchWrapper.contains(e.target)) {
+            suggestionsList.style.display = 'none';
+        }
+    });
 });
