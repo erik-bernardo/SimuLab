@@ -30,20 +30,7 @@
             padding-top: var(--header-height);
         }
         
-        .top-bar {
-            background-color: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            height: var(--header-height);
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 200;
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid #ddd;
-            padding: 0;
-        }
+       
 
         .title-display {
             display: flex;
@@ -287,23 +274,7 @@
 </head>
 <body>
 
-<header class="top-bar">
-    <div class="title-display">
-        <i class="fas fa-fire-alt"></i> Simulador de Calorimetria
-    </div>
 
-    <div class="nav-buttons">
-        <button class="nav-button active">
-            <i class="fas fa-calculator"></i> CALORIMETRIA
-        </button>
-        <button class="nav-button">
-            <i class="fas fa-square-root-alt"></i> MATEMÁTICA
-        </button>
-        <button class="nav-button">
-            <i class="fas fa-flask"></i> QUÍMICA
-        </button>
-    </div>
-</header>
 
 <div class="sidebar">
     <h1>Configuração</h1>
@@ -402,6 +373,9 @@
 
 </div>
 
+<script src="dados/head.js"></script>
+
+    
 <script>
     // --- VARIÁVEIS DE ESTADO E DOM ---
     let currentOperation = 'sensivel'; 
