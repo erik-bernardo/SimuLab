@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador - Sistema Linear com Maçãs e Laranjas</title>
+    
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #f8f8f8; 
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Alinha no topo */
+            min-height: 100vh;
+            margin: 0;
+            padding: 30px 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 900px;
+            width: 100%;
+        }
+        h2 {
+            color: #D2691E; /* Cor principal */
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .system-input {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .equation {
+            display: flex;
+            align-items: center;
+            font-size: 1.1em;
+            gap: 10px;
+        }
+        .equation input {
+            width: 50px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .operator {
+            font-weight: bold;
+        }
+        .input-label {
+            width: 80px;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .calc-button {
+            background-color: #D2691E;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            width: 100%;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .calc-button:hover {
+            background-color: #c05c18;
+        }
+        .results, .step-by-step {
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+        }
+        .results h3, .step-by-step h3 {
+            color: #555;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 0;
+            text-align: center;
+        }
+        .result-item {
+            font-size: 1.2em;
+            margin: 15px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-top: 15px;
+            text-align: center;
+        }
+        /* Estilos do Passo a Passo */
+        .step-by-step h4 {
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+        .step-by-step p {
+            margin: 5px 0;
+            padding-left: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+        .step-by-step .matrix {
+            font-size: 1.5em;
+            font-weight: bold;
+            display: inline-block;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🍎🍊 Simulador de Preços por Sistema Linear (2x2)</h2>
+        
+        <p>Insira os dados de duas compras para descobrir o preço unitário de cada fruta (X = Maçã, Y = Laranja).</p>
+
+        <div class="system-input">
+            <div class="equation">
+                <span class="input-label">Compra 1:</span>
+                <input type="number" id="a1" value="2" min="1">
+                <span>Maçãs (X)</span>
+                <span class="operator">+</span>
+                <input type="number" id="b1" value="3" min="1">
+                <span>Laranjas (Y)</span>
+                <span class="operator">=</span>
+                <input type="number" id="c1" value="13.50" step="any" min="0.01">
+                <span>R$ (Total)</span>
+            </div>
+
+            <div class="equation">
+                <span class="input-label">Compra 2:</span>
+                <input type="number" id="a2" value="4" min="1">
+                <span>Maçãs (X)</span>
+                <span class="operator">+</span>
+                <input type="number" id="b2" value="1" min="1">
+                <span>Laranjas (Y)</span>
+                <span class="operator">=</span>
+                <input type="number" id="c2" value="14.50" step="any" min="0.01">
+                <span>R$ (Total)</span>
+            </div>
+        </div>
+
+        <button id="calculateSystem" class="calc-button">Calcular Preço e Ver Passo a Passo</button>
+
+        <div class="results">
+            <h3>Resultado Final</h3>
+            <p id="system-error" class="error-message" style="display: none;"></p>
+            <div id="solution-output">
+                <p class="result-item">Preço da Maçã (X): <span id="priceX">R$ 0,00</span></p>
+                <p class="result-item">Preço da Laranja (Y): <span id="priceY">R$ 0,00</span></p>
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step-output" style="display: none;">
+            <h3>Passo a Passo (Regra de Cramer)</h3>
+            </div>
+        
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const calcButton = document.getElementById('calculateSystem');
+            const systemError = document.getElementById('system-error');
+            const priceX = document.getElementById('priceX');
+            const priceY = document.getElementById('priceY');
+            const solutionOutput = document.getElementById('solution-output');
+            const stepByStepOutput = document.getElementById('step-by-step-output');
+
+            // Formata um número para 2 casas decimais, evitando notação científica
+            const formatValue = (value) => {
+                 // Arredonda para 5 casas decimais antes de formatar, para precisão
+                return parseFloat(value.toFixed(5)); 
+            }
+
+            // Função de formatação para moeda brasileira (R$ 1.000,00)
+            const formatCurrency = (value) => {
+                return value.toLocaleString('pt-BR', { 
+                    style: 'currency', 
+                    currency: 'BRL',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+
+            // Função para gerar o HTML do passo a passo
+            function generateStepsHTML(a1, b1, c1, a2, b2, c2, D, Dx, Dy, X, Y) {
+                const f = formatValue; // Alias para simplificar a leitura
+
+                let html = `
+                    <h4>Passo 1: Definir o Sistema e Matriz de Coeficientes</h4>
+                    <p>O sistema de equações baseado nas compras é:</p>
+                    <p>${f(a1)}X + ${f(b1)}Y = ${f(c1)}</p>
+                    <p>${f(a2)}X + ${f(b2)}Y = ${f(c2)}</p>
+                    <p>A matriz principal (A) é formada pelos coeficientes de X e Y:</p>
+                    <p class="matrix">
+                        | ${f(a1)}   ${f(b1)} |<br>
+                        | ${f(a2)}   ${f(b2)} |
+                    </p>
+                    <hr>
+                    
+                    <h4>Passo 2: Cálculo do Determinante Principal (D)</h4>
+                    <p>D = (a1 * b2) - (b2 * a2)</p>
+                    <p>D = (${f(a1)} * ${f(b2)}) - (${f(b1)} * ${f(a2)})</p>
+                    <p>D = ${f(a1 * b2)} - ${f(b1 * a2)}</p>
+                    <p>D = ${f(D)}</p>
+                    <hr>
+                    
+                    <h4>Passo 3: Cálculo do Determinante de X (Dx)</h4>
+                    <p>Substituímos a coluna de X pela coluna dos resultados (c1, c2):</p>
+                    <p class="matrix">
+                        | ${f(c1)}   ${f(b1)} |<br>
+                        | ${f(c2)}   ${f(b2)} |
+                    </p>
+                    <p>Dx = (c1 * b2) - (b1 * c2)</p>
+                    <p>Dx = (${f(c1)} * ${f(b2)}) - (${f(b1)} * ${f(c2)})</p>
+                    <p>Dx = ${f(c1 * b2)} - ${f(b1 * c2)}</p>
+                    <p>Dx = ${f(Dx)}</p>
+                    <hr>
+
+                    <h4>Passo 4: Cálculo do Determinante de Y (Dy)</h4>
+                    <p>Substituímos a coluna de Y pela coluna dos resultados (c1, c2):</p>
+                    <p class="matrix">
+                        | ${f(a1)}   ${f(c1)} |<br>
+                        | ${f(a2)}   ${f(c2)} |
+                    </p>
+                    <p>Dy = (a1 * c2) - (c1 * a2)</p>
+                    <p>Dy = (${f(a1)} * ${f(c2)}) - (${f(c1)} * ${f(a2)})</p>
+                    <p>Dy = ${f(a1 * c2)} - ${f(c1 * a2)}</p>
+                    <p>Dy = ${f(Dy)}</p>
+                    <hr>
+
+                    <h4>Passo 5: Encontrar os Preços (X e Y)</h4>
+                    <p>O valor de cada variável é encontrado pela divisão do seu respectivo determinante pelo Determinante Principal (D).</p>
+
+                    <p>Preço da Maçã (X):</p>
+                    <p>X = Dx / D</p>
+                    <p>X = ${f(Dx)} / ${f(D)}</p>
+                    <p>X = ${formatCurrency(X)}</p>
+
+                    <p>Preço da Laranja (Y):</p>
+                    <p>Y = Dy / D</p>
+                    <p>Y = ${f(Dy)} / ${f(D)}</p>
+                    <p>Y = ${formatCurrency(Y)}</p>
+                `;
+                return html;
+            }
+
+            function solveSystem() {
+                // Oculta/limpa mensagens anteriores
+                systemError.style.display = 'none';
+                solutionOutput.style.display = 'block';
+                stepByStepOutput.style.display = 'none';
+                stepByStepOutput.innerHTML = '<h3>Passo a Passo (Regra de Cramer)</h3>';
+
+                // 1. Coleta dos Coeficientes
+                const a1 = parseFloat(document.getElementById('a1').value);
+                const b1 = parseFloat(document.getElementById('b1').value);
+                const c1 = parseFloat(document.getElementById('c1').value);
+                const a2 = parseFloat(document.getElementById('a2').value);
+                const b2 = parseFloat(document.getElementById('b2').value);
+                const c2 = parseFloat(document.getElementById('c2').value);
+
+                // 2. Validação básica de entradas
+                if (isNaN(a1) || isNaN(b1) || isNaN(c1) || isNaN(a2) || isNaN(b2) || isNaN(c2) || a1 < 0 || b1 < 0 || c1 < 0 || a2 < 0 || b2 < 0 || c2 < 0) {
+                    systemError.textContent = "Erro: Por favor, preencha todos os campos com números positivos e válidos (quantidades/preços não podem ser negativos).";
+                    systemError.style.display = 'block';
+                    solutionOutput.style.display = 'none';
+                    return;
+                }
+
+                // 3. Cálculo dos Determinantes (Regra de Cramer)
+                const D = (a1 * b2) - (b1 * a2);
+                const Dx = (c1 * b2) - (b1 * c2);
+                const Dy = (a1 * c2) - (c1 * a2);
+
+                // 4. Análise do Sistema (Classificação)
+                if (Math.abs(D) < 1e-9) { // Verifica D ≈ 0 (tolerância para números de ponto flutuante)
+                    if (Math.abs(Dx) < 1e-9 && Math.abs(Dy) < 1e-9) {
+                        systemError.textContent = "O sistema é Possível e Indeterminado (SPI). Existem infinitas soluções.";
+                    } else {
+                        systemError.textContent = "O sistema é Impossível (SI). As equações não possuem solução em comum.";
+                    }
+                    systemError.style.display = 'block';
+                    solutionOutput.style.display = 'none';
+                    return;
+                }
+
+                // 5. Cálculo das Variáveis (SPD)
+                const X = Dx / D;
+                const Y = Dy / D;
+
+                // 6. Tratamento de Resultados (Preços negativos)
+                if (X < 0 || Y < 0) {
+                    systemError.textContent = "O cálculo resultou em um preço negativo para pelo menos uma fruta. Verifique se os valores de 'Total R$' são compatíveis com as quantidades.";
+                    systemError.style.display = 'block';
+                    solutionOutput.style.display = 'none';
+                    return;
+                }
+                
+                // 7. Exibição dos Resultados e Passo a Passo
+                priceX.textContent = formatCurrency(X);
+                priceY.textContent = formatCurrency(Y);
+                
+                stepByStepOutput.innerHTML += generateStepsHTML(a1, b1, c1, a2, b2, c2, D, Dx, Dy, X, Y);
+                stepByStepOutput.style.display = 'block';
+            }
+
+            // Atribui o evento ao botão
+            calcButton.addEventListener('click', solveSystem);
+
+            // Faz o primeiro cálculo com os valores padrão ao carregar a página
+            solveSystem();
+        });
+    </script>
+</body>
+</html>
