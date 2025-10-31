@@ -246,8 +246,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. REFERÊNCIAS DE ELEMENTOS (agora que foram injetados)
     const searchInput = document.getElementById('globalSearchInput');
-    const searchButton = document.querySelector('.search-wrapper .search-button'); 
     const suggestionsList = document.getElementById('searchSuggestions');
+    // Seletor mais específico para o botão de pesquisa
+    const searchButton = document.querySelector('.top-bar button.search-button'); 
+    
+    // BLOCO DE SEGURANÇA CONTRA ERROS DE NULL:
+    // Se qualquer um dos elementos não for encontrado, para a execução do script aqui.
+    if (!searchInput || !searchButton || !suggestionsList) {
+        console.error("ERRO FATAL: Elementos de busca do cabeçalho não foram encontrados no DOM após injeção.");
+        console.error("Status de Elementos: Input:", !!searchInput, "| Button:", !!searchButton, "| Suggestions:", !!suggestionsList);
+        return; 
+    }
     
     // 4. FUNÇÃO PRINCIPAL DE PESQUISA
     function performSearch() {
@@ -271,62 +280,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Adiciona um IF para garantir que todos os elementos existam antes de adicionar listeners
-    if (searchInput && searchButton && suggestionsList) {
+    // 5. LÓGICA DE AUTOCOMPLETE
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.trim().toLowerCase();
+        suggestionsList.innerHTML = ''; 
 
-        // 5. LÓGICA DE AUTOCOMPLETE
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.trim().toLowerCase();
-            suggestionsList.innerHTML = ''; 
+        if (query.length > 1) { 
+            const filtered = SEARCH_INDEX.filter(item => 
+                item.term.toLowerCase().includes(query) || 
+                item.path.toLowerCase().includes(query) ||
+                item.url.toLowerCase().includes(query)
+            ).slice(0, 5); 
 
-            if (query.length > 1) { 
-                const filtered = SEARCH_INDEX.filter(item => 
-                    item.term.toLowerCase().includes(query) || 
-                    item.path.toLowerCase().includes(query) ||
-                    item.url.toLowerCase().includes(query)
-                ).slice(0, 5); 
-
-                if (filtered.length > 0) {
-                    filtered.forEach(item => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `
-                            <strong>${item.term}</strong>
-                            <span class="suggestion-path">${item.path} (Arquivo: ${item.url})</span>
-                        `;
-                        li.addEventListener('click', () => {
-                            window.location.href = item.url;
-                            searchInput.value = item.term;
-                            suggestionsList.style.display = 'none';
-                        });
-                        suggestionsList.appendChild(li);
+            if (filtered.length > 0) {
+                filtered.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <strong>${item.term}</strong>
+                        <span class="suggestion-path">${item.path} (Arquivo: ${item.url})</span>
+                    `;
+                    li.addEventListener('click', () => {
+                        window.location.href = item.url;
+                        searchInput.value = item.term;
+                        suggestionsList.style.display = 'none';
                     });
-                    suggestionsList.style.display = 'block';
-                } else {
-                    suggestionsList.style.display = 'none';
-                }
+                    suggestionsList.appendChild(li);
+                });
+                suggestionsList.style.display = 'block';
             } else {
                 suggestionsList.style.display = 'none';
             }
-        });
+        } else {
+            suggestionsList.style.display = 'none';
+        }
+    });
 
-        // 6. ATRIBUIÇÃO DOS EVENTOS
-        searchButton.addEventListener('click', performSearch);
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
+    // 6. ATRIBUIÇÃO DOS EVENTOS
+    searchButton.addEventListener('click', performSearch);
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
 
-        // 7. Ocultar sugestões quando o usuário clica fora
-        document.addEventListener('click', (e) => {
-            const searchWrapper = document.querySelector('.search-wrapper');
-            // Usamos searchWrapper para garantir que o clique foi fora de toda a área de pesquisa
-            if (searchWrapper && !searchWrapper.contains(e.target)) {
-                suggestionsList.style.display = 'none';
-            }
-        });
-    } else {
-        // Log para depuração caso a injeção falhe, mas o site não quebra.
-        console.error("Erro: Elementos de busca do cabeçalho não foram encontrados.");
-    }
+    // 7. Ocultar sugestões quando o usuário clica fora
+    document.addEventListener('click', (e) => {
+        const searchWrapper = document.querySelector('.search-wrapper');
+        if (searchWrapper && !searchWrapper.contains(e.target)) {
+            suggestionsList.style.display = 'none';
+        }
+    });
 });
