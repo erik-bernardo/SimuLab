@@ -6,7 +6,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURAÇÃO ---
-    const secretCode = ['S', 'I', 'M', 'U', 'L', 'A', 'B']; 
+    const secretCode = ['G', 'A', 'B', 'R', 'I', 'E', 'L']; 
     let codeIndex = 0; 
     const targetElement = document.body;
     const logoSrc = 'dados/logo-icon.png'; // 💡 AJUSTE o caminho para seu ícone, se necessário!
