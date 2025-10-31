@@ -1,6 +1,6 @@
 /**
  * juros_compostos.js
- * Implementa o simulador de Juros Compostos em um pop-up/modal.
+ * Implementa o simulador/exercício de Juros Compostos em um pop-up/modal.
  */
 
 // 1. ESTRUTURA HTML DO POP-UP
@@ -8,7 +8,7 @@ const SIMULATOR_HTML = `
     <div id="compoundInterestModal" class="simulator-modal">
         <div class="modal-content">
             <span class="close-button" id="closeCompoundInterestModal">&times;</span>
-            <h2>Simulador de Juros Compostos</h2>
+            <h2>Exercício - Juros Compostos</h2>
             
             <div class="input-group">
                 <label for="capital">Capital Inicial (C - R$):</label>
