@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const secretCode = ['G', 'A', 'B', 'R', 'I', 'E', 'L']; 
     let codeIndex = 0; 
     const targetElement = document.body;
-    const logoSrc = 'dados/logo-icon.png'; // 💡 AJUSTE o caminho para seu ícone, se necessário!
+    const logoSrc = 'devjokes/gabriel.png'; // 💡 AJUSTE o caminho para seu ícone, se necessário!
 
     // --- 2. CSS PARA O EASTER EGG ---
     const eggStyles = `
