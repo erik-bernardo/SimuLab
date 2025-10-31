@@ -18,38 +18,7 @@
             color: #333; 
         }
         
-        /* ----------------------------------- */
-        /* BARRA SUPERIOR DE NAVEGAÇÃO (TOP-BAR) */
-        /* ----------------------------------- */
-        .top-bar { 
-            background-color: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: stretch;
-            border-bottom: 1px solid #ddd;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo-link {
-            text-decoration: none;
-            color: #D2691E;
-            font-size: 18px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            padding: 15px 25px;
-            transition: background-color 0.3s;
-        }
-
-         .logo-link .logo-image {
-            height: 70px; /* Altura que preenche o espaço */
-            width: auto;
-            object-fit: fill; /* Deforma a imagem para preencher o espaço */
-        }
+    
 
         .nav-links {
             display: flex;
@@ -192,19 +161,7 @@
     </style>
 </head>
 <body>
-    <header class="top-bar">
-        <a href="index.html" class="logo-link">
-          <img src="dados/simulab_banner.png" alt="SimuLab Logo e Plataforma" class="logo-image">
-        </a>
-        <nav class="nav-links">
-            <a href="index.html" class="nav-link">SOBRE</a>
-            <a href="destaque.html" class="nav-link active">DESTAQUE</a>
-            <a href="recursos.html" class="nav-link">RECURSOS</a>
-            <a href="materias.html" class="nav-link">
-                CONTEÚDO
-            </a>
-        </nav>
-    </header>
+ 
 
     <main class="content-container">
         
@@ -273,5 +230,6 @@
         </section>
         
     </main>
+    <script src="dados/head.js"></script>
 </body>
 </html>
