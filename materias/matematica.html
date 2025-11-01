@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matemática - Conteúdo</title>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f6f6f9;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    /* ---------- NAVBAR ---------- */
+    header {
+      background-color: #f8f8ff;
+      border-bottom: 2px solid #ddd;
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #555;
+      font-weight: 500;
+      font-size: 16px;
+      padding-bottom: 5px;
+      transition: all 0.3s ease;
+    }
+
+    nav a.active {
+      border-bottom: 3px solid #4b5cff;
+      color: #4b5cff;
+    }
+
+    nav a:hover {
+      color: #4b5cff;
+    }
+
+    /* ---------- CONTEÚDO ---------- */
+    main {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    section {
+      margin-bottom: 60px;
+    }
+
+    section h2 {
+      margin-bottom: 20px;
+      font-size: 22px;
+      font-weight: 600;
+      color: #2f3fd6;
+      border-left: 5px solid #2f3fd6;
+      padding-left: 10px;
+    }
+
+    /* ---------- CARDS ---------- */
+    .card {
+      background-color: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .card img {
+      width: 200px;
+      height: 140px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 20px;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .card p {
+      color: #555;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    /* ---------- MENU LATERAL ---------- */
+    .sidebar {
+      position: fixed;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 10;
+    }
+
+    .sidebar button {
+      background-color: #4b5cff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+
+    .sidebar button:hover {
+      background-color: #2f3fd6;
+    }
+
+    @media (max-width: 700px) {
+      .card { flex-direction: column; }
+      .card img { width: 100%; }
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Cabeçalho principal vindo do head.js -->
+  <script src="dados/head.js"></script>
+
+  <!-- Barra de navegação -->
+  <header>
+    <nav>
+      <a href="#" id="simulacoes">Simulações</a>
+      <a href="#" class="active" id="conteudo">Conteúdo</a>
+      <a href="#" id="exercicios">Exercícios</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="normal">
+      <h2>Matemática Normal</h2>
+      <div class="cards" id="cards-normal"></div>
+    </section>
+
+    <section id="financeira">
+      <h2>Matemática Financeira</h2>
+      <div class="cards" id="cards-financeira"></div>
+    </section>
+
+    <section id="geometria">
+      <h2>Geometria</h2>
+      <div class="cards" id="cards-geometria"></div>
+    </section>
+  </main>
+
+  <!-- Menu lateral -->
+  <div class="sidebar">
+    <button onclick="scrollToSection('normal')">📘 Normal</button>
+    <button onclick="scrollToSection('financeira')">💰 Financeira</button>
+    <button onclick="scrollToSection('geometria')">📐 Geometria</button>
+  </div>
+
+  <script>
+    // ---------- DADOS DAS SEÇÕES ----------
+    const secoes = {
+      normal: [
+        { cap: 'Cálculo e Limites', titulo: 'Introdução aos limites e derivadas.', imagem: 'https://cdn.pixabay.com/photo/2017/01/13/19/32/calculus-1975724_960_720.jpg', link: 'conteudos/calculo.html' },
+        { cap: 'Sistemas Lineares', titulo: 'Resolução de sistemas com duas ou mais variáveis.', imagem: 'https://cdn.pixabay.com/photo/2016/03/05/22/20/equations-1235728_960_720.jpg', link: 'conteudos/sistemas.html' },
+        { cap: 'Polinômios', titulo: 'Funções polinomiais e fatoração.', imagem: 'https://cdn.pixabay.com/photo/2017/03/26/14/41/mathematics-2178755_960_720.jpg', link: 'conteudos/polinomios.html' },
+        { cap: 'Estatística Avançada', titulo: 'Análise de dados e distribuição de probabilidade.', imagem: 'https://cdn.pixabay.com/photo/2016/02/19/10/00/statistics-1201260_960_720.jpg', link: 'conteudos/estatistica.html' }
+      ],
+      financeira: [
+        { cap: 'Juros Simples', titulo: 'Cálculo de juros simples e montante final.', imagem: 'https://cdn.pixabay.com/photo/2018/05/30/19/27/finance-3440922_960_720.jpg', link: 'conteudos/juros-simples.html' },
+        { cap: 'Juros Compostos', titulo: 'Cálculo de juros compostos e montante.', imagem: 'https://cdn.pixabay.com/photo/2017/03/23/08/39/money-2165546_960_720.jpg', link: 'conteudos/juros-compostos.html' }
+        // ... demais itens
+      ],
+      geometria: [
+        { cap: 'Arcos e Ângulos', titulo: 'Relações entre arcos e ângulos.', imagem: 'https://cdn.pixabay.com/photo/2019/06/28/16/29/geometry-4307175_960_720.jpg', link: 'conteudos/arcos.html' },
+        { cap: 'Geometria Analítica', titulo: 'Equações da reta e circunferência.', imagem: 'https://cdn.pixabay.com/photo/2017/08/06/09/53/artificial-intelligence-2596101_960_720.jpg', link: 'conteudos/analitica.html' }
+        // ... demais itens
+      ]
+    };
+
+    // ---------- FUNÇÃO PARA CRIAR CARDS ----------
+    function criarCards(lista, idContainer) {
+      const container = document.getElementById(idContainer);
+      lista.forEach(c => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.innerHTML = `
+          <img src="${c.imagem}" alt="${c.cap}">
+          <div class="card-content">
+            <h3>${c.cap}</h3>
+            <p>${c.titulo}</p>
+          </div>
+        `;
+        if (c.link) {
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', () => {
+            window.location.href = c.link;
+          });
+        }
+        container.appendChild(card);
+      });
+    }
+
+    // ---------- CRIA TODOS OS CARDS ----------
+    Object.keys(secoes).forEach(sec => criarCards(secoes[sec], `cards-${sec}`));
+
+    // ---------- SCROLL SUAVE ----------
+    function scrollToSection(id) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
