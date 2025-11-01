@@ -49,7 +49,110 @@ const SEARCH_INDEX = [
     { term: "Game Akinator", path: "Jogos > Geral", url: "games/make-your-akinator.html" },
     // Outros
     { term: "Simulador IDE Virtual", path: "Programação > Testador", url: "codeTester.html" }
+
+    //Conteudo Didatico
+    const SEARCH_INDEX = [
+  // ---------- MATEMÁTICA ----------
+  { term: "Cálculo e Limites", path: "Matemática > Normal", url: "conteudos/calculo.html" },
+  { term: "Sistemas Lineares", path: "Matemática > Normal", url: "conteudos/sistemas.html" },
+  { term: "Polinômios", path: "Matemática > Normal", url: "conteudos/polinomios.html" },
+  { term: "Estatística Avançada", path: "Matemática > Normal", url: "conteudos/estatistica.html" },
+  { term: "Juros Simples", path: "Matemática > Financeira", url: "conteudos/juros-simples.html" },
+  { term: "Juros Compostos", path: "Matemática > Financeira", url: "conteudos/juros-compostos.html" },
+  { term: "Arcos e Ângulos", path: "Matemática > Geometria", url: "conteudos/arcos.html" },
+  { term: "Geometria Analítica", path: "Matemática > Geometria", url: "conteudos/analitica.html" },
+
+  // ---------- BIOLOGIA: Corpo ----------
+  { term: "Sistema Digestório", path: "Biologia > Corpo", url: "biologia/digestorio.html" },
+  { term: "Sistema Circulatório", path: "Biologia > Corpo", url: "biologia/circulatorio.html" },
+  { term: "Sistema Respiratório", path: "Biologia > Corpo", url: "biologia/respiratorio.html" },
+  { term: "Sistema Nervoso", path: "Biologia > Corpo", url: "biologia/nervoso.html" },
+  { term: "Sistema Imunológico", path: "Biologia > Corpo", url: "biologia/imunologico.html" },
+  { term: "Sistema Muscular", path: "Biologia > Corpo", url: "biologia/muscular.html" },
+  { term: "Sistema Esquelético", path: "Biologia > Corpo", url: "biologia/esqueletico.html" },
+  { term: "Sistema Urinário", path: "Biologia > Corpo", url: "biologia/urinario.html" },
+  { term: "Sistema Reprodutor", path: "Biologia > Corpo", url: "biologia/reprodutor.html" },
+
+  // ---------- BIOLOGIA: Animal ----------
+  { term: "Classificação Animal", path: "Biologia > Animal", url: "biologia/classificacao.html" },
+  { term: "Comportamento Animal", path: "Biologia > Animal", url: "biologia/comportamento.html" },
+  { term: "Fisiologia Animal", path: "Biologia > Animal", url: "biologia/fisiologia.html" },
+
+  // ---------- BIOLOGIA: Genética ----------
+  { term: "DNA e RNA", path: "Biologia > Genética", url: "biologia/dna.html" },
+  { term: "Herança Genética", path: "Biologia > Genética", url: "biologia/heranca.html" },
+  { term: "Mutação", path: "Biologia > Genética", url: "biologia/mutacao.html" },
+
+  // ---------- BIOLOGIA: Células ----------
+  { term: "Estrutura Celular", path: "Biologia > Células", url: "biologia/estrutura-celular.html" },
+  { term: "Divisão Celular", path: "Biologia > Células", url: "biologia/divisao.html" },
+  { term: "Metabolismo Celular", path: "Biologia > Células", url: "biologia/metabolismo.html" },
+
+  // ---------- FÍSICA: Mecânica ----------
+  { term: "MRU", path: "Física > Mecânica", url: "fisica/mru.html" },
+  { term: "MRUV", path: "Física > Mecânica", url: "fisica/mruv.html" },
+  { term: "Energia", path: "Física > Mecânica", url: "fisica/energia.html" },
+  { term: "Queda Livre", path: "Física > Mecânica", url: "fisica/queda.html" },
+
+  // ---------- FÍSICA: Termodinâmica ----------
+  { term: "Dilatação Térmica", path: "Física > Termodinâmica", url: "fisica/dilatacao.html" },
+  { term: "Calorimetria", path: "Física > Termodinâmica", url: "fisica/calorimetria.html" },
+  { term: "Escalas Termométricas", path: "Física > Termodinâmica", url: "fisica/escalas.html" },
+
+  // ---------- FÍSICA: Ondas ----------
+  { term: "Ondas e Óptica", path: "Física > Ondas", url: "fisica/ondas.html" },
+  { term: "Hidrostática", path: "Física > Ondas", url: "fisica/hidrostatica.html" },
+  { term: "Gravitação Universal", path: "Física > Ondas", url: "fisica/gravidade.html" },
+
+  // ---------- FÍSICA: Eletromagnetismo ----------
+  { term: "Eletricidade", path: "Física > Eletromagnetismo", url: "fisica/eletricidade.html" },
+  { term: "Eletrostática", path: "Física > Eletromagnetismo", url: "fisica/eletrostatica.html" },
+  { term: "Eletromagnetismo", path: "Física > Eletromagnetismo", url: "fisica/eletromagnetismo.html" },
+  { term: "Circuitos Elétricos", path: "Física > Eletromagnetismo", url: "fisica/circuitos.html" },
+  { term: "Óptica Geométrica", path: "Física > Eletromagnetismo", url: "fisica/optica.html" },
+
+  // ---------- QUÍMICA: Geral ----------
+  { term: "Tabela Periódica", path: "Química > Geral", url: "quimica/tabela-periodica.html" },
+  { term: "Ligações Químicas", path: "Química > Geral", url: "quimica/ligacoes.html" },
+  { term: "Ácidos e Bases", path: "Química > Geral", url: "quimica/acidos-bases.html" },
+  { term: "Balanceamento", path: "Química > Geral", url: "quimica/balanceamento.html" },
+  { term: "Funções Inorgânicas", path: "Química > Geral", url: "quimica/funcoes-inorganicas.html" },
+
+  // ---------- QUÍMICA: Inorgânica ----------
+  { term: "NOX", path: "Química > Inorgânica", url: "quimica/nox.html" },
+  { term: "Estequiometria", path: "Química > Inorgânica", url: "quimica/estequiometria.html" },
+  { term: "Soluções", path: "Química > Inorgânica", url: "quimica/solucoes.html" },
+  { term: "Reações Químicas", path: "Química > Inorgânica", url: "quimica/reacoes.html" },
+  { term: "Cinética Química", path: "Química > Inorgânica", url: "quimica/cinetica.html" },
+
+  // ---------- QUÍMICA: Orgânica ----------
+  { term: "Orgânica", path: "Química > Orgânica", url: "quimica/organica.html" },
+  { term: "Eletroquímica", path: "Química > Orgânica", url: "quimica/eletroquimica.html" },
+  { term: "Termoquímica", path: "Química > Orgânica", url: "quimica/termoquimica.html" },
+  { term: "Radioatividade", path: "Química > Orgânica", url: "quimica/radioatividade.html" },
+  { term: "Polímeros", path: "Química > Orgânica", url: "quimica/polimeros.html" },
+
+  // ---------- PROGRAMAÇÃO: Básica ----------
+  { term: "Algoritmos", path: "Programação > Básica", url: "programacao/algoritmos.html" },
+  { term: "Variáveis e Tipos", path: "Programação > Básica", url: "programacao/variaveis.html" },
+  { term: "Estruturas de Controle", path: "Programação > Básica", url: "programacao/controle.html" },
+
+  // ---------- PROGRAMAÇÃO: Avançada ----------
+  { term: "Funções", path: "Programação > Avançada", url: "programacao/funcoes.html" },
+  { term: "POO", path: "Programação > Avançada", url: "programacao/poo.html" },
+  { term: "Recursão", path: "Programação > Avançada", url: "programacao/recursao.html" },
+
+  // ---------- PROGRAMAÇÃO: Web ----------
+  { term: "HTML & CSS", path: "Programação > Web", url: "programacao/html-css.html" },
+  { term: "JavaScript", path: "Programação > Web", url: "programacao/javascript.html" },
+  { term: "Frameworks", path: "Programação > Web", url: "programacao/frameworks.html" },
+  
+  // ---------- PROGRAMAÇÃO: Banco de Dados ----------
+  { term: "SQL", path: "Programação > Banco de Dados", url: "programacao/sql.html" },
+  { term: "NoSQL", path: "Programação > Banco de Dados", url: "programacao/nosql.html" },
+  { term: "Modelagem de Dados", path: "Programação > Banco de Dados", url: "programacao/modelagem.html" }
 ];
+
 
 
 // 2. ESTRUTURA HTML DO CABEÇALHO 
