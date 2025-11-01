@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Limites - Matemática</title>
+  <link rel="stylesheet" href="../../dados/estilo.css">
+  <script src="../../dados/head.js" defer></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fffdf8;
+      color: #333;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    header {
+      background-color: #D2691E;
+      color: white;
+      text-align: center;
+      padding: 1.5rem 0;
+      font-size: 1.8rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: #fff;
+      padding: 2rem 2.5rem;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #D2691E;
+      border-bottom: 2px solid #D2691E;
+      padding-bottom: .4rem;
+    }
+
+    .exemplo {
+      background: #fff3e6;
+      border-left: 5px solid #D2691E;
+      padding: 1rem 1.5rem;
+      margin: 1rem 0;
+      border-radius: 8px;
+    }
+
+    .formula {
+      text-align: center;
+      font-size: 1.3rem;
+      background: #f8f8f8;
+      border-radius: 8px;
+      padding: .8rem;
+      margin: 1rem 0;
+      font-weight: 500;
+      font-family: "Consolas", monospace;
+    }
+
+    ul {
+      margin-left: 1.5rem;
+    }
+
+    .atividade {
+      background: #fff3e6;
+      border: 1px solid #f0d4b3;
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin-top: 2rem;
+    }
+
+    .atividade h3 {
+      color: #D2691E;
+    }
+
+    footer {
+      text-align: center;
+      margin: 2rem 0;
+      color: #777;
+      font-size: 0.9rem;
+    }
+
+    .banner {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+  <header>📘 Matemática – Limites</header>
+
+  <main>
+    <img src="../imgs/limites.png" alt="Banner sobre limites" class="banner">
+
+    <h2>O que é um limite?</h2>
+    <p>
+      O conceito de <strong>limite</strong> é um dos pilares do cálculo. Ele descreve o comportamento de uma função quando a variável se aproxima de um determinado ponto.  
+      Em outras palavras, o limite nos mostra qual valor uma função “tende” a alcançar, mesmo que ela nunca chegue exatamente a ele.
+    </p>
+
+    <div class="exemplo">
+      <strong>Exemplo intuitivo:</strong><br>
+      Imagine que você está caminhando em direção a uma parede.  
+      A cada passo, você percorre metade da distância restante.  
+      Você nunca toca exatamente a parede, mas se aproxima indefinidamente — o ponto em que você “chegaria” é o <strong>limite</strong>.
+    </div>
+
+    <h2>Definição simbólica</h2>
+    <div class="formula">
+      lim<sub>x → a</sub> f(x) = L
+    </div>
+    <p>
+      Isso significa que, conforme <em>x</em> se aproxima de <em>a</em>, o valor de <em>f(x)</em> se aproxima de <em>L</em>.  
+      O limite pode existir mesmo que a função não esteja definida em <em>a</em>.
+    </p>
+
+    <h2>Regras básicas de limites</h2>
+    <ul>
+      <li>lim (c) = c &nbsp; → O limite de uma constante é ela mesma.</li>
+      <li>lim (x) = a &nbsp; → O limite de x quando x → a é o próprio a.</li>
+      <li>lim [f(x) + g(x)] = lim f(x) + lim g(x)</li>
+      <li>lim [f(x) · g(x)] = (lim f(x)) · (lim g(x))</li>
+      <li>lim [f(x)/g(x)] = (lim f(x)) / (lim g(x)), desde que o denominador ≠ 0</li>
+    </ul>
+
+    <h2>Exemplo prático</h2>
+    <div class="exemplo">
+      Calcule o limite:
+      <div class="formula">lim<sub>x → 2</sub> (x² + 3x - 4)</div>
+      Basta substituir:
+      <div class="formula">= (2)² + 3·2 - 4 = 4 + 6 - 4 = 6</div>
+      Portanto, <strong>lim(x → 2) (x² + 3x - 4) = 6</strong>.
+    </div>
+
+    <h2>Limites laterais</h2>
+    <p>
+      Às vezes, o limite pode ser diferente dependendo do lado pelo qual nos aproximamos.  
+      Nesse caso, temos o <strong>limite pela esquerda</strong> (x → a⁻) e o <strong>limite pela direita</strong> (x → a⁺).
+    </p>
+
+    <div class="exemplo">
+      Exemplo:<br>
+      A função <em>f(x) = |x| / x</em> tem limites diferentes quando x → 0⁻ e x → 0⁺.  
+      Logo, o limite em x = 0 <strong>não existe</strong>.
+    </div>
+
+    <div class="atividade">
+      <h3>🧮 Exercícios para praticar</h3>
+      <ol>
+        <li>Calcule: lim<sub>x → 3</sub> (2x + 5)</li>
+        <li>Determine o limite: lim<sub>x → -1</sub> (x² + 2x + 1)</li>
+        <li>Existe o limite de f(x) = |x|/x em x = 0?</li>
+        <li>Resolva: lim<sub>x → 0</sub> (sin x / x)</li>
+      </ol>
+    </div>
+
+  </main>
+
+  <footer>
+    SimuLab © 2025 — Conteúdo educativo de Matemática
+  </footer>
+</body>
+</html>
