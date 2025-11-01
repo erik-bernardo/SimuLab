@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Sistemas Lineares - Curso</title>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+<style>
+body {
+    font-family: 'Georgia', serif;
+    margin: 0;
+    background-color: #fafafa;
+    color: #333;
+    line-height: 1.6;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #D2691E;
+    color: white;
+    padding: 12px 20px;
+    font-size: 1.2em;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+    z-index: 100;
+}
+
+nav a {
+    color: white;
+    margin-right: 20px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.container {
+    display: flex;
+    margin-top: 70px; /* espaço para header fixo */
+}
+
+.sidebar {
+    width: 220px;
+    background-color: #fff8f0;
+    padding: 20px;
+    border-right: 1px solid #eee;
+    position: fixed;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.sidebar a {
+    display: block;
+    margin-bottom: 10px;
+    color: #D2691E;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.sidebar a:hover {
+    color: #B3561A;
+}
+
+main {
+    margin-left: 240px;
+    padding: 20px 40px;
+    max-width: 900px;
+}
+
+h2 {
+    color: #D2691E;
+    margin-top: 30px;
+    font-size: 1.8em;
+}
+
+h3 {
+    color: #B3561A;
+    margin-top: 20px;
+}
+
+.note {
+    background-color: #fff4e6;
+    border-left: 4px solid #D2691E;
+    padding: 12px;
+    margin: 15px 0;
+    font-style: italic;
+}
+
+.example {
+    background-color: #fff8f0;
+    border-left: 4px solid #B3561A;
+    padding: 12px;
+    margin: 10px 0;
+    font-family: 'Courier New', monospace;
+}
+
+button {
+    background-color: #D2691E;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-top: 8px;
+}
+button:hover { background-color: #b3561a; }
+
+.solution {
+    display: none;
+    background-color: #fff9e6;
+    padding: 10px 12px;
+    border-left: 4px solid #B3561A;
+    margin-top: 8px;
+    font-family: 'Courier New', monospace;
+}
+
+ul {
+    margin-left: 20px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 10px;
+}
+th, td {
+    border: 1px solid #D2691E;
+    padding: 8px;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+
+
+
+<div class="container">
+    <div class="sidebar">
+        <h3>Seções</h3>
+        <a href="#linear">Equação Linear</a>
+        <a href="#systems">O que são Sistemas</a>
+        <a href="#2x2">Sistema 2x2</a>
+        <a href="#substitution">Método da Substituição</a>
+        <a href="#addition">Método da Adição</a>
+        <a href="#cramer">Regra de Cramer</a>
+        <a href="#discussion">Discussão de Sistemas</a>
+    </div>
+
+    <main>
+        <section id="linear">
+            <h2>Equação Linear</h2>
+            <p>Uma equação linear é toda equação que pode ser escrita como:</p>
+            <p><strong>\(a_1x_1 + a_2x_2 + ... + a_nx_n = b\)</strong></p>
+            <div class="note">
+                a₁, a₂... são coeficientes; b é termo independente; x₁, x₂... incógnitas.
+            </div>
+            <div class="example">
+                Exemplo: 2x₁ - 3x₂ + x₃ = 5
+            </div>
+        </section>
+
+        <section id="systems">
+            <h2>O que são Sistemas Lineares?</h2>
+            <p>Um <strong>sistema linear</strong> é um conjunto de duas ou mais equações lineares com as mesmas incógnitas. Por exemplo:</p>
+            <div class="example">
+                \(\begin{cases} x + y = 14 \\ 4x + 2y = 48 \end{cases}\)
+            </div>
+            <p>A solução de um sistema é o conjunto de valores das incógnitas que satisfaz todas as equações simultaneamente.</p>
+            <p>Classificação dos sistemas:</p>
+            <ul>
+                <li><strong>SPD (Sistema Possível e Determinado):</strong> possui uma única solução.</li>
+                <li><strong>SPI (Sistema Possível e Indeterminado):</strong> possui infinitas soluções.</li>
+                <li><strong>SI (Sistema Impossível):</strong> não possui solução.</li>
+            </ul>
+            <p>Geometricamente, cada equação representa uma reta (2D) ou um plano (3D). O ponto ou região onde todas se intersectam é a solução do sistema.</p>
+        </section>
+
+        <section id="2x2">
+            <h2>Sistemas 2x2</h2>
+            <p>Exemplo: Estacionamento com carros e motos</p>
+            <div class="example">
+                x = carros, y = motos<br>
+                \(\begin{cases} x + y = 14 \\ 4x + 2y = 48 \end{cases}\)
+            </div>
+            <button onclick="toggle('sys2x2')">Mostrar Solução</button>
+            <div class="solution" id="sys2x2">
+                x = 10, y = 4
+            </div>
+        </section>
+
+        <section id="substitution">
+            <h2>Método da Substituição</h2>
+            <p>Isolamos uma incógnita e substituímos na outra equação:</p>
+            <div class="example">
+                Sistema: { 3x - y = -11, x + 2y = 8 }
+            </div>
+            <button onclick="toggle('subsSol')">Mostrar Solução</button>
+            <div class="solution" id="subsSol">
+                x = -2, y = 5
+            </div>
+        </section>
+
+        <section id="addition">
+            <h2>Método da Adição</h2>
+            <p>Somamos ou subtraímos equações para eliminar uma incógnita:</p>
+            <div class="example">
+                Sistema: { x + y = 14, 4x + 2y = 48 }
+            </div>
+            <button onclick="toggle('addSol')">Mostrar Solução</button>
+            <div class="solution" id="addSol">
+                x = 10, y = 4
+            </div>
+        </section>
+
+        <section id="cramer">
+            <h2>Regra de Cramer</h2>
+            <p>Método baseado em determinantes para sistemas quadrados:</p>
+            <div class="example">
+                Sistema: 2x - y = 7, x + 5y = -2
+            </div>
+            <button onclick="toggle('cramerSol')">Mostrar Solução</button>
+            <div class="solution" id="cramerSol">
+                det A = 11<br>
+                det Ax = 33 → x = 3<br>
+                det Ay = -11 → y = -1<br>
+                S = {(3, -1)}
+            </div>
+        </section>
+
+        <section id="discussion">
+            <h2>Discussão de Sistemas Lineares</h2>
+            <p>Um sistema linear pode ser:</p>
+            <ul>
+                <li><strong>SPD:</strong> uma única solução (retas se cruzam em um ponto).</li>
+                <li><strong>SPI:</strong> infinitas soluções (retas coincidentes ou planos sobrepostos).</li>
+                <li><strong>SI:</strong> nenhuma solução (retas paralelas ou planos que não se intersectam).</li>
+            </ul>
+        </section>
+    </main>
+</div>
+
+<script>
+function toggle(id){
+    const sol = document.getElementById(id);
+    sol.style.display = sol.style.display === 'block' ? 'none' : 'block';
+}
+</script>
+
+    <script src="dados/head.js"></script>
+</body>
+</html>
