@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matemática - Conteúdo</title>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f6f6f9;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    /* ---------- NAVBAR ---------- */
+    header {
+      background-color: #f8f8ff;
+      border-bottom: 2px solid #ddd;
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #555;
+      font-weight: 500;
+      font-size: 16px;
+      padding-bottom: 5px;
+      transition: all 0.3s ease;
+    }
+
+    nav a.active {
+      border-bottom: 3px solid #4b5cff;
+      color: #4b5cff;
+    }
+
+    nav a:hover {
+      color: #4b5cff;
+    }
+
+    /* ---------- CONTEÚDO ---------- */
+    main {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    section {
+      margin-bottom: 60px;
+    }
+
+    section h2 {
+      margin-bottom: 20px;
+      font-size: 22px;
+      font-weight: 600;
+      color: #2f3fd6;
+      border-left: 5px solid #2f3fd6;
+      padding-left: 10px;
+    }
+
+    /* ---------- CARDS ---------- */
+    .card {
+      background-color: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .card img {
+      width: 200px;
+      height: 140px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 20px;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .card p {
+      color: #555;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    /* ---------- MENU LATERAL ---------- */
+    .sidebar {
+      position: fixed;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 10;
+    }
+
+    .sidebar button {
+      background-color: #4b5cff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+
+    .sidebar button:hover {
+      background-color: #2f3fd6;
+    }
+
+    @media (max-width: 700px) {
+      .card { flex-direction: column; }
+      .card img { width: 100%; }
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Cabeçalho principal vindo do head.js -->
+  <script src="dados/head.js"></script>
+
+  <!-- Barra de navegação -->
+  <header>
+    <nav>
+      <a href="#" id="simulacoes">Simulações</a>
+      <a href="#" class="active" id="conteudo">Conteúdo</a>
+      <a href="#" id="exercicios">Exercícios</a>
+    </nav>
+  </header>
+
+  <main>
+  <section id="quimica-geral">
+  <h2>Química Geral</h2>
+  <div class="cards" id="cards-quimica-geral"></div>
+</section>
+
+<section id="quimica-inorganica">
+  <h2>Química Inorgânica</h2>
+  <div class="cards" id="cards-quimica-inorganica"></div>
+</section>
+
+<section id="quimica-organica">
+  <h2>Química Orgânica e Aplicada</h2>
+  <div class="cards" id="cards-quimica-organica"></div>
+</section>
+
+<script>
+const secoesQuimica = {
+  'quimica-geral': [
+    { cap: 'Tabela Periódica', titulo: 'Elementos, famílias e períodos', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/tabela-periodica.html' },
+    { cap: 'Ligações Químicas', titulo: 'Iônicas, covalentes e metálicas', imagem: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg', link: 'quimica/ligacoes.html' },
+    { cap: 'Ácidos e Bases', titulo: 'pH, pOH e reações ácido-base', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/acidos-bases.html' },
+    { cap: 'Balanceamento', titulo: 'Equações químicas balanceadas', imagem: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg', link: 'quimica/balanceamento.html' },
+    { cap: 'Funções Inorgânicas', titulo: 'Ácidos, bases, sais e óxidos', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/funcoes-inorganicas.html' }
+  ],
+  'quimica-inorganica': [
+    { cap: 'NOX', titulo: 'Número de oxidação dos elementos', imagem: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg', link: 'quimica/nox.html' },
+    { cap: 'Estequiometria', titulo: 'Cálculos de reagentes e produtos', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/estequiometria.html' },
+    { cap: 'Soluções', titulo: 'Concentração e diluição', imagem: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg', link: 'quimica/solucoes.html' },
+    { cap: 'Reações Químicas', titulo: 'Tipos de reações e mecanismos', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/reacoes.html' },
+    { cap: 'Cinética Química', titulo: 'Velocidade e fatores de reação', imagem: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg', link: 'quimica/cinetica.html' }
+  ],
+  'quimica-organica': [
+    { cap: 'Orgânica', titulo: 'Hidrocarbonetos e funções orgânicas', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/organica.html' },
+    { cap: 'Eletroquímica', titulo: 'Redox e pilhas eletroquímicas', imagem: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg', link: 'quimica/eletroquimica.html' },
+    { cap: 'Termoquímica', titulo: 'Reações e calor envolvido', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/termoquimica.html' },
+    { cap: 'Radioatividade', titulo: 'Decaimento e tipos de radiação', imagem: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg', link: 'quimica/radioatividade.html' },
+    { cap: 'Polímeros', titulo: 'Plásticos, borrachas e síntese', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/polimeros.html' }
+  ]
+};
+
+function criarCards(lista, idContainer) {
+  const container = document.getElementById(idContainer);
+  lista.forEach(c => {
+    const card = document.createElement('div');
+    card.classList.add('card');
+    card.innerHTML = `
+      <img src="${c.imagem}" alt="${c.cap}">
+      <div class="card-content">
+        <h3>${c.cap}</h3>
+        <p>${c.titulo}</p>
+      </div>
+    `;
+    if (c.link) {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', () => {
+        window.location.href = c.link;
+      });
+    }
+    container.appendChild(card);
+  });
+}
+
+Object.keys(secoesQuimica).forEach(sec => criarCards(secoesQuimica[sec], `cards-${sec}`));
+</script>
+
+</body>
+</html>
