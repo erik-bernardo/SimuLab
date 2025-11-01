@@ -1,0 +1,103 @@
+/* === Configurações gerais === */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #f8f9ff, #eef1ff);
+  color: #222;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background: #4b6ef5;
+  color: white;
+  text-align: center;
+  padding: 20px 0;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+h1 {
+  font-size: 2rem;
+  letter-spacing: 1px;
+}
+
+main {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+/* === Botões de modo === */
+.modo {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.modo button {
+  background: #4b6ef5;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.modo button:hover {
+  background: #3457e3;
+  transform: scale(1.05);
+}
+
+/* === Editor e área dos blocos === */
+#areaBlocos, #editorCodigo {
+  border: 2px solid #dfe3ff;
+  border-radius: 10px;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
+  background: #fafbff;
+}
+
+#editorCodigo {
+  font-family: monospace;
+  font-size: 16px;
+  resize: none;
+  outline: none;
+  padding: 10px;
+}
+
+/* === Botão de executar === */
+#executar {
+  display: block;
+  width: 100%;
+  margin: 20px 0;
+  background: #00b36b;
+  color: white;
+  font-size: 1.2rem;
+  padding: 12px 0;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#executar:hover {
+  background: #009659;
+}
+
+/* === Visualização do jogo === */
+h2 {
+  text-align: center;
+  margin-top: 30px;
+  color: #333;
+}
+
+#janelaJogo {
+  border: 2px solid #dfe3ff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: #fff;
+}
