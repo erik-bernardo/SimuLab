@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mecânica - MRU</title>
+  <link rel="stylesheet" href="../../dados/estilo.css">
+  <script src="../../dados/head.js" defer></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fffdf8;
+      color: #333;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    header {
+      background-color: #D2691E;
+      color: white;
+      text-align: center;
+      padding: 1.5rem 0;
+      font-size: 1.8rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: #fff;
+      padding: 2rem 2.5rem;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #D2691E;
+      border-bottom: 2px solid #D2691E;
+      padding-bottom: .4rem;
+    }
+
+    .exemplo {
+      background: #fff3e6;
+      border-left: 5px solid #D2691E;
+      padding: 1rem 1.5rem;
+      margin: 1rem 0;
+      border-radius: 8px;
+    }
+
+    .formula {
+      text-align: center;
+      font-size: 1.3rem;
+      background: #f8f8f8;
+      border-radius: 8px;
+      padding: .8rem;
+      margin: 1rem 0;
+      font-weight: 500;
+      font-family: "Consolas", monospace;
+    }
+
+    ul {
+      margin-left: 1.5rem;
+    }
+
+    .atividade {
+      background: #fff3e6;
+      border: 1px solid #f0d4b3;
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin-top: 2rem;
+    }
+
+    .atividade h3 {
+      color: #D2691E;
+    }
+
+    footer {
+      text-align: center;
+      margin: 2rem 0;
+      color: #777;
+      font-size: 0.9rem;
+    }
+
+    .banner {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+  <header>📘 Mecânica – MRU</header>
+
+  <main>
+    <img src="../imgs/mru.png" alt="Banner sobre MRU" class="banner">
+
+    <h2>O que é MRU?</h2>
+    <p>
+      O <strong>Movimento Retilíneo Uniforme (MRU)</strong> é o movimento em que um corpo se desloca com <strong>velocidade constante</strong> ao longo de uma trajetória reta.  
+      Isso significa que, em intervalos de tempo iguais, o corpo percorre a mesma distância.
+    </p>
+
+    <div class="exemplo">
+      <strong>Exemplo intuitivo:</strong><br>
+      Um carro que viaja em estrada reta mantendo o velocímetro constante em 60 km/h.  
+      A cada hora, ele percorre a mesma distância: 60 km.
+    </div>
+
+    <h2>Velocidade Média</h2>
+    <p>A velocidade média (<span class="formula">v_m</span>) é calculada pela razão entre a variação do espaço (<span class="formula">Δs</span>) e o tempo (<span class="formula">t</span>):</p>
+    <div class="formula">v_m = Δs / t</div>
+
+    <ul>
+      <li><strong>v_m</strong> = velocidade média</li>
+      <li><strong>Δs</strong> = variação do espaço</li>
+      <li><strong>t</strong> = intervalo de tempo</li>
+    </ul>
+
+    <div class="exemplo">
+      <strong>Exemplo:</strong><br>
+      Um carro percorre 300 km em 5 horas.<br>
+      <div class="formula">v_m = 300 / 5 = 60 km/h</div>
+    </div>
+
+    <h2>Velocidade Instantânea</h2>
+    <p>
+      A velocidade instantânea (<span class="formula">v</span>) é a velocidade em um instante específico.  
+      No MRU, ela é igual à velocidade média:
+    </p>
+    <div class="formula">v = v_m</div>
+
+    <div class="exemplo">
+      Um nadador percorre 100 m em 50 s.  
+      Como o movimento é uniforme:
+      <div class="formula">v = 100 / 50 = 2 m/s</div>
+    </div>
+
+    <h2>Função Horária da Posição</h2>
+    <p>A posição do corpo em MRU é determinada por:</p>
+    <div class="formula">s = s₀ + v·t</div>
+
+    <ul>
+      <li><strong>s</strong> = posição do corpo no instante t</li>
+      <li><strong>s₀</strong> = posição inicial</li>
+      <li><strong>v</strong> = velocidade</li>
+      <li><strong>t</strong> = tempo</li>
+    </ul>
+
+    <div class="exemplo">
+      Função horária: <span class="formula">s = 20 + 3t</span><br>
+      Posição inicial: s₀ = 20 m<br>
+      Posição após 50 s:
+      <div class="formula">s = 20 + 3·50 = 170 m</div>
+    </div>
+
+    <h2>Gráficos do MRU</h2>
+    <h3>Velocidade x Tempo</h3>
+    <p>No MRU, a velocidade é constante, então o gráfico é uma linha horizontal:</p>
+    <pre>
+v
+|
+|──────
+|
++---------------- t
+    </pre>
+
+    <h3>Posição x Tempo</h3>
+    <p>A posição é função linear do tempo, portanto o gráfico é uma linha inclinada:</p>
+    <pre>
+s
+|
+|        /
+|      /
+|    /
+|  /
++---------------- t
+    </pre>
+
+    <div class="atividade">
+      <h3>🧮 Exercícios</h3>
+      <ol>
+        <li>Um homem dá 50 passadas por minuto, cada passada mede 6 pés e 3 pés = 1 m. Qual sua velocidade?</li>
+        <li>Um carro percorre 300 km em 5 horas. Qual a sua velocidade média?</li>
+        <li>Um nadador percorre 100 m em 50 s com velocidade constante. Determine a velocidade instantânea.</li>
+        <li>Um corpo tem função horária s = 10 + 2t. Qual a posição após 20 s?</li>
+      </ol>
+    </div>
+
+  </main>
+
+  <footer>
+    SimuLab © 2025 — Conteúdo educativo de Mecânica
+  </footer>
+</body>
+</html>
