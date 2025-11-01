@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matemática - Conteúdo</title>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f6f6f9;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    /* ---------- NAVBAR ---------- */
+    header {
+      background-color: #f8f8ff;
+      border-bottom: 2px solid #ddd;
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #555;
+      font-weight: 500;
+      font-size: 16px;
+      padding-bottom: 5px;
+      transition: all 0.3s ease;
+    }
+
+    nav a.active {
+      border-bottom: 3px solid #4b5cff;
+      color: #4b5cff;
+    }
+
+    nav a:hover {
+      color: #4b5cff;
+    }
+
+    /* ---------- CONTEÚDO ---------- */
+    main {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    section {
+      margin-bottom: 60px;
+    }
+
+    section h2 {
+      margin-bottom: 20px;
+      font-size: 22px;
+      font-weight: 600;
+      color: #2f3fd6;
+      border-left: 5px solid #2f3fd6;
+      padding-left: 10px;
+    }
+
+    /* ---------- CARDS ---------- */
+    .card {
+      background-color: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .card img {
+      width: 200px;
+      height: 140px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 20px;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .card p {
+      color: #555;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    /* ---------- MENU LATERAL ---------- */
+    .sidebar {
+      position: fixed;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 10;
+    }
+
+    .sidebar button {
+      background-color: #4b5cff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+
+    .sidebar button:hover {
+      background-color: #2f3fd6;
+    }
+
+    @media (max-width: 700px) {
+      .card { flex-direction: column; }
+      .card img { width: 100%; }
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Cabeçalho principal vindo do head.js -->
+  <script src="dados/head.js"></script>
+
+  <!-- Barra de navegação -->
+  <header>
+    <nav>
+      <a href="#" id="simulacoes">Simulações</a>
+      <a href="#" class="active" id="conteudo">Conteúdo</a>
+      <a href="#" id="exercicios">Exercícios</a>
+    </nav>
+  </header>
+
+  <main>
+
+
+<section id="biologia-corpo">
+  <h2>Sistemas do Corpo Humano</h2>
+  <div class="cards" id="cards-biologia-corpo"></div>
+</section>
+
+<section id="biologia-animal">
+  <h2>Biologia Animal</h2>
+  <div class="cards" id="cards-biologia-animal"></div>
+</section>
+
+<section id="biologia-genetica">
+  <h2>Genética</h2>
+  <div class="cards" id="cards-biologia-genetica"></div>
+</section>
+
+<section id="biologia-celulas">
+  <h2>Células</h2>
+  <div class="cards" id="cards-biologia-celulas"></div>
+</section>
+
+<script>
+const secoesBiologia = {
+  'biologia-corpo': [
+   { cap: 'Sistema Digestório', titulo: 'Órgãos responsáveis pela digestão e absorção de nutrientes', imagem: 'https://cdn.pixabay.com/photo/2017/03/26/14/41/anatomy-2178749_960_720.jpg', link: 'biologia/digestorio.html' },
+  { cap: 'Sistema Circulatório', titulo: 'Coração, vasos sanguíneos e transporte de sangue', imagem: 'https://cdn.pixabay.com/photo/2017/03/26/14/41/anatomy-2178750_960_720.jpg', link: 'biologia/circulatorio.html' },
+  { cap: 'Sistema Respiratório', titulo: 'Pulmões e trocas gasosas', imagem: 'https://cdn.pixabay.com/photo/2017/03/26/14/41/anatomy-2178751_960_720.jpg', link: 'biologia/respiratorio.html' },
+  { cap: 'Sistema Nervoso', titulo: 'Cérebro, medula espinhal e nervos', imagem: 'https://cdn.pixabay.com/photo/2016/11/29/03/15/brain-1866803_960_720.jpg', link: 'biologia/nervoso.html' },
+  { cap: 'Sistema Imunológico', titulo: 'Proteção contra patógenos e doenças', imagem: 'https://cdn.pixabay.com/photo/2017/03/26/14/41/anatomy-2178753_960_720.jpg', link: 'biologia/imunologico.html' },
+  { cap: 'Sistema Muscular', titulo: 'Músculos esqueléticos, lisos e cardíacos', imagem: 'https://cdn.pixabay.com/photo/2017/03/26/14/41/anatomy-2178754_960_720.jpg', link: 'biologia/muscular.html' },
+  { cap: 'Sistema Esquelético', titulo: 'Ossos, articulações e suporte corporal', imagem: 'https://cdn.pixabay.com/photo/2017/03/26/14/41/anatomy-2178755_960_720.jpg', link: 'biologia/esqueletico.html' },
+  { cap: 'Sistema Urinário', titulo: 'Rins, ureteres, bexiga e uretra', imagem: 'https://cdn.pixabay.com/photo/2017/03/26/14/41/anatomy-2178756_960_720.jpg', link: 'biologia/urinario.html' },
+  { cap: 'Sistema Reprodutor', titulo: 'Órgãos sexuais masculinos e femininos', imagem: 'https://cdn.pixabay.com/photo/2017/03/26/14/41/anatomy-2178757_960_720.jpg', link: 'biologia/reprodutor.html' },
+  ],
+  'biologia-animal': [
+    { cap: 'Classificação Animal', titulo: 'Reinos, filos e espécies', imagem: 'https://cdn.pixabay.com/photo/2014/04/03/11/51/animals-312954_960_720.jpg', link: 'biologia/classificacao.html' },
+    { cap: 'Comportamento Animal', titulo: 'Instintos, aprendizado e comunicação', imagem: 'https://cdn.pixabay.com/photo/2014/04/03/11/51/animals-312955_960_720.jpg', link: 'biologia/comportamento.html' },
+    { cap: 'Fisiologia Animal', titulo: 'Funções vitais nos animais', imagem: 'https://cdn.pixabay.com/photo/2014/04/03/11/51/animals-312956_960_720.jpg', link: 'biologia/fisiologia.html' }
+  ],
+  'biologia-genetica': [
+    { cap: 'DNA e RNA', titulo: 'Estrutura e função do material genético', imagem: 'https://cdn.pixabay.com/photo/2015/12/13/22/22/dna-1090086_960_720.jpg', link: 'biologia/dna.html' },
+    { cap: 'Herança Genética', titulo: 'Genes, alelos e padrões de herança', imagem: 'https://cdn.pixabay.com/photo/2015/12/13/22/22/dna-1090087_960_720.jpg', link: 'biologia/heranca.html' },
+    { cap: 'Mutação', titulo: 'Alterações genéticas e consequências', imagem: 'https://cdn.pixabay.com/photo/2015/12/13/22/22/dna-1090088_960_720.jpg', link: 'biologia/mutacao.html' }
+  ],
+  'biologia-celulas': [
+    { cap: 'Estrutura Celular', titulo: 'Organelas e componentes celulares', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/cell-1299821_960_720.jpg', link: 'biologia/estrutura-celular.html' },
+    { cap: 'Divisão Celular', titulo: 'Mitose e Meiose', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/cell-1299822_960_720.jpg', link: 'biologia/divisao.html' },
+    { cap: 'Metabolismo Celular', titulo: 'Respiração, fotossíntese e energia', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/cell-1299823_960_720.jpg', link: 'biologia/metabolismo.html' }
+  ]
+};
+
+function criarCards(lista, idContainer) {
+  const container = document.getElementById(idContainer);
+  lista.forEach(c => {
+    const card = document.createElement('div');
+    card.classList.add('card');
+    card.innerHTML = `
+      <img src="${c.imagem}" alt="${c.cap}">
+      <div class="card-content">
+        <h3>${c.cap}</h3>
+        <p>${c.titulo}</p>
+      </div>
+    `;
+    if (c.link) {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', () => {
+        window.location.href = c.link;
+      });
+    }
+    container.appendChild(card);
+  });
+}
+
+Object.keys(secoesBiologia).forEach(sec => criarCards(secoesBiologia[sec], `cards-${sec}`));
+</script>
+
+
+
+</body>
+</html>
