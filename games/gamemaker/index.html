@@ -1,37 +1,165 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Crie seu Jogo</title>
-  <link rel="stylesheet" href="estilo.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎮 Crie seu Jogo - SimuLab</title>
+  <link rel="stylesheet" href="crie_seu_jogo.css" />
+  <script src="crie_seu_jogo.js" defer></script>
 
-  <!-- Blockly -->
+  <!-- Fontes e ícones -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide-icons@latest"></script>
+
+  <!-- Blockly opcional -->
   <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+
+  <meta name="description" content="Crie seu próprio jogo com código ou blocos visuais! Experimente, edite e execute em tempo real.">
 </head>
+
 <body>
-  <header>
+  <!-- ================================= -->
+  <!-- 🎨 CABEÇALHO -->
+  <!-- ================================= -->
+  <header class="main-header">
     <h1>🎮 Crie seu Jogo</h1>
+    <p>Escolha como deseja criar: <strong>por código</strong> ou <strong>por blocos</strong>.</p>
+    <nav>
+      <button id="modoCodigo" class="modo-btn ativo">💻 Código</button>
+      <button id="modoBlocos" class="modo-btn">🧩 Blocos</button>
+    </nav>
   </header>
 
-  <main>
-    <div class="modo">
-      <button id="modoBlocos">🧱 Modo Blocos</button>
-      <button id="modoCodigo">💻 Modo Código</button>
-    </div>
+  <!-- ================================= -->
+  <!-- 🧠 CONTEÚDO PRINCIPAL -->
+  <!-- ================================= -->
+  <main class="main-container">
+    <section id="painelCodigo" class="painel ativo">
+      <!-- Editor de Código -->
+      <div class="editor-container">
+        <div class="editor-header">
+          <span>Editor de Jogo (Linguagem Personalizada)</span>
+          <button id="executarCodigo" class="executar-btn">
+            ▶️ Executar Jogo
+          </button>
+        </div>
 
-    <!-- Área dos blocos -->
-    <div id="areaBlocos" style="width: 100%; height: 400px;"></div>
+        <textarea id="editorCodigo" spellcheck="false">
+// Bem-vindo ao Criador de Jogos!
+// Digite seu código abaixo. Exemplo:
 
-    <!-- Área do código -->
-    <textarea id="editorCodigo" placeholder="Digite seu código aqui..." style="width:100%;height:400px;display:none;"></textarea>
+jogo.titulo("Meu Primeiro Jogo");
+jogo.jogador("astronauta", { x: 50, y: 50, cor: "azul" });
+jogo.inimigo("alien", { x: 200, y: 100, cor: "verde" });
+jogo.loop(() => {
+  jogador.moverDireita();
+  if (jogador.colideCom("alien")) {
+    jogo.mensagem("Você venceu!");
+  }
+});
+        </textarea>
+      </div>
+    </section>
 
-    <button id="executar">▶️ Executar Jogo</button>
+    <!-- Modo Blocos -->
+    <section id="painelBlocos" class="painel">
+      <div id="blocosContainer"></div>
+      <button id="gerarCodigo" class="gerar-btn">🔄 Converter para Código</button>
+    </section>
 
-    <h2>Visualização:</h2>
-    <iframe id="janelaJogo" style="width:100%;height:400px;border:1px solid #ccc;"></iframe>
+    <!-- ================================= -->
+    <!-- 🕹️ ÁREA DE EXECUÇÃO -->
+    <!-- ================================= -->
+    <section id="areaExecucao" class="exec-container">
+      <div class="exec-header">
+        <h2>🕹️ Visualização do Jogo</h2>
+        <button id="limparTela" class="limpar-btn">🧹 Limpar</button>
+      </div>
+      <iframe id="canvasExecucao"></iframe>
+    </section>
   </main>
 
-  <script src="script.js"></script>
+  <!-- ================================= -->
+  <!-- 🧩 TOOLBOX DO BLOCKLY -->
+  <!-- ================================= -->
+  <xml id="toolbox" style="display: none">
+    <category name="Movimento" colour="#5CA65C">
+      <block type="mover_direita"></block>
+      <block type="mover_esquerda"></block>
+      <block type="mover_cima"></block>
+      <block type="mover_baixo"></block>
+    </category>
+
+    <category name="Ações" colour="#5C81A6">
+      <block type="mostrar_mensagem"></block>
+      <block type="criar_jogador"></block>
+      <block type="criar_inimigo"></block>
+    </category>
+
+    <category name="Controle" colour="#A65C81">
+      <block type="repetir_loop"></block>
+      <block type="se_colisao"></block>
+    </category>
+
+    <category name="Matemática" colour="#A6745C">
+      <block type="math_number"></block>
+      <block type="math_arithmetic"></block>
+    </category>
+
+    <category name="Lógica" colour="#5CA699">
+      <block type="logic_compare"></block>
+      <block type="logic_operation"></block>
+      <block type="logic_boolean"></block>
+    </category>
+  </xml>
+
+  <!-- ================================= -->
+  <!-- ⚙️ RODAPÉ -->
+  <!-- ================================= -->
+  <footer class="main-footer">
+    <p>SimuLab © 2025 — Desenvolva, teste e divirta-se criando jogos!</p>
+    <p>
+      Dica: experimente criar scripts interativos e veja o resultado em tempo real.
+    </p>
+  </footer>
+
+  <!-- ================================= -->
+  <!-- 📦 SCRIPTS DE SUPORTE OPCIONAL -->
+  <!-- ================================= -->
+  <script>
+    // Inicialização de ícones Lucide
+    lucide.createIcons();
+
+    // Alternar modo (Código / Blocos)
+    document.getElementById("modoCodigo").addEventListener("click", () => {
+      document.getElementById("painelCodigo").classList.add("ativo");
+      document.getElementById("painelBlocos").classList.remove("ativo");
+      document.getElementById("modoCodigo").classList.add("ativo");
+      document.getElementById("modoBlocos").classList.remove("ativo");
+    });
+
+    document.getElementById("modoBlocos").addEventListener("click", () => {
+      document.getElementById("painelBlocos").classList.add("ativo");
+      document.getElementById("painelCodigo").classList.remove("ativo");
+      document.getElementById("modoBlocos").classList.add("ativo");
+      document.getElementById("modoCodigo").classList.remove("ativo");
+    });
+
+    // Configurar Blockly
+    window.addEventListener("load", () => {
+      const workspace = Blockly.inject('blocosContainer', {
+        toolbox: document.getElementById('toolbox'),
+        scrollbars: true,
+        trashcan: true,
+        grid: { spacing: 25, length: 3, colour: '#ccc', snap: true }
+      });
+
+      document.getElementById("gerarCodigo").addEventListener("click", () => {
+        const code = Blockly.JavaScript.workspaceToCode(workspace);
+        document.getElementById("editorCodigo").value = code;
+        alert("Código gerado com sucesso!");
+      });
+    });
+  </script>
 </body>
 </html>
