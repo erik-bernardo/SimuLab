@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matemática - Conteúdo</title>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f6f6f9;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    /* ---------- NAVBAR ---------- */
+    header {
+      background-color: #f8f8ff;
+      border-bottom: 2px solid #ddd;
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #555;
+      font-weight: 500;
+      font-size: 16px;
+      padding-bottom: 5px;
+      transition: all 0.3s ease;
+    }
+
+    nav a.active {
+      border-bottom: 3px solid #4b5cff;
+      color: #4b5cff;
+    }
+
+    nav a:hover {
+      color: #4b5cff;
+    }
+
+    /* ---------- CONTEÚDO ---------- */
+    main {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    section {
+      margin-bottom: 60px;
+    }
+
+    section h2 {
+      margin-bottom: 20px;
+      font-size: 22px;
+      font-weight: 600;
+      color: #2f3fd6;
+      border-left: 5px solid #2f3fd6;
+      padding-left: 10px;
+    }
+
+    /* ---------- CARDS ---------- */
+    .card {
+      background-color: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .card img {
+      width: 200px;
+      height: 140px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 20px;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .card p {
+      color: #555;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    /* ---------- MENU LATERAL ---------- */
+    .sidebar {
+      position: fixed;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 10;
+    }
+
+    .sidebar button {
+      background-color: #4b5cff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+
+    .sidebar button:hover {
+      background-color: #2f3fd6;
+    }
+
+    @media (max-width: 700px) {
+      .card { flex-direction: column; }
+      .card img { width: 100%; }
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Cabeçalho principal vindo do head.js -->
+  <script src="dados/head.js"></script>
+
+  <!-- Barra de navegação -->
+  <header>
+    <nav>
+      <a href="#" id="simulacoes">Simulações</a>
+      <a href="#" class="active" id="conteudo">Conteúdo</a>
+      <a href="#" id="exercicios">Exercícios</a>
+    </nav>
+  </header>
+
+  <main>
+   <section id="mecanica">
+  <h2>Mecânica</h2>
+  <div class="cards" id="cards-mecanica"></div>
+</section>
+
+<section id="termodinamica">
+  <h2>Termodinâmica</h2>
+  <div class="cards" id="cards-termodinamica"></div>
+</section>
+
+<section id="ondas">
+  <h2>Ondas e Óptica</h2>
+  <div class="cards" id="cards-ondas"></div>
+</section>
+
+<section id="eletromagnetismo">
+  <h2>Eletromagnetismo</h2>
+  <div class="cards" id="cards-eletromagnetismo"></div>
+</section>
+
+<script>
+  const secoesFisica = {
+    mecanica: [
+      { cap: 'MRU', titulo: 'Movimento Retilíneo Uniforme', imagem: 'https://cdn.pixabay.com/photo/2013/07/12/16/58/car-150030_960_720.png', link: 'fisica/mru.html' },
+      { cap: 'MRUV', titulo: 'Movimento Retilíneo Uniformemente Variado', imagem: 'https://cdn.pixabay.com/photo/2013/07/12/16/58/car-150030_960_720.png', link: 'fisica/mruv.html' },
+      { cap: 'Energia', titulo: 'Energia Cinética e Potencial', imagem: 'https://cdn.pixabay.com/photo/2017/03/26/14/41/mathematics-2178755_960_720.jpg', link: 'fisica/energia.html' },
+      { cap: 'Escalas Term.', titulo: 'Conversão de temperaturas', imagem: 'https://cdn.pixabay.com/photo/2016/03/05/22/20/equations-1235728_960_720.jpg', link: 'fisica/escalas.html' },
+      { cap: 'Queda Livre', titulo: 'Corpos em queda com aceleração g', imagem: 'https://cdn.pixabay.com/photo/2017/01/13/19/32/calculus-1975724_960_720.jpg', link: 'fisica/queda.html' }
+    ],
+    termodinamica: [
+      { cap: 'Dilatação Térmica', titulo: 'Expansão de sólidos e líquidos', imagem: 'https://cdn.pixabay.com/photo/2015/09/05/22/46/fire-924514_960_720.jpg', link: 'fisica/dilatacao.html' },
+      { cap: 'Calorimetria', titulo: 'Troca de calor entre corpos', imagem: 'https://cdn.pixabay.com/photo/2015/09/05/22/46/fire-924514_960_720.jpg', link: 'fisica/calorimetria.html' }
+    ],
+    ondas: [
+      { cap: 'Ondas e Óptica', titulo: 'Propagação de ondas e fenômenos ópticos', imagem: 'https://cdn.pixabay.com/photo/2017/03/23/08/39/money-2165546_960_720.jpg', link: 'fisica/ondas.html' },
+      { cap: 'Hidrostática', titulo: 'Pressão e princípios de fluidos', imagem: 'https://cdn.pixabay.com/photo/2017/02/26/21/52/mortgage-2109493_960_720.jpg', link: 'fisica/hidrostatica.html' },
+      { cap: 'Gravitação Universal', titulo: 'Lei da Gravitação de Newton', imagem: 'https://cdn.pixabay.com/photo/2016/11/22/23/59/investment-1859992_960_720.jpg', link: 'fisica/gravidade.html' }
+    ],
+    eletromagnetismo: [
+      { cap: 'Eletricidade', titulo: 'Corrente elétrica e resistência', imagem: 'https://cdn.pixabay.com/photo/2015/01/29/16/36/calculator-616395_960_720.jpg', link: 'fisica/eletricidade.html' },
+      { cap: 'Eletrostática', titulo: 'Cargas e forças elétricas', imagem: 'https://cdn.pixabay.com/photo/2017/07/31/11/21/cash-flow-2551967_960_720.jpg', link: 'fisica/eletrostatica.html' },
+      { cap: 'Eletromagnetismo', titulo: 'Campos magnéticos e indução', imagem: 'https://cdn.pixabay.com/photo/2018/05/30/19/27/finance-3440922_960_720.jpg', link: 'fisica/eletromagnetismo.html' },
+      { cap: 'Circuitos Elétricos', titulo: 'Circuitos, resistores e leis de Ohm', imagem: 'https://cdn.pixabay.com/photo/2017/03/23/08/39/money-2165546_960_720.jpg', link: 'fisica/circuitos.html' },
+      { cap: 'Óptica Geométrica', titulo: 'Reflexão e refração da luz', imagem: 'https://cdn.pixabay.com/photo/2017/02/26/21/52/mortgage-2109493_960_720.jpg', link: 'fisica/optica.html' }
+    ]
+  };
+
+  function criarCards(lista, idContainer) {
+    const container = document.getElementById(idContainer);
+    lista.forEach(c => {
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.innerHTML = `
+        <img src="${c.imagem}" alt="${c.cap}">
+        <div class="card-content">
+          <h3>${c.cap}</h3>
+          <p>${c.titulo}</p>
+        </div>
+      `;
+      if (c.link) {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', () => {
+          window.location.href = c.link;
+        });
+      }
+      container.appendChild(card);
+    });
+  }
+
+  Object.keys(secoesFisica).forEach(sec => criarCards(secoesFisica[sec], `cards-${sec}`));
+</script>
+</body>
+</html>
