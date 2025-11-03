@@ -1,16 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimuLab | STm3</title>
+    <title>SimuLab | Início - Projetos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
         /* ----------------------------------- */
         /* RESET BÁSICO E ESTILOS GERAIS */
         /* ----------------------------------- */
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -18,9 +16,7 @@
             background-color: #f4f7f9;
             color: #333;
         }
-
    
-
         /* ----------------------------------- */
         /* ÁREA DE CONTEÚDO E GRID */
         /* ----------------------------------- */
@@ -31,7 +27,7 @@
         }
 
         h1 {
-            color: #;
+            color: #333; /* Corrigido para uma cor definida */
             text-align: center;
             margin-bottom: 30px;
             border-bottom: 2px solid #e0e0e0;
@@ -54,7 +50,8 @@
             transition: transform 0.3s, box-shadow 0.3s;
             text-decoration: none;
             color: #333;
-            border-bottom: 5px solid transparent;
+            /* Esta regra é o padrão. As classes abaixo sobrescrevem o 'transparent' */
+            border-bottom: 5px solid transparent; 
         }
 
         .subject-card:hover {
@@ -62,13 +59,13 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
         
-        /* Cores de Destaque */
-        .card-fisica { border-color: #fE5F2F; }
-        .card-matematica { border-color: #1A66CC; }
-        .card-biologia { border-color: #4CAF50; }
-        .card-quimica { border-color: #E91E63; }
-        .card-programacao { border-color: #9B59B6; }
-        .card-portugues { border-color: #FF8C00; }
+        /* Cores de Destaque (ORIGINAIS - MANTIDAS PARA GARANTIR A FORMATAÇÃO) */
+        .card-fisica { border-color: #1A66CC; }        /* Laranja/Recriar */
+        .card-matematica { border-color: #4CAF50; }     /* Azul/Baga */
+        .card-biologia { border-color: #fE5F2F; }       /* Verde/Eventos */
+        .card-quimica { border-color: #E91E63; }        /* Rosa/Sala de Aula */
+        .card-programacao { border-color: #D2691E; }    /* Roxo/SimuLab */
+        .card-portugues { border-color: #FF8C00; }      /* Laranja/Português */
 
         .subject-card i {
             font-size: 45px;
@@ -88,51 +85,47 @@
         }
         
         /* Ajuste das cores dos ícones para melhor contraste */
-        .card-fisica i { color: #fE5F2F; }
-        .card-matematica i { color: #1A66CC; }
-        .card-biologia i { color: #4CAF50; }
+        .card-fisica i { color: #1A66CC; } 
+        .card-matematica i { color: #4CAF50; } 
+        .card-biologia i { color: #fE5F2F; } 
         .card-quimica i { color: #E91E63; }
-        .card-programacao i { color: #9B59B6; } 
+        .card-programacao i { color: #D2691E; } 
         .card-portugues i { color: #FF8C00; } 
-
     </style>
 </head>
 <body>
-
   
+    <main class="content-area">        
+        <h1>Escolha o Projeto para Iniciar</h1>
 
-    <main class="content-area">
-        <h1>Escolha a Matéria para Iniciar os Estudos</h1>
-
-        <div class="subjects-grid">
-            
-            <a href="stm3/____.html"" class="subject-card card-fisica">
-                <i class="fas fa-bolt"></i>
+        <div class="subjects-grid">                        
+            <a href="stm3/recriar.html" class="subject-card card-fisica">
+                <i class="fa-solid fa-car-side"></i> 
                 <h2>Projeto Recriar</h2>
                 <p>Transformando resíduos plásticos em brinquedos sustentáveis para levar alegria às crianças e contribuir com o meio ambiente</p>
             </a>
-
-            <a href="stm3/____.html"" class="subject-card card-matematica">
-                <i class="fas fa-calculator"></i>
+            
+            <a href="stm3/projetobaga.html" class="subject-card card-matematica">
+                <i class="fa-solid fa-seedling"></i>
                 <h2>Projeto Baga</h2>
-                <p>Sustentabilidade em movimento 🌱<p>
+                <p>Sustentabilidade em movimento 🌱</p>
             </a>
-
-            <a href="stm3/____.html"" class="subject-card card-biologia">
-                <i class="fas fa-dna"></i>
+            
+            <a href="stm3/maiseventos.html" class="subject-card card-biologia">
+                <i class="fa-solid fa-baseball"></i>
                 <h2>Mais Eventos+</h2>
                 <p>Diversão, Dinamismo e Esportes.</p>
             </a>
             
-            <a href="stm3/____.html" class="subject-card card-quimica">
-                <i class="fas fa-atom"></i>
-                <h2>Química</h2>
-                <p>Estequiometria, Orgânica, Inorgânica e Físico-Química.</p>
+            <a href="stm3/sala de aula.html" class="subject-card card-quimica">
+                <i class="fa-solid fa-chalkboard-user"></i>
+                <h2>Sala de Aula integrativa</h2>
+                <p>Uma mudança no formato que melhorará o aprendizado.</p>
             </a>
 
-            <a href="stm3/____.html" class="subject-card card-programacao">
+            <a href="../sobre.html" class="subject-card card-programacao">
                 <i class="fa-solid fa-robot"></i>
-                <h2>Programação</h2>
+                <h2>SimuLab</h2>
                 <p>Códigos, Lógica, Variaveis e Funções.</p>
             </a>
 
@@ -141,9 +134,8 @@
                 <h2>Português</h2>
                 <p>Gramática, Redação, Literatura e Interpretação.</p>
             </a>
-            
-            </div>
-    </main>
-       <script src="dados/head.js"></script>
+        </div>
+    </main>       
+    <script src="dados/head.js"></script>
 </body>
 </html>
