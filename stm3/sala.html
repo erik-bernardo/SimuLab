@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto Baga</title>
+    <link rel="icon" type="image/png" href="logo-icon.png"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* ----------------------------------- */
+        /* RESET BÁSICO E ESTILOS GERAIS */
+        /* ----------------------------------- */
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f8f8f8; 
+            color: #333; 
+            scroll-behavior: smooth; /* Para âncoras internas */
+        }
+        
+        /* Omiti estilos .nav-links e .nav-link que não são usados nesta página */
+
+        .hero-button {
+            background-color: #D2691E;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+        }
+
+
+        /* ----------------------------------- */
+        /* ESTILOS ESPECÍFICOS DE 'SOBRE O PROJETO' */
+        /* ----------------------------------- */
+
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .section-header {
+            text-align: center;
+            padding: 40px 0 20px;
+        }
+        
+        .section-header h1 {
+            color: #333;
+            font-size: 2.8em;
+            margin-bottom: 10px;
+        }
+
+        .section-header p {
+            color: #E91E63;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 3fr; /* Menu lateral à esquerda, conteúdo principal à direita */
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        /* MENU LATERAL */
+        .sidebar-menu {
+            background-color: white;
+            padding: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 100px; /* Abaixo da top-bar */
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #555; /* Cor padrão */
+            font-weight: 500;
+            border-left: 3px solid transparent;
+            transition: background-color 0.3s, border-left 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: #f0f0f0;
+            border-left: 3px solid #E91E63;
+            color: #E91E63; /* Cor de destaque (corrigida) */
+        }
+        
+        /* CONTEÚDO PRINCIPAL (Módulos) */
+        .main-content {
+            padding-top: 5px; /* Ajuste para melhor alinhamento visual */
+        }
+        
+        .content-module {
+            background-color: white;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .content-module h2 {
+            color: #333;
+            font-size: 2em;
+            border-bottom: 2px solid #E91E63; 
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .content-module h3 {
+            color: #E91E63;
+            margin-top: 25px;
+            font-size: 1.4em;
+        }
+
+        /* Layout de Pilares/Valores (3 Colunas) */
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .pillar-card {
+            padding: 20px;
+            background-color: #f7f7f7;
+            border-left: 5px solid #E91E63;
+            border-radius: 4px;
+        }
+
+        .pillar-card i {
+            font-size: 1.5em;
+            margin-right: 10px;
+            color: #E91E63;
+        }
+
+        /* Layout de Destaques/Conquistas (2 Colunas com Imagem) */
+        .highlight-module {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .highlight-text { flex: 2; }
+        .highlight-image { flex: 1; text-align: center; }
+
+        .highlight-image img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsividade */
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .sidebar-menu {
+                position: static;
+                margin-bottom: 20px;
+            }
+            .highlight-module {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="content-container">
+        
+        <div class="section-header">
+            <h1> <b>Sala de Aula Integrativa</b> </h1>
+            <p>Uma Melhor disposição dos Alunos.</p>
+        </div>
+
+        <div class="main-grid">
+            
+            <aside class="sidebar-menu">
+                <a href="#quem-somos" class="active"> <b>A Origem do Projeto</b> </a>
+                <a href="#o-que-criamos"> <b>O que Criamos?</b> </a>
+                <a href="#pilares"> <b>Nossos Pilares</b> </a>
+                <a href="#sonhos"> <b>Feitos de Sonhos</b> </a>
+                <hr>
+                <a href="materias.html" >Acessar Conteúdo <i class="fas fa-arrow-right"></i></a>
+            </aside>
+            
+            <section class="main-content">
+
+                <article class="content-module" id="quem-somos">
+                    <h2>A Sala de Aula Integrativa: Uma Nova Abordagem <i class="fas fa-flask" style="color:#E91E63;"></i></h2>
+                    <div class="highlight-module">
+                        <div class="highlight-text">
+                            <p>
+                            O projeto Sala de Aula Integrativa nasceu da observação de que o tradicional formato de sala de aula (fileiras) inibe a colaboração e a interação entre os alunos. Buscando otimizar o processo de aprendizado e incentivar a participação ativa, o projeto propõe uma reforma simples, mas poderosa: a reorganização do ambiente.
+                            </p>
+                            <p>
+                            inserir texto
+                            </p>
+                            
+                          
+                        </div>
+                        <div class="highlight-image">
+                            <img src="imgs/sala.png" alt="imagem da sala">
+                        </div>
+                    </div>
+                </article>
+
+                <article class="content-module" id="o-que-criamos">
+                    <h2>O que de fato é nosso projeto? <i class="fas fa-hammer" style="color:#E91E63;"></i></h2>
+                    <p>
+                      A principal intervenção consiste em dispor as cadeiras em um formato de duas meias-luas.
+                    </p>
+                    
+                    <h3>O que muda?</h3> 
+                    <p>
+                      inserir texto 
+                    </p>
+                    <h3>Vantagens</h3> 
+                    <p>
+                      inserir texto
+                    </p>
+                    <h3>Impacto no Aprendizado</h3> 
+                    <p>
+                      inserir texto
+                    </p>
+                    
+                   
+                </article>
+
+                <article class="content-module" id="pilares">
+                    <h2>Os Pilares do Nosso Projeto <i class="fas fa-compass" style="color:#E91E63;"></i></h2>
+                    
+                    <div class="pillars-grid">
+                        <div class="pillar-card">
+                            <h3><i class="fas fa-rocket"></i> Missão</h3>
+                            <p> inserir texto </p>
+                        </div>
+                        <div class="pillar-card">
+                            <h3><i class="fas fa-eye"></i> Visão</h3>
+                            <p>inserir texto </p>
+                        </div>
+                        <div class="pillar-card">
+                            <h3><i class="fas fa-heart"></i> Valores</h3>
+                            <p>Nossos pilares nos movem:
+                            <strong>inserir texto </strong>
+
+                           inserir texto </p>
+                        </div>
+                    </div>
+                    
+                    <h3>Core Values (Valores Fundamentais)</h3>
+                    <p>
+                      inserir texto
+                    </p>
+                </article>
+
+                <article class="content-module" id="sonhos">
+                    <h2>Feitos de Sonhos e STEAM <i class="fas fa-star" style="color:#26874E;"></i></h2>
+                    
+                    <p>
+                    	inserir texto
+                    </p>
+
+                    <div class="pillars-grid">
+                        <div class="pillar-card" style="border-left-color: #555;">
+                            <h3><i class="fas fa-vial"></i> Protótipo</h3>
+                            <p>inserir texto</p>
+                        </div>
+
+                    
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <a href="stm3.html" class="hero-button">Conheça os Projetos da STM3 <i class="fa-solid fa-chalkboard-user"></i></a>
+                    </div>
+                </article>   
+
+            </section>
+        </div>
+    </main>
+    
+
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
+            const sections = document.querySelectorAll('.main-content article');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.3 
+            };
+
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const targetId = entry.target.id;
+                    const correspondingLink = document.querySelector(`.sidebar-menu a[href="#${targetId}"]`);
+                    
+                    if (entry.isIntersecting) {
+                        // Remove 'active' de todos os links que são âncoras (ignora o link "Acessar Conteúdo")
+                        sidebarLinks.forEach(link => {
+                             if (link.href.includes('#')) {
+                                 link.classList.remove('active');
+                            }
+                        });
+                        // Adiciona 'active' ao link visível
+                        if (correspondingLink) {
+                            correspondingLink.classList.add('active');
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+            
+            // Garante que o primeiro link (Quem Somos) esteja ativo ao carregar
+            if (sidebarLinks.length > 0 && sidebarLinks[0].href.includes('#')) {
+                // Adiciona a classe active ao primeiro link de âncora
+                document.querySelector('.sidebar-menu a[href="#quem-somos"]').classList.add('active');
+            }
+        });
+    </script>
+    
+</body>
+</html>
