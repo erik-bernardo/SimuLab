@@ -1,12 +1,11 @@
 
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projeto Baga</title>
-        <link rel="icon" type="image/png" href="logo-icon.png"> 
+    <link rel="icon" type="image/png" href="logo-icon.png"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
         /* ----------------------------------- */
@@ -21,34 +20,8 @@
             scroll-behavior: smooth; /* Para âncoras internas */
         }
         
-     
+        /* Omiti estilos .nav-links e .nav-link que não são usados nesta página */
 
-        .nav-links {
-            display: flex;
-            align-items: center;
-            flex-grow: 1;
-            justify-content: flex-end;
-        }
-
-        .nav-link {
-            text-decoration: none;
-            color: #555;
-            font-size: 14px;
-            font-weight: bold;
-            padding: 15px 15px;
-            transition: color 0.3s, background-color 0.3s;
-            display: flex;
-            align-items: center;
-            text-transform: uppercase;
-            border-bottom: 3px solid transparent;
-        }
-
-        .nav-link.active, .nav-link:hover {
-            color: #D2691E;
-            border-bottom: 3px solid #D2691E;
-            background-color: #26874E;
-        }
-        
         .hero-button {
             background-color: #D2691E;
             color: white;
@@ -85,7 +58,7 @@
         }
 
         .section-header p {
-            color: #26874E;
+            color: #4CAF50;
             font-size: 1.2em;
             font-weight: bold;
         }
@@ -112,7 +85,7 @@
             display: block;
             padding: 10px 20px;
             text-decoration: none;
-            color: #555;
+            color: #555; /* Cor padrão */
             font-weight: 500;
             border-left: 3px solid transparent;
             transition: background-color 0.3s, border-left 0.3s;
@@ -120,8 +93,8 @@
 
         .sidebar-menu a:hover, .sidebar-menu a.active {
             background-color: #f0f0f0;
-            border-left: 3px solid #26874E;
-            color: #D2691E;
+            border-left: 3px solid #4CAF50;
+            color: #4CAF50; /* Cor de destaque (corrigida) */
         }
         
         /* CONTEÚDO PRINCIPAL (Módulos) */
@@ -140,13 +113,13 @@
         .content-module h2 {
             color: #333;
             font-size: 2em;
-            border-bottom: 2px solid #26874E; 
+            border-bottom: 2px solid #4CAF50; 
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
         
         .content-module h3 {
-            color: #26874E;
+            color: #4CAF50;
             margin-top: 25px;
             font-size: 1.4em;
         }
@@ -162,14 +135,14 @@
         .pillar-card {
             padding: 20px;
             background-color: #f7f7f7;
-            border-left: 5px solid #26874E;
+            border-left: 5px solid #4CAF50;
             border-radius: 4px;
         }
 
         .pillar-card i {
             font-size: 1.5em;
             margin-right: 10px;
-            color: #26874E;
+            color: #4CAF50;
         }
 
         /* Layout de Destaques/Conquistas (2 Colunas com Imagem) */
@@ -205,110 +178,80 @@
     </style>
 </head>
 <body>
- 
-
     <main class="content-container">
         
         <div class="section-header">
-            <h1>Projeto Baga</h1>
-            <p>METODOLOGIA STEAM e ODS: Garantindo uma Agua mais limpa.</p>
+            <h1> <b>Projeto Baga</b> </h1>
+          
         </div>
 
         <div class="main-grid">
             
             <aside class="sidebar-menu">
-                <a href="#quem-somos" class="active" style="color: #26874E;">A Origem do SimuLab</a>
-                <a href="#o-que-criamos" style="color: #26874E;">O que Criamos?</a>
-                <a href="#pilares" style="color: #26874E;">Nossos Pilares</a>
-                <a href="#sonhos" style="color: #26874E;">Feitos de Sonhos</a>
+                <a href="#quem-somos" class="active"> <b>A Origem do Projeto</b> </a>
+                <a href="#o-que-criamos"> <b>O que Criamos?</b> </a>
+                <a href="#pilares"> <b>Nossos Pilares</b> </a>
+                <a href="#sonhos"> <b>Feitos de Sonhos</b> </a>
                 <hr>
-                <a href="materias.html" >Acessar Conteúdo <i class="fas fa-arrow-right"></i></a>
+
             </aside>
             
             <section class="main-content">
 
                 <article class="content-module" id="quem-somos">
-                    <h2>A Origem do Projeto Baga <i class="fas fa-flask" style="color:#26874E;"></i></h2>
+                    <h2>Projeto Baga: Uma Solução <i class="fas fa-flask" style="color:#4CAF50;"></i></h2>
                     <div class="highlight-module">
                         <div class="highlight-text">
                             <p>
-                             inserir texto
-                            </p>
-                            <p>
-                            inserir texto
-                            </p>
-                            
-                            <h3><i class="fas fa-lightbulb"></i> A Linguagem do Nome</h3>
-                            <p>
-                            inserir texto
-                            </p>
+                         Com base em diversas pesquisas e análise de campo, buscamos algo que solucionasse problemas cotidianos da nossa cidade, onde com isso conseguimos inspirações de equipes de STEM Racing no Brasil.
+                        
+                          
                         </div>
                         <div class="highlight-image">
-                            <img src="imgs/projetobaga.png" alt="Logo do Projeto SimuLab">
+                            <img src="imgs/sala.png" alt="imagem da sala">
                         </div>
                     </div>
                 </article>
 
                 <article class="content-module" id="o-que-criamos">
-                    <h2>O que Oferecemos Atualmente <i class="fas fa-hammer" style="color:#26874E;"></i></h2>
+                    <h2>O que de fato é nosso projeto? <i class="fas fa-hammer" style="color:#4CAF50;"></i></h2>
                     <p>
-                     inserir texto
+                     Mini barragens de filtros absorventes para a limpeza de rios com a reutilização do bagaço da cana
+                    </p>
+                     <h2>Estrutura e o desenvolvimento </h2>
+                   <p>
+                  A estruturação de nosso projeto vem sendo algo recorrente onde todos os membros trabalham desde a elaboração de relatórios, confecção de materiais até uma vida virtual nas redes sociais. A importância de projeto não é só para o meio ambiente, mas sim para todos os envolvidos onde aprendemos diversas soft e hard skills.
                     </p>
                     
-                    <h3>Estrutura e Desenvolvimento</h3>
-                    <p>
-                     inserir texto
-                    </p>
-                    
-                    <a href="https://www.instagram.com/projetobaga/" class="hero-button" style="background-color: #555; margin-top: 15px;">Acessar o nosso Instagram</a>
+                   
                 </article>
 
                 <article class="content-module" id="pilares">
-                    <h2>Os Pilares do Nosso Projeto <i class="fas fa-compass" style="color:#26874E;"></i></h2>
+                    <h2>Os Pilares do Nosso Projeto <i class="fas fa-compass" style="color:#4CAF50;"></i></h2>
                     
                     <div class="pillars-grid">
                         <div class="pillar-card">
-                            <h3><i class="fas fa-rocket"></i> Missão</h3>
-                            <p> Criar Filtros Naturais de bagaço de cana para limpar rios e preservar o meio ambiente</p>
+                            <h3><i class="fas fa-rocket"></i> Missão </h3> 
+                            <p>Criar filtros naturais de bagaço de cana para limpar rios e preservar o meio ambiente.. </p>
                         </div>
                         <div class="pillar-card">
-                            <h3><i class="fas fa-eye"></i> Visão</h3>
-                            <p>Sonhamos grande: ser referência em sustentabilidade e inovação.
-                              Nosso propósito é criar soluções ecológicas que purificam a água e inspiram um futuro mais limpo. ✨💧</p>
+                            <h3><i class="fas fa-eye"></i> Visão </h3> 
+                            <p>Ser referência sustentável em soluções ecológicas para purificação da água. </p>
                         </div>
                         <div class="pillar-card">
-                            <h3><i class="fas fa-heart"></i> Valores</h3>
+                            <h3><i class="fas fa-heart"></i> Valores </h3> 
                             <p>Nossos pilares nos movem:
-                           <strong>Sustentabilidade, Inovação Verde, Comunidade, Transparente e Respeito a Vida. </strong>
-
-                          Cada ação que fazemos carrega esses valores e fortalece nossa missão de transformar o mundo com consciência. 🌟</p>
+                            <strong>Sustentabilidade, inovação verde, comunidade, transparência e respeito à vida. </strong></p>
                         </div>
                     </div>
                     
-                    <h3>Core Values (Valores Fundamentais)</h3>
-                    <p>
-                      inserir texto
-                    </p>
-                </article>
-
-                <article class="content-module" id="sonhos">
-                    <h2>Feitos de Sonhos e STEAM <i class="fas fa-star" style="color:#26874E;"></i></h2>
-                    
-                    <p>
-                  		inserir texto
-                    </p>
-
-                    <div class="pillars-grid">
-                        <div class="pillar-card" style="border-left-color: #555;">
-                            <h3><i class="fas fa-user-check"></i> Protótipo</h3>
-                            <p>inserir texto</p>
-                        </div>
+                  
 
                     
-                    </div>
+                 
 
                     <div style="text-align: center; margin-top: 30px;">
-                        <a href="stm3.html" class="hero-button">Conheça os Projetos da STM3 <i class="fa-solid fa-chalkboard-user""></i></a>
+                        <a href="stm3.html" class="hero-button">Conheça os Projetos da STM3 <i class="fa-solid fa-chalkboard-user"></i></a>
                     </div>
                 </article>   
 
@@ -338,7 +281,7 @@
                         // Remove 'active' de todos os links que são âncoras (ignora o link "Acessar Conteúdo")
                         sidebarLinks.forEach(link => {
                              if (link.href.includes('#')) {
-                                link.classList.remove('active');
+                                 link.classList.remove('active');
                             }
                         });
                         // Adiciona 'active' ao link visível
@@ -355,10 +298,11 @@
             
             // Garante que o primeiro link (Quem Somos) esteja ativo ao carregar
             if (sidebarLinks.length > 0 && sidebarLinks[0].href.includes('#')) {
-                sidebarLinks[0].classList.add('active');
+                // Adiciona a classe active ao primeiro link de âncora
+                document.querySelector('.sidebar-menu a[href="#quem-somos"]').classList.add('active');
             }
         });
-</script>
+    </script>
     
 </body>
 </html>
