@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimuLab | STm3</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* ----------------------------------- */
+        /* RESET BÁSICO E ESTILOS GERAIS */
+        /* ----------------------------------- */
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f9;
+            color: #333;
+        }
+
+   
+
+        /* ----------------------------------- */
+        /* ÁREA DE CONTEÚDO E GRID */
+        /* ----------------------------------- */
+        .content-area {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            color: #;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        /* CARD DA MATÉRIA */
+        .subject-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: #333;
+            border-bottom: 5px solid transparent;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Cores de Destaque */
+        .card-fisica { border-color: #fE5F2F; }
+        .card-matematica { border-color: #1A66CC; }
+        .card-biologia { border-color: #4CAF50; }
+        .card-quimica { border-color: #E91E63; }
+        .card-programacao { border-color: #9B59B6; }
+        .card-portugues { border-color: #FF8C00; }
+
+        .subject-card i {
+            font-size: 45px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .subject-card h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .subject-card p {
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 10px;
+        }
+        
+        /* Ajuste das cores dos ícones para melhor contraste */
+        .card-fisica i { color: #fE5F2F; }
+        .card-matematica i { color: #1A66CC; }
+        .card-biologia i { color: #4CAF50; }
+        .card-quimica i { color: #E91E63; }
+        .card-programacao i { color: #9B59B6; } 
+        .card-portugues i { color: #FF8C00; } 
+
+    </style>
+</head>
+<body>
+
+  
+
+    <main class="content-area">
+        <h1>Escolha a Matéria para Iniciar os Estudos</h1>
+
+        <div class="subjects-grid">
+            
+            <a href="stm3/____.html"" class="subject-card card-fisica">
+                <i class="fas fa-bolt"></i>
+                <h2>Projeto Recriar</h2>
+                <p>Transformando resíduos plásticos em brinquedos sustentáveis para levar alegria às crianças e contribuir com o meio ambiente</p>
+            </a>
+
+            <a href="stm3/____.html"" class="subject-card card-matematica">
+                <i class="fas fa-calculator"></i>
+                <h2>Projeto Baga</h2>
+                <p>Sustentabilidade em movimento 🌱<p>
+            </a>
+
+            <a href="stm3/____.html"" class="subject-card card-biologia">
+                <i class="fas fa-dna"></i>
+                <h2>Mais Eventos+</h2>
+                <p>Diversão, Dinamismo e Esportes.</p>
+            </a>
+            
+            <a href="stm3/____.html" class="subject-card card-quimica">
+                <i class="fas fa-atom"></i>
+                <h2>Química</h2>
+                <p>Estequiometria, Orgânica, Inorgânica e Físico-Química.</p>
+            </a>
+
+            <a href="stm3/____.html" class="subject-card card-programacao">
+                <i class="fa-solid fa-robot"></i>
+                <h2>Programação</h2>
+                <p>Códigos, Lógica, Variaveis e Funções.</p>
+            </a>
+
+            <a href="stm3/____.html" class="subject-card card-portugues">
+                <i class="fas fa-book-open"></i>
+                <h2>Português</h2>
+                <p>Gramática, Redação, Literatura e Interpretação.</p>
+            </a>
+            
+            </div>
+    </main>
+       <script src="dados/head.js"></script>
+</body>
+</html>
