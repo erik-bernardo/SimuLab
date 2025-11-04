@@ -4,6 +4,7 @@
 let canvas;
 let ctx;
 let bird, blocks, score, frames, gameState, currentWordSet;
+let backgroundX; // NOVO: Variável para controlar a posição do fundo
 
 // --- SPRITE DO PÁSSARO ---
 const birdSprite = new Image();
@@ -324,7 +325,26 @@ function init() {
     frames = 0;
     gameState = 'start';
     currentWordSet = { chave: "JOGAR", correto: "", distrator: [] }; 
+    
+    backgroundX = 0; // NOVO: Inicializa a posição do fundo
+    
     drawStartScreen();
+}
+
+/**
+ * NOVO: Desenha a imagem de fundo em loop ou a cor de fallback.
+ */
+function clearCanvas() {
+    if (backgroundSpriteLoaded) {
+        // Desenha a imagem principal (Loop 1)
+        ctx.drawImage(backgroundSprite, backgroundX, 0, canvas.width, canvas.height);
+        // Desenha a imagem de continuação (Loop 2) imediatamente após a primeira
+        ctx.drawImage(backgroundSprite, backgroundX + canvas.width, 0, canvas.width, canvas.height);
+    } else {
+        // Fallback para cor sólida
+        ctx.fillStyle = SKY_COLOR;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 }
 
 function drawStartScreen() { 
@@ -392,16 +412,6 @@ function drawGround() {
     ctx.fillRect(0, canvas.height - groundHeight, canvas.width, groundHeight);
 }
 
-function clearCanvas() {
-    if (backgroundSpriteLoaded) {
-        // Desenha a imagem de fundo para preencher o canvas
-        ctx.drawImage(backgroundSprite, 0, 0, canvas.width, canvas.height);
-    } else {
-        // Fallback para cor sólida
-        ctx.fillStyle = SKY_COLOR;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-}
 
 function startGame() {
     gameState = 'playing';
@@ -427,6 +437,18 @@ function restartGame() {
 // --- Loop Principal ---
 function gameLoop() {
     if (gameState === 'playing') {
+        
+        // NOVO: Movimenta e repete o fundo (Parallax)
+        if (backgroundSpriteLoaded) {
+            const bgSpeedFactor = 0.3; // Velocidade de movimento do fundo (30% da velocidade dos blocos)
+            backgroundX -= blockSpeed * bgSpeedFactor;
+            
+            // Quando a primeira imagem sair da tela, reseta para 0
+            if (backgroundX <= -canvas.width) {
+                backgroundX = 0;
+            }
+        }
+        
         clearCanvas(); 
         frames++;
 
@@ -455,7 +477,6 @@ function handleInput() {
 
 // --- BLOCO DE INICIALIZAÇÃO SEGURO (Executado após o DOM carregar) ---
 document.addEventListener('DOMContentLoaded', function() {
-    // AQUI O CANVAS É INICIALIZADO DE FORMA SEGURA
     canvas = document.getElementById('flappyCanvas');
     
     if (!canvas) {
@@ -465,7 +486,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     ctx = canvas.getContext('2d');
     
-    // Configura os ouvintes de eventos (agora o 'canvas' não é null)
+    // Configura os ouvintes de eventos
     canvas.addEventListener('click', handleInput);
     canvas.addEventListener('touchstart', function(event) {
         event.preventDefault(); 
