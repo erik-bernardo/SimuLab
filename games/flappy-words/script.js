@@ -1,7 +1,9 @@
 // script.js
 
-const canvas = document.getElementById('flappyCanvas');
-const ctx = canvas.getContext('2d');
+// --- VARIÁVEIS GLOBAIS DE JOGO E CANVAS (Declaradas, mas não inicializadas aqui) ---
+let canvas;
+let ctx;
+let bird, blocks, score, frames, gameState, currentWordSet;
 
 // --- SPRITE DO PÁSSARO ---
 const birdSprite = new Image();
@@ -24,7 +26,6 @@ backgroundSprite.src = 'bg.png';
 const SKY_COLOR = '#70c5ce'; // Fallback Color
 
 // --- DADOS DO JOGO (Banco de Sinônimos) ---
-// (Mantido o banco de palavras original)
 const bancoDePalavras = [    
     { chave: "ALEGRE", correto: "FELIZ", distrator: ["TRISTE", "RÁPIDO", "FRIO"] },    
     { chave: "RÁPIDO", correto: "VELOZ", distrator: ["LENTO", "GORDU", "ROXO"] },    
@@ -109,7 +110,7 @@ let paddingY = 15;
 let blockFrequency = 350; 
 let totalBlocks = 4;    
 
-let blockHeight = 0; // Calculado dinamicamente em init()
+let blockHeight = 0; 
 
 const groundColor = '#ded895';
 const groundHeight = 10;
@@ -309,7 +310,7 @@ function drawKeyWord() {
     }
 }
 
-// --- Funções de Estado e Desenho (Atualizado o clearCanvas) ---
+// --- Funções de Estado e Desenho ---
 
 function init() {
     // ** CÁLCULO DINÂMICO DA ALTURA DO BLOCO (MANTIDO) **
@@ -346,7 +347,6 @@ function drawStartScreen() {
     ctx.fillText("Toque ou ESPAÇO para começar", canvas.width / 2, canvas.height / 2 + 100);
 }
 
-// ... (Outras funções de estado mantidas) ...
 
 function drawGameOverScreen(message) { 
     clearCanvas(); 
@@ -392,9 +392,6 @@ function drawGround() {
     ctx.fillRect(0, canvas.height - groundHeight, canvas.width, groundHeight);
 }
 
-/**
- * NOVO: Desenha a imagem de fundo ou a cor de fallback.
- */
 function clearCanvas() {
     if (backgroundSpriteLoaded) {
         // Desenha a imagem de fundo para preencher o canvas
@@ -430,7 +427,7 @@ function restartGame() {
 // --- Loop Principal ---
 function gameLoop() {
     if (gameState === 'playing') {
-        clearCanvas(); // Agora desenha a imagem de fundo
+        clearCanvas(); 
         frames++;
 
         handleBlocks(); 
@@ -446,7 +443,7 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// --- Controles (Mantidos) ---
+// --- Controles ---
 function handleInput() {
     if (gameState === 'playing' || gameState === 'start') {
         bird.flap();
@@ -455,19 +452,34 @@ function handleInput() {
     }
 }
 
-canvas.addEventListener('click', handleInput);
-canvas.addEventListener('touchstart', function(event) {
-    event.preventDefault(); 
-    handleInput();
-});
 
-document.addEventListener('keydown', function(event) {
-    if (event.code === 'Space') {
+// --- BLOCO DE INICIALIZAÇÃO SEGURO (Executado após o DOM carregar) ---
+document.addEventListener('DOMContentLoaded', function() {
+    canvas = document.getElementById('flappyCanvas');
+    
+    // Verificação de segurança
+    if (!canvas) {
+        console.error("Erro: O elemento CANVAS com o ID 'flappyCanvas' não foi encontrado. Verifique se o arquivo index.html está estruturado corretamente.");
+        return; 
+    }
+    
+    ctx = canvas.getContext('2d');
+    
+    // Configura os ouvintes de eventos
+    canvas.addEventListener('click', handleInput);
+    canvas.addEventListener('touchstart', function(event) {
         event.preventDefault(); 
         handleInput();
-    }
-});
+    });
 
-// --- Iniciar ---
-init(); 
-requestAnimationFrame(gameLoop);
+    document.addEventListener('keydown', function(event) {
+        if (event.code === 'Space') {
+            event.preventDefault(); 
+            handleInput();
+        }
+    });
+
+    // Inicia o jogo
+    init(); 
+    requestAnimationFrame(gameLoop);
+});
