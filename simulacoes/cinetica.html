@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Cinética Química - Gráfico</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* --- Variáveis e Reset --- */
+        :root {
+            --cor-primaria: #00bcd4; /* Ciano/Destaque */
+            --cor-secundaria: #ff9800; /* Laranja/Energia */
+            --cor-sucesso: #4CAF50; /* Verde/Rápido */
+            --cor-erro: #f44336; /* Vermelho/Lento */
+            --cor-fundo: #f0f4f8;
+            --cor-card: #ffffff;
+            --cor-texto: #333;
+            --rate-duration: 4s; /* Variável CSS para controlar a velocidade da reação */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: var(--cor-card);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+        }
+
+        h1 {
+            color: var(--cor-primaria);
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        /* --- Controles --- */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        #simulation-select, .input-group select, .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            margin-top: 5px;
+            font-size: 1em;
+        }
+
+        .input-group {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .input-group label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* --- Visualização --- */
+        .visualization-area {
+            min-height: 250px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            background-color: #eef3f7;
+        }
+
+        /* Indicador de Velocidade */
+        #rate-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background-color: #333;
+            color: white;
+            z-index: 10;
+        }
+
+        /* --- Efeito 1: Comprimido (Dissolução/Área) --- */
+        .dissolution-sim {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #beaker {
+            width: 150px;
+            height: 200px;
+            border: 4px solid #333;
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+            position: relative;
+            background-color: #add8e6; /* Água */
+        }
+
+        #tablet {
+            width: 80px;
+            height: 10px;
+            background-color: #f08080; /* Comprimido */
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 5px;
+            /* Animação: simula a dissolução (encolhimento) */
+            animation: dissolve var(--rate-duration) linear forwards;
+            transform-origin: 50% 100%;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes dissolve {
+            0% { transform: scale(1) translateX(-50%); }
+            100% { transform: scaleY(0.0) translateX(-50%); }
+        }
+
+        #bubbles {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            opacity: 0;
+            animation: float-up var(--rate-duration) linear infinite;
+        }
+
+        @keyframes float-up {
+            0% { transform: translateY(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-200px); opacity: 0; }
+        }
+        
+        /* --- Efeito 2: Airbag (Explosão/Concentração) --- */
+        .airbag-sim {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #airbag-container {
+            width: 10px;
+            height: 10px;
+            background-color: #333;
+            border-radius: 50%;
+            transition: all 0.2s ease-out;
+            position: relative;
+        }
+
+        #airbag {
+            width: 100%;
+            height: 100%;
+            background-color: #ff9800; /* Laranja (Reagente) */
+            border-radius: 50%;
+            opacity: 0.1;
+            /* Animação: simula expansão muito rápida */
+            animation: inflate var(--rate-duration) ease-in forwards;
+        }
+
+        @keyframes inflate {
+            0% { transform: scale(1); opacity: 0.1; }
+            100% { transform: scale(25); opacity: 0.7; }
+        }
+
+        /* --- Efeito 3: Ferrugem (Temperatura/Catalisador) --- */
+        .rust-sim {
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #metal {
+            width: 200px;
+            height: 150px;
+            background-color: #a0a0a0; /* Metal cinza */
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        #rust-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            border-radius: 8px;
+            /* Animação: simula a formação da ferrugem (cor) */
+            animation: rusting var(--rate-duration) linear forwards;
+        }
+
+        @keyframes rusting {
+            0% { background-color: rgba(184, 115, 51, 0); } /* Transparente/Ouro Velho */
+            100% { background-color: rgba(184, 115, 51, 1); } /* Cor de Ferrugem sólida */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1><i class="fas fa-flask"></i> Simulador Gráfico de Cinética Química</h1>
+        
+        <div class="controls-grid">
+
+            <div class="input-group">
+                <label for="simulation-select">Selecione o Cenário de Reação</label>
+                <select id="simulation-select" onchange="changeSimulation()">
+                    <option value="dissolution">1. Dissolução de Comprimido</option>
+                    <option value="airbag">2. Acionamento de Airbag</option>
+                    <option value="rust">3. Formação de Ferrugem</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="temperature">Temperatura [°C]</label>
+                <select id="temperature" onchange="updateSimulationRate()">
+                    <option value="50">Alta (50 °C)</option>
+                    <option value="25" selected>Ambiente (25 °C)</option>
+                    <option value="5">Baixa (5 °C)</option>
+                </select>
+                <small>Aumentar a temperatura **aumenta** a velocidade de colisão.</small>
+            </div>
+            
+            <div class="input-group" id="factor-1-group">
+                <label for="factor-1-input" id="factor-1-label">Área de Contato</label>
+                <select id="factor-1-input" onchange="updateSimulationRate()">
+                    <option value="low">Comprimido Inteiro (Baixa)</option>
+                    <option value="high">Comprimido Moído (Alta)</option>
+                </select>
+                <small id="factor-1-tip">Moer o comprimido **aumenta** a superfície de contato.</small>
+            </div>
+
+            <div class="input-group" id="factor-2-group" style="display: none;">
+                <label for="factor-2-input" id="factor-2-label">Concentração / Quantidade</label>
+                <select id="factor-2-input" onchange="updateSimulationRate()">
+                    <option value="low">Baixa</option>
+                    <option value="high" selected>Alta</option>
+                </select>
+                <small id="factor-2-tip">Aumentar a concentração **aumenta** a frequência das colisões.</small>
+            </div>
+
+        </div>
+        
+        <div class="visualization-area">
+            <div id="rate-display">Velocidade: Moderada</div>
+
+            <div class="dissolution-sim" id="dissolution-sim">
+                <div id="beaker">
+                    <div id="tablet"></div>
+                    <div id="bubbles"></div>
+                </div>
+            </div>
+
+            <div class="airbag-sim" id="airbag-sim">
+                <div id="airbag-container">
+                    <div id="airbag"></div>
+                </div>
+                <p style="margin-top: 100px;">Clique em 'Simular Acionamento' para reiniciar</p>
+                <button onclick="resetAirbag()" style="padding: 10px 20px; background-color: var(--cor-sucesso); color: white; border: none; border-radius: 5px; cursor: pointer;">Simular Acionamento</button>
+            </div>
+
+            <div class="rust-sim" id="rust-sim">
+                <div id="metal">
+                    <div id="rust-layer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const root = document.documentElement;
+        const simSelect = document.getElementById('simulation-select');
+        const rateDisplay = document.getElementById('rate-display');
+        const tempSelect = document.getElementById('temperature');
+        const factor1Group = document.getElementById('factor-1-group');
+        const factor1Label = document.getElementById('factor-1-label');
+        const factor1Input = document.getElementById('factor-1-input');
+        const factor1Tip = document.getElementById('factor-1-tip');
+        const factor2Group = document.getElementById('factor-2-group');
+        const factor2Label = document.getElementById('factor-2-label');
+        const factor2Input = document.getElementById('factor-2-input');
+        const factor2Tip = document.getElementById('factor-2-tip');
+
+        // Referências aos simuladores
+        const dissolutionSim = document.getElementById('dissolution-sim');
+        const airbagSim = document.getElementById('airbag-sim');
+        const rustSim = document.getElementById('rust-sim');
+        
+        let currentScenario = 'dissolution';
+        let tabletBubblesInterval;
+
+        // --- Mapeamento de Fatores por Cenário ---
+        const scenarioFactors = {
+            dissolution: {
+                factors: ['area', 'concentration'],
+                labels: ['Área de Contato', 'Concentração (água)'],
+                tips: ['Moer o comprimido **aumenta** a superfície de contato.', 'Usar menos água **aumenta** a concentração da solução.'],
+                options: [
+                    [{ value: 'low', text: 'Comprimido Inteiro (Baixa)' }, { value: 'high', text: 'Comprimido Moído (Alta)' }],
+                    [{ value: 'low', text: 'Baixa Concentração' }, { value: 'high', text: 'Alta Concentração' }]
+                ]
+            },
+            airbag: {
+                factors: ['concentration', 'catalyst'],
+                labels: ['Massa de Reagente', 'Catalisador'],
+                tips: ['Maior massa (concentração) **aumenta** o gás liberado.', 'O catalisador torna a reação **instantânea**.'],
+                options: [
+                    [{ value: 'low', text: 'Baixa Massa' }, { value: 'high', text: 'Alta Massa' }],
+                    [{ value: 'low', text: 'Sem Catalisador' }, { value: 'high', text: 'Com Catalisador' }]
+                ]
+            },
+            rust: {
+                factors: ['concentration', 'purity'],
+                labels: ['Umidade/Oxigênio', 'Pureza do Metal'],
+                tips: ['Mais umidade/O2 **aumenta** a taxa de corrosão.', 'Menos pureza (impurezas) **aumenta** a corrosão (pilhas locais).'],
+                options: [
+                    [{ value: 'low', text: 'Baixo O2/Umidade' }, { value: 'high', text: 'Alto O2/Umidade' }],
+                    [{ value: 'low', text: 'Metal Puro (Baixa)' }, { value: 'high', text: 'Metal Impuro (Alta)' }]
+                ]
+            }
+        };
+
+        // --- Geração de Bolhas (Para o Comprimido) ---
+        function generateBubbles(rate) {
+            if (tabletBubblesInterval) clearInterval(tabletBubblesInterval);
+            if (rate === 0) return;
+
+            // Frequência de geração inversamente proporcional à duração da reação (rate)
+            const frequency = rate / 10; 
+            
+            tabletBubblesInterval = setInterval(() => {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.style.left = `${Math.random() * 80 + 10}px`; // Posição X aleatória
+                
+                // Aplicar a taxa de reação à duração da animação das bolhas
+                const bubbleDuration = parseFloat(root.style.getPropertyValue('--rate-duration'));
+                bubble.style.animationDuration = `${bubbleDuration}s`; 
+                
+                document.getElementById('bubbles').appendChild(bubble);
+                
+                // Remover a bolha após a animação
+                setTimeout(() => bubble.remove(), bubbleDuration * 1000);
+            }, frequency * 1000);
+        }
+
+        // --- Reiniciar Simulação do Airbag ---
+        function resetAirbag() {
+            const airbag = document.getElementById('airbag');
+            airbag.style.animation = 'none';
+            void airbag.offsetWidth; // Recalcula o layout
+            airbag.style.animation = `inflate var(--rate-duration) ease-in forwards`;
+            updateSimulationRate();
+        }
+
+        // --- Atualização da Taxa de Reação ---
+        function updateSimulationRate() {
+            currentScenario = simSelect.value;
+            let tempFactor = parseFloat(tempSelect.value);
+            let factor1Value = factor1Input.value;
+            let factor2Value = factor2Input.value;
+
+            let rateScore = 1; // Base
+
+            // 1. Fator Temperatura (Aplica-se a todos)
+            if (tempFactor === 50) rateScore *= 2.5; // Alta temperatura
+            if (tempFactor === 5) rateScore *= 0.5; // Baixa temperatura
+            // 25 °C = 1.0
+
+            // 2. Fator 1 (Variável por cenário)
+            if (factor1Group.style.display !== 'none') {
+                if (factor1Value === 'high') rateScore *= 2.0;
+                if (factor1Value === 'low') rateScore *= 0.7;
+            }
+
+            // 3. Fator 2 (Variável por cenário)
+            if (factor2Group.style.display !== 'none') {
+                if (factor2Value === 'high') rateScore *= 1.5;
+                if (factor2Value === 'low') rateScore *= 0.8;
+            }
+            
+            // Tratamento especial para o airbag (reação muito rápida)
+            if (currentScenario === 'airbag') {
+                // Se for Airbag e tiver Catalisador, a reação é quase instantânea
+                if (factor2Input.value === 'high') { // Uso do Catalisador
+                    rateScore = 1000; // Valor muito alto para ser instantâneo
+                } else {
+                    // Sem catalisador, mas ainda rápido
+                    rateScore = Math.max(5, rateScore); // Garante que seja rápida
+                }
+            }
+
+
+            // --- Conversão da Pontuação para Duração (Tempo) ---
+            
+            // Taxa base: 4 segundos (Moderada)
+            let baseDuration = 4; 
+            
+            // Duração da reação é inversamente proporcional à pontuação (rateScore)
+            let duration = baseDuration / rateScore;
+            
+            // Limites para visualização (não pode ser zero ou infinito)
+            duration = Math.max(0.01, duration); // Mínimo de 10ms (instantânea)
+            duration = Math.min(10, duration); // Máximo de 10s (muito lenta)
+
+
+            // --- Aplicação Visual ---
+            root.style.setProperty('--rate-duration', `${duration}s`);
+            
+            let rateText = '';
+            if (duration < 0.2) {
+                rateText = 'INSTANTÂNEA';
+                rateDisplay.style.backgroundColor = 'var(--cor-sucesso)';
+            } else if (duration < 1) {
+                rateText = 'MUITO RÁPIDA';
+                rateDisplay.style.backgroundColor = 'var(--cor-sucesso)';
+            } else if (duration < 3) {
+                rateText = 'RÁPIDA';
+                rateDisplay.style.backgroundColor = 'var(--cor-primaria)';
+            } else if (duration < 6) {
+                rateText = 'MODERADA';
+                rateDisplay.style.backgroundColor = '#FFC107'; /* Amarelo */
+            } else {
+                rateText = 'LENTA';
+                rateDisplay.style.backgroundColor = 'var(--cor-erro)';
+            }
+            
+            rateDisplay.textContent = `Velocidade: ${rateText}`;
+
+            // Reinicia a animação (truque para browsers)
+            const elementsToAnimate = [
+                document.getElementById('tablet'), 
+                document.getElementById('airbag'), 
+                document.getElementById('rust-layer')
+            ];
+
+            elementsToAnimate.forEach(el => {
+                el.style.animation = 'none';
+                void el.offsetWidth; // Trigger reflow
+                el.style.animation = null;
+            });
+            
+            // Lógica específica para o comprimido (bolhas)
+            if (currentScenario === 'dissolution') {
+                 generateBubbles(rateScore);
+            } else {
+                if (tabletBubblesInterval) clearInterval(tabletBubblesInterval);
+            }
+        }
+
+
+        // --- Troca de Cenário ---
+        function changeSimulation() {
+            currentScenario = simSelect.value;
+            
+            // Oculta todos
+            dissolutionSim.style.display = 'none';
+            airbagSim.style.display = 'none';
+            rustSim.style.display = 'none';
+            
+            // Mostra o cenário selecionado
+            document.getElementById(`${currentScenario}-sim`).style.display = 'flex';
+
+            // Atualiza os fatores de controle
+            const factors = scenarioFactors[currentScenario];
+            
+            // Fator 1
+            factor1Group.style.display = 'block';
+            factor1Label.textContent = factors.labels[0];
+            factor1Tip.innerHTML = factors.tips[0];
+            factor1Input.innerHTML = '';
+            factors.options[0].forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.text;
+                factor1Input.appendChild(option);
+            });
+            
+            // Fator 2
+            factor2Group.style.display = 'block';
+            factor2Label.textContent = factors.labels[1];
+            factor2Tip.innerHTML = factors.tips[1];
+            factor2Input.innerHTML = '';
+            factors.options[1].forEach((opt, index) => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.text;
+                if (currentScenario === 'airbag' && index === 1) {
+                    option.selected = true; // Airbag default para catalisador (alta)
+                }
+                factor2Input.appendChild(option);
+            });
+            
+            // Se for airbag, desabilitar o fator 2 inicialmente (Catalisador)
+            if (currentScenario === 'airbag') {
+                tempSelect.value = '25'; // Airbag: Temperatura ambiente é o mais comum
+            } else if (currentScenario === 'rust') {
+                 tempSelect.value = '25';
+            }
+            
+            updateSimulationRate();
+        }
+
+        // --- Inicialização ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializa o primeiro cenário e seus controles
+            changeSimulation();
+            updateSimulationRate(); 
+        });
+    </script>
+</body>
+</html>
