@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vídeo Aulas - STM3</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    :root {
+      --cor-principal: #00b8ff;
+      --gradiente: linear-gradient(90deg, #00e0ff, #006aff);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background: #0f0f10;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background 0.5s, color 0.5s;
+    }
+
+    /* MENU DE MATÉRIA */
+    .materia-menu {
+      display: flex;
+      gap: 25px;
+      background: #18181b;
+      padding: 15px 25px;
+      border-radius: 30px;
+      margin-top: 30px;
+      box-shadow: 0 0 15px rgba(0, 200, 255, 0.1);
+    }
+
+    .materia-menu button {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 1.05em;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    .materia-menu button::after {
+      content: "";
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--cor-principal);
+      transition: width 0.3s ease;
+      border-radius: 10px;
+    }
+
+    .materia-menu button:hover {
+      color: var(--cor-principal);
+    }
+
+    .materia-menu button.active {
+      color: var(--cor-principal);
+    }
+
+    .materia-menu button.active::after {
+      width: 100%;
+    }
+
+    h1 {
+      margin-top: 25px;
+      font-size: 2.3em;
+      letter-spacing: 1px;
+      background: var(--gradiente);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: background 0.5s;
+    }
+
+    p.subtitle {
+      color: #aaa;
+      font-size: 1.1em;
+      margin-bottom: 40px;
+    }
+
+    section {
+      width: 90%;
+      max-width: 1100px;
+      margin-bottom: 70px;
+    }
+
+    section h2 {
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--cor-principal);
+      transition: color 0.5s;
+    }
+
+    /* === GRID DE 3 POR LINHA === */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 25px;
+    }
+
+    @media (max-width: 950px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 650px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    a.card {
+      background: #18181b;
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    a.card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 0 18px var(--cor-principal);
+    }
+
+    .card i {
+      font-size: 2em;
+      color: var(--cor-principal);
+      margin-bottom: 12px;
+      transition: color 0.5s;
+    }
+
+    .card h3 {
+      font-size: 1.25em;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      color: #ccc;
+      font-size: 0.95em;
+      line-height: 1.5;
+    }
+
+    .divider {
+      width: 90%;
+      max-width: 1100px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cor-principal) 55%, transparent);
+      margin: 40px 0;
+      border-radius: 10px;
+      transition: background 0.5s;
+    }
+
+    .colab-title {
+      font-size: 1.3em;
+      color: var(--cor-principal);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    footer {
+      color: #666;
+      font-size: 0.9em;
+      margin: 20px 0 40px 0;
+      text-align: center;
+    }
+
+    .btn-colaboradores {
+      display: inline-block;
+      padding: 10px 22px;
+      margin-top: 10px;
+      background: #000;
+      color: #fff;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .btn-colaboradores:hover {
+      background: #1b1b1b;
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px var(--cor-principal);
+    }
+  </style>
+</head>
+<body>
+  <div class="materia-menu">
+    <button class="active" data-materia="matematica">Matemática</button>
+    <button data-materia="fisica">Física</button>
+    <button data-materia="quimica">Química</button>
+  </div>
+
+  <h1>Vídeo Aulas - Matemática</h1>
+  <p class="subtitle">Explore conteúdos completos e raps educativos</p>
+
+  <main id="conteudo"></main>
+
+  <script>
+    const conteudo = document.getElementById("conteudo");
+    const buttons = document.querySelectorAll(".materia-menu button");
+    const title = document.querySelector("h1");
+
+    const materias = {
+      matematica: {
+        cor: "#00b8ff",
+        gradiente: "linear-gradient(90deg, #00e0ff, #006aff)",
+        html: `
+        <section>
+          <h2><i class="fa-solid fa-film"></i> Vídeos Mais Longos</h2>
+          <div class="grid">
+            <a href="aulas/limites.html" class="card">
+              <i class="fa-solid fa-infinity"></i>
+              <h3>Cálculo e Limites</h3>
+              <p>Introdução aos limites e derivadas de forma clara e visual.</p>
+            </a>
+            <a href="aulas/sistemas-lineares.html" class="card">
+              <i class="fa-solid fa-table-columns"></i>
+              <h3>Sistemas Lineares</h3>
+              <p>Aprenda a resolver sistemas com duas ou mais variáveis passo a passo.</p>
+            </a>
+            <a href="aulas/polinomios.html" class="card">
+              <i class="fa-solid fa-square-root-variable"></i>
+              <h3>Polinômios</h3>
+              <p>Funções polinomiais e técnicas de fatoração descomplicadas.</p>
+            </a>
+            <a href="aulas/estatistica-avancada.html" class="card">
+              <i class="fa-solid fa-chart-bar"></i>
+              <h3>Estatística Avançada</h3>
+              <p>Entenda análise de dados e distribuição de probabilidade.</p>
+            </a>
+            <a href="aulas/juros-simples.html" class="card">
+              <i class="fa-solid fa-percent"></i>
+              <h3>Juros Simples</h3>
+              <p>Aprenda como calcular juros e o montante de forma prática.</p>
+            </a>
+            <a href="aulas/juros-compostos.html" class="card">
+              <i class="fa-solid fa-chart-line"></i>
+              <h3>Juros Compostos</h3>
+              <p>Descubra o poder dos juros compostos com exemplos reais.</p>
+            </a>
+            <a href="aulas/arcos-e-angulos.html" class="card">
+              <i class="fa-solid fa-compass-drafting"></i>
+              <h3>Arcos e Ângulos</h3>
+              <p>Veja como relacionar medidas de arcos e ângulos com geometria.</p>
+            </a>
+            <a href="aulas/geometria-analitica.html" class="card">
+              <i class="fa-solid fa-ruler-combined"></i>
+              <h3>Geometria Analítica</h3>
+              <p>Explore as equações da reta e da circunferência em detalhes.</p>
+            </a>
+          </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section>
+          <h2><i class="fa-solid fa-music"></i> Matemática em Raps</h2>
+          <div class="grid">
+            <a href="https://www.youtube.com/shorts/H-3dphDvoTU" class="card" target="_blank">
+              <i class="fa-solid fa-infinity"></i>
+              <h3>Logaritmo</h3>
+              <p>Aprenda logaritmos com ritmo e rima — o crescimento nunca foi tão musical!</p>
+            </a>
+            <a href="https://www.youtube.com/shorts/BJFX1Qvfppc" class="card" target="_blank">
+              <i class="fa-solid fa-table-cells-large"></i>
+              <h3>Progressão Aritmética</h3>
+              <p>Entenda P.A. no flow: sequência, razão e soma no compasso da batida.</p>
+            </a>
+            <a href="https://www.instagram.com/reel/DNgLwQqxzOt/" class="card" target="_blank">
+              <i class="fa-solid fa-coins"></i>
+              <h3>Juros Simples e Compostos</h3>
+              <p>Grana, tempo e matemática: um rap que ensina e contagia.</p>
+            </a>
+            <a href="https://www.youtube.com/shorts/x_cNa5ds2cQ" class="card" target="_blank">
+              <i class="fa-solid fa-divide"></i>
+              <h3>Operações com Frações</h3>
+              <p>Soma, subtração e multiplicação — tudo em verso pra fixar a lição.</p>
+            </a>
+            <a href="https://www.youtube.com/shorts/E0-uvMWlMIs" class="card" target="_blank">
+              <i class="fa-solid fa-book-open"></i>
+              <h3>Revisão Básica</h3>
+              <p>Um resumo rimado dos principais tópicos pra mandar bem nas provas!</p>
+            </a>
+            <a href="https://www.youtube.com/shorts/zPcEpejwsRU" class="card" target="_blank">
+              <i class="fa-solid fa-chart-simple"></i>
+              <h3>Funções</h3>
+              <p>Descubra o poder das funções com rimas que explicam cada relação.</p>
+            </a>
+            <a href="https://www.youtube.com/shorts/utAj3scKgYs" class="card" target="_blank">
+              <i class="fa-solid fa-bolt"></i>
+              <h3>Potenciação</h3>
+              <p>Base e expoente em ritmo acelerado — um rap cheio de energia matemática!</p>
+            </a>
+            <a href="https://www.instagram.com/reel/DQO8SbRER1Y/" class="card" target="_blank">
+              <i class="fa-solid fa-chart-pie"></i>
+              <h3>Estatística</h3>
+              <p>Média, moda e mediana no beat — dados que dançam com estilo!</p>
+            </a>
+          </div>
+        </section>
+
+        <div class="divider"></div>
+        <p class="colab-title"><i class="fa-solid fa-users"></i> Colaboradores</p>
+
+        <footer>
+          © 2025 Projeto STM3 — Matemática Interativa<br>
+          <a href="https://www.instagram.com/zdezane/" class="btn-colaboradores" target="_blank">
+            <i class="fa-brands fa-instagram"></i> ZdeZane
+          </a>
+        </footer>`
+      },
+
+      fisica: {
+        cor: "#ffd900",
+        gradiente: "linear-gradient(90deg, #fff45c, #ffb700)",
+        html: `
+        <section>
+          <h2><i class="fa-solid fa-atom"></i> Tópicos de Física</h2>
+          <div class="grid">
+            <a href="#" class="card">
+              <i class="fa-solid fa-weight-hanging"></i>
+              <h3>Leis de Newton</h3>
+              <p>Explore a base da mecânica clássica e o movimento dos corpos.</p>
+            </a>
+            <a href="#" class="card">
+              <i class="fa-solid fa-bolt"></i>
+              <h3>Eletricidade</h3>
+              <p>Conceitos fundamentais sobre corrente, tensão e resistência.</p>
+            </a>
+            <a href="#" class="card">
+              <i class="fa-solid fa-wave-square"></i>
+              <h3>Ondas e Som</h3>
+              <p>Entenda oscilações, frequência e propagação de ondas.</p>
+            </a>
+          </div>
+        </section>`
+      },
+
+      quimica: {
+        cor: "#00ff91",
+        gradiente: "linear-gradient(90deg, #00ff91, #00c37a)",
+        html: `
+        <section>
+          <h2><i class="fa-solid fa-flask"></i> Conceitos de Química</h2>
+          <div class="grid">
+            <a href="#" class="card">
+              <i class="fa-solid fa-vial"></i>
+              <h3>Ligações Químicas</h3>
+              <p>Aprenda sobre íons, covalência e ligações metálicas.</p>
+            </a>
+            <a href="#" class="card">
+              <i class="fa-solid fa-droplet"></i>
+              <h3>Reações Inorgânicas</h3>
+              <p>Entenda como balancear e classificar reações químicas.</p>
+            </a>
+            <a href="#" class="card">
+              <i class="fa-solid fa-fire"></i>
+              <h3>Termoquímica</h3>
+              <p>Descubra como a energia é liberada ou absorvida nas reações.</p>
+            </a>
+          </div>
+        </section>`
+      }
+    };
+
+    function atualizarMateria(nome) {
+      const m = materias[nome];
+      conteudo.innerHTML = m.html;
+      document.documentElement.style.setProperty("--cor-principal", m.cor);
+      document.documentElement.style.setProperty("--gradiente", m.gradiente);
+      title.innerHTML = `Vídeo Aulas - ${nome.charAt(0).toUpperCase() + nome.slice(1)}`;
+      buttons.forEach(b => b.classList.remove("active"));
+      document.querySelector(`[data-materia='${nome}']`).classList.add("active");
+    }
+
+    buttons.forEach(btn => btn.addEventListener("click", () => atualizarMateria(btn.dataset.materia)));
+    atualizarMateria("matematica");
+  </script>
+</body>
+</html>
