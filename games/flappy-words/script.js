@@ -1,156 +1,473 @@
-// --- DADOS DO JOGO ---
-const bancoDePalavras = [
-    { chave: "ALEGRE", correto: "FELIZ", distrator: ["TRISTE", "RÁPIDO"] },
-    { chave: "ESCURO", correto: "NOITE", distrator: ["CLARO", "DIA"] },
-    { chave: "INÍCIO", correto: "COMEÇO", distrator: ["FIM", "MEIO"] }
-    // Adicionar mais conjuntos aqui...
+// script.js
+
+const canvas = document.getElementById('flappyCanvas');
+const ctx = canvas.getContext('2d');
+
+// --- SPRITE DO PÁSSARO ---
+const birdSprite = new Image();
+let birdSpriteLoaded = false;
+birdSprite.onload = function() {
+    birdSpriteLoaded = true;
+};
+// *** MUDE ESTE CAMINHO PELO URL OU CAMINHO LOCAL DA SUA IMAGEM DO PÁSSARO ***
+birdSprite.src = 'bird.png'; 
+const BIRD_COLOR = '#ffda56'; // Fallback Color
+
+// --- SPRITE DE FUNDO ---
+const backgroundSprite = new Image();
+let backgroundSpriteLoaded = false;
+backgroundSprite.onload = function() {
+    backgroundSpriteLoaded = true;
+};
+// *** MUDE ESTE CAMINHO PELO URL OU CAMINHO LOCAL DA SUA IMAGEM DE FUNDO ***
+backgroundSprite.src = 'bg.png'; 
+const SKY_COLOR = '#70c5ce'; // Fallback Color
+
+// --- DADOS DO JOGO (Banco de Sinônimos) ---
+// (Mantido o banco de palavras original)
+const bancoDePalavras = [    
+    { chave: "ALEGRE", correto: "FELIZ", distrator: ["TRISTE", "RÁPIDO", "FRIO"] },    
+    { chave: "RÁPIDO", correto: "VELOZ", distrator: ["LENTO", "GORDU", "ROXO"] },    
+    { chave: "INÍCIO", correto: "COMEÇO", distrator: ["FIM", "MEIO", "PARADA"] },    
+    { chave: "BELO", correto: "BONITO", distrator: ["FEIO", "SUJO", "FORTE"] },    
+    { chave: "AMPLIAR", correto: "AUMENTAR", distrator: ["DIMINUIR", "PARAR", "SUBIR"] },
+    
+    { chave: "CALMO", correto: "SERENO", distrator: ["AGITADO", "BRAVO", "PERTO"] },    
+    { chave: "BRILHO", correto: "ESPLENDOR", distrator: ["ESCURIDÃO", "FUMAÇA", "BARULHO"] },    
+    { chave: "LIVRE", correto: "SOLTO", distrator: ["PRESO", "VERDE", "LONGE"] },    
+    { chave: "GRANDE", correto: "ENORME", distrator: ["PEQUENO", "AZUL", "RARO"] },    
+    { chave: "CORRETO", correto: "CERTO", distrator: ["ERRADO", "DUVIDOSO", "LENTO"] },    
+    { chave: "FÁCIL", correto: "SIMPLES", distrator: ["DIFÍCIL", "COMPLEXO", "CLARO"] },    
+    { chave: "IDEIA", correto: "NOÇÃO", distrator: ["OBJETO", "FATO", "SONO"] },    
+    { chave: "JUNTAR", correto: "UNIR", distrator: ["SEPARAR", "QUEBRAR", "AFASTAR"] },    
+    { chave: "MUDAR", correto: "ALTERAR", distrator: ["MANTER", "FIXAR", "CRIAR"] },    
+    { chave: "NOVO", correto: "RECENTE", distrator: ["VELHO", "ANTIGO", "FORTE"] },    
+    { chave: "PAZ", correto: "TRANQUILIDADE", distrator: ["GUERRA", "CAOS", "BARULHO"] },    
+    { chave: "FRIO", correto: "DESANIMADO", distrator: ["GELADO", "FRIO", "PESADO"] },    
+    { chave: "SUBIR", correto: "ASCENDER", distrator: ["DESCER", "CAIR", "PARAR"] },    
+    { chave: "TERMINAR", correto: "FINALIZAR", distrator: ["COMEÇAR", "INICIAR", "PROLONGAR"] },    
+    { chave: "VERDADE", correto: "SINCERIDADE", distrator: ["MENTIRA", "FALSIDADE", "DUVIDA"] },    
+    { chave: "VIAGEM", correto: "JORNADA", distrator: ["PARADA", "ESTADIA", "VOLTA"] },    
+    { chave: "FORTE", correto: "POTENTE", distrator: ["FRACO", "FRÁGIL", "SUAVE"] },    
+    { chave: "COMER", correto: "ALIMENTAR", distrator: ["VENENOSO", "DURO", "MOLHADO"] },    
+    { chave: "ADVERSIDADE", correto: "PROBLEMA", distrator: ["FACILIDADE", "BEM", "ALEGRIA"] },    
+    { chave: "CONHECER", correto: "SABER", distrator: ["IGNORAR", "ESQUECER", "FALAR"] },    
+    { chave: "DESEJAR", correto: "QUERER", distrator: ["REJEITAR", "RECUSAR", "NEGAR"] },    
+    { chave: "ECONOMIZAR", correto: "POUPAR", distrator: ["GASTAR", "DEIXAR", "DURAR"] },    
+    { chave: "FALHAR", correto: "ERRAR", distrator: ["ACERTAR", "VENCER", "PERDER"] },    
+    { chave: "GENTIL", correto: "CORTÊS", distrator: ["RUDE", "BRUTO", "FORTE"] },    
+    { chave: "HABITAR", correto: "MORAR", distrator: ["SAIR", "PASSAR", "VISITAR"] },    
+    { chave: "IRADO", correto: "ENFURECIDO", distrator: ["CONTENTE", "CALMO", "LENTO"] },    
+    { chave: "JUSTO", correto: "ÍGREGRO", distrator: ["INJUSTO", "PARCIAL", "PESADO"] },    
+    { chave: "LÍMPIDO", correto: "CRISTALINO", distrator: ["SUJO", "TURVO", "VELHO"] },    
+    { chave: "MAGNÍFICO", correto: "EXCELENTE", distrator: ["RUIM", "COMUM", "PEQUENO"] },    
+    { chave: "NECESSÁRIO", correto: "ESSENCIAL", distrator: ["DISPENSÁVEL", "EXTRA", "VERDE"] },    
+    { chave: "OBSERVAR", correto: "NOTAR", distrator: ["IGNORAR", "FALAR", "PULAR"] },    
+    { chave: "PERMITIR", correto: "AUTORIZAR", distrator: ["PROIBIR", "IMPEDIR", "PARAR"] },    
+    { chave: "PROTEGER", correto: "DEFENDER", distrator: ["ATACAR", "ABANDONAR", "QUEBRAR"] },    
+    { chave: "REVELAR", correto: "MOSTRAR", distrator: ["ESCONDER", "GUARDAR", "MUDAR"] },    
+    { chave: "SÁBIO", correto: "CULTIVADO", distrator: ["IGNORANTE", "JOVEM", "PESSIMO"] },    
+    { chave: "SUCESSO", correto: "ÊXITO", distrator: ["FRACASSO", "DERROTA", "ERRO"] },    
+    { chave: "TEMOR", correto: "MEDO", distrator: ["CORAGEM", "ALEGRIA", "PAZ"] },    
+    { chave: "ÚNICO", correto: "EXCLUSIVO", distrator: ["COMUM", "MÚLTIPLO", "MISTO"] },    
+    { chave: "VENCEDOR", correto: "TRIUNFANTE", distrator: ["PERDEDOR", "DERROTADO", "TRISTE"] },    
+    { chave: "ZOMBAR", correto: "CAÇOAR", distrator: ["ELOGIAR", "RESPEITAR", "AMAR"] },    
+    { chave: "INDO", correto: "PARTINDO", distrator: ["FICANDO", "CHEGANDO", "VOLTANDO"] },    
+    { chave: "COMPLICADO", correto: "EMBARAÇADO", distrator: ["DESCOMPLICADO", "FÁCIL", "SIMPLES"] },    
+    { chave: "BARULHO", correto: "RUÍDO", distrator: ["SILÊNCIO", "PAZ", "CALMO"] },    
+    { chave: "CEDO", correto: "PRECOCEMENTE", distrator: ["TARDE", "DEPOIS", "NUNCA"] },    
+    { chave: "DÚVIDA", correto: "INCERTEZA", distrator: ["CERTEZA", "VERDADE", "FATO"] },    
+    { chave: "ELOGIO", correto: "LOUVOR", distrator: ["CRÍTICA", "ATAQUE", "ERRO"] },    
+    { chave: "FRACO", correto: "FRÁGIL", distrator: ["FORTE", "RESISTENTE", "GRANDE"] },    
+    { chave: "GRITARIA", correto: "BERRARIA", distrator: ["SUSSURRO", "SILÊNCIO", "PAZ"] },    
+    { chave: "HOMENAGEM", correto: "TRIBUTO", distrator: ["ATAQUE", "CRÍTICA", "PUNIR"] },    
+    { chave: "ILUMINAR", correto: "CLAREAR", distrator: ["ESURECER", "COBRIR", "APAGAR"] },    
+    { chave: "JOGAR", correto: "LANÇAR", distrator: ["PEGAR", "GUARDAR", "PARAR"] },    
+    { chave: "LAMENTAR", correto: "LASTIMAR", distrator: ["ALEGRAR", "COMEMORAR", "SORRIR"] },    
+    { chave: "MESTRE", correto: "PROFESSOR", distrator: ["ALUNO", "APRENDIZ", "INICIANTE"] },    
+    { chave: "NECESSIDADE", correto: "CARÊNCIA", distrator: ["ABUNDÂNCIA", "EXCESSO", "RIQUEZA"] },    
+    { chave: "OCULTAR", correto: "ESCONDER", distrator: ["MOSTRAR", "REVELAR", "EXPOR"] },    
+    { chave: "PARTILHAR", correto: "COMPARTILHAR", distrator: ["RETER", "GUARDAR", "COMPRAR"] },    
+    { chave: "RECLAMAR", correto: "QUEIXAR", distrator: ["ELOGIAR", "ACEITAR", "CONCORDAR"] },    
+    { chave: "SORRIR", correto: "RIR", distrator: ["CHORAR", "TRISTE", "GRITAR"] },    
+    { chave: "TREMOR", correto: "ABALO", distrator: ["FIRMEZA", "PAZ", "FORTE"] },    
+    { chave: "VALOR", correto: "PREÇO", distrator: ["VAZIO", "GRÁTIS", "ERRO"] },    
+    { chave: "PREJUDICAR", correto: "DANIFICAR", distrator: ["AJUDAR", "REPARAR", "LOUVAR"] },    
+    { chave: "ESQUECER", correto: "OLVIDAR", distrator: ["LEMBRAR", "REGISTRAR", "FALAR"] },    
+    { chave: "REPETIR", correto: "REITERAR", distrator: ["PARAR", "CALAR", "SILENCIAR"] },    
+    { chave: "CHEGAR", correto: "ATINGIR", distrator: ["SAIR", "PARTIR", "CAIR"] },    
+    { chave: "RESIDIR", correto: "MORAR", distrator: ["VISITAR", "VIAJAR", "PULAR"] },    
+    { chave: "DESISTIR", correto: "ABANDONAR", distrator: ["INSISTIR", "CONTINUAR", "COMEÇAR"] }
 ];
 
-// --- VARIÁVEIS DO JOGO ---
-const passaro = document.getElementById('passaro');
-const container = document.getElementById('jogo-container');
-const palavraChaveElement = document.getElementById('palavra-chave');
-const placarElement = document.getElementById('placar');
-const mensagemJogo = document.getElementById('mensagem-jogo');
+// --- Variáveis Globais Otimizadas para 800x1000 ---
+let gravity = 0.6;
+let flapStrength = -10; 
+let blockSpeed = 2.0;   
+let blockWidth = 140;   
+let paddingY = 15;      
+let blockFrequency = 350; 
+let totalBlocks = 4;    
 
-let velocidadeQueda = 2; // Gravidade
-let velocidadeAscensao = -40; // Impulso do "voo"
-let posicaoY = 150;
-let placar = 0;
-let jogoRodando = false;
-let gameInterval, obstaculoInterval;
+let blockHeight = 0; // Calculado dinamicamente em init()
 
-// --- FUNÇÕES PRINCIPAIS ---
+const groundColor = '#ded895';
+const groundHeight = 10;
 
-// 1. Inicia/Reinicia o jogo
-function iniciarJogo() {
-    if (jogoRodando) return;
-    
-    posicaoY = 150;
-    placar = 0;
-    placarElement.textContent = "Pontos: 0";
-    jogoRodando = true;
-    mensagemJogo.style.display = 'none';
+// --- Objeto Bird (Com lógica de sprite aprimorada) ---
+function Bird() {    
+    this.x = 100; 
+    this.y = canvas.height / 2;    
+    this.width = 80;     
+    this.height = 60;    
+    this.velocity = 0;
 
-    // Limpa obstáculos anteriores
-    document.querySelectorAll('.quadrado-obstaculo').forEach(el => el.remove());
-
-    // Loop principal: Queda do pássaro e detecção de colisão
-    gameInterval = setInterval(logicaDoJogo, 20); 
-    
-    // Cria novos obstáculos a cada 2 segundos
-    obstaculoInterval = setInterval(criarObstaculo, 2000); 
-}
-
-// 2. Lógica de Queda e Movimento
-function logicaDoJogo() {
-    // Aplica gravidade e atualiza posição
-    posicaoY += velocidadeQueda;
-    passaro.style.top = posicaoY + 'px';
-
-    // Se bater no chão ou no topo, FIM DE JOGO
-    if (posicaoY > container.offsetHeight - passaro.offsetHeight || posicaoY < 0) {
-        fimDeJogo("Você caiu! Tente novamente.");
-        return;
+    this.draw = function() {        
+        if (gameState !== 'gameover') {
+            ctx.save();                        
+            const centerX = this.x + this.width / 2;
+            const centerY = this.y + this.height / 2;
+            ctx.translate(centerX, centerY);                        
+            let angle = (this.velocity / 10) * (Math.PI / 4); 
+            if (angle > Math.PI / 2) angle = Math.PI / 2; 
+            if (angle < -Math.PI / 4) angle = -Math.PI / 4; 
+            ctx.rotate(angle);
+            
+            // Desenho do Pássaro (Sprite ou Fallback - Círculo)
+            if (birdSpriteLoaded) {                
+                ctx.drawImage(birdSprite, -this.width / 2, -this.height / 2, this.width, this.height);
+            } else {                
+                ctx.fillStyle = BIRD_COLOR; 
+                ctx.beginPath();
+                ctx.arc(0, 0, this.width / 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 4; 
+                ctx.stroke();
+            }
+            ctx.restore(); 
+        } else {             
+            // Fallback simples para game over
+            ctx.fillStyle = BIRD_COLOR;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }    
     }
 
-    // Move e verifica colisão dos obstáculos
-    document.querySelectorAll('.quadrado-obstaculo').forEach(obstaculo => {
-        let obstaculoX = obstaculo.offsetLeft - 5; // Velocidade de movimento (5px)
-        obstaculo.style.left = obstaculoX + 'px';
+    this.update = function() {        
+        this.velocity += gravity;        
+        this.y += this.velocity;
 
-        // Remoção de obstáculos fora da tela
-        if (obstaculoX < -obstaculo.offsetWidth) {
-            obstaculo.remove();
+        if (this.y + this.height > canvas.height - groundHeight) {            
+            this.y = canvas.height - groundHeight - this.height;            
+            this.velocity = 0;            
+            gameOver("Você bateu no chão!");
+        }        
+        if (this.y < 0) {            
+            this.y = 0;            
+            this.velocity = 0;
         }
+    }
 
-        // --- LÓGICA DE COLISÃO E CORRESPONDÊNCIA ---
-        if (detectarColisao(passaro, obstaculo)) {
-            if (obstaculo.classList.contains('quadrado-correto')) {
-                // Acertou!
-                placar++;
-                placarElement.textContent = `Pontos: ${placar}`;
-                obstaculo.remove();
-                // Gera um novo par de palavras para o pássaro
-                trocarPalavraChave(); 
-            } else {
-                // Errou!
-                fimDeJogo(`Ops! Palavra errada. A correspondência era: ${palavraChaveElement.dataset.correto}`);
+    this.flap = function() {        
+        if (gameState === 'playing') {           
+           this.velocity = flapStrength;
+        } else if (gameState === 'start') {
+            startGame();
+            this.velocity = flapStrength;
+        }
+    }
+}
+
+// --- Bloco de Palavra ---
+function WordBlock(word, isCorrect, yPos) {    
+    this.x = canvas.width;    
+    this.y = yPos;    
+    this.width = blockWidth;    
+    this.height = blockHeight; 
+    this.word = word;
+    this.isCorrect = isCorrect;
+    this.collided = false;
+    this.scored = false;       
+    this.isColumnBase = false; 
+    
+    this.draw = function() {
+        ctx.fillStyle = this.isCorrect ? '#50e3c2' : '#f0f0f0'; 
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+
+        ctx.strokeStyle = this.isCorrect ? '#3cb44b' : '#333333'; 
+        ctx.lineWidth = 4;
+        ctx.strokeRect(this.x, this.y, this.width, this.height);
+
+        ctx.fillStyle = 'black';
+        ctx.font = "20px 'Press Start 2P', sans-serif"; 
+        ctx.textAlign = "center";
+        ctx.fillText(this.word, this.x + this.width / 2, this.y + this.height / 2 + 6); 
+    }
+
+    this.update = function() {        
+        this.x -= blockSpeed;
+    }
+}
+
+// --- Lógica de Colisão e Geração (Mantida) ---
+function handleBlocks() {    
+    // 1. Geração de Nova Coluna     
+    if (frames % blockFrequency === 0) {
+        const novoSet = bancoDePalavras[Math.floor(Math.random() * bancoDePalavras.length)];
+        currentWordSet = novoSet;
+                
+        let palavrasDaColuna = [novoSet.correto, ...novoSet.distrator];
+        while (palavrasDaColuna.length < totalBlocks) {
+            const allWords = bancoDePalavras.flatMap(set => set.distrator);
+            const randomDistractor = allWords[Math.floor(Math.random() * allWords.length)];
+            if (!palavrasDaColuna.includes(randomDistractor)) { 
+                 palavrasDaColuna.push(randomDistractor);
             }
         }
-    });
-}
+        palavrasDaColuna = palavrasDaColuna.slice(0, totalBlocks); 
+        palavrasDaColuna.sort(() => Math.random() - 0.5);
 
-// 3. Salto do Pássaro
-function pular(event) {
-    if (!jogoRodando) {
-        // Se o jogo não estiver rodando, inicia no primeiro clique
-        iniciarJogo();
-    } else {
-        // Se estiver rodando, aplica o impulso de subida (o pulo)
-        posicaoY += velocidadeAscensao;
+        const startY = 0; 
+        for (let i = 0; i < totalBlocks; i++) {
+            const palavra = palavrasDaColuna[i];
+            const isCorrect = (palavra === novoSet.correto);
+            const yPos = startY + (i * (blockHeight + paddingY)); 
+                        
+            const novoBloco = new WordBlock(palavra, isCorrect, yPos);
+            if (isCorrect) { 
+                 novoBloco.isColumnBase = true;
+            }
+            blocks.push(novoBloco);
+        }
+    }
+
+    // 2. Loop de Colisão, Pontuação e Movimento 
+    for (let i = blocks.length - 1; i >= 0; i--) {
+        const block = blocks[i];
+        block.update();
+        block.draw();
+
+        if (block.x + block.width < 0) {
+            blocks.splice(i, 1);
+            continue; 
+        }
+
+        const isColliding = (
+            bird.x < block.x + block.width &&
+            bird.x + bird.width > block.x &&
+            bird.y < block.y + block.height &&
+            bird.y + bird.height > block.y
+        );
+
+        if (isColliding) {
+            if (block.isCorrect) {
+                block.collided = true;
+            } else {
+                gameOver(`Você bateu em: ${block.word}! O correto era: ${currentWordSet.correto}`);
+                return;
+            }
+        }
+                
+        if (block.isColumnBase && block.collided && !block.scored && block.x + block.width < bird.x) {
+            score++;
+            block.scored = true;
+            removeBlockColumn(block.x); 
+        }
+                
+        if (block.isColumnBase && !block.collided && block.x + block.width < bird.x) { 
+             gameOver(`Você perdeu a correspondência! Era: ${currentWordSet.correto}`); 
+             return;
+        }
     }
 }
 
-// 4. Criação de Obstáculos
-function criarObstaculo() {
-    const dados = bancoDePalavras[Math.floor(Math.random() * bancoDePalavras.length)];
-    const palavrasNoNivel = [dados.correto, ...dados.distrator];
-    
-    // Salva a resposta correta no elemento do pássaro para verificação
-    palavraChaveElement.textContent = dados.chave;
-    palavraChaveElement.dataset.correto = dados.correto;
-
-    // Embaralha as palavras para que o correto não esteja sempre na mesma posição
-    palavrasNoNivel.sort(() => Math.random() - 0.5);
-
-    palavrasNoNivel.forEach((palavra, index) => {
-        const obstaculo = document.createElement('div');
-        obstaculo.className = 'quadrado-obstaculo';
-        obstaculo.textContent = palavra;
-
-        // Posição vertical aleatória
-        const topPos = Math.random() * (container.offsetHeight - 40);
-        obstaculo.style.top = topPos + 'px';
-
-        // Marca o quadrado correto para a lógica de colisão
-        if (palavra === dados.correto) {
-            obstaculo.classList.add('quadrado-correto');
+function removeBlockColumn(xPos) {
+    for (let i = blocks.length - 1; i >= 0; i--) {
+        if (blocks[i].x === xPos) {
+            blocks.splice(i, 1);
         }
-
-        container.appendChild(obstaculo);
-    });
+    }
 }
 
-// 5. Função de Colisão (simples)
-function detectarColisao(el1, el2) {
-    const rect1 = el1.getBoundingClientRect();
-    const rect2 = el2.getBoundingClientRect();
+// --- Desenha a palavra-chave no topo ---
+function drawKeyWord() {
+    if (gameState === 'playing' && currentWordSet) {
+        ctx.fillStyle = 'white';
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 6; 
+        ctx.font = "30px 'Press Start 2P', sans-serif"; 
+        ctx.textAlign = "center";
 
-    // Verifica se os retângulos se sobrepõem
-    return rect1.left < rect2.right &&
-           rect1.right > rect2.left &&
-           rect1.top < rect2.bottom &&
-           rect1.bottom > rect2.top;
+        const text = currentWordSet.chave;
+        
+        ctx.strokeText(text, canvas.width / 2, 120); 
+        ctx.fillText(text, canvas.width / 2, 120);
+        
+        ctx.fillStyle = 'black';
+        ctx.font = "16px sans-serif";
+        ctx.fillText("Busque o Sinônimo:", canvas.width / 2, 155); 
+    }
 }
 
-// 6. Fim de Jogo
-function fimDeJogo(mensagem) {
-    clearInterval(gameInterval);
-    clearInterval(obstaculoInterval);
-    jogoRodando = false;
-    mensagemJogo.textContent = `${mensagem} - Fim de Jogo! Pontuação Final: ${placar}. Clique para Recomeçar.`;
-    mensagemJogo.style.display = 'block';
+// --- Funções de Estado e Desenho (Atualizado o clearCanvas) ---
+
+function init() {
+    // ** CÁLCULO DINÂMICO DA ALTURA DO BLOCO (MANTIDO) **
+    const availableHeight = canvas.height - groundHeight;
+    const totalPadding = (totalBlocks - 1) * paddingY;
+    blockHeight = (availableHeight - totalPadding) / totalBlocks;
+
+    bird = new Bird();
+    blocks = [];
+    score = 0;
+    frames = 0;
+    gameState = 'start';
+    currentWordSet = { chave: "JOGAR", correto: "", distrator: [] }; 
+    drawStartScreen();
 }
 
-// 7. Troca a palavra do pássaro
-function trocarPalavraChave() {
-    // Remove o obstáculo anterior, precisamos de uma nova lógica de criação
-    // que garanta que o pássaro só troque de palavra DEPOIS de acertar UMA coluna de obstáculos.
-
-    // No código acima, o 'criarObstaculo' já seleciona a próxima palavra-chave.
-    // É uma implementação simples, mas que funciona para este protótipo.
+function drawStartScreen() { 
+    clearCanvas(); 
+    bird.draw();  
+    drawGround(); 
+    
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)"; 
+    ctx.fillRect(0, 0, canvas.width, canvas.height); 
+    
+    ctx.fillStyle = "white"; 
+    ctx.font = "36px 'Press Start 2P', sans-serif"; 
+    ctx.textAlign = "center"; 
+    ctx.fillText("VOA-PALAVRA", canvas.width / 2, canvas.height / 2 - 150); 
+    
+    ctx.font = "24px 'Press Start 2P', sans-serif"; 
+    ctx.fillText("Busque o Sinônimo!", canvas.width / 2, canvas.height / 2);
+    
+    ctx.font = "20px sans-serif"; 
+    ctx.fillText("Toque ou ESPAÇO para começar", canvas.width / 2, canvas.height / 2 + 100);
 }
 
-// --- EVENT LISTENERS ---
-container.addEventListener('click', pular);
+// ... (Outras funções de estado mantidas) ...
+
+function drawGameOverScreen(message) { 
+    clearCanvas(); 
+    blocks.forEach(block => block.draw()); 
+    bird.draw(); 
+    drawGround();
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.8)"; 
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#ff6b6b"; 
+    ctx.font = "40px 'Press Start 2P', sans-serif"; 
+    ctx.textAlign = "center"; 
+    ctx.fillText("ERRO!", canvas.width / 2, canvas.height / 2 - 180);
+
+    ctx.fillStyle = "white"; 
+    ctx.font = "18px sans-serif"; 
+    const lines = message.split('!').map(s => s.trim());
+    ctx.fillText(lines[0] + '!', canvas.width / 2, canvas.height / 2 - 60);
+    ctx.fillText(lines[1] ? lines[1].trim() : '', canvas.width / 2, canvas.height / 2 - 30);
+
+    ctx.fillStyle = "#ffe066"; 
+    ctx.font = "30px 'Press Start 2P', sans-serif"; 
+    ctx.fillText(`Pontos: ${score}`, canvas.width / 2, canvas.height / 2 + 80);
+
+    ctx.font = "20px sans-serif"; 
+    ctx.fillText("Toque para reiniciar", canvas.width / 2, canvas.height / 2 + 180);
+}
+
+
+function drawScore() {
+    ctx.fillStyle = "white";
+    ctx.font = "40px 'Press Start 2P', sans-serif"; 
+    ctx.textAlign = "center";
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 6;
+    ctx.strokeText(score, canvas.width - 80, 70); 
+    ctx.fillText(score, canvas.width - 80, 70);
+}
+
+function drawGround() {
+    ctx.fillStyle = groundColor;
+    ctx.fillRect(0, canvas.height - groundHeight, canvas.width, groundHeight);
+}
+
+/**
+ * NOVO: Desenha a imagem de fundo ou a cor de fallback.
+ */
+function clearCanvas() {
+    if (backgroundSpriteLoaded) {
+        // Desenha a imagem de fundo para preencher o canvas
+        ctx.drawImage(backgroundSprite, 0, 0, canvas.width, canvas.height);
+    } else {
+        // Fallback para cor sólida
+        ctx.fillStyle = SKY_COLOR;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+}
+
+function startGame() {
+    gameState = 'playing';
+    blocks = []; 
+    frames = 0; 
+    score = 0; 
+    bird.y = canvas.height / 2;
+    bird.velocity = 0;
+}
+
+function gameOver(message) {
+    if (gameState === 'gameover') return; 
+    gameState = 'gameover';
+    setTimeout(() => drawGameOverScreen(message), 50); 
+}
+
+function restartGame() {
+    if (gameState === 'gameover') {
+        init(); 
+    }
+}
+
+// --- Loop Principal ---
+function gameLoop() {
+    if (gameState === 'playing') {
+        clearCanvas(); // Agora desenha a imagem de fundo
+        frames++;
+
+        handleBlocks(); 
+        
+        drawKeyWord(); 
+        
+        bird.update(); 
+        bird.draw(); 
+        drawGround(); 
+        drawScore(); 
+    } 
+        
+    requestAnimationFrame(gameLoop);
+}
+
+// --- Controles (Mantidos) ---
+function handleInput() {
+    if (gameState === 'playing' || gameState === 'start') {
+        bird.flap();
+    } else if (gameState === 'gameover') {
+        restartGame();
+    }
+}
+
+canvas.addEventListener('click', handleInput);
+canvas.addEventListener('touchstart', function(event) {
+    event.preventDefault(); 
+    handleInput();
+});
+
+document.addEventListener('keydown', function(event) {
+    if (event.code === 'Space') {
+        event.preventDefault(); 
+        handleInput();
+    }
+});
+
+// --- Iniciar ---
+init(); 
+requestAnimationFrame(gameLoop);
