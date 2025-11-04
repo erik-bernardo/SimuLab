@@ -1,10 +1,12 @@
 // script.js
 
-// --- VARIÁVEIS GLOBAIS DE JOGO E CANVAS (Declaradas, mas não inicializadas aqui) ---
+// --- VARIÁVEIS GLOBAIS DE JOGO E CANVAS ---
 let canvas;
 let ctx;
 let bird, blocks, score, frames, gameState, currentWordSet;
-let backgroundX; // NOVO: Variável para controlar a posição do fundo
+let backgroundX; 
+let highscore = 0; 
+const highscoreKey = 'flappySinonimoHighscore'; 
 
 // --- SPRITE DO PÁSSARO ---
 const birdSprite = new Image();
@@ -14,7 +16,7 @@ birdSprite.onload = function() {
 };
 // *** MUDE ESTE CAMINHO PELO URL OU CAMINHO LOCAL DA SUA IMAGEM DO PÁSSARO ***
 birdSprite.src = 'bird.png'; 
-const BIRD_COLOR = '#ffda56'; // Fallback Color
+const BIRD_COLOR = '#ffda56'; 
 
 // --- SPRITE DE FUNDO ---
 const backgroundSprite = new Image();
@@ -24,82 +26,40 @@ backgroundSprite.onload = function() {
 };
 // *** MUDE ESTE CAMINHO PELO URL OU CAMINHO LOCAL DA SUA IMAGEM DE FUNDO ***
 backgroundSprite.src = 'bg.png'; 
-const SKY_COLOR = '#70c5ce'; // Fallback Color
+const SKY_COLOR = '#70c5ce'; 
 
-// --- DADOS DO JOGO (Banco de Sinônimos) ---
+// --- DADOS DO JOGO (Banco de Sinônimos - Palavras Comuns e Perfeitas) ---
 const bancoDePalavras = [    
-    { chave: "ALEGRE", correto: "FELIZ", distrator: ["TRISTE", "RÁPIDO", "FRIO"] },    
-    { chave: "RÁPIDO", correto: "VELOZ", distrator: ["LENTO", "GORDU", "ROXO"] },    
-    { chave: "INÍCIO", correto: "COMEÇO", distrator: ["FIM", "MEIO", "PARADA"] },    
-    { chave: "BELO", correto: "BONITO", distrator: ["FEIO", "SUJO", "FORTE"] },    
-    { chave: "AMPLIAR", correto: "AUMENTAR", distrator: ["DIMINUIR", "PARAR", "SUBIR"] },
+    // Sinônimos Perfeitos (do artigo e vocabulário)
+    { chave: "ALFABETO", correto: "ABECEDÁRIO", distrator: ["NÚMEROS", "GRAFITE", "SÍMBOLO"] },
+    { chave: "VOCABULÁRIO", correto: "LÉXICO", distrator: ["SINTAXE", "PROSA", "VERBO"] },
+    { chave: "LÍNGUA", correto: "IDIOMA", distrator: ["FALA", "SOTAQUE", "DIALETO"] }, 
+    { chave: "MATRIMÔNIO", correto: "CASAMENTO", distrator: ["DIVÓRCIO", "AMIZADE", "LAÇO"] },
+    { chave: "FALECER", correto: "MORRER", distrator: ["VIVER", "RENASCER", "EXISTIR"] },
+    { chave: "APÓS", correto: "DEPOIS", distrator: ["ANTES", "DURANTE", "HOJE"] },
+    { chave: "BELO", correto: "BONITO", distrator: ["FEIO", "ESTRANHO", "SUJO"] },
     
-    { chave: "CALMO", correto: "SERENO", distrator: ["AGITADO", "BRAVO", "PERTO"] },    
-    { chave: "BRILHO", correto: "ESPLENDOR", distrator: ["ESCURIDÃO", "FUMAÇA", "BARULHO"] },    
-    { chave: "LIVRE", correto: "SOLTO", distrator: ["PRESO", "VERDE", "LONGE"] },    
-    { chave: "GRANDE", correto: "ENORME", distrator: ["PEQUENO", "AZUL", "RARO"] },    
-    { chave: "CORRETO", correto: "CERTO", distrator: ["ERRADO", "DUVIDOSO", "LENTO"] },    
-    { chave: "FÁCIL", correto: "SIMPLES", distrator: ["DIFÍCIL", "COMPLEXO", "CLARO"] },    
-    { chave: "IDEIA", correto: "NOÇÃO", distrator: ["OBJETO", "FATO", "SONO"] },    
-    { chave: "JUNTAR", correto: "UNIR", distrator: ["SEPARAR", "QUEBRAR", "AFASTAR"] },    
-    { chave: "MUDAR", correto: "ALTERAR", distrator: ["MANTER", "FIXAR", "CRIAR"] },    
-    { chave: "NOVO", correto: "RECENTE", distrator: ["VELHO", "ANTIGO", "FORTE"] },    
+    // Sinônimos Comuns (Alta Precisão)
+    { chave: "ALEGRE", correto: "FELIZ", distrator: ["TRISTE", "CALMO", "IRRITADO"] },    
+    { chave: "RÁPIDO", correto: "VELOZ", distrator: ["LENTO", "DEVAGAR", "PARADO"] },    
+    { chave: "INÍCIO", correto: "COMEÇO", distrator: ["FIM", "MEIO", "PARADA"] },    
+    { chave: "AMPLIAR", correto: "AUMENTAR", distrator: ["DIMINUIR", "REDUZIR", "FECHAR"] },
+    { chave: "CALMO", correto: "SERENO", distrator: ["AGITADO", "BRAVO", "NERVOSO"] },    
+    { chave: "GRANDE", correto: "ENORME", distrator: ["PEQUENO", "MINÚSCULO", "CURTO"] },    
+    { chave: "CORRETO", correto: "CERTO", distrator: ["ERRADO", "FALSO", "DUVIDOSO"] },    
+    { chave: "FÁCIL", correto: "SIMPLES", distrator: ["DIFÍCIL", "COMPLEXO", "COMPLICADO"] },    
+    { chave: "JUNTAR", correto: "UNIR", distrator: ["SEPARAR", "DIVIDIR", "QUEBRAR"] },    
+    { chave: "MUDAR", correto: "ALTERAR", distrator: ["MANTER", "FIXAR", "PRESERVAR"] },    
+    { chave: "NOVO", correto: "RECENTE", distrator: ["VELHO", "ANTIGO", "PASSADO"] },    
     { chave: "PAZ", correto: "TRANQUILIDADE", distrator: ["GUERRA", "CAOS", "BARULHO"] },    
-    { chave: "FRIO", correto: "DESANIMADO", distrator: ["GELADO", "FRIO", "PESADO"] },    
     { chave: "SUBIR", correto: "ASCENDER", distrator: ["DESCER", "CAIR", "PARAR"] },    
     { chave: "TERMINAR", correto: "FINALIZAR", distrator: ["COMEÇAR", "INICIAR", "PROLONGAR"] },    
     { chave: "VERDADE", correto: "SINCERIDADE", distrator: ["MENTIRA", "FALSIDADE", "DUVIDA"] },    
-    { chave: "VIAGEM", correto: "JORNADA", distrator: ["PARADA", "ESTADIA", "VOLTA"] },    
     { chave: "FORTE", correto: "POTENTE", distrator: ["FRACO", "FRÁGIL", "SUAVE"] },    
-    { chave: "COMER", correto: "ALIMENTAR", distrator: ["VENENOSO", "DURO", "MOLHADO"] },    
-    { chave: "ADVERSIDADE", correto: "PROBLEMA", distrator: ["FACILIDADE", "BEM", "ALEGRIA"] },    
-    { chave: "CONHECER", correto: "SABER", distrator: ["IGNORAR", "ESQUECER", "FALAR"] },    
-    { chave: "DESEJAR", correto: "QUERER", distrator: ["REJEITAR", "RECUSAR", "NEGAR"] },    
-    { chave: "ECONOMIZAR", correto: "POUPAR", distrator: ["GASTAR", "DEIXAR", "DURAR"] },    
-    { chave: "FALHAR", correto: "ERRAR", distrator: ["ACERTAR", "VENCER", "PERDER"] },    
-    { chave: "GENTIL", correto: "CORTÊS", distrator: ["RUDE", "BRUTO", "FORTE"] },    
-    { chave: "HABITAR", correto: "MORAR", distrator: ["SAIR", "PASSAR", "VISITAR"] },    
-    { chave: "IRADO", correto: "ENFURECIDO", distrator: ["CONTENTE", "CALMO", "LENTO"] },    
-    { chave: "JUSTO", correto: "ÍGREGRO", distrator: ["INJUSTO", "PARCIAL", "PESADO"] },    
-    { chave: "LÍMPIDO", correto: "CRISTALINO", distrator: ["SUJO", "TURVO", "VELHO"] },    
-    { chave: "MAGNÍFICO", correto: "EXCELENTE", distrator: ["RUIM", "COMUM", "PEQUENO"] },    
-    { chave: "NECESSÁRIO", correto: "ESSENCIAL", distrator: ["DISPENSÁVEL", "EXTRA", "VERDE"] },    
-    { chave: "OBSERVAR", correto: "NOTAR", distrator: ["IGNORAR", "FALAR", "PULAR"] },    
-    { chave: "PERMITIR", correto: "AUTORIZAR", distrator: ["PROIBIR", "IMPEDIR", "PARAR"] },    
-    { chave: "PROTEGER", correto: "DEFENDER", distrator: ["ATACAR", "ABANDONAR", "QUEBRAR"] },    
-    { chave: "REVELAR", correto: "MOSTRAR", distrator: ["ESCONDER", "GUARDAR", "MUDAR"] },    
-    { chave: "SÁBIO", correto: "CULTIVADO", distrator: ["IGNORANTE", "JOVEM", "PESSIMO"] },    
-    { chave: "SUCESSO", correto: "ÊXITO", distrator: ["FRACASSO", "DERROTA", "ERRO"] },    
-    { chave: "TEMOR", correto: "MEDO", distrator: ["CORAGEM", "ALEGRIA", "PAZ"] },    
-    { chave: "ÚNICO", correto: "EXCLUSIVO", distrator: ["COMUM", "MÚLTIPLO", "MISTO"] },    
-    { chave: "VENCEDOR", correto: "TRIUNFANTE", distrator: ["PERDEDOR", "DERROTADO", "TRISTE"] },    
-    { chave: "ZOMBAR", correto: "CAÇOAR", distrator: ["ELOGIAR", "RESPEITAR", "AMAR"] },    
-    { chave: "INDO", correto: "PARTINDO", distrator: ["FICANDO", "CHEGANDO", "VOLTANDO"] },    
-    { chave: "COMPLICADO", correto: "EMBARAÇADO", distrator: ["DESCOMPLICADO", "FÁCIL", "SIMPLES"] },    
-    { chave: "BARULHO", correto: "RUÍDO", distrator: ["SILÊNCIO", "PAZ", "CALMO"] },    
-    { chave: "CEDO", correto: "PRECOCEMENTE", distrator: ["TARDE", "DEPOIS", "NUNCA"] },    
-    { chave: "DÚVIDA", correto: "INCERTEZA", distrator: ["CERTEZA", "VERDADE", "FATO"] },    
-    { chave: "ELOGIO", correto: "LOUVOR", distrator: ["CRÍTICA", "ATAQUE", "ERRO"] },    
-    { chave: "FRACO", correto: "FRÁGIL", distrator: ["FORTE", "RESISTENTE", "GRANDE"] },    
-    { chave: "GRITARIA", correto: "BERRARIA", distrator: ["SUSSURRO", "SILÊNCIO", "PAZ"] },    
-    { chave: "HOMENAGEM", correto: "TRIBUTO", distrator: ["ATAQUE", "CRÍTICA", "PUNIR"] },    
-    { chave: "ILUMINAR", correto: "CLAREAR", distrator: ["ESURECER", "COBRIR", "APAGAR"] },    
-    { chave: "JOGAR", correto: "LANÇAR", distrator: ["PEGAR", "GUARDAR", "PARAR"] },    
-    { chave: "LAMENTAR", correto: "LASTIMAR", distrator: ["ALEGRAR", "COMEMORAR", "SORRIR"] },    
-    { chave: "MESTRE", correto: "PROFESSOR", distrator: ["ALUNO", "APRENDIZ", "INICIANTE"] },    
-    { chave: "NECESSIDADE", correto: "CARÊNCIA", distrator: ["ABUNDÂNCIA", "EXCESSO", "RIQUEZA"] },    
-    { chave: "OCULTAR", correto: "ESCONDER", distrator: ["MOSTRAR", "REVELAR", "EXPOR"] },    
-    { chave: "PARTILHAR", correto: "COMPARTILHAR", distrator: ["RETER", "GUARDAR", "COMPRAR"] },    
-    { chave: "RECLAMAR", correto: "QUEIXAR", distrator: ["ELOGIAR", "ACEITAR", "CONCORDAR"] },    
-    { chave: "SORRIR", correto: "RIR", distrator: ["CHORAR", "TRISTE", "GRITAR"] },    
-    { chave: "TREMOR", correto: "ABALO", distrator: ["FIRMEZA", "PAZ", "FORTE"] },    
-    { chave: "VALOR", correto: "PREÇO", distrator: ["VAZIO", "GRÁTIS", "ERRO"] },    
-    { chave: "PREJUDICAR", correto: "DANIFICAR", distrator: ["AJUDAR", "REPARAR", "LOUVAR"] },    
-    { chave: "ESQUECER", correto: "OLVIDAR", distrator: ["LEMBRAR", "REGISTRAR", "FALAR"] },    
-    { chave: "REPETIR", correto: "REITERAR", distrator: ["PARAR", "CALAR", "SILENCIAR"] },    
+    { chave: "DESISTIR", correto: "ABANDONAR", distrator: ["INSISTIR", "CONTINUAR", "COMEÇAR"] },    
+    { chave: "IRADO", correto: "ENFURECIDO", distrator: ["CONTENTE", "CALMO", "FELIZ"] },    
     { chave: "CHEGAR", correto: "ATINGIR", distrator: ["SAIR", "PARTIR", "CAIR"] },    
-    { chave: "RESIDIR", correto: "MORAR", distrator: ["VISITAR", "VIAJAR", "PULAR"] },    
-    { chave: "DESISTIR", correto: "ABANDONAR", distrator: ["INSISTIR", "CONTINUAR", "COMEÇAR"] }
+    { chave: "RESIDIR", correto: "MORAR", distrator: ["VISITAR", "VIAJAR", "PASSAR"] }
 ];
 
 // --- Variáveis Globais Otimizadas para 800x1000 ---
@@ -193,10 +153,10 @@ function WordBlock(word, isCorrect, yPos) {
     this.isColumnBase = false; 
     
     this.draw = function() {
-        ctx.fillStyle = this.isCorrect ? '#ffda56' : '#ffda56'; 
+        ctx.fillStyle = this.isCorrect ? '#50e3c2' : '#f0f0f0'; 
         ctx.fillRect(this.x, this.y, this.width, this.height);
 
-        ctx.strokeStyle = this.isCorrect ? '#ffda56' : '#ffda56'; 
+        ctx.strokeStyle = this.isCorrect ? '#3cb44b' : '#333333'; 
         ctx.lineWidth = 4;
         ctx.strokeRect(this.x, this.y, this.width, this.height);
 
@@ -211,7 +171,7 @@ function WordBlock(word, isCorrect, yPos) {
     }
 }
 
-// --- Lógica de Colisão e Geração (Mantida) ---
+// --- Lógica de Colisão e Geração ---
 function handleBlocks() {    
     // 1. Geração de Nova Coluna     
     if (frames % blockFrequency === 0) {
@@ -311,6 +271,19 @@ function drawKeyWord() {
     }
 }
 
+// --- Funções de Recorde (Highscore) ---
+function loadHighscore() { 
+    const storedScore = localStorage.getItem(highscoreKey);
+    highscore = storedScore ? parseInt(storedScore) : 0;
+}
+
+function saveHighscore(newScore) { 
+    if (newScore > highscore) {
+        highscore = newScore;
+        localStorage.setItem(highscoreKey, newScore.toString());
+    }
+}
+
 // --- Funções de Estado e Desenho ---
 
 function init() {
@@ -326,14 +299,12 @@ function init() {
     gameState = 'start';
     currentWordSet = { chave: "JOGAR", correto: "", distrator: [] }; 
     
-    backgroundX = 0; // NOVO: Inicializa a posição do fundo
+    backgroundX = 0; 
+    loadHighscore(); 
     
     drawStartScreen();
 }
 
-/**
- * NOVO: Desenha a imagem de fundo em loop ou a cor de fallback.
- */
 function clearCanvas() {
     if (backgroundSpriteLoaded) {
         // Desenha a imagem principal (Loop 1)
@@ -365,6 +336,11 @@ function drawStartScreen() {
     
     ctx.font = "20px sans-serif"; 
     ctx.fillText("Toque ou ESPAÇO para começar", canvas.width / 2, canvas.height / 2 + 100);
+    
+    // Exibe o Recorde na tela inicial
+    ctx.fillStyle = "#ffe066"; 
+    ctx.font = "18px 'Press Start 2P', sans-serif"; 
+    ctx.fillText(`Recorde: ${highscore}`, canvas.width / 2, canvas.height / 2 + 180);
 }
 
 
@@ -392,12 +368,18 @@ function drawGameOverScreen(message) {
     ctx.font = "30px 'Press Start 2P', sans-serif"; 
     ctx.fillText(`Pontos: ${score}`, canvas.width / 2, canvas.height / 2 + 80);
 
+    // Exibe o Recorde na tela de Game Over
+    ctx.fillStyle = "white";
+    ctx.font = "20px 'Press Start 2P', sans-serif"; 
+    ctx.fillText(`Recorde: ${highscore}`, canvas.width / 2, canvas.height / 2 + 130);
+
     ctx.font = "20px sans-serif"; 
-    ctx.fillText("Toque para reiniciar", canvas.width / 2, canvas.height / 2 + 180);
+    ctx.fillText("Toque para reiniciar", canvas.width / 2, canvas.height / 2 + 230);
 }
 
 
 function drawScore() {
+    // Desenha a Pontuação Atual (Canto Superior Direito)
     ctx.fillStyle = "white";
     ctx.font = "40px 'Press Start 2P', sans-serif"; 
     ctx.textAlign = "center";
@@ -405,6 +387,15 @@ function drawScore() {
     ctx.lineWidth = 6;
     ctx.strokeText(score, canvas.width - 80, 70); 
     ctx.fillText(score, canvas.width - 80, 70);
+
+    // Desenha o Recorde (Canto Superior Esquerdo)
+    ctx.font = "16px sans-serif";
+    ctx.textAlign = "left";
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 4;
+    const hsText = `Recorde: ${highscore}`;
+    ctx.strokeText(hsText, 30, 40);
+    ctx.fillText(hsText, 30, 40);
 }
 
 function drawGround() {
@@ -425,6 +416,9 @@ function startGame() {
 function gameOver(message) {
     if (gameState === 'gameover') return; 
     gameState = 'gameover';
+    
+    saveHighscore(score); 
+    
     setTimeout(() => drawGameOverScreen(message), 50); 
 }
 
@@ -438,12 +432,11 @@ function restartGame() {
 function gameLoop() {
     if (gameState === 'playing') {
         
-        // NOVO: Movimenta e repete o fundo (Parallax)
+        // Movimenta e repete o fundo (Parallax)
         if (backgroundSpriteLoaded) {
-            const bgSpeedFactor = 0.3; // Velocidade de movimento do fundo (30% da velocidade dos blocos)
+            const bgSpeedFactor = 0.3; 
             backgroundX -= blockSpeed * bgSpeedFactor;
             
-            // Quando a primeira imagem sair da tela, reseta para 0
             if (backgroundX <= -canvas.width) {
                 backgroundX = 0;
             }
@@ -475,7 +468,7 @@ function handleInput() {
 }
 
 
-// --- BLOCO DE INICIALIZAÇÃO SEGURO (Executado após o DOM carregar) ---
+// --- BLOCO DE INICIALIZAÇÃO SEGURO ---
 document.addEventListener('DOMContentLoaded', function() {
     canvas = document.getElementById('flappyCanvas');
     
