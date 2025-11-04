@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimuLab: Jogos para Programação e Lógica</title>
-        <link rel="icon" type="image/png" href="logo-icon.png"> 
+    <title>SimuLab: Jogos Educativos</title>
+    
+    <link rel="icon" type="image/png" href="logo-icon.png"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css"> 
+    
     <style>
         /* ----------------------------------- */
         /* RESET BÁSICO E ESTILOS GERAIS (Reutilizados) */
@@ -16,9 +20,7 @@
             padding: 0; 
             background-color: #f8f8f8; 
             color: #333; 
-        }
-        
-      
+        }                              
         
         .nav-links {
             display: flex;
@@ -40,12 +42,12 @@
             border-bottom: 3px solid transparent;
         }
 
-        /* Os jogos não estão na navegação principal, então vamos usar a aba RECURSOS como ativa */
-        .nav-link[href="recursos.html"] {
+        /* Simulação de link de navegação ativo */
+        .nav-link[href="jogos.html"] { 
             color: #D2691E;
             border-bottom: 3px solid #D2691E;
             background-color: #f0f0f0;
-        }
+        }                
         
         .hero-button {
             background-color: #D2691E;
@@ -63,7 +65,6 @@
         /* ----------------------------------- */
         /* ESTILOS ESPECÍFICOS DE 'JOGOS' */
         /* ----------------------------------- */
-
         .content-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -96,17 +97,47 @@
             margin-bottom: 40px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             text-align: center;
-        }
+        }                
         
         .intro-box p {
             font-size: 1.1em;
             color: #555;
             line-height: 1.6;
         }
+        
+        /* NOVO: Estilos para as Seções de Matérias */
+        .subject-section {
+            margin-bottom: 60px;
+            padding-top: 20px;
+            border-top: 1px dashed #D2691E;
+        }
+        
+        .subject-section:first-child {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .subject-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            color: #D2691E;
+        }
+        
+        .subject-header i {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+        
+        .subject-header h2 {
+            font-size: 2em;
+            margin: 0;
+            color: #333;
+        }
 
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
         }
 
@@ -118,6 +149,7 @@
             transition: transform 0.3s, box-shadow 0.3s;
             display: flex;
             flex-direction: column;
+            min-height: 250px; /* Altura mínima para padronizar */
         }
 
         .game-card:hover {
@@ -128,7 +160,9 @@
         .game-content {
             padding: 25px;
             flex-grow: 1;
-        }
+            display: flex;
+            flex-direction: column;
+        }                
         
         .game-status {
             font-size: 0.9em;
@@ -137,14 +171,14 @@
             border-radius: 3px;
             display: inline-block;
             margin-bottom: 10px;
+            align-self: flex-start; /* Alinha a tag à esquerda */
         }
 
-        .status-ready { background-color: #e6ffe6; color: #008000; border: 1px solid #008000; }
+        .status-ready { background-color: #e6ffe6; color: #008000; border: 1px solid #008000; }        
         .status-dev { background-color: #fff0e6; color: #D2691E; border: 1px solid #D2691E; }
 
-
-        .game-content h2 {
-            font-size: 1.6em;
+        .game-content h3 { /* Mudado de h2 para h3 */
+            font-size: 1.4em;
             color: #333;
             margin-top: 0;
             margin-bottom: 10px;
@@ -154,8 +188,8 @@
             color: #555;
             line-height: 1.6;
             margin-bottom: 20px;
-        }
-        
+        }                
+
         .game-content .access-button {
             display: block;
             text-align: center;
@@ -168,16 +202,16 @@
             transition: background-color 0.3s;
             margin-top: auto; /* Garante que o botão fique no final */
         }
-
+        
         .game-content .access-button:hover {
             background-color: #333;
         }
-
+        
         .game-content .access-button.disabled {
             background-color: #ccc;
             cursor: not-allowed;
-        }
-        
+        }                
+
         .game-tech {
             padding: 15px 25px;
             background-color: #f7f7f7;
@@ -187,127 +221,211 @@
         }
     </style>
 </head>
-<body>
-   
-
+<body>   
     <main class="content-container">
         
         <div class="page-header">
-            <h1>🎮 Gamificação: Jogos para Lógica e Programação</h1>
-            <p>Aprenda os fundamentos do desenvolvimento de software e lógica de forma interativa e divertida.</p>
+            <h1>🎮 Gamificação: Jogos Educativos e Lógicos</h1>
+            <p>Aprenda, revise e domine conceitos de todas as matérias de forma interativa e dinâmica.</p>
         </div>
 
         <div class="intro-box">
             <p>
-                Os jogos desta seção são projetos internos do SimuLab, criados por alunos para alunos. Nosso foco não é apenas o entretenimento, mas sim **desmistificar a programação**. Ao jogar, você estará aplicando, mesmo que indiretamente, conceitos de lógica, variáveis, condicionais e repetição essenciais no mundo da tecnologia.
+                Explore nossa biblioteca de jogos, criados para transformar o estudo em uma jornada divertida. De sinônimos a estruturas de programação, o SimuLab é seu laboratório de aprendizado!
             </p>
-            <a href="codeTester.html" class="hero-button" style="margin-top: 15px;">Experimente a Programação no Code Tester!</a>
+            <a href="codeTester.html" class="hero-button" style="margin-top: 15px;">Acesse o Code Tester <i class="fas fa-code"></i></a>
         </div>
 
-        <section class="games-grid">
-            
-            <div class="game-card">
-                <div class="game-content">
-                    <span class="game-status status-dev">Em desenvolvimento</span>
-                    <h2>Corredor de Condicionais (If/Else)</h2>
-                    <p>
-                        Controle um personagem que deve passar por portas usando apenas comandos condicionais (`IF`, `ELSE IF`, `ELSE`). Um desafio divertido para entender como o JavaScript toma decisões.
-                    </p>
-                    <a href="#" class="access-button disabled">Em Breve</a>
+        <section class="subject-section">
+            <div class="subject-header">
+                <i class="fas fa-book-open"></i>
+                <h2>Língua Portuguesa e Literatura</h2>
+            </div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponível</span>
+                        <h3>Voa-Palavra: Sinônimos Perfeitos</h3>
+                        <p>
+                            Controle o pássaro e colete o sinônimo perfeito da palavra-chave. Um desafio de reflexo e vocabulário para dominar a semântica.
+                        </p>
+                        <a href="games/flappy-words/index.html" class="access-button">Jogar Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Semântica (Sinônimos Perfeitos) | **Nível:** Ensino Fundamental II / Médio
+                    </div>
                 </div>
-                <div class="game-tech">
-                    **Foco:** Estruturas Condicionais | **Linguagem:** JavaScript
+
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-dev">Em desenvolvimento</span>
+                        <h3>Cobras EScadas</h3>
+                        <p>
+                            Conjuge o verbo corretamente no tempo e modo solicitados antes que o tempo acabe. Pratique a morfologia verbal de forma rápida.
+                        </p>
+                        <a href="games/escada/index.html" class="access-button">Jogar Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Morfologia Verbal (Conjugação) | **Nível:** Ensino Fundamental II
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <div class="game-card">
-                <div class="game-content">
-                    <span class="game-status status-dev">Em Desenvolvimento</span>
-                    <h2>Quebra-Cabeça de Tags HTML</h2>
-                    <p>
-                        Monte a estrutura correta de uma página web arrastando e soltando tags HTML (`<header>`, `<body>`, `<footer>`). Entenda a hierarquia e a organização visual dos elementos.
-                    </p>
-                    <a href="#" class="access-button disabled">Em Breve</a>
+        <section class="subject-section">
+            <div class="subject-header">
+                <i class="fas fa-terminal"></i>
+                <h2>Programação e Lógica</h2>
+            </div>
+            <div class="games-grid">
+                
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponível</span>
+                        <h3>Labirinto de Loops (For/While)</h3>
+                        <p>
+                            Programe o caminho do robô pelo labirinto usando o menor número possível de comandos de repetição. Desafio da eficiência.
+                        </p>
+                        <a href="games/labirinto.html" class="access-button">Jogar Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Estruturas de Repetição | **Linguagem:** JavaScript
+                    </div>
                 </div>
-                <div class="game-tech">
-                    **Foco:** Estrutura Web (DOM) | **Linguagem:** HTML/CSS
+                
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-dev">Em desenvolvimento</span>
+                        <h3>Corredor de Condicionais (If/Else)</h3>
+                        <p>
+                            Use comandos condicionais para guiar um personagem pelas portas corretas. Entenda como o código toma decisões.
+                        </p>
+                        <a href="#" class="access-button disabled">Em Breve</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Estruturas Condicionais | **Linguagem:** JavaScript
+                    </div>
+                </div>
+                
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Em Desenvolvimento</span>
+                        <h3>Seu-FlappyBird: Gravidade e Variáveis</h3>
+                        <p>
+                            Aprenda a simular a gravidade e o movimento em 2D, manipulando variáveis de posição (eixos X e Y) dentro do **Loop de Jogo**.
+                        </p>
+                        <a href="games/flappy-blocks/index.html" class="access-button">Em Desenvolvimento</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Variáveis, Gravidade e Movimento | **Linguagem:** JavaScript/Canvas
+                    </div>
+                </div>
+
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponível</span>
+                        <h3>Seu-Akinator: Árvore de Decisão</h3>
+                        <p>
+                            Explore a lógica por trás de jogos de adivinhação, construindo uma **Árvore de Decisão** eficiente com condicionais aninhadas.
+                        </p>
+                        <a href="games/make-your-akinator.html" class="access-button">Faça o seu agora</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Lógica Condicional Aninhada | **Linguagem:** JavaScript
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+
+        <section class="subject-section">
+            <div class="subject-header">
+                <i class="fas fa-calculator"></i>
+                <h2>Matemática e Física</h2>
+            </div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-dev">Em desenvolvimento</span>
+                        <h3>Duelos de Cálculo Mental</h3>
+                        <p>
+                            Responda a equações de adição, subtração, multiplicação e divisão com tempo limitado. Um jogo rápido para aprimorar o cálculo mental.
+                        </p>
+                        <a href="#" class="access-button disabled">Em Breve</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Operações Básicas | **Nível:** Ensino Fundamental / Médio
+                    </div>
+                </div>
+                
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-dev">Em Desenvolvimento</span>
+                        <h3>Seu-Pong: Colisão e Rebatimento</h3>
+                        <p>
+                            Domine o cálculo de colisão e as regras de rebatimento (inversão de velocidade) em 2D. Essencial para simulações de física.
+                        </p>
+                        <a href="#" class="access-button disabled">Em Desemvolvimento</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Colisão e Vetores de Movimento | **Linguagem:** JavaScript/Canvas
+                    </div>
                 </div>
             </div>
-
-            <div class="game-card">
-                <div class="game-content">
-                    <span class="game-status status-ready">Em Desenvolvimento</span>
-                    <h2>Labirinto de Loops (For/While)</h2>
-                    <p>
-                        Programe o caminho do robô pelo labirinto usando o menor número possível de comandos de repetição (`FOR` e `WHILE`). Otimize seu código e vença o desafio da eficiência.
-                    </p>
-                    <a href="games/labirinto.html" class="access-button">Jogar Agora</a>
+        </section>
+        
+        <section class="subject-section">
+            <div class="subject-header">
+                <i class="fas fa-globe-americas"></i>
+                <h2>Ciências Humanas e Sociais</h2>
+            </div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-dev">Em desenvolvimento</span>
+                        <h3>Adivinhe a Bandeira</h3>
+                        <p>
+                            Teste seus conhecimentos de geografia e história, identificando bandeiras e capitais do mundo todo em um quiz rápido.
+                        </p>
+                        <a href="#" class="access-button disabled">Em Breve</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Geografia, História (Bandeiras, Capitais) | **Nível:** Todos
+                    </div>
                 </div>
-                <div class="game-tech">
-                    **Foco:** Estruturas de Repetição | **Linguagem:** JavaScript
+                
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-dev">Em desenvolvimento</span>
+                        <h3>Linha do Tempo (Timeline)</h3>
+                        <p>
+                            Organize eventos históricos na ordem cronológica correta para desvendar a história. Pratique a contextualização histórica.
+                        </p>
+                        <a href="#" class="access-button disabled">Em Breve</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Cronologia e Contexto Histórico | **Nível:** Ensino Médio
+                    </div>
                 </div>
             </div>
-
-            <hr style="grid-column: 1 / -1; border-top: 1px dashed #D2691E; margin: 20px 0;">
-            <h2 style="grid-column: 1 / -1; text-align: center; color: #555;">Projetos Clássicos para Desconstruir a Lógica</h2>
-
-            <div class="game-card">
-                <div class="game-content">
-                    <span class="game-status status-ready">Disponivel</span>
-                    <h2>Seu-Akinator: Árvore de Decisão</h2>
-                    <p>
-                        Explore a lógica por trás de jogos de adivinhação. O "Seu-Akinator" ensina como construir uma **Árvore de Decisão** eficiente usando condicionais aninhadas (`IF` dentro de `IF`), fundamental para inteligência artificial básica.
-                    </p>
-                    <a href="games/make-your-akinator.html" class="access-button">Faça o seu agora</a>
-                </div>
-                <div class="game-tech">
-                    **Foco:** Lógica Condicional Aninhada | **Linguagem:** JavaScript
-                </div>
-            </div>
-
-            <div class="game-card">
-                <div class="game-content">
-                    <span class="game-status status-ready">Em Desenvolvimento</span>
-                    <h2>Seu-FlappyBird: Introdução à Física</h2>
-                    <p>
-                        Aprenda a simular a gravidade e o movimento em 2D. Este jogo é perfeito para entender a manipulação de variáveis de posição (eixos X e Y) e o conceito de **Loop de Jogo** que atualiza o estado da tela.
-                    </p>
-                    <a href="games/flappy-blocks/index.html" class="access-button">Em Desenvolvimento</a>
-                </div>
-                <div class="game-tech">
-                    **Foco:** Variáveis, Gravidade e Movimento | **Linguagem:** JavaScript/Canvas
+        </section>
+        
+        <section class="subject-section" style="border: none; padding-top: 0;">
+             <div class="games-grid">
+                <div class="game-card" style="border: 2px dashed #D2691E; grid-column: 1 / -1;">
+                    <div class="game-content" style="align-items: center; text-align: center;">
+                        <span class="game-status status-dev">Seja um Criador</span>
+                        <h3 style="font-size: 1.8em;">Crie Seu Próprio Jogo para o SimuLab!</h3>
+                        <p style="max-width: 600px;">
+                            Usando o Code Tester e os conceitos que você aprendeu, crie seu mini-jogo (educativo ou de lógica) e submeta-o. Seu trabalho pode ser o próximo destaque da plataforma!
+                        </p>
+                        <a href="codeTester.html" class="access-button" style="background-color: #D2691E; width: 50%; margin-top: 15px;">Começar a Criar <i class="fas fa-code"></i></a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Criatividade e Aplicação Prática | **Linguagem:** HTML/CSS/JS
+                    </div>
                 </div>
             </div>
-
-            <div class="game-card">
-                <div class="game-content">
-                    <span class="game-status status-dev">Em Desenvolvimento</span>
-                    <h2>Seu-Pong: Colisão e Rebatimento</h2>
-                    <p>
-                        O clássico dos clássicos! Construa o "Pong" para dominar o cálculo de colisão entre objetos e as regras de rebatimento (inversão da velocidade). Essencial para qualquer simulação de física.
-                    </p>
-                    <a href="games/#" class="access-button disabled">Em Desemvolvimento</a>
-                </div>
-                <div class="game-tech">
-                    **Foco:** Colisão e Vetores de Movimento | **Linguagem:** JavaScript/Canvas
-                </div>
-            </div>
-            
-            <div class="game-card" style="border: 2px dashed #D2691E;">
-                <div class="game-content">
-                    <span class="game-status status-dev">Projeto Futuro</span>
-                    <h2>Crie Seu Próprio Jogo!</h2>
-                    <p>
-                        Usando o Code Tester e os conceitos que você aprendeu aqui, crie seu primeiro mini-jogo e submeta-o ao SimuLab. Seu trabalho pode ser o próximo destaque da plataforma!
-                    </p>
-                    <a href="codeTester.html" class="access-button" style="background-color: #D2691E;">Começar a Criar <i class="fas fa-code"></i></a>
-                </div>
-                <div class="game-tech">
-                    **Foco:** Criatividade e Aplicação Prática | **Linguagem:** HTML/JS
-                </div>
-            </div>
-
-
         </section>
         
     </main>
