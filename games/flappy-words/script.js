@@ -313,7 +313,7 @@ function drawKeyWord() {
 // --- Funções de Estado e Desenho ---
 
 function init() {
-    // ** CÁLCULO DINÂMICO DA ALTURA DO BLOCO (MANTIDO) **
+    // ** CÁLCULO DINÂMICO DA ALTURA DO BLOCO **
     const availableHeight = canvas.height - groundHeight;
     const totalPadding = (totalBlocks - 1) * paddingY;
     blockHeight = (availableHeight - totalPadding) / totalBlocks;
@@ -455,9 +455,9 @@ function handleInput() {
 
 // --- BLOCO DE INICIALIZAÇÃO SEGURO (Executado após o DOM carregar) ---
 document.addEventListener('DOMContentLoaded', function() {
+    // AQUI O CANVAS É INICIALIZADO DE FORMA SEGURA
     canvas = document.getElementById('flappyCanvas');
     
-    // Verificação de segurança
     if (!canvas) {
         console.error("Erro: O elemento CANVAS com o ID 'flappyCanvas' não foi encontrado. Verifique se o arquivo index.html está estruturado corretamente.");
         return; 
@@ -465,7 +465,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     ctx = canvas.getContext('2d');
     
-    // Configura os ouvintes de eventos
+    // Configura os ouvintes de eventos (agora o 'canvas' não é null)
     canvas.addEventListener('click', handleInput);
     canvas.addEventListener('touchstart', function(event) {
         event.preventDefault(); 
