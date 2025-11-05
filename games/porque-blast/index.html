@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Porquê Blast: O Desafio Gramatical</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        <div id="header">
+            <div>
+                <span class="label">PONTOS:</span>
+                <span id="score-value">0</span>
+            </div>
+            <div id="lives-display">
+                <span class="label">VIDAS:</span>
+                <span id="life-value">❤️❤️❤️</span>
+            </div>
+        </div>
+
+        <canvas id="game-canvas" width="600" height="800"></canvas>
+
+        <div id="card-dom-container" class="card-dom-container">
+            <div class="card-text-part" id="card-part-start"></div>
+            <div class="card-text-gap" id="card-part-gap"> (____) </div>
+            <div class="card-text-part" id="card-part-end"></div>
+        </div>
+        
+        <div id="feedback-box" class="overlay">
+            <h2 id="message-text">PORQUÊ BLAST: O DESAFIO GRAMATICAL</h2>
+            <p id="rule-tip">Use as teclas **SETA ESQUERDA/DIREITA (ou 1-4)** para selecionar a munição correta.<br>Atire no inimigo com a **BARRA DE ESPAÇO** antes que ele passe do canhão!</p>
+            <button id="restart-button">COMEÇAR (ENTER)</button>
+        </div>
+
+        <div id="game-over-screen" class="overlay hidden">
+            <h2>GAME OVER</h2>
+            <p>Pontuação Final: <span id="final-score">0</span></p>
+            <button id="retry-button">Tentar Novamente (ENTER)</button>
+        </div>
+
+        <div id="educational-tip-box" class="tip-overlay">
+            <p id="tip-text"></p>
+        </div>
+        
+    </div>
+
+    <div id="municao-map">
+        <div class="municao-item">1/<-: <span class="municao-label por_que">Por que</span> (Pergunta/Pronome)</div>
+        <div class="municao-item">2: <span class="municao-label porque">Porque</span> (Resposta/Explicação)</div>
+        <div class="municao-item">3: <span class="municao-label por_que_acento">Por quê</span> (Final de Frase)</div>
+        <div class="municao-item">4/->: <span class="municao-label o_porque">O porquê</span> (Substantivo/Motivo)</div>
+    </div>
+
+    <script src="porquê_blast.js"></script>
+</body>
+</html>
