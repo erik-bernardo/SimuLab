@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inspetor Gramatical</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="game-header">
+            <div class="score-box">
+                <span>PONTOS:</span>
+                <span id="score-value">0</span>
+            </div>
+            <div class="timer-box">
+                <span>TEMPO:</span>
+                <span id="timer-value">60</span>s
+            </div>
+        </div>
+
+        <div id="central-area">
+            
+            <div id="npc-image-container">
+                <img id="npc-image" src="image_6d4f5f.png-8c2d8a3e-8b2a-449a-a8d8-b05f552120a4" alt="NPC apresentando um dilema de escolha">
+            </div>
+
+            <div id="dialog-bubble" class="speech-bubble">
+                <p id="npc-statement">Pressione INICIAR para começar...</p>
+            </div>
+        </div>
+
+        <div id="options-container">
+            <button id="option-a" class="choice-button">Opção A</button>
+            <button id="option-b" class="choice-button">Opção B</button>
+        </div>
+
+        <div id="feedback-area">
+            <p id="feedback-message"></p>
+        </div>
+
+        <div id="overlay" class="game-overlay">
+            <div id="game-start-screen" class="screen-box">
+                <h1>O Inspetor de Intenção</h1>
+                <p>O NPC sempre diz a palavra errada. Escolha a opção que representa o que ele **provavelmente quis dizer** (a intenção gramatical correta).</p>
+                <button id="start-button" class="big-button">INICIAR JOGO</button>
+            </div>
+
+            <div id="game-over-screen" class="screen-box hidden">
+                <h2>Fim de Jogo!</h2>
+                <p>Sua Pontuação Final:</p>
+                <span id="final-score">0</span>
+                <button id="restart-button" class="big-button">JOGAR NOVAMENTE</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="portugues_social.js"></script>
+</body>
+</html>
