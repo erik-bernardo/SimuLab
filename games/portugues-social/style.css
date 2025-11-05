@@ -1,4 +1,4 @@
-/* style.css */
+/* style.css (Ajustes Finais de Layout) */
 
 :root {
     --color-background: #f4f4f4;
@@ -37,7 +37,7 @@ body {
     align-items: center;
 }
 
-/* --- HEADER: Placar e Tempo --- */
+/* --- HEADER: Placar e Tempo (Sem alterações) --- */
 #game-header {
     width: 100%;
     display: flex;
@@ -63,30 +63,36 @@ body {
     margin-bottom: 20px;
 }
 
+/* AJUSTE 1: Garantir que a imagem preencha o máximo */
 #npc-image-container {
     width: 100%;
     text-align: center;
     position: relative;
-    z-index: 1; /* Garante que o NPC fique na frente dos botões */
-    height: 300px; /* Altura fixa para alinhar o balão de fala */
-    overflow: hidden; /* Corta a imagem se necessário */
+    z-index: 1;
+    height: 300px; /* Altura fixa para bom dimensionamento */
+    display: flex; /* Adiciona flex para melhor alinhamento */
+    justify-content: center;
+    align-items: flex-end; /* Alinha a base da imagem ao fundo do container */
+    overflow: hidden; 
 }
 
 #npc-image {
-    max-height: 100%;
-    width: auto;
-    max-width: 100%;
-    margin-top: -50px; /* Ajusta a posição vertical da imagem do NPC */
+    /* Ajustado para cobrir o container e manter proporção (como 'background-size: cover') */
+    height: 100%; 
+    width: auto; 
+    min-width: 100%; /* Garante que cubra a largura, se necessário */
+    object-fit: contain; /* Garante que a imagem se ajuste dentro do container */
+    margin-top: -50px; 
 }
 
-/* Balão de Fala do NPC (adaptado do conceito) */
+/* AJUSTE 2: Balão de Fala do NPC (posicionamento para harmonizar com a imagem) */
 #dialog-bubble {
     position: absolute;
-    top: 50px; 
+    top: 50px; /* Posição mais alta, perto do rosto da NPC */
     left: 50%;
     transform: translateX(-50%);
-    width: 70%;
-    padding: 15px;
+    width: 60%; /* Um pouco mais estreito */
+    padding: 12px;
     background: #f9f9f9;
     border: 3px solid var(--color-primary);
     border-radius: 15px;
@@ -97,17 +103,17 @@ body {
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Criando o "rabo" do balão de fala (triângulo) */
+/* Ajustando o rabo do balão para apontar para a boca/cabeça */
 #dialog-bubble::after {
     content: '';
     position: absolute;
-    bottom: -15px; /* Posição na parte inferior do balão */
+    bottom: -15px; 
     left: 50%;
-    transform: translateX(-50%) rotate(0deg); /* Centraliza e mantém a orientação */
+    transform: translateX(-50%) rotate(0deg); 
     width: 0;
     height: 0;
     border: 10px solid transparent;
-    border-top-color: var(--color-primary); /* Cor da borda do triângulo */
+    border-top-color: var(--color-primary); 
     border-bottom: 0;
 }
 #dialog-bubble::before {
@@ -119,18 +125,19 @@ body {
     width: 0;
     height: 0;
     border: 10px solid transparent;
-    border-top-color: #f9f9f9; /* Cor do fundo do balão (para preencher o triângulo) */
+    border-top-color: #f9f9f9; 
     border-bottom: 0;
 }
 
 
-/* --- OPÇÕES DE ESCOLHA --- */
+/* --- OPÇÕES DE ESCOLHA (Mesmos ajustes de margem para posicionar na mão) --- */
 #options-container {
     width: 100%;
     display: flex;
     justify-content: space-around;
     gap: 15px;
-    margin-top: -100px; /* Levanta os botões para ficarem no lugar das caixas A e B da imagem */
+    /* Move os botões para a área das mãos do NPC */
+    margin-top: -100px; 
     z-index: 20;
     padding: 0 10px;
 }
@@ -172,7 +179,7 @@ body {
     40%, 80% {transform: translateX(5px);}
 }
 
-/* --- FEEDBACK E OVERLAY --- */
+/* --- FEEDBACK E OVERLAY (Sem alterações) --- */
 #feedback-area {
     width: 100%;
     text-align: center;
