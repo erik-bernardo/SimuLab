@@ -1,0 +1,34 @@
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas" width="800" height="500"></canvas>
+        
+        <div id="game-ui">
+            <div class="info-box score-box">
+                <span id="score-label">PONTOS:</span>
+                <span id="score-value">0</span>
+            </div>
+            <div class="info-box life-box">
+                <span id="life-label">VIDAS:</span>
+                <span id="life-value">❤️❤️❤️</span>
+            </div>
+            
+            <div id="educational-tip-box">
+                <p id="tip-text"></p>
+            </div>
+        </div>
+
+        <div id="feedback-box" class="hidden">
+            <div id="message-text"></div>
+            <div id="rule-tip"></div>
+        </div>
+        
+        <div id="game-over-screen" class="hidden">
+            <h1>FIM DE JOGO</h1>
+            <p>Sua Pontuação Final:</p>
+            <span id="final-score">0</span>
+            <button id="restart-button">JOGAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <script src="acento_speed.js"></script>
+</body>
