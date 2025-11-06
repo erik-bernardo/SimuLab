@@ -1,0 +1,127 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+#game-container {
+    width: 100%;
+    max-width: 800px;
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+#scenario-box {
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #e6f0ff;
+    border-radius: 8px;
+    border-left: 5px solid #007bff;
+}
+
+#scenario-title {
+    color: #007bff;
+    margin-top: 0;
+}
+
+#scenario-text {
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+/* Estilos dos Blocos */
+.word-block {
+    display: inline-block;
+    padding: 8px 15px;
+    margin: 5px;
+    background-color: #ffffff;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s, transform 0.15s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.word-block:hover {
+    border-color: #a0a0a0;
+    transform: translateY(-1px);
+}
+
+/* Áreas de Blocos */
+#target-sentence-area, #source-blocks-area {
+    margin-bottom: 20px;
+    padding: 15px 0;
+}
+
+#target-blocks, #source-blocks {
+    min-height: 50px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#target-blocks {
+    background-color: #f9f9f9;
+}
+
+/* Cores de Feedback */
+.block-correct {
+    background-color: #e6ffe6 !important;
+    border-color: #4CAF50 !important;
+}
+
+.block-incorrect {
+    background-color: #ffe6e6 !important;
+    border-color: #F44336 !important;
+}
+
+#feedback-message {
+    font-weight: bold;
+    font-size: 1.1em;
+    min-height: 25px;
+    margin: 15px 0;
+}
+
+.feedback-correct { color: #4CAF50; }
+.feedback-incorrect { color: #F44336; }
+
+/* Botões */
+#controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+#check-button, #reset-button, #next-button {
+    padding: 10px 25px;
+    font-size: 1.1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#check-button { background-color: #007bff; color: white; }
+#check-button:disabled { background-color: #ccc; cursor: not-allowed; }
+#check-button:hover:not(:disabled) { background-color: #0056b3; }
+
+#reset-button { background-color: #ffc107; color: #333; }
+#reset-button:hover { background-color: #e0a800; }
+
+#next-button { background-color: #28a745; color: white; }
+#next-button:hover { background-color: #1e7e34; }
+
+.hidden { display: none; }
