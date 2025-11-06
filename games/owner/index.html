@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang='pt'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Drag & Drop: O Círculo dos Donos (Pronomes)</title>
+    <link rel='stylesheet' href='style.css'>
+    <link href='https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@1,400&display=swap' rel='stylesheet'>
+</head>
+<body>
+
+    <header class='header'>
+        <h1>Achados & Perdidos: O Círculo dos Donos</h1>
+        <p class='subtitle'>Drag the object to the correct person based on the clue.</p>
+    </header>
+
+    <div class='game-container'>
+        
+        <div class='score-box'>
+            <span id='score-display'>Pontos: 0</span>
+        </div>
+
+        <div class='scenario-box'>
+            <h2 id='scenario-title'>Entrega Mística 1/X</h2>
+            <p id='item-clue' class='clue-text'></p>
+        </div>
+
+        <div class='drag-drop-palco'>
+            
+            <div class='owner-target' data-owner='HER'>
+                <span class='owner-icon'>👧</span>
+                <div class='drop-zone'></div>
+            </div>
+
+            <div class='owner-target' data-owner='HIM'>
+                <span class='owner-icon'>👦</span>
+                <div class='drop-zone'></div>
+            </div>
+
+            <div class='owner-target' data-owner='THEM'>
+                <span class='owner-icon'>👥</span>
+                <div class='drop-zone'></div>
+            </div>
+
+            <div class='owner-target' data-owner='IT'>
+                <span class='owner-icon'>🐶</span>
+                <div class='drop-zone'></div>
+            </div>
+
+            <div id='drag-item' class='draggable-item' draggable='true'>
+                <span id='item-icon'>?</span>
+            </div>
+        </div>
+        
+        <div class='controls'>
+            <p id='feedback-message' class='feedback-default'>Arraste o item para o dono que a frase indica.</p>
+            <div class='buttons-container'>
+                <button id='next-button' class='hidden'>PRÓXIMA ENTREGA</button>
+            </div>
+        </div>
+
+        <div class='dictionary-box'>
+            <h3>O Grimório (Abre após erro - Custa 1 Ponto)</h3>
+            <div id='dictionary-content'>O pronome correto aparecerá aqui após o primeiro erro.</div>
+        </div>
+    </div>
+
+    <script src='script.js'></script>
+</body>
+</html>
