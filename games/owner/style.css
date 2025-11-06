@@ -1,0 +1,152 @@
+/* Paleta e Base (Manter a temática) */
+:root {
+    --color-bg-dark: #1e1e2f;
+    --color-bg-light: #2c2c44;
+    --color-text-light: #e0e0e0;
+    --color-text-accent: #ffeb3b;
+    --color-mystic-purple: #8A2BE2;
+    --color-correct: #38a169;
+    --color-incorrect: #e53e3e;
+    --color-drag-item: #328fa8;
+    --color-scene-floor: #4a4e69; /* Cor de um chão de pedra */
+}
+
+body {
+    font-family: 'Cinzel', serif;
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-light);
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+
+.game-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--color-bg-light);
+    border: 3px solid var(--color-mystic-purple);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(138, 43, 226, 0.4);
+}
+
+.scenario-box {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-mystic-purple);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.clue-text {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--color-text-accent);
+}
+
+/* Área de Jogo - O Palco (Visual Principal) */
+.drag-drop-palco {
+    position: relative;
+    width: 100%;
+    min-height: 350px;
+    background-color: var(--color-scene-floor);
+    border: 5px solid #2a2c3a;
+    border-radius: 10px;
+    margin: 20px 0;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6);
+}
+
+/* Item Arrastável (Objeto no Centro) */
+.draggable-item {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    background-color: var(--color-drag-item);
+    padding: 20px;
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    cursor: grab;
+    z-index: 10;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.draggable-item:active {
+    cursor: grabbing;
+}
+
+#item-icon {
+    font-size: 3em;
+    display: block;
+}
+
+/* Donos (Targets) - Posicionamento na Frente/Semicírculo */
+.owner-target {
+    position: absolute;
+    bottom: 10px; /* Base na parte inferior do palco */
+    width: 22%; /* Para ter 4 donos */
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.owner-target:nth-child(1) { left: 2%; }  /* HER (Menina) */
+.owner-target:nth-child(2) { left: 26%; } /* HIM (Menino) */
+.owner-target:nth-child(3) { left: 50%; } /* THEM (Duas Pessoas) */
+.owner-target:nth-child(4) { left: 74%; } /* IT (Cachorro) */
+
+.owner-icon {
+    font-size: 3.5em;
+    display: block;
+    margin-bottom: 5px;
+}
+.owner-target p {
+    font-weight: bold;
+    margin: 0;
+    color: var(--color-text-accent);
+}
+
+/* Drop Zone (Área de Colisão) */
+.drop-zone {
+    /* Define a área onde o drop é válido (acima do ícone do dono) */
+    position: absolute;
+    top: -50px; /* Levanta a zona de drop acima do ícone */
+    left: 0;
+    width: 100%;
+    height: 100px;
+    border: 2px dashed transparent;
+    transition: border-color 0.2s;
+}
+
+.owner-target.hovered .drop-zone {
+    border-color: var(--color-text-accent);
+}
+
+.owner-target.correct-drop {
+    box-shadow: 0 0 15px var(--color-correct);
+    transform: scale(1.1);
+}
+
+.owner-target.incorrect-drop {
+    box-shadow: 0 0 15px var(--color-incorrect);
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+/* ... (Manter outros estilos como buttons, feedback, score, grimorio) ... */
+button { font-family: 'Cinzel', serif; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; transition: background-color 0.3s, transform 0.1s; background-color: var(--color-mystic-purple); color: var(--color-text-light); }
+button:hover:not(:disabled) { background-color: #9d50ff; transform: translateY(-1px); }
+#next-button { background-color: var(--color-correct); }
+.hidden { display: none !important; }
+#feedback-message { padding: 10px; border-radius: 5px; font-weight: bold; margin-bottom: 0; }
+.feedback-default { background-color: rgba(255, 255, 255, 0.1); color: var(--color-text-light); }
+.feedback-correct { background-color: var(--color-correct); color: var(--color-bg-dark); }
+.feedback-incorrect { background-color: var(--color-incorrect); color: var(--color-bg-dark); }
+.score-box { text-align: right; margin-bottom: 10px; font-size: 1.2em; color: var(--color-text-accent); }
+.mystic-hint { background: rgba(138, 43, 226, 0.1); border-left: 5px solid var(--color-mystic-purple); padding: 8px; margin-bottom: 5px; border-radius: 4px; text-align: left; display: flex; align-items: center; font-family: 'Cormorant Garamond', serif; font-size: 1.1em; }
+.mystic-hint span { font-size: 1.5em; margin-right: 10px; }
+.mystic-hint strong { color: var(--color-text-accent); }
