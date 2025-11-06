@@ -153,8 +153,8 @@ const SEARCH_INDEX = [
 const headerHTML = `
     <header class="top-bar">
         <div class="logo-area">
-            <a href="index.html" class="logo-link">
-                <img src="dados/simulab_banner.png" alt="SimuLab Logo" class="logo-image">
+            <a href="https://erik-bernardo.github.io/SimuLab/index.html" class="logo-link">
+                <img src="https://erik-bernardo.github.io/SimuLab/dados/simulab_banner.png" alt="SimuLab Logo" class="logo-image">
             </a>
         </div>
         
@@ -169,10 +169,10 @@ const headerHTML = `
         </div>
 
         <nav class="nav-links">
-            <a href="sobre.html" class="nav-link">Sobre o Projeto</a>
-            <a href="destaque.html" class="nav-link">Destaque</a>
-            <a href="recursos.html" class="nav-link">Recursos</a>
-            <a href="materias.html" class="nav-link main-action">ACESSAR CONTEÚDO</a>
+            <a href="https://erik-bernardo.github.io/SimuLab/sobre.html" class="nav-link">Sobre o Projeto</a>
+            <a href="https://erik-bernardo.github.io/SimuLab/destaque.html" class="nav-link">Destaque</a>
+            <a href="https://erik-bernardo.github.io/SimuLab/recursos.html" class="nav-link">Recursos</a>
+            <a href="https://erik-bernardo.github.io/SimuLab/materias.html" class="nav-link main-action">ACESSAR CONTEÚDO</a>
         </nav>
     </header>
 `;
