@@ -1,229 +1,345 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Matemática - Conteúdo</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="page-title">Programação - Conteúdo</title>
 
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f6f6f9;
-      margin: 0;
-      padding: 0;
-      scroll-behavior: smooth;
-    }
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f6f6f9;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
 
-    /* ---------- NAVBAR ---------- */
-    header {
-      background-color: #f8f8ff;
-      border-bottom: 2px solid #ddd;
-      text-align: center;
-      padding: 10px 0;
-    }
+        /* ---------- NAVBAR ---------- */
+        header {
+            background-color: #f8f8ff;
+            border-bottom: 2px solid #ddd;
+            text-align: center;
+            padding: 10px 0;
+        }
 
-    nav {
-      display: flex;
-      justify-content: center;
-      gap: 50px;
-    }
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+        }
 
-    nav a {
-      text-decoration: none;
-      color: #555;
-      font-weight: 500;
-      font-size: 16px;
-      padding-bottom: 5px;
-      transition: all 0.3s ease;
-    }
+        nav a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            font-size: 16px;
+            padding-bottom: 5px;
+            transition: all 0.3s ease;
+        }
 
-    nav a.active {
-      border-bottom: 3px solid #4b5cff;
-      color: #4b5cff;
-    }
+        nav a.active {
+            border-bottom: 3px solid #4b5cff;
+            color: #4b5cff;
+        }
 
-    nav a:hover {
-      color: #4b5cff;
-    }
+        nav a:hover {
+            color: #4b5cff;
+        }
 
-    /* ---------- CONTEÚDO ---------- */
-    main {
-      max-width: 1000px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
+        /* ---------- CONTEÚDO ---------- */
+        main {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
 
-    section {
-      margin-bottom: 60px;
-    }
+        section {
+            margin-bottom: 60px;
+        }
 
-    section h2 {
-      margin-bottom: 20px;
-      font-size: 22px;
-      font-weight: 600;
-      color: #2f3fd6;
-      border-left: 5px solid #2f3fd6;
-      padding-left: 10px;
-    }
+        section h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 600;
+            color: #2f3fd6;
+            border-left: 5px solid #2f3fd6;
+            padding-left: 10px;
+        }
 
-    /* ---------- CARDS ---------- */
-    .card {
-      background-color: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      margin-bottom: 25px;
-      overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
+        /* ---------- CARDS ---------- */
+        .card {
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
 
-    .card:hover {
-      transform: scale(1.02);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    }
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
 
-    .card img {
-      width: 200px;
-      height: 140px;
-      object-fit: cover;
-    }
+        .card img {
+            width: 200px;
+            height: 140px;
+            object-fit: cover;
+            filter: brightness(0.9);
+        }
 
-    .card-content {
-      padding: 20px;
-    }
+        .card-content {
+            padding: 20px;
+        }
 
-    .card h3 {
-      margin: 0;
-      font-size: 18px;
-      color: #333;
-    }
+        .card h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
 
-    .card p {
-      color: #555;
-      font-size: 14px;
-      margin-top: 8px;
-    }
+        .card p {
+            color: #555;
+            font-size: 14px;
+            margin-top: 8px;
+        }
 
-    /* ---------- MENU LATERAL ---------- */
-    .sidebar {
-      position: fixed;
-      right: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      z-index: 10;
-    }
+        /* ---------- MENU LATERAL ---------- */
+        .sidebar {
+            position: fixed;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+        }
 
-    .sidebar button {
-      background-color: #4b5cff;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background 0.3s;
-    }
+        .sidebar button {
+            background-color: #4b5cff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
 
-    .sidebar button:hover {
-      background-color: #2f3fd6;
-    }
+        .sidebar button:hover {
+            background-color: #2f3fd6;
+        }
 
-    @media (max-width: 700px) {
-      .card { flex-direction: column; }
-      .card img { width: 100%; }
-      .sidebar { display: none; }
-    }
-  </style>
+        @media (max-width: 700px) {
+            .card { flex-direction: column; }
+            .card img { width: 100%; }
+            .sidebar { display: none; }
+        }
+    </style>
 </head>
 
 <body>
-  <!-- Cabeçalho principal vindo do head.js -->
-<script src="../../../dados/head.js"></script>
-  <!-- Barra de navegação -->
-  <header>
-    <nav>
-      <a href="#" id="simulacoes">Simulações</a>
-      <a href="#" class="active" id="conteudo">Conteúdo</a>
-      <a href="#" id="exercicios">Exercícios</a>
-    </nav>
-  </header>
+    <header>
+        <nav>
+            <a href="#" id="nav-simulacoes" data-type="simulacoes">Simulações</a>
+            <a href="#" id="nav-conteudo" class="active" data-type="conteudo">Conteúdo</a>
+            <a href="#" id="nav-exercicios" data-type="exercicios">Exercícios</a>
+        </nav>
+    </header>
 
-  <main>
+    <main id="main-content">
+        </main>
 
+    <div class="sidebar" id="sidebar">
+        </div>
+  <script src="https://erik-bernardo.github.io/SimuLab/dados/head.js"></script>
 
-<section id="programacao-basica">
-  <h2>Programação Básica</h2>
-  <div class="cards" id="cards-programacao-basica"></div>
-</section>
+    <script>
+        // --- DADOS DO CONTEÚDO ORIGINAL DE PROGRAMAÇÃO ---
+        const secoesProgramacaoConteudo = {
+            'programacao-basica': {
+                titulo: 'Programação Básica',
+                icone: '📝',
+                cards: [
+                    { cap: 'Algoritmos', titulo: 'Lógica de programação e fluxogramas', imagem: 'https://cdn.pixabay.com/photo/2015/04/23/17/41/code-736400_960_720.jpg', link: 'programacao/algoritmos.html' },
+                    { cap: 'Variáveis e Tipos', titulo: 'Inteiros, strings, booleanos e mais', imagem: 'https://cdn.pixabay.com/photo/2015/04/23/17/41/code-736400_960_720.jpg', link: 'programacao/variaveis.html' },
+                    { cap: 'Estruturas de Controle', titulo: 'If, else, switch e loops', imagem: 'https://cdn.pixabay.com/photo/2015/04/23/17/41/code-736400_960_720.jpg', link: 'programacao/controle.html' }
+                ]
+            },
+            'programacao-avancada': {
+                titulo: 'Programação Avançada',
+                icone: '⚙️',
+                cards: [
+                    { cap: 'Funções', titulo: 'Funções, parâmetros e retorno', imagem: 'https://cdn.pixabay.com/photo/2015/04/23/17/41/code-736400_960_720.jpg', link: 'programacao/funcoes.html' },
+                    { cap: 'POO', titulo: 'Programação Orientada a Objetos', imagem: 'https://cdn.pixabay.com/photo/2015/04/23/17/41/code-736400_960_720.jpg', link: 'programacao/poo.html' },
+                    { cap: 'Recursão', titulo: 'Funções que se chamam', imagem: 'https://cdn.pixabay.com/photo/2015/04/23/17/41/code-736400_960_720.jpg', link: 'programacao/recursao.html' }
+                ]
+            },
+            'desenvolvimento-web': {
+                titulo: 'Desenvolvimento Web',
+                icone: '🌐',
+                cards: [
+                    { cap: 'HTML & CSS', titulo: 'Estrutura e estilo de páginas', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/web-1299821_960_720.jpg', link: 'programacao/html-css.html' },
+                    { cap: 'JavaScript', titulo: 'Interatividade e lógica no navegador', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/web-1299821_960_720.jpg', link: 'programacao/javascript.html' },
+                    { cap: 'Frameworks', titulo: 'React, Vue, Angular e mais', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/web-1299821_960_720.jpg', link: 'programacao/frameworks.html' }
+                ]
+            },
+            'banco-dados': {
+                titulo: 'Bancos de Dados',
+                icone: '🗄️',
+                cards: [
+                    { cap: 'SQL', titulo: 'Consultas, inserts e updates', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/database-1299821_960_720.jpg', link: 'programacao/sql.html' },
+                    { cap: 'NoSQL', titulo: 'MongoDB, Firebase e outros', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/database-1299821_960_720.jpg', link: 'programacao/nosql.html' },
+                    { cap: 'Modelagem de Dados', titulo: 'Relacionamentos e normalização', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/database-1299821_960_720.jpg', link: 'programacao/modelagem.html' }
+                ]
+            }
+        };
 
-<section id="programacao-avancada">
-  <h2>Programação Avançada</h2>
-  <div class="cards" id="cards-programacao-avancada"></div>
-</section>
+        // --- DADOS PLACEHOLDER PARA SIMULAÇÕES E EXERCÍCIOS ---
 
-<section id="desenvolvimento-web">
-  <h2>Desenvolvimento Web</h2>
-  <div class="cards" id="cards-desenvolvimento-web"></div>
-</section>
+        const dadosConteudo = { secoes: secoesProgramacaoConteudo, navActive: 'nav-conteudo', pageTitle: 'Programação - Conteúdo' };
 
-<section id="banco-dados">
-  <h2>Bancos de Dados</h2>
-  <div class="cards" id="cards-banco-dados"></div>
-</section>
+        // Simulacões usam a mesma estrutura e imagens, mas com links e títulos adaptados
+        const dadosSimulacoes = {
+            secoes: Object.keys(secoesProgramacaoConteudo).reduce((acc, key) => {
+                const secao = secoesProgramacaoConteudo[key];
+                acc[key] = {
+                    ...secao,
+                    titulo: secao.titulo.replace('Conteúdo', 'Simulações'),
+                    cards: secao.cards.map(c => ({
+                        ...c,
+                        titulo: `Simulador para praticar ${c.cap.toLowerCase()}`,
+                        link: c.link.replace('programacao', 'simulacoes')
+                    }))
+                };
+                return acc;
+            }, {}),
+            navActive: 'nav-simulacoes',
+            pageTitle: 'Programação - Simulações'
+        };
 
-<script>
-const secoesProgramacao = {
-  'programacao-basica': [
-    { cap: 'Algoritmos', titulo: 'Lógica de programação e fluxogramas', imagem: 'https://cdn.pixabay.com/photo/2015/04/23/17/41/code-736400_960_720.jpg', link: 'programacao/algoritmos.html' },
-    { cap: 'Variáveis e Tipos', titulo: 'Inteiros, strings, booleanos e mais', imagem: 'https://cdn.pixabay.com/photo/2015/04/23/17/41/code-736400_960_720.jpg', link: 'programacao/variaveis.html' },
-    { cap: 'Estruturas de Controle', titulo: 'If, else, switch e loops', imagem: 'https://cdn.pixabay.com/photo/2015/04/23/17/41/code-736400_960_720.jpg', link: 'programacao/controle.html' }
-  ],
-  'programacao-avancada': [
-    { cap: 'Funções', titulo: 'Funções, parâmetros e retorno', imagem: 'https://cdn.pixabay.com/photo/2015/04/23/17/41/code-736400_960_720.jpg', link: 'programacao/funcoes.html' },
-    { cap: 'POO', titulo: 'Programação Orientada a Objetos', imagem: 'https://cdn.pixabay.com/photo/2015/04/23/17/41/code-736400_960_720.jpg', link: 'programacao/poo.html' },
-    { cap: 'Recursão', titulo: 'Funções que se chamam', imagem: 'https://cdn.pixabay.com/photo/2015/04/23/17/41/code-736400_960_720.jpg', link: 'programacao/recursao.html' }
-  ],
-  'desenvolvimento-web': [
-    { cap: 'HTML & CSS', titulo: 'Estrutura e estilo de páginas', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/web-1299821_960_720.jpg', link: 'programacao/html-css.html' },
-    { cap: 'JavaScript', titulo: 'Interatividade e lógica no navegador', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/web-1299821_960_720.jpg', link: 'programacao/javascript.html' },
-    { cap: 'Frameworks', titulo: 'React, Vue, Angular e mais', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/web-1299821_960_720.jpg', link: 'programacao/frameworks.html' }
-  ],
-  'banco-dados': [
-    { cap: 'SQL', titulo: 'Consultas, inserts e updates', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/database-1299821_960_720.jpg', link: 'programacao/sql.html' },
-    { cap: 'NoSQL', titulo: 'MongoDB, Firebase e outros', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/database-1299821_960_720.jpg', link: 'programacao/nosql.html' },
-    { cap: 'Modelagem de Dados', titulo: 'Relacionamentos e normalização', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/database-1299821_960_720.jpg', link: 'programacao/modelagem.html' }
-  ]
-};
+        // Exercícios usam a mesma estrutura e imagens, mas com links e títulos adaptados
+        const dadosExercicios = {
+            secoes: Object.keys(secoesProgramacaoConteudo).reduce((acc, key) => {
+                const secao = secoesProgramacaoConteudo[key];
+                acc[key] = {
+                    ...secao,
+                    titulo: secao.titulo.replace('Conteúdo', 'Exercícios'),
+                    cards: secao.cards.map(c => ({
+                        ...c,
+                        titulo: `Desafios de codificação e questões sobre ${c.cap}`,
+                        link: c.link.replace('programacao', 'exercicios')
+                    }))
+                };
+                return acc;
+            }, {}),
+            navActive: 'nav-exercicios',
+            pageTitle: 'Programação - Exercícios'
+        };
 
-function criarCards(lista, idContainer) {
-  const container = document.getElementById(idContainer);
-  lista.forEach(c => {
-    const card = document.createElement('div');
-    card.classList.add('card');
-    card.innerHTML = `
-      <img src="${c.imagem}" alt="${c.cap}">
-      <div class="card-content">
-        <h3>${c.cap}</h3>
-        <p>${c.titulo}</p>
-      </div>
-    `;
-    if (c.link) {
-      card.style.cursor = 'pointer';
-      card.addEventListener('click', () => {
-        window.location.href = c.link;
-      });
-    }
-    container.appendChild(card);
-  });
-}
+        // --- FUNÇÕES DE RENDERIZAÇÃO ---
+        const mainContent = document.getElementById('main-content');
+        const sidebar = document.getElementById('sidebar');
+        const navLinks = document.querySelectorAll('nav a');
 
-Object.keys(secoesProgramacao).forEach(sec => criarCards(secoesProgramacao[sec], `cards-${sec}`));
-</script>
+        function criarCards(lista) {
+            const container = document.createElement('div');
+            container.classList.add('cards');
 
+            lista.forEach(c => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.innerHTML = `
+                    <img src="${c.imagem}" alt="${c.cap}">
+                    <div class="card-content">
+                        <h3>${c.cap}</h3>
+                        <p>${c.titulo}</p>
+                    </div>
+                `;
+                // Certifica-se de que o card é clicável
+                if (c.link) {
+                    card.addEventListener('click', () => {
+                        window.location.href = c.link; 
+                    });
+                }
+                container.appendChild(card);
+            });
+            return container;
+        }
 
+        function renderizarPagina(dados) {
+            // 1. Limpa o conteúdo atual
+            mainContent.innerHTML = '';
+            sidebar.innerHTML = '';
+            
+            // 2. Atualiza o título da página
+            document.getElementById('page-title').textContent = dados.pageTitle;
+
+            // 3. Renderiza as seções e o menu lateral
+            Object.keys(dados.secoes).forEach(key => {
+                const secao = dados.secoes[key];
+                const sectionId = key;
+                
+                // Cria a Seção (main content)
+                const sectionElement = document.createElement('section');
+                sectionElement.id = sectionId;
+                sectionElement.innerHTML = `<h2>${secao.titulo}</h2>`;
+                sectionElement.appendChild(criarCards(secao.cards));
+                mainContent.appendChild(sectionElement);
+
+                // Cria o botão da Sidebar
+                const button = document.createElement('button');
+                const buttonTextMap = {
+                    'programacao-basica': `${secao.icone} Básica`,
+                    'programacao-avancada': `${secao.icone} Avançada`,
+                    'desenvolvimento-web': `${secao.icone} Web`,
+                    'banco-dados': `${secao.icone} Banco de Dados`
+                };
+                
+                button.textContent = buttonTextMap[key] || secao.titulo.split(' ')[0]; 
+                button.onclick = () => scrollToSection(sectionId);
+                sidebar.appendChild(button);
+            });
+
+            // 4. Atualiza o estado da navegação
+            navLinks.forEach(link => link.classList.remove('active'));
+            document.getElementById(dados.navActive).classList.add('active');
+        }
+
+        function carregarConteudo(tipo) {
+            let dados;
+            if (tipo === 'simulacoes') {
+                dados = dadosSimulacoes;
+            } else if (tipo === 'conteudo') {
+                dados = dadosConteudo;
+            } else if (tipo === 'exercicios') {
+                dados = dadosExercicios;
+            }
+            renderizarPagina(dados);
+        }
+        
+        // --- EVENT LISTENERS ---
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tipo = link.getAttribute('data-type');
+                carregarConteudo(tipo);
+            });
+        });
+
+        // --- SCROLL SUAVE ---
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // --- INICIALIZAÇÃO: Carrega a página de Conteúdo por padrão ---
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarConteudo('conteudo'); 
+        });
+    </script>
 </body>
 </html>
