@@ -1,229 +1,395 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fisica - Conteúdo</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="page-title">Física - Conteúdo</title>
 
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f6f6f9;
-      margin: 0;
-      padding: 0;
-      scroll-behavior: smooth;
-    }
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f6f6f9;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
 
-    /* ---------- NAVBAR ---------- */
-    header {
-      background-color: #f8f8ff;
-      border-bottom: 2px solid #ddd;
-      text-align: center;
-      padding: 10px 0;
-    }
+        /* ---------- NAVBAR ---------- */
+        header {
+            background-color: #f8f8ff;
+            border-bottom: 2px solid #ddd;
+            text-align: center;
+            padding: 10px 0;
+        }
 
-    nav {
-      display: flex;
-      justify-content: center;
-      gap: 50px;
-    }
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+        }
 
-    nav a {
-      text-decoration: none;
-      color: #555;
-      font-weight: 500;
-      font-size: 16px;
-      padding-bottom: 5px;
-      transition: all 0.3s ease;
-    }
+        nav a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            font-size: 16px;
+            padding-bottom: 5px;
+            transition: all 0.3s ease;
+        }
 
-    nav a.active {
-      border-bottom: 3px solid #4b5cff;
-      color: #4b5cff;
-    }
+        nav a.active {
+            border-bottom: 3px solid #4b5cff;
+            color: #4b5cff;
+        }
 
-    nav a:hover {
-      color: #4b5cff;
-    }
+        nav a:hover {
+            color: #4b5cff;
+        }
 
-    /* ---------- CONTEÚDO ---------- */
-    main {
-      max-width: 1000px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
+        /* ---------- CONTEÚDO ---------- */
+        main {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
 
-    section {
-      margin-bottom: 60px;
-    }
+        section {
+            margin-bottom: 60px;
+        }
 
-    section h2 {
-      margin-bottom: 20px;
-      font-size: 22px;
-      font-weight: 600;
-      color: #2f3fd6;
-      border-left: 5px solid #2f3fd6;
-      padding-left: 10px;
-    }
+        section h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 600;
+            color: #2f3fd6;
+            border-left: 5px solid #2f3fd6;
+            padding-left: 10px;
+        }
 
-    /* ---------- CARDS ---------- */
-    .card {
-      background-color: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      margin-bottom: 25px;
-      overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
+        /* ---------- CARDS ---------- */
+        .card {
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
 
-    .card:hover {
-      transform: scale(1.02);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    }
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
 
-    .card img {
-      width: 200px;
-      height: 140px;
-      object-fit: cover;
-    }
+        .card img {
+            width: 200px;
+            height: 140px;
+            object-fit: cover;
+            filter: brightness(0.9);
+        }
 
-    .card-content {
-      padding: 20px;
-    }
+        .card-content {
+            padding: 20px;
+        }
 
-    .card h3 {
-      margin: 0;
-      font-size: 18px;
-      color: #333;
-    }
+        .card h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
 
-    .card p {
-      color: #555;
-      font-size: 14px;
-      margin-top: 8px;
-    }
+        .card p {
+            color: #555;
+            font-size: 14px;
+            margin-top: 8px;
+        }
 
-    /* ---------- MENU LATERAL ---------- */
-    .sidebar {
-      position: fixed;
-      right: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      z-index: 10;
-    }
+        /* ---------- MENU LATERAL ---------- */
+        .sidebar {
+            position: fixed;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+        }
 
-    .sidebar button {
-      background-color: #4b5cff;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background 0.3s;
-    }
+        .sidebar button {
+            background-color: #4b5cff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
 
-    .sidebar button:hover {
-      background-color: #2f3fd6;
-    }
+        .sidebar button:hover {
+            background-color: #2f3fd6;
+        }
 
-    @media (max-width: 700px) {
-      .card { flex-direction: column; }
-      .card img { width: 100%; }
-      .sidebar { display: none; }
-    }
-  </style>
+        @media (max-width: 700px) {
+            .card { flex-direction: column; }
+            .card img { width: 100%; }
+            .sidebar { display: none; }
+        }
+    </style>
 </head>
 
 <body>
-  <!-- Cabeçalho principal vindo do head.js -->
-<script src="../dados/head.js"></script>
-  <!-- Barra de navegação -->
-  <header>
-    <nav>
-      <a href="#" id="simulacoes">Simulações</a>
-      <a href="#" class="active" id="conteudo">Conteúdo</a>
-      <a href="#" id="exercicios">Exercícios</a>
-    </nav>
-  </header>
+    <header>
+        <nav>
+            <a href="#" id="nav-simulacoes" data-type="simulacoes">Simulações</a>
+            <a href="#" id="nav-conteudo" class="active" data-type="conteudo">Conteúdo</a>
+            <a href="#" id="nav-exercicios" data-type="exercicios">Exercícios</a>
+        </nav>
+    </header>
 
-  <main>
-   <section id="mecanica">
-  <h2>Mecânica</h2>
-  <div class="cards" id="cards-mecanica"></div>
-</section>
+    <main id="main-content">
+        </main>
 
-<section id="termodinamica">
-  <h2>Termodinâmica</h2>
-  <div class="cards" id="cards-termodinamica"></div>
-</section>
-
-<section id="ondas">
-  <h2>Ondas e Óptica</h2>
-  <div class="cards" id="cards-ondas"></div>
-</section>
-
-<section id="eletromagnetismo">
-  <h2>Eletromagnetismo</h2>
-  <div class="cards" id="cards-eletromagnetismo"></div>
-</section>
-
-<script>
- const secoesFisica = {
-  mecanica: [
-    { cap: 'MRU', titulo: 'Movimento Retilíneo Uniforme', imagem: '../imgs/muv.png', link: 'conteudos/mru.html' },
-    { cap: 'MRUV', titulo: 'Movimento Retilíneo Uniformemente Variado', imagem: '../imgs/mruv.png', link: 'conteudos/mruv.html' },
-    { cap: 'Energia', titulo: 'Energia Cinética e Potencial', imagem: '../imgs/energia.png', link: 'conteudos/energia.html' },
-    { cap: 'Escalas Term.', titulo: 'Conversão de temperaturas', imagem: '../imgs/escalastermometricas.png', link: 'conteudos/escalas.html' },
-    { cap: 'Queda Livre', titulo: 'Corpos em queda com aceleração g', imagem: '../imgs/quedalivre.png', link: 'conteudos/queda.html' }
-  ],
-  termodinamica: [
-    { cap: 'Dilatação Térmica', titulo: 'Expansão de sólidos e líquidos', imagem: '../imgs/dilatacaotermica.png', link: 'conteudos/dilatacao.html' },
-    { cap: 'Calorimetria', titulo: 'Troca de calor entre corpos', imagem: '../imgs/calorimetria.png', link: 'conteudos/calorimetria.html' }
-  ],
-  ondas: [
-    { cap: 'Ondas e Óptica', titulo: 'Propagação de ondas e fenômenos ópticos', imagem: '../imgs/ondas.png', link: 'conteudos/ondas.html' },
-    { cap: 'Hidrostática', titulo: 'Pressão e princípios de fluidos', imagem: '../imgs/hidrostatica.png', link: 'conteudos/hidrostatica.html' },
-    { cap: 'Gravitação Universal', titulo: 'Lei da Gravitação de Newton', imagem: '../imgs/gravitacaouniversal.png', link: 'conteudos/gravidade.html' }
-  ],
-  eletromagnetismo: [
-    { cap: 'Eletricidade', titulo: 'Corrente elétrica e resistência', imagem: '../imgs/eletricidade.png', link: 'conteudos/eletricidade.html' },
-    { cap: 'Eletrostática', titulo: 'Cargas e forças elétricas', imagem: '../imgs/eletrostica.png', link: 'conteudos/eletrostatica.html' },
-    { cap: 'Eletromagnetismo', titulo: 'Campos magnéticos e indução', imagem: '../imgs/eletromagnetismo.png', link: 'conteudos/eletromagnetismo.html' },
-    { cap: 'Circuitos Elétricos', titulo: 'Circuitos, resistores e leis de Ohm', imagem: '../imgs/circuitoseletricos.png', link: 'conteudos/circuitos.html' },
-    { cap: 'Óptica Geométrica', titulo: 'Reflexão e refração da luz', imagem: '../imgs/opticageometrica.png', link: 'conteudos/optica.html' }
-  ]
-};
-
-
-  function criarCards(lista, idContainer) {
-    const container = document.getElementById(idContainer);
-    lista.forEach(c => {
-      const card = document.createElement('div');
-      card.classList.add('card');
-      card.innerHTML = `
-        <img src="${c.imagem}" alt="${c.cap}">
-        <div class="card-content">
-          <h3>${c.cap}</h3>
-          <p>${c.titulo}</p>
+    <div class="sidebar" id="sidebar">
         </div>
-      `;
-      if (c.link) {
-        card.style.cursor = 'pointer';
-        card.addEventListener('click', () => {
-          window.location.href = c.link;
-        });
-      }
-      container.appendChild(card);
-    });
-  }
+  <script src="https://erik-bernardo.github.io/SimuLab/dados/head.js"></script>
+    <script>
+        // --- DADOS DE CONTEÚDO DE FÍSICA (Placeholder) ---
+        const dadosConteudo = {
+            secoes: {
+                mecanica: {
+                    titulo: 'Mecânica',
+                    icone: '⚙️',
+                    cards: [
+                        { cap: 'MRU', titulo: 'Movimento Retilíneo Uniforme', imagem: '../imgs/mru_cont.png', link: 'conteudos/mru_cont.html' },
+                        { cap: 'MRUV', titulo: 'Movimento Retilíneo Uniformemente Variado', imagem: '../imgs/mruv_cont.png', link: 'conteudos/mruv_cont.html' },
+                        { cap: 'Dinâmica', titulo: 'Leis de Newton, Forças e Atrito.', imagem: '../imgs/dinamica_cont.png', link: 'conteudos/dinamica_cont.html' },
+                        { cap: 'Trabalho e Energia', titulo: 'Conceitos de Energia Cinética e Potencial.', imagem: '../imgs/energia_cont.png', link: 'conteudos/energia_cont.html' },
+                        { cap: 'Queda Livre', titulo: 'Corpos em queda com aceleração g', imagem: '../imgs/quedalivre_cont.png', link: 'conteudos/quedalivre_cont.html' },
+                        { cap: 'Hidrostática', titulo: 'Pressão e princípios de fluidos', imagem: '../imgs/hidrostatica_cont.png', link: 'conteudos/hidrostatica_cont.html' }
+                    ]
+                },
+                termodinamica: {
+                    titulo: 'Termodinâmica',
+                    icone: '🔥',
+                    cards: [
+                        { cap: 'Termometria', titulo: 'Escalas e conversão de temperaturas', imagem: '../imgs/termometria_cont.png', link: 'conteudos/termometria_cont.html' },
+                        { cap: 'Dilatação Térmica', titulo: 'Expansão de sólidos e líquidos', imagem: '../imgs/dilatacaotermica_cont.png', link: 'conteudos/dilatacao_termica_cont.html' },
+                        { cap: 'Calorimetria', titulo: 'Troca de calor e calor específico', imagem: '../imgs/calorimetria_cont.png', link: 'conteudos/calorimetria_cont.html' }
+                    ]
+                },
+                ondas: {
+                    titulo: 'Ondas e Óptica',
+                    icone: '🌊',
+                    cards: [
+                        { cap: 'Ondas', titulo: 'Propagação de ondas (V=λf)', imagem: '../imgs/ondas_cont.png', link: 'conteudos/ondas_cont.html' },
+                        { cap: 'Óptica Geométrica', titulo: 'Reflexão e refração da luz', imagem: '../imgs/optica_geo_cont.png', link: 'conteudos/optica_geo_cont.html' }
+                    ]
+                },
+                eletromagnetismo: {
+                    titulo: 'Eletromagnetismo',
+                    icone: '⚡',
+                    cards: [
+                        { cap: 'Eletricidade', titulo: 'Conceitos de Corrente, Tensão e Resistência', imagem: '../imgs/eletricidade_cont.png', link: 'conteudos/eletricidade_cont.html' },
+                        { cap: 'Circuitos', titulo: 'Circuitos, resistores e Leis de Ohm', imagem: '../imgs/circuitos_cont.png', link: 'conteudos/circuitos_cont.html' },
+                        { cap: 'Eletrostática', titulo: 'Cargas e Força Elétrica', imagem: '../imgs/eletrostatica_cont.png', link: 'conteudos/eletrostatica_cont.html' }
+                    ]
+                }
+            },
+            navActive: 'nav-conteudo',
+            pageTitle: 'Física - Conteúdo'
+        };
 
-  Object.keys(secoesFisica).forEach(sec => criarCards(secoesFisica[sec], `cards-${sec}`));
-</script>
+        // --- DADOS DAS SIMULAÇÕES DE FÍSICA (AGORA COM TODOS OS SEUS LINKS) ---
+        const dadosSimulacoes = {
+            secoes: {
+                mecanica: {
+                    titulo: 'Simulações Mecânica',
+                    icone: '⚙️',
+                    cards: [
+                        { cap: 'MRU', titulo: 'Simulador de Movimento Retilíneo Uniforme.', imagem: '../imgs/mru.png', link: 'simulacoes/mru.html' },
+                        { cap: 'MRUV', titulo: 'Simulador de Movimento Uniformemente Variado.', imagem: '../imgs/mruv.png', link: 'simulacoes/mruv.html' },
+                        { cap: 'Energia', titulo: 'Simulador de Energia Cinética e Potencial.', imagem: '../imgs/energia.png', link: 'simulacoes/energia.html' },
+                        { cap: 'Queda Livre', titulo: 'Simulador de Corpos em Queda Livre.', imagem: '../imgs/quedalivre.png', link: 'simulacoes/queda_livre.html' },
+                        { cap: 'Hidrostática', titulo: 'Simulador de Pressão em Fluidos.', imagem: '../imgs/hidrostatica.png', link: 'simulacoes/hidrostatica.html' },
+                        { cap: 'Gravitação', titulo: 'Simulador de Lei da Gravitação Universal.', imagem: '../imgs/gravitacaouniversal.png', link: 'simulacoes/gravitacao_universal.html' }
+                    ]
+                },
+                termodinamica: {
+                    titulo: 'Simulações Termo.',
+                    icone: '🔥',
+                    cards: [
+                        { cap: 'Escalas Term.', titulo: 'Simulador de Conversão de Escalas Termométricas.', imagem: '../imgs/escalastermometricas.png', link: 'simulacoes/escalas_termometricas.html' },
+                        { cap: 'Dilatação Térmica', titulo: 'Simulador de Expansão de Materiais.', imagem: '../imgs/dilatacaotermica.png', link: 'simulacoes/dilatacao_termica.html' },
+                        { cap: 'Calorimetria', titulo: 'Simulador de Troca de Calor.', imagem: '../imgs/calorimetria.png', link: 'simulacoes/calorimetria.html' }
+                    ]
+                },
+                ondas: {
+                    titulo: 'Simulações Ondas e Óptica',
+                    icone: '🌊',
+                    cards: [
+                        { cap: 'Ondas', titulo: 'Simulador de Propagação de Ondas.', imagem: '../imgs/ondas.png', link: 'simulacoes/ondas.html' },
+                        { cap: 'Óptica Geométrica', titulo: 'Simulador de Reflexão e Refração.', imagem: '../imgs/opticageometrica.png', link: 'simulacoes/optica_geo.html' }
+                    ]
+                },
+                eletromagnetismo: {
+                    titulo: 'Simulações Eletro.',
+                    icone: '⚡',
+                    cards: [
+                        { cap: 'Eletricidade', titulo: 'Simulador de Corrente e Tensão.', imagem: '../imgs/eletricidade.png', link: 'simulacoes/eletricidade.html' },
+                        { cap: 'Eletrostática', titulo: 'Simulador de Cargas e Forças Elétricas.', imagem: '../imgs/eletrostatica.png', link: 'simulacoes/eletrostatica.html' },
+                        { cap: 'Circuitos Elétricos', titulo: 'Simulador de Circuitos e Leis de Ohm.', imagem: '../imgs/circuitoseletricos.png', link: 'simulacoes/circuitos.html' },
+                        { cap: 'Eletromagnetismo', titulo: 'Simulador de Campos Magnéticos e Indução.', imagem: '../imgs/eletromagnetismo.png', link: 'simulacoes/eletromagnetismo.html' }
+                    ]
+                }
+            },
+            navActive: 'nav-simulacoes',
+            pageTitle: 'Física - Simulações'
+        };
+        
+        // --- DADOS DOS EXERCÍCIOS DE FÍSICA (Placeholder) ---
+        const dadosExercicios = {
+            secoes: {
+                mecanica: {
+                    titulo: 'Exercícios Mecânica',
+                    icone: '⚙️',
+                    cards: [
+                        { cap: 'Cinemática', titulo: 'Testes sobre MRU, MRUV e Lançamentos.', imagem: '../imgs/ex_cinematica.png', link: 'exercicios/cinematica.html' },
+                        { cap: 'Dinâmica', titulo: 'Questões sobre Leis de Newton, Forças e Atrito.', imagem: '../imgs/ex_dinamica.png', link: 'exercicios/dinamica.html' },
+                        { cap: 'Trabalho e Energia', titulo: 'Problemas de conservação de energia e potência.', imagem: '../imgs/ex_trabalho_energia.png', link: 'exercicios/trabalho_energia.html' }
+                    ]
+                },
+                termodinamica: {
+                    titulo: 'Exercícios Termo.',
+                    icone: '🔥',
+                    cards: [
+                        { cap: 'Calor e Temperatura', titulo: 'Problemas envolvendo calorimetria e escalas.', imagem: '../imgs/ex_calor.png', link: 'exercicios/calor.html' },
+                        { cap: 'Termodinâmica', titulo: 'Questões sobre transformações gasosas e trabalho.', imagem: '../imgs/ex_termo.png', link: 'exercicios/termodinamica.html' }
+                    ]
+                },
+                ondas: {
+                    titulo: 'Exercícios Ondas e Óptica',
+                    icone: '🌊',
+                    cards: [
+                        { cap: 'Ondulatória', titulo: 'Testes sobre velocidade, frequência e comprimento de onda.', imagem: '../imgs/ex_ondas.png', link: 'exercicios/ondulatoria.html' },
+                        { cap: 'Óptica', titulo: 'Questões sobre reflexão, refração e lentes.', imagem: '../imgs/ex_optica.png', link: 'exercicios/optica.html' }
+                    ]
+                },
+                eletromagnetismo: {
+                    titulo: 'Exercícios Eletro.',
+                    icone: '⚡',
+                    cards: [
+                        { cap: 'Eletricidade', titulo: 'Testes sobre circuitos, resistores e potência.', imagem: '../imgs/ex_eletricidade.png', link: 'exercicios/eletricidade.html' },
+                        { cap: 'Campos e Forças', titulo: 'Problemas de Eletrostática e Eletromagnetismo.', imagem: '../imgs/ex_campos.png', link: 'exercicios/campos.html' }
+                    ]
+                }
+            },
+            navActive: 'nav-exercicios',
+            pageTitle: 'Física - Exercícios'
+        };
+
+
+        // --- FUNÇÕES DE RENDERIZAÇÃO (Mantidas do código anterior) ---
+        const mainContent = document.getElementById('main-content');
+        const sidebar = document.getElementById('sidebar');
+        const navLinks = document.querySelectorAll('nav a');
+
+        function criarCards(lista) {
+            const container = document.createElement('div');
+            container.classList.add('cards');
+
+            lista.forEach(c => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.innerHTML = `
+                    <img src="${c.imagem}" alt="${c.cap}">
+                    <div class="card-content">
+                        <h3>${c.cap}</h3>
+                        <p>${c.titulo}</p>
+                    </div>
+                `;
+                card.addEventListener('click', () => {
+                    window.location.href = c.link;
+                });
+                container.appendChild(card);
+            });
+            return container;
+        }
+
+        function renderizarPagina(dados) {
+            // 1. Limpa o conteúdo atual
+            mainContent.innerHTML = '';
+            sidebar.innerHTML = '';
+            
+            // 2. Atualiza o título da página
+            document.getElementById('page-title').textContent = dados.pageTitle;
+
+            // 3. Renderiza as seções e o menu lateral
+            Object.keys(dados.secoes).forEach(key => {
+                const secao = dados.secoes[key];
+                const sectionId = key;
+                
+                // Cria a Seção (main content)
+                const sectionElement = document.createElement('section');
+                sectionElement.id = sectionId;
+                sectionElement.innerHTML = `<h2>${secao.titulo}</h2>`;
+                sectionElement.appendChild(criarCards(secao.cards));
+                mainContent.appendChild(sectionElement);
+
+                // Cria o botão da Sidebar
+                const button = document.createElement('button');
+                const buttonTextMap = {
+                    'mecanica': 'Mecânica',
+                    'termodinamica': 'Termo.',
+                    'ondas': 'Ondas/Ópt.',
+                    'eletromagnetismo': 'Eletro.'
+                };
+                const buttonText = buttonTextMap[key] || secao.titulo.split(' ')[0];
+                
+                button.textContent = `${secao.icone} ${buttonText}`; 
+                button.onclick = () => scrollToSection(sectionId);
+                sidebar.appendChild(button);
+            });
+
+            // 4. Atualiza o estado da navegação
+            navLinks.forEach(link => link.classList.remove('active'));
+            document.getElementById(dados.navActive).classList.add('active');
+        }
+
+        function carregarConteudo(tipo) {
+            let dados;
+            if (tipo === 'simulacoes') {
+                dados = dadosSimulacoes;
+            } else if (tipo === 'conteudo') {
+                dados = dadosConteudo;
+            } else if (tipo === 'exercicios') {
+                dados = dadosExercicios;
+            }
+            renderizarPagina(dados);
+        }
+        
+        // --- EVENT LISTENERS ---
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tipo = link.getAttribute('data-type');
+                carregarConteudo(tipo);
+            });
+        });
+
+        // --- SCROLL SUAVE ---
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // --- INICIALIZAÇÃO: Carrega a página de Conteúdo por padrão ---
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarConteudo('conteudo'); 
+        });
+    </script>
 </body>
 </html>
