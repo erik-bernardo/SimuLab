@@ -1,222 +1,400 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Matemática - Conteúdo</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="page-title">Química - Conteúdo</title>
 
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f6f6f9;
-      margin: 0;
-      padding: 0;
-      scroll-behavior: smooth;
-    }
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f6f6f9;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
 
-    /* ---------- NAVBAR ---------- */
-    header {
-      background-color: #f8f8ff;
-      border-bottom: 2px solid #ddd;
-      text-align: center;
-      padding: 10px 0;
-    }
+        /* ---------- NAVBAR ---------- */
+        header {
+            background-color: #f8f8ff;
+            border-bottom: 2px solid #ddd;
+            text-align: center;
+            padding: 10px 0;
+        }
 
-    nav {
-      display: flex;
-      justify-content: center;
-      gap: 50px;
-    }
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+        }
 
-    nav a {
-      text-decoration: none;
-      color: #555;
-      font-weight: 500;
-      font-size: 16px;
-      padding-bottom: 5px;
-      transition: all 0.3s ease;
-    }
+        nav a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            font-size: 16px;
+            padding-bottom: 5px;
+            transition: all 0.3s ease;
+        }
 
-    nav a.active {
-      border-bottom: 3px solid #4b5cff;
-      color: #4b5cff;
-    }
+        nav a.active {
+            border-bottom: 3px solid #4b5cff;
+            color: #4b5cff;
+        }
 
-    nav a:hover {
-      color: #4b5cff;
-    }
+        nav a:hover {
+            color: #4b5cff;
+        }
 
-    /* ---------- CONTEÚDO ---------- */
-    main {
-      max-width: 1000px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
+        /* ---------- CONTEÚDO ---------- */
+        main {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
 
-    section {
-      margin-bottom: 60px;
-    }
+        section {
+            margin-bottom: 60px;
+        }
 
-    section h2 {
-      margin-bottom: 20px;
-      font-size: 22px;
-      font-weight: 600;
-      color: #2f3fd6;
-      border-left: 5px solid #2f3fd6;
-      padding-left: 10px;
-    }
+        section h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 600;
+            color: #2f3fd6;
+            border-left: 5px solid #2f3fd6;
+            padding-left: 10px;
+        }
 
-    /* ---------- CARDS ---------- */
-    .card {
-      background-color: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      margin-bottom: 25px;
-      overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
+        /* ---------- CARDS ---------- */
+        .card {
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
 
-    .card:hover {
-      transform: scale(1.02);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    }
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
 
-    .card img {
-      width: 200px;
-      height: 140px;
-      object-fit: cover;
-    }
+        .card img {
+            width: 200px;
+            height: 140px;
+            object-fit: cover;
+            /* Levemente escuro para dar destaque ao texto */
+            filter: brightness(0.85); 
+        }
 
-    .card-content {
-      padding: 20px;
-    }
+        .card-content {
+            padding: 20px;
+        }
 
-    .card h3 {
-      margin: 0;
-      font-size: 18px;
-      color: #333;
-    }
+        .card h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
 
-    .card p {
-      color: #555;
-      font-size: 14px;
-      margin-top: 8px;
-    }
+        .card p {
+            color: #555;
+            font-size: 14px;
+            margin-top: 8px;
+        }
 
-    /* ---------- MENU LATERAL ---------- */
-    .sidebar {
-      position: fixed;
-      right: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      z-index: 10;
-    }
+        /* ---------- MENU LATERAL ---------- */
+        .sidebar {
+            position: fixed;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+        }
 
-    .sidebar button {
-      background-color: #4b5cff;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background 0.3s;
-    }
+        .sidebar button {
+            background-color: #4b5cff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
 
-    .sidebar button:hover {
-      background-color: #2f3fd6;
-    }
+        .sidebar button:hover {
+            background-color: #2f3fd6;
+        }
 
-    @media (max-width: 700px) {
-      .card { flex-direction: column; }
-      .card img { width: 100%; }
-      .sidebar { display: none; }
-    }
-  </style>
+        @media (max-width: 700px) {
+            .card { flex-direction: column; }
+            .card img { width: 100%; }
+            .sidebar { display: none; }
+        }
+    </style>
 </head>
 
 <body>
-  <!-- Cabeçalho principal vindo do head.js -->
-<script src="../../../dados/head.js"></script>
-  <!-- Barra de navegação -->
-  <header>
-    <nav>
-      <a href="#" id="simulacoes">Simulações</a>
-      <a href="#" class="active" id="conteudo">Conteúdo</a>
-      <a href="#" id="exercicios">Exercícios</a>
-    </nav>
-  </header>
+    <header>
+        <nav>
+            <a href="#" id="nav-simulacoes" data-type="simulacoes">Simulações</a>
+            <a href="#" id="nav-conteudo" class="active" data-type="conteudo">Conteúdo</a>
+            <a href="#" id="nav-exercicios" data-type="exercicios">Exercícios</a>
+        </nav>
+    </header>
 
-  <main>
-  <section id="quimica-geral">
-  <h2>Química Geral</h2>
-  <div class="cards" id="cards-quimica-geral"></div>
-</section>
+    <main id="main-content">
+        </main>
 
-<section id="quimica-inorganica">
-  <h2>Química Inorgânica</h2>
-  <div class="cards" id="cards-quimica-inorganica"></div>
-</section>
+    <div class="sidebar" id="sidebar">
+        </div>
 
-<section id="quimica-organica">
-  <h2>Química Orgânica e Aplicada</h2>
-  <div class="cards" id="cards-quimica-organica"></div>
-</section>
+    <script>
+        // --- URLs de Imagens Coletadas (em respectiva ordem) ---
+        const IMG = {
+            tabela: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRk4E3jz9NXQ0C3gqvM3hTLg52DZ3u5ZN7m94wsr0hX_5jEHvQICglbKiVSOt7Qkq3GkRJqbMC',
+            ligacoes: 'https://pt.quizur.com/_image?href=https://img.quizur.com/f/img65467c92dac138.01922785.jpeg?lastEdited=1699118230&w=600&h=600&f=webp',
+            acidos: 'https://static.todamateria.com.br/upload/oq/ue/o-que-e-ph-og.jpg',
+            balanceamento: 'https://static.todamateria.com.br/upload/ex/er/exercicios-de-balanceamento-quimico-og.jpg?class=ogImageWide',
+            inorganica: 'https://static.manualdaquimica.com/conteudo/images/acima-temos-as-formulas-quimicas-das-substancias-inorganicas-5432f290bac90.jpg',
+            
+            nox: 'https://www.globalcolor.com.br/wp-content/uploads/2018/09/corros%C3%A3o.jpg', // Usada para NOX
+            estequiometria: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQie3n9NX-YtK89WK1agDnZyVsUVlleNbjUjw&s', // Usada para Estequiometria
+            solucoes: 'https://s2-receitas.glbimg.com/tvyOfagdrdn28Q-WsA3MWaTZ0OI=/0x0:1366x768/600x0/smart/filters:gifv():strip_icc()/i.s3.glbimg.com/v1/AUTH_1f540e0b94d8437dbbc39d567a1dee68/internal_photos/bs/2023/h/W/FznlYaSACRqKM3qcNYgA/agua-com-sal.jpg',
+            reacoes: 'https://static.preparaenem.com/conteudo_legenda/4a709a3c0dac783714e6ac7788db7779.jpg',
+            cinetica: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEht2tTEtjTE85x4el7sWLIKweQJvbzu7hfhACqCzXsegx_U_KDzZ4YoCmGCbneg0JxWSYeBSjKGe5AbRXYkM3i101MaecrHpa8SjkDBg2J2qc1J812KFfbRnzC35IZ7EkQkLR3-Ud7DxrGg/s1600/Cinetica+Quimica.jpg',
+            
+            organica: 'https://s5.static.brasilescola.uol.com.br/be/2024/08/quimico-manipulando-compostos-organicos-uma-alusao-a-quimica-organica.jpg',
+            eletroquimica: 'https://i.ytimg.com/vi/9wr9R6yOg5c/maxresdefault.jpg',
+            termoquimica: 'https://static.todamateria.com.br/upload/re/ac/reacoesendotermicaeexotermica-cke.jpg',
+            radioatividade: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfh5IEodr60sRwfQbu7V6mscWJVJwI9fhcg&s',
+            polimeros: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwsLbp5lGOOdIK8SefXhG8VUPaODUzwNgjMA&s',
+            
+            exercicios: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg' // Imagem genérica para exercícios
+        };
 
-<script>
-const secoesQuimica = {
-  'quimica-geral': [
-    { cap: 'Tabela Periódica', titulo: 'Elementos, famílias e períodos', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/tabela-periodica.html' },
-    { cap: 'Ligações Químicas', titulo: 'Iônicas, covalentes e metálicas', imagem: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg', link: 'quimica/ligacoes.html' },
-    { cap: 'Ácidos e Bases', titulo: 'pH, pOH e reações ácido-base', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/acidos-bases.html' },
-    { cap: 'Balanceamento', titulo: 'Equações químicas balanceadas', imagem: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg', link: 'quimica/balanceamento.html' },
-    { cap: 'Funções Inorgânicas', titulo: 'Ácidos, bases, sais e óxidos', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/funcoes-inorganicas.html' }
-  ],
-  'quimica-inorganica': [
-    { cap: 'NOX', titulo: 'Número de oxidação dos elementos', imagem: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg', link: 'quimica/nox.html' },
-    { cap: 'Estequiometria', titulo: 'Cálculos de reagentes e produtos', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/estequiometria.html' },
-    { cap: 'Soluções', titulo: 'Concentração e diluição', imagem: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg', link: 'quimica/solucoes.html' },
-    { cap: 'Reações Químicas', titulo: 'Tipos de reações e mecanismos', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/reacoes.html' },
-    { cap: 'Cinética Química', titulo: 'Velocidade e fatores de reação', imagem: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg', link: 'quimica/cinetica.html' }
-  ],
-  'quimica-organica': [
-    { cap: 'Orgânica', titulo: 'Hidrocarbonetos e funções orgânicas', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/organica.html' },
-    { cap: 'Eletroquímica', titulo: 'Redox e pilhas eletroquímicas', imagem: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg', link: 'quimica/eletroquimica.html' },
-    { cap: 'Termoquímica', titulo: 'Reações e calor envolvido', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/termoquimica.html' },
-    { cap: 'Radioatividade', titulo: 'Decaimento e tipos de radiação', imagem: 'https://cdn.pixabay.com/photo/2017/02/02/15/53/chemistry-2030970_960_720.jpg', link: 'quimica/radioatividade.html' },
-    { cap: 'Polímeros', titulo: 'Plásticos, borrachas e síntese', imagem: 'https://cdn.pixabay.com/photo/2016/03/31/20/11/science-1299821_960_720.jpg', link: 'quimica/polimeros.html' }
-  ]
-};
 
-function criarCards(lista, idContainer) {
-  const container = document.getElementById(idContainer);
-  lista.forEach(c => {
-    const card = document.createElement('div');
-    card.classList.add('card');
-    card.innerHTML = `
-      <img src="${c.imagem}" alt="${c.cap}">
-      <div class="card-content">
-        <h3>${c.cap}</h3>
-        <p>${c.titulo}</p>
-      </div>
-    `;
-    if (c.link) {
-      card.style.cursor = 'pointer';
-      card.addEventListener('click', () => {
-        window.location.href = c.link;
-      });
-    }
-    container.appendChild(card);
-  });
-}
+        // --- DADOS DE CONTEÚDO DE QUÍMICA ---
+        const dadosConteudo = {
+            secoes: {
+                'quimica-geral': {
+                    titulo: 'Química Geral',
+                    icone: '🧪',
+                    cards: [
+                        { cap: 'Tabela Periódica', titulo: 'Elementos, famílias e períodos', imagem: IMG.tabela, link: 'conteudos/tabela-periodica-cont.html' },
+                        { cap: 'Ligações Químicas', titulo: 'Iônicas, covalentes e metálicas', imagem: IMG.ligacoes, link: 'conteudos/ligacoes-cont.html' },
+                        { cap: 'Ácidos e Bases', titulo: 'pH, pOH e reações ácido-base', imagem: IMG.acidos, link: 'conteudos/acidos-bases-cont.html' },
+                        { cap: 'Balanceamento', titulo: 'Equações químicas balanceadas', imagem: IMG.balanceamento, link: 'conteudos/balanceamento-cont.html' },
+                        { cap: 'Funções Inorgânicas', titulo: 'Ácidos, bases, sais e óxidos', imagem: IMG.inorganica, link: 'conteudos/funcoes-inorganicas-cont.html' }
+                    ]
+                },
+                'quimica-inorganica': {
+                    titulo: 'Química Inorgânica',
+                    icone: '⚛️',
+                    cards: [
+                        { cap: 'NOX', titulo: 'Número de oxidação dos elementos', imagem: IMG.nox, link: 'conteudos/nox-cont.html' },
+                        { cap: 'Estequiometria', titulo: 'Cálculos de reagentes e produtos', imagem: IMG.estequiometria, link: 'conteudos/estequiometria-cont.html' },
+                        { cap: 'Soluções', titulo: 'Concentração e diluição', imagem: IMG.solucoes, link: 'conteudos/solucoes-cont.html' },
+                        { cap: 'Reações Químicas', titulo: 'Tipos de reações e mecanismos', imagem: IMG.reacoes, link: 'conteudos/reacoes-cont.html' },
+                        { cap: 'Cinética Química', titulo: 'Velocidade e fatores de reação', imagem: IMG.cinetica, link: 'conteudos/cinetica-cont.html' }
+                    ]
+                },
+                'quimica-organica': {
+                    titulo: 'Química Orgânica e Aplicada',
+                    icone: '🌿',
+                    cards: [
+                        { cap: 'Orgânica', titulo: 'Hidrocarbonetos e funções orgânicas', imagem: IMG.organica, link: 'conteudos/organica-cont.html' },
+                        { cap: 'Eletroquímica', titulo: 'Redox e pilhas eletroquímicas', imagem: IMG.eletroquimica, link: 'conteudos/eletroquimica-cont.html' },
+                        { cap: 'Termoquímica', titulo: 'Reações e calor envolvido', imagem: IMG.termoquimica, link: 'conteudos/termoquimica-cont.html' },
+                        { cap: 'Radioatividade', titulo: 'Decaimento e tipos de radiação', imagem: IMG.radioatividade, link: 'conteudos/radioatividade-cont.html' },
+                        { cap: 'Polímeros', titulo: 'Plásticos, borrachas e síntese', imagem: IMG.polimeros, link: 'conteudos/polimeros-cont.html' }
+                    ]
+                }
+            },
+            navActive: 'nav-conteudo',
+            pageTitle: 'Química - Conteúdo'
+        };
 
-Object.keys(secoesQuimica).forEach(sec => criarCards(secoesQuimica[sec], `cards-${sec}`));
-</script>
+        // --- DADOS DAS SIMULAÇÕES DE QUÍMICA ---
+        const dadosSimulacoes = {
+            secoes: {
+                'quimica-geral': {
+                    titulo: 'Simulações Química Geral',
+                    icone: '🧪',
+                    cards: [
+                        { cap: 'Tabela Periódica', titulo: 'Explorador interativo de elementos.', imagem: IMG.tabela, link: 'simulacoes/tabela_periodica.html' },
+                        { cap: 'Ligações Químicas', titulo: 'Montagem de moléculas iônicas e covalentes.', imagem: IMG.ligacoes, link: 'simulacoes/ligacoes.html' },
+                        { cap: 'Ácidos e Bases', titulo: 'Medidor virtual de pH e pOH.', imagem: IMG.acidos, link: 'simulacoes/acidos_bases.html' },
+                        { cap: 'Balanceamento', titulo: 'Ferramenta para balancear equações químicas.', imagem: IMG.balanceamento, link: 'simulacoes/balanceamento.html' },
+                        { cap: 'Funções Inorgânicas', titulo: 'Nomenclatura e classificação de compostos.', imagem: IMG.inorganica, link: 'simulacoes/funcoes_inorganicas.html' }
+                    ]
+                },
+                'quimica-inorganica': {
+                    titulo: 'Simulações Inorgânica',
+                    icone: '⚛️',
+                    cards: [
+                        { cap: 'NOX', titulo: 'Cálculo e identificação do Número de Oxidação.', imagem: IMG.nox, link: 'simulacoes/nox.html' },
+                        { cap: 'Estequiometria', titulo: 'Cálculos de massa e mols em reações.', imagem: IMG.estequiometria, link: 'simulacoes/estequiometria.html' },
+                        { cap: 'Soluções', titulo: 'Preparação e diluição de soluções.', imagem: IMG.solucoes, link: 'simulacoes/solucoes.html' },
+                        { cap: 'Reações Químicas', titulo: 'Visualizador de tipos de reações.', imagem: IMG.reacoes, link: 'simulacoes/reacoes.html' },
+                        { cap: 'Cinética Química', titulo: 'Fatores que afetam a velocidade da reação.', imagem: IMG.cinetica, link: 'simulacoes/cinetica.html' }
+                    ]
+                },
+                'quimica-organica': {
+                    titulo: 'Simulações Orgânica e Aplicada',
+                    icone: '🌿',
+                    cards: [
+                        { cap: 'Orgânica', titulo: 'Estruturas e isomeria de compostos orgânicos.', imagem: IMG.organica, link: 'simulacoes/organica.html' },
+                        { cap: 'Eletroquímica', titulo: 'Simulador de Pilhas e Eletrólise.', imagem: IMG.eletroquimica, link: 'simulacoes/eletroquimica.html' },
+                        { cap: 'Termoquímica', titulo: 'Cálculo de entalpia e energia de reação.', imagem: IMG.termoquimica, link: 'simulacoes/termoquimica.html' },
+                        { cap: 'Radioatividade', titulo: 'Decaimento alfa, beta e meia-vida.', imagem: IMG.radioatividade, link: 'simulacoes/radioatividade.html' },
+                        { cap: 'Polímeros', titulo: 'Simulador de síntese e tipos de polimerização.', imagem: IMG.polimeros, link: 'simulacoes/polimeros.html' }
+                    ]
+                }
+            },
+            navActive: 'nav-simulacoes',
+            pageTitle: 'Química - Simulações'
+        };
+        
+        // --- DADOS DOS EXERCÍCIOS DE QUÍMICA (Placeholder com imagens) ---
+        const dadosExercicios = {
+            secoes: {
+                'quimica-geral': {
+                    titulo: 'Exercícios Química Geral',
+                    icone: '✏️',
+                    cards: [
+                        { cap: 'Conceitos Fundamentais', titulo: 'Testes de estrutura atômica e Tabela Periódica.', imagem: IMG.exercicios, link: 'exercicios/quimica-geral.html' },
+                        { cap: 'Ligações Químicas', titulo: 'Questões sobre polaridade e tipos de ligação.', imagem: IMG.exercicios, link: 'exercicios/ligacoes-quimicas.html' }
+                    ]
+                },
+                'quimica-inorganica': {
+                    titulo: 'Exercícios Inorgânica',
+                    icone: '📝',
+                    cards: [
+                        { cap: 'Estequiometria', titulo: 'Cálculos de reagente limitante e rendimento.', imagem: IMG.exercicios, link: 'exercicios/estequiometria.html' },
+                        { cap: 'Soluções e Concentração', titulo: 'Problemas de molaridade, ppm e diluição.', imagem: IMG.exercicios, link: 'exercicios/solucoes.html' }
+                    ]
+                },
+                'quimica-organica': {
+                    titulo: 'Exercícios Orgânica e Aplicada',
+                    icone: '📚',
+                    cards: [
+                        { cap: 'Nomenclatura Orgânica', titulo: 'Identificação e nomes de compostos orgânicos.', imagem: IMG.exercicios, link: 'exercicios/organica.html' },
+                        { cap: 'Reações Eletroquímicas', titulo: 'Testes sobre Pilhas de Daniell e potencial de redução.', imagem: IMG.exercicios, link: 'exercicios/eletroquimica.html' }
+                    ]
+                }
+            },
+            navActive: 'nav-exercicios',
+            pageTitle: 'Química - Exercícios'
+        };
 
+
+        // --- FUNÇÕES DE RENDERIZAÇÃO ---
+        const mainContent = document.getElementById('main-content');
+        const sidebar = document.getElementById('sidebar');
+        const navLinks = document.querySelectorAll('nav a');
+
+        function criarCards(lista) {
+            const container = document.createElement('div');
+            container.classList.add('cards');
+
+            lista.forEach(c => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.innerHTML = `
+                    <img src="${c.imagem}" alt="${c.cap}">
+                    <div class="card-content">
+                        <h3>${c.cap}</h3>
+                        <p>${c.titulo}</p>
+                    </div>
+                `;
+                card.addEventListener('click', () => {
+                    // Navega para o link do card
+                    window.location.href = c.link; 
+                });
+                container.appendChild(card);
+            });
+            return container;
+        }
+
+        function renderizarPagina(dados) {
+            // 1. Limpa o conteúdo atual
+            mainContent.innerHTML = '';
+            sidebar.innerHTML = '';
+            
+            // 2. Atualiza o título da página
+            document.getElementById('page-title').textContent = dados.pageTitle;
+
+            // 3. Renderiza as seções e o menu lateral
+            Object.keys(dados.secoes).forEach(key => {
+                const secao = dados.secoes[key];
+                const sectionId = key;
+                
+                // Cria a Seção (main content)
+                const sectionElement = document.createElement('section');
+                sectionElement.id = sectionId;
+                sectionElement.innerHTML = `<h2>${secao.titulo}</h2>`;
+                sectionElement.appendChild(criarCards(secao.cards));
+                mainContent.appendChild(sectionElement);
+
+                // Cria o botão da Sidebar
+                const button = document.createElement('button');
+                const buttonTextMap = {
+                    'quimica-geral': 'Geral',
+                    'quimica-inorganica': 'Inorgânica',
+                    'quimica-organica': 'Orgânica'
+                };
+                const buttonText = buttonTextMap[key] || secao.titulo.split(' ')[0];
+                
+                button.textContent = `${secao.icone} ${buttonText}`; 
+                button.onclick = () => scrollToSection(sectionId);
+                sidebar.appendChild(button);
+            });
+
+            // 4. Atualiza o estado da navegação
+            navLinks.forEach(link => link.classList.remove('active'));
+            document.getElementById(dados.navActive).classList.add('active');
+        }
+
+        function carregarConteudo(tipo) {
+            let dados;
+            if (tipo === 'simulacoes') {
+                dados = dadosSimulacoes;
+            } else if (tipo === 'conteudo') {
+                dados = dadosConteudo;
+            } else if (tipo === 'exercicios') {
+                dados = dadosExercicios;
+            }
+            renderizarPagina(dados);
+        }
+        
+        // --- EVENT LISTENERS ---
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tipo = link.getAttribute('data-type');
+                carregarConteudo(tipo);
+            });
+        });
+
+        // --- SCROLL SUAVE ---
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // --- INICIALIZAÇÃO: Carrega a página de Conteúdo por padrão ---
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarConteudo('conteudo'); 
+        });
+    </script>
 </body>
 </html>
