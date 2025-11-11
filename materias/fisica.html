@@ -88,7 +88,8 @@
             width: 200px;
             height: 140px;
             object-fit: cover;
-            filter: brightness(0.9);
+            /* Levemente escuro para dar destaque ao texto (adaptado do código de Química) */
+            filter: brightness(0.85); 
         }
 
         .card-content {
@@ -152,51 +153,97 @@
     </header>
 
     <main id="main-content">
-        </main>
+    </main>
 
     <div class="sidebar" id="sidebar">
-        </div>
-  <script src="https://erik-bernardo.github.io/SimuLab/dados/head.js"></script>
+    </div>
+
     <script>
-        // --- DADOS DE CONTEÚDO DE FÍSICA (Placeholder) ---
+        // --- URLs de Imagens Coletadas (Adaptadas do seu código original de Física) ---
+        const IMG_FISICA = {
+            // Conteúdo
+            mru_cont: 'https://images.unsplash.com/photo-1542866687-3532b4b4594c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxNb3ZpbWVudG8lMjBSZXRpbMOtbmVvJTIwVW5pZm9ybWV8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400', 
+            mruv_cont: 'https://images.unsplash.com/photo-1629729019777-6f7d0c354e4b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxNb3ZpbWVudG8lMjBWYXJpYWRvfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            dinamica_cont: 'https://images.unsplash.com/photo-1577740266942-d6101c5651a0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxMZWlzJTIwZGUlMjBOZXd0b258ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
+            energia_cont: 'https://images.unsplash.com/photo-1550993952-446755498a44?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxUcmFiYWxobyUyZSUyMEVuZXJnaWF8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
+            quedalivre_cont: 'https://images.unsplash.com/photo-1518331441221-a083f2a5883a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxRdWVkYSUyMExpdnJlfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            hidrostatica_cont: 'https://images.unsplash.com/photo-1509923237703-9d0d3b66e3b5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxIaWRyb3N0JUMzJUExdGljYXxlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
+            termometria_cont: 'https://images.unsplash.com/photo-1594911765275-296b02f8354c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxUZXJtb21ldHJpYXxlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
+            dilatacaotermica_cont: 'https://images.unsplash.com/photo-1520188989502-3b2e2d83e20d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxEaWxhdGElQzMlQTdjaW8lMjBUJUMzJUE5cm1pY2F8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
+            calorimetria_cont: 'https://images.unsplash.com/photo-1563209861-125d7e7d95d1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxDYWxvcmltZXRyaWF8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
+            ondas_cont: 'https://images.unsplash.com/photo-1523473183577-e85df649f877?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxPbmRhc3xlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
+            optica_geo_cont: 'https://images.unsplash.com/photo-1525287518464-904008779b69?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxcdGljYSUyMEdlb21cdXRldHJpY2F8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
+            eletricidade_cont: 'https://images.unsplash.com/photo-1529148482703-9d18c187f556?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxFbGV0cmljaWRhZGV8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
+            circuitos_cont: 'https://images.unsplash.com/photo-1549480644-8d96dc6386cc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxDaXJjdWl0b3MlMjBlbMOpdHJpY29zfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            eletrostatica_cont: 'https://images.unsplash.com/photo-1510480309100-84318c4c3b53?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxFbGV0cm9zdGF0aWNhfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            // Simulações
+            mru: 'https://images.unsplash.com/photo-1509048184285-b1a72d731170?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBNUlV8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
+            mruv: 'https://images.unsplash.com/photo-1627885474770-5b57d6e61f1c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBNUlVWGZfMTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            energia: 'https://images.unsplash.com/photo-1518928014560-644e54e4c9f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjRFbmVyZ2lhfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            queda_livre: 'https://images.unsplash.com/photo-1558507851-912803b0c8b6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBRdWVkYSUyMExpdnJlfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            hidrostatica: 'https://images.unsplash.com/photo-1519757656111-e4070a37e192?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBIaWRyb3N0JUMzJUExdGljYXxlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
+            gravitacaouniversal: 'https://images.unsplash.com/photo-1628126300488-88849b28a8d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxHcmF2aXRhJUMzJUExeUElQzMlQTNvJTIwVW5pdmVyc2FsX2VufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            escalastermometricas: 'https://images.unsplash.com/photo-1542385361-9c8e88e404b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxUaGVybW9tZXRlcnxlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
+            dilatacaotermica: 'https://images.unsplash.com/photo-1547847703-e8473a25121b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxNZXRhbCUyMGV4cGFuc2lvbnxlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
+            calorimetria: 'https://images.unsplash.com/photo-1571407335900-344c4b63300a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxDYWxvcmVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            ondas: 'https://images.unsplash.com/photo-1548679462-850f3c5553e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBPbmRhc3xlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
+            opticageometrica: 'https://images.unsplash.com/photo-1525547719543-ee0d19b78a9c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBSZWZyYedvX2VufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            eletricidade: 'https://images.unsplash.com/photo-1627449557262-52723707823f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBFbGV0cmljaWRhZGV8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
+            eletrostatica: 'https://images.unsplash.com/photo-1502470733301-443b7468162f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBFbGV0cm9zdGF0aWNhX2VufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            circuitoseletricos: 'https://images.unsplash.com/photo-1605796248906-8d5c4109403b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBDaXJjdWl0b3N8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
+            eletromagnetismo: 'https://images.unsplash.com/photo-1596798030999-7c15e61d8a39?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBFbGV0cm9tYWduZXRpc21vfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            // Exercícios
+            ex_cinematica: 'https://images.unsplash.com/photo-1550439003-8d48509c919d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxFeGVyY2ljdGhjaW8lMjBDaW5lbWF0aWNhX2VufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            ex_dinamica: 'https://images.unsplash.com/photo-1550993952-446755498a44?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxFeGVyY2ljdGtvcyUyMERpbmFtaWNhX2VufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            ex_trabalho_energia: 'https://images.unsplash.com/photo-1520188989502-3b2e2d83e20d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHxFeGVyY2ljdGtvcyUyMEVuZXJnaWFfZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
+            ex_calor: 'https://images.unsplash.com/photo-1563209861-125d7e7d95d1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHxFeGVyY2ljdGtvcyUyMENhbG9yaW1ldHJpYXxlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
+            ex_termo: 'https://images.unsplash.com/photo-1518928014560-644e54e4c9f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHxFeGVyY2ljdGtvcyUyMFRlcm1vZGluYW1pY2FfZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
+            ex_ondas: 'https://images.unsplash.com/photo-1523473183577-e85df649f877?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHxFeGVyY2ljdGtvcyUyME9uZGFzfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            ex_optica: 'https://images.unsplash.com/photo-1525287518464-904008779b69?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHxFeGVyY2ljdGtvcyUyMCVDMyU5M3B0aWNhX2VufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
+            ex_eletricidade: 'https://images.unsplash.com/photo-1529148482703-9d18c187f556?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHxFeGVyY2ljdGtvcyUyMEVsZXRyaWNpZGFkZV9lbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
+            ex_campos: 'https://images.unsplash.com/photo-1502470733301-443b7468162f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHxFeGVyY2ljdGtvcyUyMEVsZXRyb21hZ25ldGlzbW9fZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400'
+        };
+
+
+        // --- DADOS DE CONTEÚDO DE FÍSICA (Com URLs de imagem) ---
         const dadosConteudo = {
             secoes: {
                 mecanica: {
                     titulo: 'Mecânica',
                     icone: '⚙️',
                     cards: [
-                        { cap: 'MRU', titulo: 'Movimento Retilíneo Uniforme', imagem: '../imgs/mru_cont.png', link: 'conteudos/mru_cont.html' },
-                        { cap: 'MRUV', titulo: 'Movimento Retilíneo Uniformemente Variado', imagem: '../imgs/mruv_cont.png', link: 'conteudos/mruv_cont.html' },
-                        { cap: 'Dinâmica', titulo: 'Leis de Newton, Forças e Atrito.', imagem: '../imgs/dinamica_cont.png', link: 'conteudos/dinamica_cont.html' },
-                        { cap: 'Trabalho e Energia', titulo: 'Conceitos de Energia Cinética e Potencial.', imagem: '../imgs/energia_cont.png', link: 'conteudos/energia_cont.html' },
-                        { cap: 'Queda Livre', titulo: 'Corpos em queda com aceleração g', imagem: '../imgs/quedalivre_cont.png', link: 'conteudos/quedalivre_cont.html' },
-                        { cap: 'Hidrostática', titulo: 'Pressão e princípios de fluidos', imagem: '../imgs/hidrostatica_cont.png', link: 'conteudos/hidrostatica_cont.html' }
+                        { cap: 'MRU', titulo: 'Movimento Retilíneo Uniforme', imagem: IMG_FISICA.mru_cont, link: 'conteudos/mru_cont.html' },
+                        { cap: 'MRUV', titulo: 'Movimento Retilíneo Uniformemente Variado', imagem: IMG_FISICA.mruv_cont, link: 'conteudos/mruv_cont.html' },
+                        { cap: 'Dinâmica', titulo: 'Leis de Newton, Forças e Atrito.', imagem: IMG_FISICA.dinamica_cont, link: 'conteudos/dinamica_cont.html' },
+                        { cap: 'Trabalho e Energia', titulo: 'Conceitos de Energia Cinética e Potencial.', imagem: IMG_FISICA.energia_cont, link: 'conteudos/energia_cont.html' },
+                        { cap: 'Queda Livre', titulo: 'Corpos em queda com aceleração g', imagem: IMG_FISICA.quedalivre_cont, link: 'conteudos/quedalivre_cont.html' },
+                        { cap: 'Hidrostática', titulo: 'Pressão e princípios de fluidos', imagem: IMG_FISICA.hidrostatica_cont, link: 'conteudos/hidrostatica_cont.html' }
                     ]
                 },
                 termodinamica: {
                     titulo: 'Termodinâmica',
                     icone: '🔥',
                     cards: [
-                        { cap: 'Termometria', titulo: 'Escalas e conversão de temperaturas', imagem: '../imgs/termometria_cont.png', link: 'conteudos/termometria_cont.html' },
-                        { cap: 'Dilatação Térmica', titulo: 'Expansão de sólidos e líquidos', imagem: '../imgs/dilatacaotermica_cont.png', link: 'conteudos/dilatacao_termica_cont.html' },
-                        { cap: 'Calorimetria', titulo: 'Troca de calor e calor específico', imagem: '../imgs/calorimetria_cont.png', link: 'conteudos/calorimetria_cont.html' }
+                        { cap: 'Termometria', titulo: 'Escalas e conversão de temperaturas', imagem: IMG_FISICA.termometria_cont, link: 'conteudos/termometria_cont.html' },
+                        { cap: 'Dilatação Térmica', titulo: 'Expansão de sólidos e líquidos', imagem: IMG_FISICA.dilatacaotermica_cont, link: 'conteudos/dilatacao_termica_cont.html' },
+                        { cap: 'Calorimetria', titulo: 'Troca de calor e calor específico', imagem: IMG_FISICA.calorimetria_cont, link: 'conteudos/calorimetria_cont.html' }
                     ]
                 },
                 ondas: {
                     titulo: 'Ondas e Óptica',
                     icone: '🌊',
                     cards: [
-                        { cap: 'Ondas', titulo: 'Propagação de ondas (V=λf)', imagem: '../imgs/ondas_cont.png', link: 'conteudos/ondas_cont.html' },
-                        { cap: 'Óptica Geométrica', titulo: 'Reflexão e refração da luz', imagem: '../imgs/optica_geo_cont.png', link: 'conteudos/optica_geo_cont.html' }
+                        { cap: 'Ondas', titulo: 'Propagação de ondas (V=λf)', imagem: IMG_FISICA.ondas_cont, link: 'conteudos/ondas_cont.html' },
+                        { cap: 'Óptica Geométrica', titulo: 'Reflexão e refração da luz', imagem: IMG_FISICA.optica_geo_cont, link: 'conteudos/optica_geo_cont.html' }
                     ]
                 },
                 eletromagnetismo: {
                     titulo: 'Eletromagnetismo',
                     icone: '⚡',
                     cards: [
-                        { cap: 'Eletricidade', titulo: 'Conceitos de Corrente, Tensão e Resistência', imagem: '../imgs/eletricidade_cont.png', link: 'conteudos/eletricidade_cont.html' },
-                        { cap: 'Circuitos', titulo: 'Circuitos, resistores e Leis de Ohm', imagem: '../imgs/circuitos_cont.png', link: 'conteudos/circuitos_cont.html' },
-                        { cap: 'Eletrostática', titulo: 'Cargas e Força Elétrica', imagem: '../imgs/eletrostatica_cont.png', link: 'conteudos/eletrostatica_cont.html' }
+                        { cap: 'Eletricidade', titulo: 'Conceitos de Corrente, Tensão e Resistência', imagem: IMG_FISICA.eletricidade_cont, link: 'conteudos/eletricidade_cont.html' },
+                        { cap: 'Circuitos', titulo: 'Circuitos, resistores e Leis de Ohm', imagem: IMG_FISICA.circuitos_cont, link: 'conteudos/circuitos_cont.html' },
+                        { cap: 'Eletrostática', titulo: 'Cargas e Força Elétrica', imagem: IMG_FISICA.eletrostatica_cont, link: 'conteudos/eletrostatica_cont.html' }
                     ]
                 }
             },
@@ -204,87 +251,87 @@
             pageTitle: 'Física - Conteúdo'
         };
 
-        // --- DADOS DAS SIMULAÇÕES DE FÍSICA (AGORA COM TODOS OS SEUS LINKS) ---
+        // --- DADOS DAS SIMULAÇÕES DE FÍSICA (Com URLs de imagem) ---
         const dadosSimulacoes = {
             secoes: {
                 mecanica: {
                     titulo: 'Simulações Mecânica',
                     icone: '⚙️',
                     cards: [
-                        { cap: 'MRU', titulo: 'Simulador de Movimento Retilíneo Uniforme.', imagem: '../imgs/mru.png', link: 'simulacoes/mru.html' },
-                        { cap: 'MRUV', titulo: 'Simulador de Movimento Uniformemente Variado.', imagem: '../imgs/mruv.png', link: 'simulacoes/mruv.html' },
-                        { cap: 'Energia', titulo: 'Simulador de Energia Cinética e Potencial.', imagem: '../imgs/energia.png', link: 'simulacoes/energia.html' },
-                        { cap: 'Queda Livre', titulo: 'Simulador de Corpos em Queda Livre.', imagem: '../imgs/quedalivre.png', link: 'simulacoes/queda_livre.html' },
-                        { cap: 'Hidrostática', titulo: 'Simulador de Pressão em Fluidos.', imagem: '../imgs/hidrostatica.png', link: 'simulacoes/hidrostatica.html' },
-                        { cap: 'Gravitação', titulo: 'Simulador de Lei da Gravitação Universal.', imagem: '../imgs/gravitacaouniversal.png', link: 'simulacoes/gravitacao_universal.html' }
+                        { cap: 'MRU', titulo: 'Simulador de Movimento Retilíneo Uniforme.', imagem: IMG_FISICA.mru, link: 'simulacoes/mru.html' },
+                        { cap: 'MRUV', titulo: 'Simulador de Movimento Uniformemente Variado.', imagem: IMG_FISICA.mruv, link: 'simulacoes/mruv.html' },
+                        { cap: 'Energia', titulo: 'Simulador de Energia Cinética e Potencial.', imagem: IMG_FISICA.energia, link: 'simulacoes/energia.html' },
+                        { cap: 'Queda Livre', titulo: 'Simulador de Corpos em Queda Livre.', imagem: IMG_FISICA.queda_livre, link: 'simulacoes/queda_livre.html' },
+                        { cap: 'Hidrostática', titulo: 'Simulador de Pressão em Fluidos.', imagem: IMG_FISICA.hidrostatica, link: 'simulacoes/hidrostatica.html' },
+                        { cap: 'Gravitação', titulo: 'Simulador de Lei da Gravitação Universal.', imagem: IMG_FISICA.gravitacaouniversal, link: 'simulacoes/gravitacao_universal.html' }
                     ]
                 },
                 termodinamica: {
                     titulo: 'Simulações Termo.',
                     icone: '🔥',
                     cards: [
-                        { cap: 'Escalas Term.', titulo: 'Simulador de Conversão de Escalas Termométricas.', imagem: '../imgs/escalastermometricas.png', link: 'simulacoes/escalas_termometricas.html' },
-                        { cap: 'Dilatação Térmica', titulo: 'Simulador de Expansão de Materiais.', imagem: '../imgs/dilatacaotermica.png', link: 'simulacoes/dilatacao_termica.html' },
-                        { cap: 'Calorimetria', titulo: 'Simulador de Troca de Calor.', imagem: '../imgs/calorimetria.png', link: 'simulacoes/calorimetria.html' }
+                        { cap: 'Escalas Term.', titulo: 'Simulador de Conversão de Escalas Termométricas.', imagem: IMG_FISICA.escalastermometricas, link: 'simulacoes/escalas_termometricas.html' },
+                        { cap: 'Dilatação Térmica', titulo: 'Simulador de Expansão de Materiais.', imagem: IMG_FISICA.dilatacaotermica, link: 'simulacoes/dilatacao_termica.html' },
+                        { cap: 'Calorimetria', titulo: 'Simulador de Troca de Calor.', imagem: IMG_FISICA.calorimetria, link: 'simulacoes/calorimetria.html' }
                     ]
                 },
                 ondas: {
                     titulo: 'Simulações Ondas e Óptica',
                     icone: '🌊',
                     cards: [
-                        { cap: 'Ondas', titulo: 'Simulador de Propagação de Ondas.', imagem: '../imgs/ondas.png', link: 'simulacoes/ondas.html' },
-                        { cap: 'Óptica Geométrica', titulo: 'Simulador de Reflexão e Refração.', imagem: '../imgs/opticageometrica.png', link: 'simulacoes/optica_geo.html' }
+                        { cap: 'Ondas', titulo: 'Simulador de Propagação de Ondas.', imagem: IMG_FISICA.ondas, link: 'simulacoes/ondas.html' },
+                        { cap: 'Óptica Geométrica', titulo: 'Simulador de Reflexão e Refração.', imagem: IMG_FISICA.opticageometrica, link: 'simulacoes/optica_geo.html' }
                     ]
                 },
                 eletromagnetismo: {
                     titulo: 'Simulações Eletro.',
                     icone: '⚡',
                     cards: [
-                        { cap: 'Eletricidade', titulo: 'Simulador de Corrente e Tensão.', imagem: '../imgs/eletricidade.png', link: 'simulacoes/eletricidade.html' },
-                        { cap: 'Eletrostática', titulo: 'Simulador de Cargas e Forças Elétricas.', imagem: '../imgs/eletrostatica.png', link: 'simulacoes/eletrostatica.html' },
-                        { cap: 'Circuitos Elétricos', titulo: 'Simulador de Circuitos e Leis de Ohm.', imagem: '../imgs/circuitoseletricos.png', link: 'simulacoes/circuitos.html' },
-                        { cap: 'Eletromagnetismo', titulo: 'Simulador de Campos Magnéticos e Indução.', imagem: '../imgs/eletromagnetismo.png', link: 'simulacoes/eletromagnetismo.html' }
+                        { cap: 'Eletricidade', titulo: 'Simulador de Corrente e Tensão.', imagem: IMG_FISICA.eletricidade, link: 'simulacoes/eletricidade.html' },
+                        { cap: 'Eletrostática', titulo: 'Simulador de Cargas e Forças Elétricas.', imagem: IMG_FISICA.eletrostatica, link: 'simulacoes/eletrostatica.html' },
+                        { cap: 'Circuitos Elétricos', titulo: 'Simulador de Circuitos e Leis de Ohm.', imagem: IMG_FISICA.circuitoseletricos, link: 'simulacoes/circuitos.html' },
+                        { cap: 'Eletromagnetismo', titulo: 'Simulador de Campos Magnéticos e Indução.', imagem: IMG_FISICA.eletromagnetismo, link: 'simulacoes/eletromagnetismo.html' }
                     ]
                 }
             },
             navActive: 'nav-simulacoes',
             pageTitle: 'Física - Simulações'
         };
-        
-        // --- DADOS DOS EXERCÍCIOS DE FÍSICA (Placeholder) ---
+
+        // --- DADOS DOS EXERCÍCIOS DE FÍSICA (Com URLs de imagem) ---
         const dadosExercicios = {
             secoes: {
                 mecanica: {
                     titulo: 'Exercícios Mecânica',
                     icone: '⚙️',
                     cards: [
-                        { cap: 'Cinemática', titulo: 'Testes sobre MRU, MRUV e Lançamentos.', imagem: '../imgs/ex_cinematica.png', link: 'exercicios/cinematica.html' },
-                        { cap: 'Dinâmica', titulo: 'Questões sobre Leis de Newton, Forças e Atrito.', imagem: '../imgs/ex_dinamica.png', link: 'exercicios/dinamica.html' },
-                        { cap: 'Trabalho e Energia', titulo: 'Problemas de conservação de energia e potência.', imagem: '../imgs/ex_trabalho_energia.png', link: 'exercicios/trabalho_energia.html' }
+                        { cap: 'Cinemática', titulo: 'Testes sobre MRU, MRUV e Lançamentos.', imagem: IMG_FISICA.ex_cinematica, link: 'exercicios/cinematica.html' },
+                        { cap: 'Dinâmica', titulo: 'Questões sobre Leis de Newton, Forças e Atrito.', imagem: IMG_FISICA.ex_dinamica, link: 'exercicios/dinamica.html' },
+                        { cap: 'Trabalho e Energia', titulo: 'Problemas de conservação de energia e potência.', imagem: IMG_FISICA.ex_trabalho_energia, link: 'exercicios/trabalho_energia.html' }
                     ]
                 },
                 termodinamica: {
                     titulo: 'Exercícios Termo.',
                     icone: '🔥',
                     cards: [
-                        { cap: 'Calor e Temperatura', titulo: 'Problemas envolvendo calorimetria e escalas.', imagem: '../imgs/ex_calor.png', link: 'exercicios/calor.html' },
-                        { cap: 'Termodinâmica', titulo: 'Questões sobre transformações gasosas e trabalho.', imagem: '../imgs/ex_termo.png', link: 'exercicios/termodinamica.html' }
+                        { cap: 'Calor e Temperatura', titulo: 'Problemas envolvendo calorimetria e escalas.', imagem: IMG_FISICA.ex_calor, link: 'exercicios/calor.html' },
+                        { cap: 'Termodinâmica', titulo: 'Questões sobre transformações gasosas e trabalho.', imagem: IMG_FISICA.ex_termo, link: 'exercicios/termodinamica.html' }
                     ]
                 },
                 ondas: {
                     titulo: 'Exercícios Ondas e Óptica',
                     icone: '🌊',
                     cards: [
-                        { cap: 'Ondulatória', titulo: 'Testes sobre velocidade, frequência e comprimento de onda.', imagem: '../imgs/ex_ondas.png', link: 'exercicios/ondulatoria.html' },
-                        { cap: 'Óptica', titulo: 'Questões sobre reflexão, refração e lentes.', imagem: '../imgs/ex_optica.png', link: 'exercicios/optica.html' }
+                        { cap: 'Ondulatória', titulo: 'Testes sobre velocidade, frequência e comprimento de onda.', imagem: IMG_FISICA.ex_ondas, link: 'exercicios/ondulatoria.html' },
+                        { cap: 'Óptica', titulo: 'Questões sobre reflexão, refração e lentes.', imagem: IMG_FISICA.ex_optica, link: 'exercicios/optica.html' }
                     ]
                 },
                 eletromagnetismo: {
                     titulo: 'Exercícios Eletro.',
                     icone: '⚡',
                     cards: [
-                        { cap: 'Eletricidade', titulo: 'Testes sobre circuitos, resistores e potência.', imagem: '../imgs/ex_eletricidade.png', link: 'exercicios/eletricidade.html' },
-                        { cap: 'Campos e Forças', titulo: 'Problemas de Eletrostática e Eletromagnetismo.', imagem: '../imgs/ex_campos.png', link: 'exercicios/campos.html' }
+                        { cap: 'Eletricidade', titulo: 'Testes sobre circuitos, resistores e potência.', imagem: IMG_FISICA.ex_eletricidade, link: 'exercicios/eletricidade.html' },
+                        { cap: 'Campos e Forças', titulo: 'Problemas de Eletrostática e Eletromagnetismo.', imagem: IMG_FISICA.ex_campos, link: 'exercicios/campos.html' }
                     ]
                 }
             },
@@ -336,7 +383,7 @@
                 // Cria a Seção (main content)
                 const sectionElement = document.createElement('section');
                 sectionElement.id = sectionId;
-                sectionElement.innerHTML = `<h2>${secao.titulo}</h2>`;
+                sectionElement.innerHTML = `<h2>${secao.icone} ${secao.titulo}</h2>`; // Adicionado ícone no H2
                 sectionElement.appendChild(criarCards(secao.cards));
                 mainContent.appendChild(sectionElement);
 
