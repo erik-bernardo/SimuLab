@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulação de Dilatacao Termica</title>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
@@ -197,7 +200,7 @@
         
         .bar-container {
             width: 80%;
-            height: 250px; /* Mais alto para o efeito 3D */
+            height: 400px; /* AUMENTADO para melhor visualização 3D do Three.js */
             background-color: rgba(255, 255, 255, 0.7); 
             border-radius: 8px;
             display: flex;
@@ -207,7 +210,17 @@
             position: relative;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             z-index: 5; 
-            overflow: hidden; /* Garante que o cubo não vaze */
+            overflow: hidden; 
+        }
+
+        /* NOVO: Container do Canvas Three.js */
+        #threejs-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none; /* Inicialmente escondido */
         }
 
         .dilatable-bar {
@@ -221,16 +234,20 @@
         }
 
         /* ESTILOS ESPECÍFICOS DE MODO */
-
+        
+        /* Esconde a barra 2D quando está em modo volumétrico (que usa o canvas Three.js) */
+        .bar-container[data-mode="volumetrica"] .dilatable-bar {
+            display: none; 
+        }
+        
         /* Modo Linear */
         .dilatable-bar[data-mode="linear"] {
             height: 50px; 
-            margin-left: 20px; /* Espaço para o marcador L0 */
+            margin-left: 20px; 
         }
 
-        /* Modo Superficial/Volumétrico (Plano/Cubo em 2D/3D) */
-        .bar-container[data-mode="superficial"],
-        .bar-container[data-mode="volumetrica"] {
+        /* Modo Superficial */
+        .bar-container[data-mode="superficial"] {
             align-items: flex-start;
             justify-content: flex-start; 
             padding-left: 20px;
@@ -242,66 +259,11 @@
             border-radius: 4px;
             transform-origin: top left; 
         }
-
-        /* NOVO: Estilos 3D para o Cubo Volumétrico */
-        .dilatable-bar[data-mode="volumetrica"] {
-            /* Ocupa o espaço 3D dentro do container */
-            position: absolute;
-            top: 50%; 
-            left: 50%;
-            transform: translate(-50%, -50%);
-            perspective: 500px; /* Define a profundidade da perspectiva */
-            transform-style: preserve-3d;
-            height: auto; /* A altura é definida pelos lados do cubo */
-            width: auto;
-            background-color: transparent !important;
-            box-shadow: none;
-            border: none;
-        }
         
-        .cube {
-            transform-style: preserve-3d;
-            position: relative;
-            transform: rotateX(-20deg) rotateY(20deg); /* Rotação 3D para o efeito de cubo */
-            transition: all 0.3s ease-out;
-        }
-
-        .face {
-            position: absolute;
-            background-color: transparent;
-            border: 1px solid rgba(0, 0, 0, 0.2); /* Borda para visibilidade */
-            background-color: inherit; /* Herda a cor base do material */
-        }
-
-        .face.front {
-            transform: translateZ(var(--dim-z));
-            width: var(--dim-x);
-            height: var(--dim-y);
-            opacity: 0.8; 
-            box-shadow: 0 0 10px var(--cor-sombra-3d); 
-        }
-        .face.back {
-            transform: translateZ(0);
-            width: var(--dim-x);
-            height: var(--dim-y);
-            opacity: 0.2;
-        }
-        .face.right {
-            transform: rotateY(90deg) translateZ(var(--dim-x));
-            width: var(--dim-z);
-            height: var(--dim-y);
-            opacity: 0.4;
-        }
-        .face.top {
-            transform: rotateX(90deg) translateZ(var(--dim-y));
-            width: var(--dim-x);
-            height: var(--dim-z);
-            opacity: 0.5;
-        }
-
+        /* REMOVEMOS os estilos .cube, .face e os estilos 3D CSS obsoletos */
+        
         /* --- RÓTULOS (Dilatação) --- */
         .dilatacao-label {
-            /* Estilo da versão anterior (ajustes para linear e superficial) */
             position: absolute;
             top: -30px;
             right: 0;
@@ -322,7 +284,7 @@
             padding: 5px; background: rgba(255, 255, 255, 0.9);
             border-radius: 4px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         }
-        /* Esconde o label de dilatação genérico no modo 3D (usaremos labels específicos) */
+        /* Esconde o label de dilatação genérico no modo 3D (não é necessário no Three.js) */
         .dilatacao-label[data-mode="volumetrica"] { display: none; }
         
         /* Marcador de Ponto Fixo */
@@ -343,8 +305,9 @@
             background-color: #555;
             z-index: 5;
         }
-        .l0-marker[data-mode="superficial"], .l0-marker[data-mode="volumetrica"],
-        .l0-reference-line[data-mode="superficial"], .l0-reference-line[data-mode="volumetrica"] {
+        /* Esconde os marcadores 2D quando não estão em modo linear */
+        .bar-container[data-mode="superficial"] .l0-marker, .bar-container[data-mode="volumetrica"] .l0-marker,
+        .bar-container[data-mode="superficial"] .l0-reference-line, .bar-container[data-mode="volumetrica"] .l0-reference-line {
              display: none; 
         }
 
@@ -388,7 +351,7 @@
             color: #00796b;
         }
 
-        /* --- NOVO: Resultados Detalhados de Dimensão (x, y, z) --- */
+        /* --- Resultados Detalhados de Dimensão (x, y, z) --- */
         .dimension-results {
             display: flex;
             justify-content: space-around;
@@ -505,16 +468,12 @@
         <h2>Simulação Visual da Dilatação</h2>
         
         <div class="bar-container" data-mode="linear">
+            
+            <div id="threejs-container"></div> 
+
             <div class="l0-reference-line"></div>
             
             <div class="dilatable-bar" id="dilatable-bar-element" data-mode="linear" style="width: 50%;">
-                <div class="cube" id="cube-element">
-                    <div class="face front" id="face-front"></div>
-                    <div class="face back" id="face-back"></div>
-                    <div class="face right" id="face-right"></div>
-                    <div class="face top" id="face-top"></div>
-                </div>
-                
                 <span class="dilatacao-label" id="dilatacao-label-element" data-mode="linear"></span>
             </div>
             
@@ -565,7 +524,7 @@
         "Quartzo-Fundido": { nome: "Quartzo Fundido", alphaBase: 0.5, cor: "#dcdde1", isClara: true }
     };
     
-    let currentMode = 'linear'; // Estado inicial
+    let currentMode = 'linear'; 
 
     // Referências dos Elementos DOM
     const $materialSelect = document.getElementById('material');
@@ -575,7 +534,7 @@
     const $barContainer = document.querySelector('.bar-container');
     const $barElement = document.getElementById('dilatable-bar-element');
     const $dilatacaoLabel = document.getElementById('dilatacao-label-element');
-    const $cubeElement = document.getElementById('cube-element');
+    // const $cubeElement = document.getElementById('cube-element'); // REMOVIDO (obsoleto)
     const $L0_A0_V0_value = document.getElementById('valor-L0-A0-V0');
     
     // Inputs de Dimensão
@@ -608,8 +567,101 @@
     const $calcDeltaL = document.getElementById('calc-deltaL');
     const $calcLfinal = document.getElementById('calc-Lfinal');
 
-    const L_VISUAL_SIZE_PX = 150; // Tamanho base (em pixels) para 1 metro em L0/Lx/Ly/Lz
-    const BASE_L_VISUAL_PERCENT = 50; // Largura inicial da barra linear/quadrado superficial
+    const L_VISUAL_SIZE_PX = 150; 
+    const L_VISUAL_SIZE_BASE = 1.0; // Tamanho base (em metros) para normalização do cubo 3D
+    const L_VISUAL_SIZE_FACTOR = 1.0; // Fator de escala visual para o cubo THREE.JS 
+    
+    // --- VARIÁVEIS THREE.JS (GLOBALS) ---
+    let scene, camera, renderer, cube, controls;
+    const $threeJsContainer = document.getElementById('threejs-container');
+
+
+    // --- FUNÇÃO DE INICIALIZAÇÃO THREE.JS (MELHORADA) ---
+    function initThreeJS() {
+        if (!THREE) return; 
+
+        const containerRect = $barContainer.getBoundingClientRect();
+        const width = containerRect.width;
+        const height = containerRect.height;
+        
+        // 1. Scene
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xf0f0f5); 
+
+        // 2. Camera
+        camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100); 
+        camera.position.set(1.5, 1.5, 1.5); 
+        camera.lookAt(0, 0, 0);
+
+        // 3. Renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true; 
+        $threeJsContainer.appendChild(renderer.domElement);
+
+        // 4. Lights
+        scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.7));
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        directionalLight.position.set(2, 5, 3);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024;
+        directionalLight.shadow.mapSize.height = 1024;
+        directionalLight.shadow.camera.near = 0.5;
+        directionalLight.shadow.camera.far = 50;
+        directionalLight.shadow.camera.left = -5;
+        directionalLight.shadow.camera.right = 5;
+        directionalLight.shadow.camera.top = 5;
+        directionalLight.shadow.camera.bottom = -5;
+        scene.add(directionalLight);
+
+        // 5. Ground Plane
+        const gridHelper = new THREE.GridHelper(5, 10, 0x555555, 0xaaaaaa);
+        gridHelper.position.y = -L_VISUAL_SIZE_FACTOR / 2; 
+        scene.add(gridHelper);
+
+        // 6. Cubo Inicial (com MeshStandardMaterial para PBR)
+        const geometry = new THREE.BoxGeometry(L_VISUAL_SIZE_FACTOR, L_VISUAL_SIZE_FACTOR, L_VISUAL_SIZE_FACTOR);
+        const material = new THREE.MeshStandardMaterial({ 
+            color: 0xcccccc, 
+            metalness: 0.5, 
+            roughness: 0.5  
+        });
+        cube = new THREE.Mesh(geometry, material);
+        cube.castShadow = true;
+        cube.receiveShadow = true;
+        cube.position.y = L_VISUAL_SIZE_FACTOR / 2; 
+        scene.add(cube);
+        
+        // 7. OrbitControls (Interatividade)
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; 
+        controls.dampingFactor = 0.05;
+        controls.screenSpacePanning = false;
+        controls.minDistance = 1;
+        controls.maxDistance = 10;
+        
+        // 8. Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update(); 
+            renderer.render(scene, camera);
+        }
+        animate();
+    }
+    
+    // Função para redimensionar o canvas
+    window.addEventListener('resize', () => {
+        if (renderer && camera && controls) {
+            const containerRect = $barContainer.getBoundingClientRect();
+            camera.aspect = containerRect.width / containerRect.height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(containerRect.width, containerRect.height);
+            controls.update();
+        }
+    });
+
 
     // --- FUNÇÕES DE CONTROLE DE MODO ---
     function setMode(mode) {
@@ -624,12 +676,18 @@
             }
         });
         
-        // 2. Atualiza os atributos de simulação
+        // 2. Gerencia a visibilidade dos elementos 2D/3D
+        const isVolumetrica = mode === 'volumetrica';
+        
+        $barElement.style.display = isVolumetrica ? 'none' : 'block'; // Mostra/Esconde a barra 2D
+        $threeJsContainer.style.display = isVolumetrica ? 'block' : 'none'; // Mostra/Esconde o container 3D
+        
+        // 3. Atualiza os atributos de simulação (para 2D)
         $barContainer.setAttribute('data-mode', mode);
         $barElement.setAttribute('data-mode', mode);
         $dilatacaoLabel.setAttribute('data-mode', mode);
 
-        // 3. Gerencia Inputs de Dimensão (L0, Lx, Ly, Lz)
+        // 4. Gerencia Inputs de Dimensão (L0, Lx, Ly, Lz)
         $inputL0.style.display = 'none';
         $inputLx.style.display = 'none';
         $inputLy.style.display = 'none';
@@ -638,24 +696,24 @@
 
         if (mode === 'linear') {
             $inputL0.style.display = 'block';
-            $inputL0.style.flex = '1'; // Ocupa todo o espaço
+            $inputL0.style.flex = '1';
 
         } else if (mode === 'superficial') {
             $inputLx.style.display = 'block';
             $inputLy.style.display = 'block';
             $dimensionResultsContainer.style.display = 'flex';
-            $divDeltaLz.style.display = 'none'; // Esconde Lz
+            $divDeltaLz.style.display = 'none';
 
         } else if (mode === 'volumetrica') {
             $inputLx.style.display = 'block';
             $inputLy.style.display = 'block';
             $inputLz.style.display = 'block';
             $dimensionResultsContainer.style.display = 'flex';
-            $divDeltaLz.style.display = 'block'; // Mostra Lz
+            $divDeltaLz.style.display = 'block';
         }
 
 
-        // 4. Atualiza rótulos e unidades
+        // 5. Atualiza rótulos e unidades
         let initialLabel, deltaLabel, finalLabel, unit, finalUnit;
         let formulaText;
         
@@ -696,6 +754,7 @@
         calcularDilatacao();
     }
 
+
     // 1. Preenche o seletor de materiais
     function preencherMateriais() {
         for (const key in COEFICIENTES_DILATACAO) {
@@ -708,7 +767,7 @@
         atualizarAlphaECor(); 
     }
 
-    // 2. Atualiza a exibição do coeficiente (α) e a COR da barra
+    // 2. Atualiza a exibição do coeficiente (α) e a COR do material/barra
     function atualizarAlphaECor() {
         const materialKey = $materialSelect.value;
         const materialData = COEFICIENTES_DILATACAO[materialKey];
@@ -719,21 +778,44 @@
 
         $alphaDisplay.textContent = alphaBase;
 
-        // Aplica a cor de fundo (apenas para Linear e Superficial)
+        // Aplica a cor de fundo (para Linear e Superficial)
         if (currentMode !== 'volumetrica') {
             $barElement.style.backgroundColor = corBase;
-        } else {
-            // Aplica a cor do material nas faces do cubo
-            document.getElementById('face-front').style.backgroundColor = corBase;
-            document.getElementById('face-back').style.backgroundColor = corBase;
-            document.getElementById('face-right').style.backgroundColor = corBase;
-            document.getElementById('face-top').style.backgroundColor = corBase;
-        }
-        
-        if (isClara) {
-            $barElement.setAttribute('data-clara', 'true');
-        } else {
-            $barElement.removeAttribute('data-clara');
+            if (isClara) {
+                $barElement.setAttribute('data-clara', 'true');
+            } else {
+                $barElement.removeAttribute('data-clara');
+            }
+        } else if (cube) {
+            // Aplica a cor e as propriedades do material no cubo THREE.JS
+            const corHex = new THREE.Color(corBase).getHex();
+            
+            // Define propriedades padrão
+            let newMaterial = new THREE.MeshStandardMaterial({
+                color: corHex,
+                metalness: 0.1,
+                roughness: 0.6
+            });
+
+            // Ajusta o material para simular Vidro (transparência e transmissão)
+            if (materialKey.startsWith('Vidro')) {
+                newMaterial = new THREE.MeshPhysicalMaterial({
+                    color: corHex,
+                    opacity: 0.5,
+                    transparent: true,
+                    metalness: 0,
+                    roughness: 0.1,
+                    transmission: 0.9,
+                    side: THREE.DoubleSide
+                });
+            } else if (materialKey === 'Ouro' || materialKey === 'Prata') {
+                 // Ajusta o material para simular Metais (mais lustroso)
+                newMaterial.metalness = 0.9;
+                newMaterial.roughness = 0.2;
+            }
+
+            cube.material = newMaterial;
+            cube.material.needsUpdate = true;
         }
     }
 
@@ -753,7 +835,7 @@
         let L_x_initial, L_y_initial, L_z_initial;
         let delta_Lx, delta_Ly, delta_Lz;
         
-        const alpha_Dilatacao = alphaBase * 1e-6; // α na unidade SI (m/m°C)
+        const alpha_Dilatacao = alphaBase * 1e-6; 
 
         // --- CÁLCULO DAS DIMENSÕES INICIAIS ---
         if (currentMode === 'linear') {
@@ -775,7 +857,6 @@
             L0_A0_V0_unit = 'm³';
         }
         
-        // Atualiza o valor inicial calculado na sidebar
         $L0_A0_V0_value.textContent = `${L0_A0_V0_calc.toFixed(4)} ${L0_A0_V0_unit}`;
 
 
@@ -785,11 +866,11 @@
         let descText = `O coeficiente base (\\alpha) é usado diretamente.`;
         
         if (currentMode === 'superficial') {
-            gamma_beta_alpha_base = alphaBase * 2; // β ≈ 2α
+            gamma_beta_alpha_base = alphaBase * 2; 
             coefLabel = '\\beta';
             descText = `O coeficiente superficial (\\beta) é obtido multiplicando o \\alpha base por 2 ($\\beta \\approx 2\\alpha$).`;
         } else if (currentMode === 'volumetrica') {
-            gamma_beta_alpha_base = alphaBase * 3; // γ ≈ 3α
+            gamma_beta_alpha_base = alphaBase * 3; 
             coefLabel = '\\gamma';
             descText = `O coeficiente volumétrico (\\gamma) é obtido multiplicando o \\alpha base por 3 ($\\gamma \\approx 3\\alpha$).`;
         }
@@ -801,7 +882,6 @@
         const Valor_Final = L0_A0_V0_calc + delta_Final;
 
         // Cálculo da Dilatação Específica por Eixo (mesmo α)
-        // ΔL = L_inicial * α * ΔT
         delta_Lx = L_x_initial * alpha_Dilatacao * deltaT;
         delta_Ly = L_y_initial * alpha_Dilatacao * deltaT;
         delta_Lz = L_z_initial * alpha_Dilatacao * deltaT;
@@ -821,15 +901,12 @@
         // --- ATUALIZAÇÃO DO PROCESSO DE CÁLCULO EM ETAPAS ---
         $calcDeltaT.textContent = `ΔT = T final - T inicial\nΔT = ${Tf.toFixed(2)} - ${Ti.toFixed(2)}\nΔT = ${deltaT_Format} °C`;
         
-        // Coeficiente (Passo 2)
         $stepAlphaTitle.innerHTML = `2. Coeficiente (${coefLabel}):`;
         $stepAlphaDesc.innerHTML = descText;
         $calcAlpha.textContent = `${coefLabel} = ${gamma_beta_alpha_base.toFixed(2)} x 10⁻⁶ °C⁻¹\n${coefLabel} = ${coefDilatacao_Format} °C⁻¹`;
         
-        // Dilatação (Passo 3)
         $calcDeltaL.textContent = `ΔL/A/V = Inicial * ${coefLabel} * ΔT\nΔL/A/V = ${Inicial_Format} * ${coefDilatacao_Format} * ${deltaT_Format}\nΔL/A/V = ${delta_Final_Format} ${$resultadoUnidade.textContent}`;
         
-        // Final (Passo 4)
         $calcLfinal.textContent = `Final = Inicial + ΔL/A/V\nFinal = ${Inicial_Format} + ${delta_Final_Format}\nFinal = ${Valor_Final_Format} ${$resultadoUnidade.textContent}`;
 
         // --- ATUALIZAÇÃO DA SIMULAÇÃO VISUAL ---
@@ -837,28 +914,50 @@
         const corDestaque = deltaT >= 0 ? 'var(--cor-destaque-quente)' : 'var(--cor-destaque-frio)';
         document.getElementById('resultado-deltaL').style.color = corDestaque;
         
-        // Fator de Escala Visual: Amplificamos a dilatação
-        const AMP_FACTOR = 10000; 
-        const delta_Px = L_x_initial > 0 ? delta_Lx / L_x_initial * AMP_FACTOR : 0;
-        const delta_Py = L_y_initial > 0 ? delta_Ly / L_y_initial * AMP_FACTOR : 0;
-        const delta_Pz = L_z_initial > 0 ? delta_Lz / L_z_initial * AMP_FACTOR : 0;
-
-        // Tamanhos Visuais Finais em Pixels
-        const L_x_final_px = (L_x_initial * L_VISUAL_SIZE_PX) + delta_Px;
-        const L_y_final_px = (L_y_initial * L_VISUAL_SIZE_PX) + delta_Py;
-        const L_z_final_px = (L_z_initial * L_VISUAL_SIZE_PX) + delta_Pz;
         
-        // Limita o tamanho máximo e mínimo para visualização
-        const MAX_PX = 250;
-        const MIN_PX = 10;
-        const Final_visual_L_x = Math.max(MIN_PX, Math.min(MAX_PX, L_x_final_px));
-        const Final_visual_L_y = Math.max(MIN_PX, Math.min(MAX_PX, L_y_final_px));
-        const Final_visual_L_z = Math.max(MIN_PX, Math.min(MAX_PX, L_z_final_px));
+        if (currentMode === 'volumetrica') {
+            // --- ATUALIZAÇÃO THREE.JS ---
+            if (cube) {
+                // Normalização das dimensões com base no valor de referência (L_VISUAL_SIZE_BASE=1.0)
+                const scaleX = L_x_Final / L_VISUAL_SIZE_BASE;
+                const scaleY = L_y_Final / L_VISUAL_SIZE_BASE;
+                const scaleZ = L_z_Final / L_VISUAL_SIZE_BASE;
+                
+                // Redimensiona o cubo 3D (a geometria base é 1x1x1)
+                cube.scale.set(scaleX * L_VISUAL_SIZE_FACTOR, scaleY * L_VISUAL_SIZE_FACTOR, scaleZ * L_VISUAL_SIZE_FACTOR);
+                
+                // Posição ajustada para manter o fundo (Y=0) fixo
+                cube.position.y = (scaleY * L_VISUAL_SIZE_FACTOR) / 2;
+                
+                // Garante que a cor esteja correta no cubo
+                atualizarAlphaECor(); 
+            }
+        } else {
+            // --- ATUALIZAÇÃO 2D (LINEAR/SUPERFICIAL) ---
+            
+            // Fator de Escala Visual 2D: Amplificamos a dilatação para que seja visível
+            const AMP_FACTOR = 10000; 
+            const delta_Px = L_x_initial > 0 ? delta_Lx / L_x_initial * AMP_FACTOR : 0;
+            const delta_Py = L_y_initial > 0 ? delta_Ly / L_y_initial * AMP_FACTOR : 0;
 
-        if (currentMode === 'linear') {
-            $barElement.style.width = `${Final_visual_L_x}px`;
-            $barElement.style.height = `50px`; 
-            // Mostra o label de dilatação genérico
+            // Tamanhos Visuais Finais em Pixels (2D)
+            const L_x_final_px = (L_x_initial * L_VISUAL_SIZE_PX) + delta_Px; 
+            const L_y_final_px = (L_y_initial * L_VISUAL_SIZE_PX) + delta_Py;
+
+            const MAX_PX = 250;
+            const MIN_PX = 10;
+            const Final_visual_L_x = Math.max(MIN_PX, Math.min(MAX_PX, L_x_final_px));
+            const Final_visual_L_y = Math.max(MIN_PX, Math.min(MAX_PX, L_y_final_px));
+
+            if (currentMode === 'linear') {
+                $barElement.style.width = `${Final_visual_L_x}px`;
+                $barElement.style.height = `50px`; 
+            } else if (currentMode === 'superficial') {
+                $barElement.style.width = `${Final_visual_L_x}px`;
+                $barElement.style.height = `${Final_visual_L_y}px`;
+            }
+            
+            // Rótulo de dilatação 2D
             if (delta_Final !== 0) {
                 $dilatacaoLabel.textContent = (delta_Final > 0 ? `+${delta_Final_Format}` : `${delta_Final_Format}`) + L0_A0_V0_unit;
                 $dilatacaoLabel.classList.add('visible');
@@ -866,32 +965,6 @@
             } else {
                 $dilatacaoLabel.classList.remove('visible');
             }
-        } else if (currentMode === 'superficial') {
-            $barElement.style.width = `${Final_visual_L_x}px`;
-            $barElement.style.height = `${Final_visual_L_y}px`;
-            // Mostra o label de dilatação genérico (ajustado para lateral)
-            if (delta_Final !== 0) {
-                $dilatacaoLabel.textContent = (delta_Final > 0 ? `+${delta_Final_Format}` : `${delta_Final_Format}`) + L0_A0_V0_unit;
-                $dilatacaoLabel.classList.add('visible');
-                $dilatacaoLabel.style.color = corDestaque;
-            } else {
-                $dilatacaoLabel.classList.remove('visible');
-            }
-        } else if (currentMode === 'volumetrica') {
-            // Esconde os estilos 2D/1D
-            $barElement.style.width = `100%`;
-            $barElement.style.height = `100%`; 
-
-            // Atualiza as dimensões CSS do cubo 3D (variáveis CSS)
-            const cubeStyle = $cubeElement.style;
-            cubeStyle.setProperty('--dim-x', `${Final_visual_L_x}px`);
-            cubeStyle.setProperty('--dim-y', `${Final_visual_L_y}px`);
-            cubeStyle.setProperty('--dim-z', `${Final_visual_L_z}px`);
-            cubeStyle.backgroundColor = document.getElementById('face-front').style.backgroundColor; // Força a cor do material no elemento pai para herança
-
-            // Posição para manter o cubo mais centralizado no container
-            $cubeElement.style.left = `calc(50% - ${Final_visual_L_x / 2}px)`;
-            $cubeElement.style.top = `calc(50% - ${Final_visual_L_y / 2}px)`;
         }
 
         // --- ATUALIZAÇÃO DOS RESULTADOS FINAIS ---
@@ -917,6 +990,8 @@
     // Inicializa a aplicação ao carregar a página
     document.addEventListener('DOMContentLoaded', () => {
         preencherMateriais();
+        // Inicializa o ambiente 3D
+        initThreeJS(); 
         // Inicializa o modo linear (que já chama calcularDilatacao)
         setMode('linear'); 
     });
