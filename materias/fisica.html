@@ -88,8 +88,8 @@
             width: 200px;
             height: 140px;
             object-fit: cover;
-            /* Levemente escuro para dar destaque ao texto (adaptado do código de Química) */
-            filter: brightness(0.85); 
+            /* Levemente escuro para dar destaque ao texto */
+            filter: brightness(0.85);
         }
 
         .card-content {
@@ -157,55 +157,59 @@
 
     <div class="sidebar" id="sidebar">
     </div>
-  <script src="https://erik-bernardo.github.io/SimuLab/dados/head.js"></script>
+    
     <script>
-        // --- URLs de Imagens Coletadas (Adaptadas do seu código original de Física) ---
+        // A constante PADRAO_SIM_EX foi removida.
+
+        // --- URLs de Imagens Coletadas (Consolidado e Corrigido para uso de URLs de Conteúdo em todas as seções) ---
         const IMG_FISICA = {
-            // Conteúdo
-            mru_cont: 'https://images.unsplash.com/photo-1542866687-3532b4b4594c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxNb3ZpbWVudG8lMjBSZXRpbMOtbmVvJTIwVW5pZm9ybWV8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400', 
-            mruv_cont: 'https://images.unsplash.com/photo-1629729019777-6f7d0c354e4b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxNb3ZpbWVudG8lMjBWYXJpYWRvfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            dinamica_cont: 'https://images.unsplash.com/photo-1577740266942-d6101c5651a0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxMZWlzJTIwZGUlMjBOZXd0b258ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
-            energia_cont: 'https://images.unsplash.com/photo-1550993952-446755498a44?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxUcmFiYWxobyUyZSUyMEVuZXJnaWF8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
-            quedalivre_cont: 'https://images.unsplash.com/photo-1518331441221-a083f2a5883a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxRdWVkYSUyMExpdnJlfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            hidrostatica_cont: 'https://images.unsplash.com/photo-1509923237703-9d0d3b66e3b5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxIaWRyb3N0JUMzJUExdGljYXxlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
-            termometria_cont: 'https://images.unsplash.com/photo-1594911765275-296b02f8354c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxUZXJtb21ldHJpYXxlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
-            dilatacaotermica_cont: 'https://images.unsplash.com/photo-1520188989502-3b2e2d83e20d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxEaWxhdGElQzMlQTdjaW8lMjBUJUMzJUE5cm1pY2F8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
-            calorimetria_cont: 'https://images.unsplash.com/photo-1563209861-125d7e7d95d1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxDYWxvcmltZXRyaWF8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
-            ondas_cont: 'https://images.unsplash.com/photo-1523473183577-e85df649f877?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxPbmRhc3xlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
-            optica_geo_cont: 'https://images.unsplash.com/photo-1525287518464-904008779b69?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxcdGljYSUyMEdlb21cdXRldHJpY2F8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
-            eletricidade_cont: 'https://images.unsplash.com/photo-1529148482703-9d18c187f556?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxFbGV0cmljaWRhZGV8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
-            circuitos_cont: 'https://images.unsplash.com/photo-1549480644-8d96dc6386cc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxDaXJjdWl0b3MlMjBlbMOpdHJpY29zfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            eletrostatica_cont: 'https://images.unsplash.com/photo-1510480309100-84318c4c3b53?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxFbGV0cm9zdGF0aWNhfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            // Simulações
-            mru: 'https://images.unsplash.com/photo-1509048184285-b1a72d731170?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBNUlV8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
-            mruv: 'https://images.unsplash.com/photo-1627885474770-5b57d6e61f1c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBNUlVWGZfMTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            energia: 'https://images.unsplash.com/photo-1518928014560-644e54e4c9f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjRFbmVyZ2lhfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            queda_livre: 'https://images.unsplash.com/photo-1558507851-912803b0c8b6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBRdWVkYSUyMExpdnJlfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            hidrostatica: 'https://images.unsplash.com/photo-1519757656111-e4070a37e192?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBIaWRyb3N0JUMzJUExdGljYXxlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
-            gravitacaouniversal: 'https://images.unsplash.com/photo-1628126300488-88849b28a8d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxHcmF2aXRhJUMzJUExeUElQzMlQTNvJTIwVW5pdmVyc2FsX2VufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            escalastermometricas: 'https://images.unsplash.com/photo-1542385361-9c8e88e404b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxUaGVybW9tZXRlcnxlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
-            dilatacaotermica: 'https://images.unsplash.com/photo-1547847703-e8473a25121b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxNZXRhbCUyMGV4cGFuc2lvbnxlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
-            calorimetria: 'https://images.unsplash.com/photo-1571407335900-344c4b63300a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxDYWxvcmVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            ondas: 'https://images.unsplash.com/photo-1548679462-850f3c5553e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBPbmRhc3xlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
-            opticageometrica: 'https://images.unsplash.com/photo-1525547719543-ee0d19b78a9c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBSZWZyYedvX2VufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            eletricidade: 'https://images.unsplash.com/photo-1627449557262-52723707823f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBFbGV0cmljaWRhZGV8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
-            eletrostatica: 'https://images.unsplash.com/photo-1502470733301-443b7468162f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBFbGV0cm9zdGF0aWNhX2VufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            circuitoseletricos: 'https://images.unsplash.com/photo-1605796248906-8d5c4109403b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBDaXJjdWl0b3N8ZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
-            eletromagnetismo: 'https://images.unsplash.com/photo-1596798030999-7c15e61d8a39?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxTaW11bGFkb3IlMjBFbGV0cm9tYWduZXRpc21vfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            // Exercícios
-            ex_cinematica: 'https://images.unsplash.com/photo-1550439003-8d48509c919d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxFeGVyY2ljdGhjaW8lMjBDaW5lbWF0aWNhX2VufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            ex_dinamica: 'https://images.unsplash.com/photo-1550993952-446755498a44?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHNlYXJjaHwxfHxFeGVyY2ljdGtvcyUyMERpbmFtaWNhX2VufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            ex_trabalho_energia: 'https://images.unsplash.com/photo-1520188989502-3b2e2d83e20d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHxFeGVyY2ljdGtvcyUyMEVuZXJnaWFfZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
-            ex_calor: 'https://images.unsplash.com/photo-1563209861-125d7e7d95d1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHxFeGVyY2ljdGtvcyUyMENhbG9yaW1ldHJpYXxlbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
-            ex_termo: 'https://images.unsplash.com/photo-1518928014560-644e54e4c9f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHxFeGVyY2ljdGtvcyUyMFRlcm1vZGluYW1pY2FfZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400',
-            ex_ondas: 'https://images.unsplash.com/photo-1523473183577-e85df649f877?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHxFeGVyY2ljdGtvcyUyME9uZGFzfGVufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            ex_optica: 'https://images.unsplash.com/photo-1525287518464-904008779b69?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHxFeGVyY2ljdGtvcyUyMCVDMyU5M3B0aWNhX2VufDB8fHx8MTcwMzM4NTAwMHww&ixlib=rb-4.0.3&q=80&w=400',
-            ex_eletricidade: 'https://images.unsplash.com/photo-1529148482703-9d18c187f556?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHxFeGVyY2ljdGtvcyUyMEVsZXRyaWNpZGFkZV9lbnwwfHx8fDE3MDMzODUwMDB8MA&ixlib=rb-4.0.3&q=80&w=400',
-            ex_campos: 'https://images.unsplash.com/photo-1502470733301-443b7468162f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzOTAzMTZ8MHwxfHxFeGVyY2ljdGtvcyUyMEVsZXRyb21hZ25ldGlzbW9fZW58MHx8fHwxNzAzMzg1MDAwfDA&ixlib=rb-4.0.3&q=80&w=400'
+            // Conteúdo (Mantidos)
+            mru_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0-A_aJII1mfFb-jQRdhNCtraUl7whbm0Hw&s',
+            mruv_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx7rVZOxPTzV6QmMv61TbardU2l1myQVnNqA&s',
+            dinamica_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTu7ooaF6nmcASSm8aLvwtrYgVoJ6HwW4yAsw&s',
+            energia_cont: 'https://conceitosdomundo.pt/wp-content/uploads/2021/10/energia-em-fisica.jpg',
+            quedalivre_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYD09UeJum4fAgzLvQ3PhdpYJrSaosTyqDSQ&s',
+            hidrostatica_cont: 'https://www.transportabrasil.com.br/wp-content/uploads/2021/03/maiores-navios-cargueiros-do-mundo-03-650x446.jpg',
+            termometria_cont: 'https://revistazunai.com.br/wp-content/uploads/2019/05/temperatura-1024x538.png',
+            dilatacaotermica_cont: 'https://static.todamateria.com.br/upload/di/la/dilatacaosuperficial-cke.jpg',
+            calorimetria_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTszzHQrSMAoYsrXqufTCluS9m2vShgEhbpLQ&s',
+            ondas_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSiCLVdOWZUGRRrYKC7lGkSz_fpDWYVirBWA&s',
+            optica_geo_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMTvrPj3Zm9wXoxdluFY0_MLFjuHj2qUsong&s',
+            eletricidade_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3JvkRKDG3E8bX-TvJCl4DKVzV7QCbsnazgw&s',
+            circuitos_cont: 'https://www.redeweb.com/wp-content/uploads/2017/09/circuitos-electricos.jpg',
+            eletrostatica_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTRGcxEEcwr2Iva7M6QPBtRyBrQSSMCv2f8Q&s',
+
+            // --- Simulações (Alterado para usar o conteúdo correspondente) ---
+            mru: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0-A_aJII1mfFb-jQRdhNCtraUl7whbm0Hw&s', // Mru_cont
+            mruv: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx7rVZOxPTzV6QmMv61TbardU2l1myQVnNqA&s', // Mruv_cont
+            energia: 'https://conceitosdomundo.pt/wp-content/uploads/2021/10/energia-em-fisica.jpg', // Energia_cont
+            queda_livre: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYD09UeJum4fAgzLvQ3PhdpYJrSaosTyqDSQ&s', // Quedalivre_cont
+            hidrostatica: 'https://www.transportabrasil.com.br/wp-content/uploads/2021/03/maiores-navios-cargueiros-do-mundo-03-650x446.jpg', // Hidrostatica_cont
+            gravitacaouniversal: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYD09UeJum4fAgzLvQ3PhdpYJrSaosTyqDSQ&s', // Reutiliza Quedalivre_cont
+            escalastermometricas: 'https://revistazunai.com.br/wp-content/uploads/2019/05/temperatura-1024x538.png', // Termometria_cont
+            dilatacaotermica: 'https://static.todamateria.com.br/upload/di/la/dilatacaosuperficial-cke.jpg', // Dilatacaotermica_cont
+            calorimetria: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTszzHQrSMAoYsrXqufTCluS9m2vShgEhbpLQ&s', // Calorimetria_cont
+            ondas: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSiCLVdOWZUGRRrYKC7lGkSz_fpDWYVirBWA&s', // Ondas_cont
+            opticageometrica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMTvrPj3Zm9wXoxdluFY0_MLFjuHj2qUsong&s', // Optica_geo_cont
+            eletricidade: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3JvkRKDG3E8bX-TvJCl4DKVzV7QCbsnazgw&s', // Eletricidade_cont
+            eletrostatica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTRGcxEEcwr2Iva7M6QPBtRyBrQSSMCv2f8Q&s', // Eletrostatica_cont
+            circuitoseletricos: 'https://www.redeweb.com/wp-content/uploads/2017/09/circuitos-electricos.jpg', // Circuitos_cont
+            eletromagnetismo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTRGcxEEcwr2Iva7M6QPBtRyBrQSSMCv2f8Q&s', // Reutiliza Eletrostatica_cont
+
+            // --- Exercícios (Alterado para usar o conteúdo correspondente) ---
+            ex_cinematica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx7rVZOxPTzV6QmMv61TbardU2l1myQVnNqA&s', // Mruv_cont (Geral para Cinemática)
+            ex_dinamica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTu7ooaF6nmcASSm8aLvwtrYgVoJ6HwW4yAsw&s', // Dinamica_cont
+            ex_trabalho_energia: 'https://conceitosdomundo.pt/wp-content/uploads/2021/10/energia-em-fisica.jpg', // Energia_cont
+            ex_calor: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTszzHQrSMAoYsrXqufTCluS9m2vShgEhbpLQ&s', // Calorimetria_cont
+            ex_termo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTszzHQrSMAoYsrXqufTCluS9m2vShgEhbpLQ&s', // Calorimetria_cont
+            ex_ondas: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSiCLVdOWZUGRRrYKC7lGkSz_fpDWYVirBWA&s', // Ondas_cont
+            ex_optica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMTvrPj3Zm9wXoxdluFY0_MLFjuHj2qUsong&s', // Optica_geo_cont
+            ex_eletricidade: 'https://www.redeweb.com/wp-content/uploads/2017/09/circuitos-electricos.jpg', // Circuitos_cont
+            ex_campos: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTRGcxEEcwr2Iva7M6QPBtRyBrQSSMCv2f8Q&s' // Eletrostatica_cont
         };
 
 
-        // --- DADOS DE CONTEÚDO DE FÍSICA (Com URLs de imagem) ---
+        // --- DADOS DE CONTEÚDO DE FÍSICA ---
         const dadosConteudo = {
             secoes: {
                 mecanica: {
@@ -251,7 +255,7 @@
             pageTitle: 'Física - Conteúdo'
         };
 
-        // --- DADOS DAS SIMULAÇÕES DE FÍSICA (Com URLs de imagem) ---
+        // --- DADOS DAS SIMULAÇÕES DE FÍSICA ---
         const dadosSimulacoes = {
             secoes: {
                 mecanica: {
@@ -298,7 +302,7 @@
             pageTitle: 'Física - Simulações'
         };
 
-        // --- DADOS DOS EXERCÍCIOS DE FÍSICA (Com URLs de imagem) ---
+        // --- DADOS DOS EXERCÍCIOS DE FÍSICA ---
         const dadosExercicios = {
             secoes: {
                 mecanica: {
@@ -340,7 +344,7 @@
         };
 
 
-        // --- FUNÇÕES DE RENDERIZAÇÃO (Mantidas do código anterior) ---
+        // --- FUNÇÕES DE RENDERIZAÇÃO ---
         const mainContent = document.getElementById('main-content');
         const sidebar = document.getElementById('sidebar');
         const navLinks = document.querySelectorAll('nav a');
@@ -397,7 +401,7 @@
                 };
                 const buttonText = buttonTextMap[key] || secao.titulo.split(' ')[0];
                 
-                button.textContent = `${secao.icone} ${buttonText}`; 
+                button.textContent = `${secao.icone} ${buttonText}`;
                 button.onclick = () => scrollToSection(sectionId);
                 sidebar.appendChild(button);
             });
@@ -435,7 +439,7 @@
         
         // --- INICIALIZAÇÃO: Carrega a página de Conteúdo por padrão ---
         document.addEventListener('DOMContentLoaded', () => {
-            carregarConteudo('conteudo'); 
+            carregarConteudo('conteudo');
         });
     </script>
 </body>
