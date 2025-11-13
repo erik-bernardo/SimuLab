@@ -159,11 +159,9 @@
     </div>
     
     <script>
-        // A constante PADRAO_SIM_EX foi removida.
-
-        // --- URLs de Imagens Coletadas (Consolidado e Corrigido para uso de URLs de Conteúdo em todas as seções) ---
+        // --- URLs de Imagens Coletadas (Consolidado e Atualizado) ---
         const IMG_FISICA = {
-            // Conteúdo (Mantidos)
+            // Conteúdo (Atualizado)
             mru_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0-A_aJII1mfFb-jQRdhNCtraUl7whbm0Hw&s',
             mruv_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx7rVZOxPTzV6QmMv61TbardU2l1myQVnNqA&s',
             dinamica_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTu7ooaF6nmcASSm8aLvwtrYgVoJ6HwW4yAsw&s',
@@ -172,40 +170,45 @@
             hidrostatica_cont: 'https://www.transportabrasil.com.br/wp-content/uploads/2021/03/maiores-navios-cargueiros-do-mundo-03-650x446.jpg',
             termometria_cont: 'https://revistazunai.com.br/wp-content/uploads/2019/05/temperatura-1024x538.png',
             dilatacaotermica_cont: 'https://static.todamateria.com.br/upload/di/la/dilatacaosuperficial-cke.jpg',
-            calorimetria_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTszzHQrSMAoYsrXqufTCluS9m2vShgEhbpLQ&s',
-            ondas_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSiCLVdOWZUGRRrYKC7lGkSz_fpDWYVirBWA&s',
+            // NOVO URL PARA CALORIMETRIA
+            calorimetria_cont: 'https://i0.wp.com/enemdescomplicado.com.br/wp-content/uploads/2015/07/a3_f2_mudancas_fase_grafico.png?fit=600%2C327', 
+            // NOVO URL PARA ONDAS
+            ondas_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTszzHQrSMAoYsrXqufTCluS9m2vShgEhbpLQ&s', 
             optica_geo_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMTvrPj3Zm9wXoxdluFY0_MLFjuHj2qUsong&s',
-            eletricidade_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3JvkRKDG3E8bX-TvJCl4DKVzV7QCbsnazgw&s',
+            // NOVO URL PARA ELETRICIDADE
+            eletricidade_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMTvrPj3Zm9wXoxdluFY0_MLFjuHj2qUsong&s', 
             circuitos_cont: 'https://www.redeweb.com/wp-content/uploads/2017/09/circuitos-electricos.jpg',
             eletrostatica_cont: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTRGcxEEcwr2Iva7M6QPBtRyBrQSSMCv2f8Q&s',
 
-            // --- Simulações (Alterado para usar o conteúdo correspondente) ---
-            mru: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0-A_aJII1mfFb-jQRdhNCtraUl7whbm0Hw&s', // Mru_cont
-            mruv: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx7rVZOxPTzV6QmMv61TbardU2l1myQVnNqA&s', // Mruv_cont
-            energia: 'https://conceitosdomundo.pt/wp-content/uploads/2021/10/energia-em-fisica.jpg', // Energia_cont
-            queda_livre: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYD09UeJum4fAgzLvQ3PhdpYJrSaosTyqDSQ&s', // Quedalivre_cont
-            hidrostatica: 'https://www.transportabrasil.com.br/wp-content/uploads/2021/03/maiores-navios-cargueiros-do-mundo-03-650x446.jpg', // Hidrostatica_cont
-            gravitacaouniversal: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYD09UeJum4fAgzLvQ3PhdpYJrSaosTyqDSQ&s', // Reutiliza Quedalivre_cont
-            escalastermometricas: 'https://revistazunai.com.br/wp-content/uploads/2019/05/temperatura-1024x538.png', // Termometria_cont
-            dilatacaotermica: 'https://static.todamateria.com.br/upload/di/la/dilatacaosuperficial-cke.jpg', // Dilatacaotermica_cont
-            calorimetria: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTszzHQrSMAoYsrXqufTCluS9m2vShgEhbpLQ&s', // Calorimetria_cont
-            ondas: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSiCLVdOWZUGRRrYKC7lGkSz_fpDWYVirBWA&s', // Ondas_cont
-            opticageometrica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMTvrPj3Zm9wXoxdluFY0_MLFjuHj2qUsong&s', // Optica_geo_cont
-            eletricidade: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3JvkRKDG3E8bX-TvJCl4DKVzV7QCbsnazgw&s', // Eletricidade_cont
-            eletrostatica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTRGcxEEcwr2Iva7M6QPBtRyBrQSSMCv2f8Q&s', // Eletrostatica_cont
-            circuitoseletricos: 'https://www.redeweb.com/wp-content/uploads/2017/09/circuitos-electricos.jpg', // Circuitos_cont
-            eletromagnetismo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTRGcxEEcwr2Iva7M6QPBtRyBrQSSMCv2f8Q&s', // Reutiliza Eletrostatica_cont
+            // --- Simulações (Propagado a partir do Conteúdo) ---
+            mru: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0-A_aJII1mfFb-jQRdhNCtraUl7whbm0Hw&s',
+            mruv: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx7rVZOxPTzV6QmMv61TbardU2l1myQVnNqA&s',
+            energia: 'https://conceitosdomundo.pt/wp-content/uploads/2021/10/energia-em-fisica.jpg',
+            queda_livre: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYD09UeJum4fAgzLvQ3PhdpYJrSaosTyqDSQ&s',
+            hidrostatica: 'https://www.transportabrasil.com.br/wp-content/uploads/2021/03/maiores-navios-cargueiros-do-mundo-03-650x446.jpg',
+            gravitacaouniversal: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYD09UeJum4fAgzLvQ3PhdpYJrSaosTyqDSQ&s',
+            escalastermometricas: 'https://revistazunai.com.br/wp-content/uploads/2019/05/temperatura-1024x538.png',
+            dilatacaotermica: 'https://static.todamateria.com.br/upload/di/la/dilatacaosuperficial-cke.jpg',
+            calorimetria: 'https://i0.wp.com/enemdescomplicado.com.br/wp-content/uploads/2015/07/a3_f2_mudancas_fase_grafico.png?fit=600%2C327', // ATUALIZADO
+            ondas: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTszzHQrSMAoYsrXqufTCluS9m2vShgEhbpLQ&s', // ATUALIZADO
+            opticageometrica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMTvrPj3Zm9wXoxdluFY0_MLFjuHj2qUsong&s',
+            eletricidade: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMTvrPj3Zm9wXoxdluFY0_MLFjuHj2qUsong&s', // ATUALIZADO
+            eletrostatica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTRGcxEEcwr2Iva7M6QPBtRyBrQSSMCv2f8Q&s',
+            circuitoseletricos: 'https://www.redeweb.com/wp-content/uploads/2017/09/circuitos-electricos.jpg',
+            eletromagnetismo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTRGcxEEcwr2Iva7M6QPBtRyBrQSSMCv2f8Q&s',
 
-            // --- Exercícios (Alterado para usar o conteúdo correspondente) ---
-            ex_cinematica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx7rVZOxPTzV6QmMv61TbardU2l1myQVnNqA&s', // Mruv_cont (Geral para Cinemática)
-            ex_dinamica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTu7ooaF6nmcASSm8aLvwtrYgVoJ6HwW4yAsw&s', // Dinamica_cont
-            ex_trabalho_energia: 'https://conceitosdomundo.pt/wp-content/uploads/2021/10/energia-em-fisica.jpg', // Energia_cont
-            ex_calor: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTszzHQrSMAoYsrXqufTCluS9m2vShgEhbpLQ&s', // Calorimetria_cont
-            ex_termo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTszzHQrSMAoYsrXqufTCluS9m2vShgEhbpLQ&s', // Calorimetria_cont
-            ex_ondas: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSiCLVdOWZUGRRrYKC7lGkSz_fpDWYVirBWA&s', // Ondas_cont
-            ex_optica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMTvrPj3Zm9wXoxdluFY0_MLFjuHj2qUsong&s', // Optica_geo_cont
-            ex_eletricidade: 'https://www.redeweb.com/wp-content/uploads/2017/09/circuitos-electricos.jpg', // Circuitos_cont
-            ex_campos: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTRGcxEEcwr2Iva7M6QPBtRyBrQSSMCv2f8Q&s' // Eletrostatica_cont
+            // --- Exercícios (Alguns URLs atualizados/específicos) ---
+            ex_cinematica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx7rVZOxPTzV6QmMv61TbardU2l1myQVnNqA&s',
+            ex_dinamica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTu7ooaF6nmcASSm8aLvwtrYgVoJ6HwW4yAsw&s',
+            ex_trabalho_energia: 'https://conceitosdomundo.pt/wp-content/uploads/2021/10/energia-em-fisica.jpg',
+            // NOVO URL ESPECÍFICO PARA CALOR E TEMPERATURA
+            ex_calor: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSp6SIHLkgI5gHRZINP2rFBFyrMeg83aJUOnw&s', 
+            // NOVO URL PARA EXERCÍCIOS DE TERMODINÂMICA (GERAL)
+            ex_termo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSvOoXO8ZnRmTwR9_Nan034g7RRs6cn3cJpA&s', 
+            ex_ondas: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTszzHQrSMAoYsrXqufTCluS9m2vShgEhbpLQ&s', // ATUALIZADO
+            ex_optica: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMTvrPj3Zm9wXoxdluFY0_MLFjuHj2qUsong&s',
+            ex_eletricidade: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMTvrPj3Zm9wXoxdluFY0_MLFjuHj2qUsong&s', // ATUALIZADO (Usando Eletricidade_cont)
+            ex_campos: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTRGcxEEcwr2Iva7M6QPBtRyBrQSSMCv2f8Q&s'
         };
 
 
@@ -387,7 +390,7 @@
                 // Cria a Seção (main content)
                 const sectionElement = document.createElement('section');
                 sectionElement.id = sectionId;
-                sectionElement.innerHTML = `<h2>${secao.icone} ${secao.titulo}</h2>`; // Adicionado ícone no H2
+                sectionElement.innerHTML = `<h2>${secao.icone} ${secao.titulo}</h2>`;
                 sectionElement.appendChild(criarCards(secao.cards));
                 mainContent.appendChild(sectionElement);
 
