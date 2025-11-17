@@ -1,0 +1,300 @@
+/* Variáveis de Cores */
+:root {
+    --color-bg-dark: #0f1c3f; 
+    --color-primary: #00bcd4; 
+    --color-secondary: #ffeb3b; 
+    --color-board-bg: #1e3a67; 
+    --color-tile-hidden: #3f51b5; 
+    --color-tile-revealed: #ffffff; 
+    --color-text-revealed: #000000; 
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--color-bg-dark);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.game-container, .setup-screen {
+    background: linear-gradient(145deg, #1e3a67, #0f1c3f);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 50px rgba(0, 188, 212, 0.5), 0 0 20px rgba(255, 235, 59, 0.3);
+    max-width: 900px;
+    width: 95%;
+    text-align: center;
+    border: 5px solid var(--color-primary);
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ESTILOS DA TELA DE SETUP (MANTIDOS) */
+.setup-screen {
+    gap: 15px;
+}
+.setup-screen input[type="number"] {
+    padding: 10px;
+    font-size: 1.2em;
+    width: 100px;
+    text-align: center;
+    border-radius: 5px;
+    border: 2px solid var(--color-primary);
+    background-color: #0d172e;
+    color: white;
+}
+.setup-screen hr {
+    width: 80%;
+    border: 1px solid var(--color-board-bg);
+    margin: 10px 0;
+}
+#wheel-config-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px dashed var(--color-primary);
+    padding: 10px;
+    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.2);
+    width: 80%;
+}
+#wheel-config-list li {
+    padding: 5px 0;
+    border-bottom: 1px dotted #3f51b5;
+    font-size: 1.1em;
+}
+.config-info {
+    font-size: 0.9em;
+    color: #aaa;
+}
+
+/* PLACAR */
+.scoreboard {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+    width: 100%;
+    padding: 10px 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+}
+.player-card {
+    padding: 8px 15px;
+    border-radius: 5px;
+    background-color: #3f51b5;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s;
+    min-width: 120px;
+}
+.player-card.active-player {
+    background-color: var(--color-secondary); 
+    color: var(--color-text-revealed);
+    border: 2px solid var(--color-primary);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px var(--color-secondary);
+}
+.player-card p { margin: 0; font-weight: bold; font-size: 1em; }
+.player-card .score-value { font-size: 1.2em; font-weight: 900; }
+
+
+/* ÁREA DA RODA - NOVO ESTILO PARA CANVAS */
+.wheel-area {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    position: relative; 
+}
+#prize-wheel {
+    border: 10px solid var(--color-primary);
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(0, 188, 212, 0.8), inset 0 0 10px rgba(0, 0, 0, 0.5);
+    /* Transição para a animação de giro via JS/CSS */
+    transition: transform 6s cubic-bezier(0.25, 0.1, 0.25, 1); 
+}
+#pointer {
+    position: absolute;
+    top: 5px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 30px solid #f44336; 
+    z-index: 10;
+}
+.btn-spin {
+    padding: 15px 30px;
+    background-color: #ff5722; 
+    color: white;
+    font-size: 1.5em;
+    font-weight: bold;
+    border-radius: 10px;
+    box-shadow: 0 4px 0 #bf360c;
+    cursor: pointer;
+}
+.btn-spin:hover { background-color: #e64a19; }
+.btn-spin:active { 
+    box-shadow: 0 1px 0 #bf360c;
+    transform: translateY(3px);
+}
+.wheel-result-display {
+    font-size: 1.8em;
+    font-weight: 900;
+    color: var(--color-secondary);
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px 20px;
+    border-radius: 8px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+    max-width: 500px;
+    text-shadow: 0 0 10px rgba(255, 235, 59, 0.8);
+}
+
+
+/* CONTROLES E INSTRUÇÕES */
+.controls {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    gap: 20px;
+    margin-top: 20px;
+    width: 100%;
+}
+#key-instruction {
+    font-size: 1.4em;
+    color: var(--color-secondary);
+    text-shadow: 0 0 5px rgba(255, 235, 59, 0.5);
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px dashed var(--color-secondary);
+    border-radius: 5px;
+}
+h1 {
+    font-family: 'Oswald', sans-serif;
+    color: var(--color-secondary);
+    text-shadow: 0 0 10px rgba(255, 235, 59, 0.8);
+    margin-bottom: 25px;
+    font-size: 2.5em;
+}
+#category-display {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: var(--color-primary);
+    margin-bottom: 30px;
+    padding: 10px 20px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    border: 2px solid var(--color-primary);
+    letter-spacing: 2px;
+}
+#word-display {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 30px 0;
+    min-height: 80px;
+}
+.word-container {
+    display: flex;
+    margin-right: 15px; 
+    gap: 2px;
+}
+.letter-tile {
+    width: 40px;
+    height: 55px;
+    line-height: 55px;
+    background-color: var(--color-tile-hidden);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+    font-size: 1.8em;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.2s, color 0.2s;
+}
+.letter-tile.revealed {
+    background-color: var(--color-tile-revealed);
+    color: var(--color-text-revealed);
+    border-color: var(--color-primary);
+}
+.input-group.full-guess-only {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    width: 100%;
+    max-width: 450px;
+}
+input[type="text"] {
+    flex-grow: 1;
+    padding: 10px;
+    font-size: 1.1em;
+    border-radius: 5px;
+    border: none;
+    background-color: #2c446c;
+    color: white;
+    text-align: center;
+}
+button {
+    padding: 10px 15px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+.btn-full {
+    background-color: #FF9800; 
+    color: white;
+}
+.btn-next {
+    background-color: #4CAF50; 
+    color: white;
+}
+#message-box {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 1.2em;
+    font-weight: bold;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+}
+#message-box.success {
+    background-color: #4CAF50;
+    color: white;
+}
+#message-box.error {
+    background-color: #f44336;
+    color: white;
+}
+#guessed-letters {
+    margin-top: 20px;
+    font-size: 1.1em;
+    color: #ccc;
+}
+#guessed-letters span {
+    font-weight: bold;
+    color: var(--color-secondary);
+}
