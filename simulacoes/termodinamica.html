@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termodinâmica: Lei Combinada dos Gases (Compacta)</title>
+    
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <style>
+        /* [ESTILOS GERAIS - Estética Compacta] */
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; font-size: 14px; }
+        .main-container { display: flex; height: 100%; width: 100%; }
+
+        /* PAINEL ESQUERDO: Análise e Inputs - REDUZIDO */
+        .left-panel { 
+            width: 350px; /* Reduzido de 450px para 350px */
+            background-color: #ffffff; 
+            padding: 15px; /* Reduzido o padding */
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
+            overflow-y: auto; 
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Reduzido o espaçamento */
+        } 
+        
+        #explanation-box {
+            background-color: #559955; 
+            color: white;
+            padding: 10px; /* Menor padding */
+            font-weight: bold;
+            border-radius: 4px; /* Menor raio */
+            cursor: pointer;
+        }
+
+        .analysis-panel {
+            background-color: #f8f8f8;
+            padding: 15px; /* Menor padding */
+            border-radius: 6px; 
+            border: 1px solid #e0e0e0;
+        }
+
+        h2 { color: #4b5cff; margin-top: 0; margin-bottom: 15px; font-size: 18px; text-align: center; }
+        
+        /* Layout de Inputs - COMPACTO */
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; /* Espaço mínimo entre colunas */ }
+        .input-section { padding: 8px; border: 1px dashed #4b5cff; border-radius: 4px; }
+        .input-section h4 { color: #673ab7; margin-top: 0; margin-bottom: 8px; border-bottom: 1px solid #d1c4e9; padding-bottom: 3px; font-size: 14px; }
+        
+        .variable-group { margin-bottom: 5px; /* Menor margem */ display: flex; align-items: center; font-size: 13px; }
+        .variable-group label { font-weight: 600; width: 25px; /* Largura mínima para rótulo */ }
+        .variable-group input { 
+            flex-grow: 1; 
+            padding: 5px; /* Padding reduzido */
+            border: 1px solid #ccc; 
+            border-radius: 3px; 
+            text-align: right; 
+            margin-right: 5px; 
+            font-size: 13px; /* Fonte menor */
+            max-width: 90px; /* Limita largura do input */
+        }
+        .variable-group select { 
+            padding: 5px; /* Padding reduzido */
+            border: 1px solid #ccc; 
+            border-radius: 3px; 
+            width: 50px; /* Largura mínima */
+            font-size: 12px; /* Fonte menor */
+        }
+
+        .btn-control { padding: 10px; background-color: #4b5cff; color: white; border-radius: 4px; font-size: 14px; margin-top: 15px; }
+
+        /* Resultado e Erros */
+        #result-display { padding: 10px; font-size: 1.1em; }
+        
+        /* Passo a Passo */
+        #step-by-step-output {
+            padding: 10px;
+            font-size: 13px;
+        }
+        .formula-line { 
+            background-color: #e8eaf6; 
+            padding: 4px 6px; 
+            margin: 5px 0; 
+            font-size: 0.9em; 
+        }
+        .final-answer { font-size: 1.1em; padding: 8px 0; margin-top: 8px; }
+
+        /* PAINEL DIREITO: GRÁFICO PLOTLY */
+        .right-panel { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .footer-info { font-size: 11px; padding: 3px; }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="left-panel">
+            
+            <div id="explanation-box" onclick="showExplanation()">
+                Lei Combinada: P₁V₁/T₁ = P₂V₂/T₂
+            </div>
+            
+            <div class="analysis-panel">
+                <h2>Parâmetros da Transformação</h2>
+                
+                <div id="error-message"></div>
+
+                <div class="input-grid">
+                    <div class="input-section">
+                        <h4>Estado 1</h4>
+                        <div class="variable-group">
+                            <label for="p1-input">P₁:</label>
+                            <input type="text" id="p1-input" value="101.325" data-unit-type="P">
+                            <select id="p1-unit" data-var="P1">
+                                <option value="kPa" selected>kPa</option>
+                                <option value="Pa">Pa</option>
+                                <option value="atm">atm</option>
+                            </select>
+                        </div>
+                        <div class="variable-group">
+                            <label for="v1-input">V₁:</label>
+                            <input type="text" id="v1-input" value="1.0" data-unit-type="V">
+                            <select id="v1-unit" data-var="V1">
+                                <option value="L" selected>L</option>
+                                <option value="m3">m³</option>
+                            </select>
+                        </div>
+                        <div class="variable-group">
+                            <label for="t1-input">T₁:</label>
+                            <input type="text" id="t1-input" value="300" data-unit-type="T">
+                            <select id="t1-unit" data-var="T1" disabled>
+                                <option value="K">K</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-section">
+                        <h4>Estado 2</h4>
+                        <div class="variable-group">
+                            <label for="p2-input">P₂:</label>
+                            <input type="text" id="p2-input" value="x" data-unit-type="P">
+                            <select id="p2-unit" data-var="P2">
+                                <option value="kPa" selected>kPa</option>
+                                <option value="Pa">Pa</option>
+                                <option value="atm">atm</option>
+                            </select>
+                        </div>
+                        <div class="variable-group">
+                            <label for="v2-input">V₂:</label>
+                            <input type="text" id="v2-input" value="2.0" data-unit-type="V">
+                            <select id="v2-unit" data-var="V2">
+                                <option value="L" selected>L</option>
+                                <option value="m3">m³</option>
+                            </select>
+                        </div>
+                        <div class="variable-group">
+                            <label for="t2-input">T₂:</label>
+                            <input type="text" id="t2-input" value="300" data-unit-type="T">
+                            <select id="t2-unit" data-var="T2" disabled>
+                                <option value="K">K</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-control" onclick="solveCombinedGasLaw()">Calcular e Plotar</button>
+
+                <div id="result-display">
+                    Desc.: <strong id="unknown-variable-label">P₂</strong>
+                    <br>Resultado: <strong id="calculated-result" style="color: #2e7d32;">...</strong>
+                </div>
+            </div>
+            
+            <div id="step-by-step-output" class="analysis-panel">
+                <h4>Passo a Passo (Resolução)</h4>
+                <p>Insira 'x' e clique em "Calcular".</p>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div id="plotly-container"></div>
+            <div class="footer-info">Diagrama PV: Transformação de Estado | Plotly.js</div>
+        </div>
+    </div>
+
+<script>
+    // Fatores de conversão para o Sistema Internacional (SI)
+    const UNIT_FACTORS = {
+        P: { 'Pa': 1, 'kPa': 1000, 'atm': 101325 },
+        V: { 'm3': 1, 'L': 0.001 },
+        T: { 'K': 1 }
+    };
+
+    // Mapeamento para o passo a passo
+    const factorMap = {
+        'P1': { num: 'P2V2T1', den: 'V1T2' }, 'V1': { num: 'P2V2T1', den: 'P1T2' }, 'T1': { num: 'P1V1T2', den: 'P2V2' },
+        'P2': { num: 'P1V1T2', den: 'V2T1' }, 'V2': { num: 'P1V1T2', den: 'P2T1' }, 'T2': { num: 'P2V2T1', den: 'P1V1' },
+    };
+
+    let currentVariables = {};
+
+    // --- FUNÇÕES AUXILIARES DE UNIDADE ---
+
+    function convertToSI(value, type, unit) {
+        if (!UNIT_FACTORS[type] || !UNIT_FACTORS[type][unit]) throw new Error(`Unidade inválida: ${unit}`);
+        return value * UNIT_FACTORS[type][unit];
+    }
+
+    function convertFromSI(value, type, unit) {
+        if (!UNIT_FACTORS[type] || !UNIT_FACTORS[type][unit]) throw new Error(`Unidade inválida: ${unit}`);
+        return value / UNIT_FACTORS[type][unit];
+    }
+
+    // --- FUNÇÃO PRINCIPAL DE CÁLCULO ---
+
+    function solveCombinedGasLaw() {
+        const errorDiv = document.getElementById('error-message');
+        errorDiv.style.display = 'none';
+        errorDiv.innerHTML = '';
+        
+        const varNames = ['P1', 'V1', 'T1', 'P2', 'V2', 'T2'];
+        let unknownVar = null;
+        let unknownCount = 0;
+        let knownValuesSI = {};
+        
+        // 1. Coleta, Valida e Converte Inputs para SI
+        for (const name of varNames) {
+            const input = document.getElementById(name.toLowerCase() + '-input');
+            const unitSelect = document.getElementById(name.toLowerCase() + '-unit');
+            const valueStr = input.value.trim().toLowerCase();
+            const type = name[0]; 
+            const unit = unitSelect.value;
+            
+            currentVariables[name] = { value: valueStr, unit: unit, type: type, name: name };
+
+            if (valueStr === 'x' || valueStr === '') {
+                unknownVar = name;
+                unknownCount++;
+            } else {
+                const numValue = parseFloat(valueStr);
+                
+                if (isNaN(numValue) || (type === 'T' && numValue <= 0) || numValue < 0) {
+                    errorDiv.innerHTML = `**Erro:** Valor inválido ou negativo para ${name}. Temperatura (T) deve ser > 0.`;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                
+                try {
+                    knownValuesSI[name] = convertToSI(numValue, type, unit);
+                } catch (e) {
+                    errorDiv.innerHTML = `**Erro:** ${e.message}`;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+            }
+        }
+
+        // 2. Validação
+        if (unknownCount !== 1) {
+            errorDiv.innerHTML = `**Erro:** Deve haver exatamente UMA variável desconhecida ('x'). (${unknownCount} encontradas)`;
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        // 3. Resolver a Equação (P1V1T2 = P2V2T1)
+        const { num: numTermsExp, den: denTermsExp } = factorMap[unknownVar];
+        let NumValue = 1;
+        let DenValue = 1;
+        
+        // Calcular o Numerador
+        for (let i = 0; i < numTermsExp.length; i += 2) {
+            const factor = numTermsExp.substring(i, i + 2); 
+            NumValue *= knownValuesSI[factor];
+        }
+
+        // Calcular o Denominador
+        for (let i = 0; i < denTermsExp.length; i += 2) {
+            const factor = denTermsExp.substring(i, i + 2);
+            DenValue *= knownValuesSI[factor];
+        }
+        
+        if (DenValue === 0) {
+            errorDiv.innerHTML = `**Erro:** Divisão por zero no denominador.`;
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        const resultSI = NumValue / DenValue;
+
+        if (isNaN(resultSI) || !isFinite(resultSI) || resultSI <= 0) {
+            errorDiv.innerHTML = `**Erro:** Resultado inválido. Verifique se os valores de T são positivos.`;
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        // 4. Conversão e Atualização
+        const outputUnit = currentVariables[unknownVar].unit;
+        const resultOutput = convertFromSI(resultSI, currentVariables[unknownVar].type, outputUnit);
+
+        document.getElementById(unknownVar.toLowerCase() + '-input').value = resultOutput.toFixed(6);
+        currentVariables[unknownVar].value = resultOutput;
+        knownValuesSI[unknownVar] = resultSI;
+
+        document.getElementById('unknown-variable-label').textContent = unknownVar;
+        document.getElementById('calculated-result').textContent = `${resultOutput.toFixed(4)} ${outputUnit}`;
+
+        // 5. Gerar Passo a Passo
+        generateStepByStep(unknownVar, knownValuesSI, numTermsExp, denTermsExp, resultOutput, NumValue, DenValue);
+
+        // 6. Plotar
+        plotTransformation(knownValuesSI);
+    }
+
+    // --- PASSO A PASSO DETALHADO ---
+
+    function generateStepByStep(unknownVar, knownValuesSI, numTermsExp, denTermsExp, resultOutput, NumValue, DenValue) {
+        const out = document.getElementById('step-by-step-output');
+        const outputUnit = currentVariables[unknownVar].unit;
+        
+        let stepsHTML = `<h4>Resolução ${unknownVar}</h4>`;
+        
+        // 1. Conversão e Fórmula
+        stepsHTML += '<div style="margin-bottom: 10px;"><h5>1. Conversão e Isolamento</h5>';
+        stepsHTML += `<p>Conversão para SI (Pa, m³, K).</p>`;
+        
+        stepsHTML += `<span class="formula-line">Fórmula: ${unknownVar} = (${numTermsExp}) / (${denTermsExp})</span></div>`;
+        
+        // 2. Substituição dos Valores
+        stepsHTML += '<div style="margin-bottom: 10px;"><h5>2. Substituição em SI</h5>';
+        
+        // Geração da expressão de substituição
+        const numExp = [];
+        for (let i = 0; i < numTermsExp.length; i += 2) {
+            const factor = numTermsExp.substring(i, i + 2);
+            numExp.push(knownValuesSI[factor].toExponential(4));
+        }
+        const denExp = [];
+        for (let i = 0; i < denTermsExp.length; i += 2) {
+            const factor = denTermsExp.substring(i, i + 2);
+            denExp.push(knownValuesSI[factor].toExponential(4));
+        }
+
+        stepsHTML += `<span class="formula-line">${unknownVar} = (${numExp.join(' • ')}) / (${denExp.join(' • ')})</span>`;
+        
+        stepsHTML += `<span class="formula-line">Calculado: ${NumValue.toExponential(4)} / ${DenValue.toExponential(4)}</span>`;
+
+        stepsHTML += `</div>`;
+        
+        // 3. Resultado Final
+        stepsHTML += '<h5>3. Resultado Final</h5>';
+        stepsHTML += `<div class="final-answer">${unknownVar} $\\approx$ ${resultOutput.toFixed(4)} ${outputUnit}</div>`;
+
+        out.innerHTML = stepsHTML;
+    }
+
+    // --- PLOTAGEM PLOTLY ---
+
+    function plotTransformation(vars) {
+        const { P1, V1, T1, P2, V2, T2 } = vars;
+        
+        const T1data = generateIsothermData(1, T1);
+        const T2data = generateIsothermData(1, T2);
+
+        const trajectoryTrace = {
+            x: [V1, V2], y: [P1, P2], mode: 'lines+markers',
+            name: `Transformação (1 $\\rightarrow$ 2)`,
+            line: { color: '#00bcd4', width: 3 },
+            marker: { size: 10, color: '#00bcd4' }
+        };
+
+        const state1Trace = {
+            x: [V1], y: [P1], mode: 'markers+text', name: `E1 (${T1.toFixed(0)} K)`,
+            text: ['E1'], textposition: 'bottom right',
+            marker: { size: 12, color: '#4b5cff', symbol: 'circle' }
+        };
+
+        const state2Trace = {
+            x: [V2], y: [P2], mode: 'markers+text', name: `E2 (${T2.toFixed(0)} K)`,
+            text: ['E2'], textposition: 'top left',
+            marker: { size: 12, color: '#e91e63', symbol: 'diamond' }
+        };
+        
+        const isotherm1 = { x: T1data.vData, y: T1data.pData, mode: 'lines', name: `Isoterma T₁`, line: { color: '#4b5cff', dash: 'dashdot', width: 1.5 }, hoverinfo: 'none' };
+        const isotherm2 = { x: T2data.vData, y: T2data.pData, mode: 'lines', name: `Isoterma T₂`, line: { color: '#e91e63', dash: 'dashdot', width: 1.5 }, hoverinfo: 'none' };
+
+        const allP = [P1, P2, ...T1data.pData, ...T2data.pData].filter(p => isFinite(p) && p > 0);
+        const allV = [V1, V2, ...T1data.vData, ...T2data.vData].filter(v => isFinite(v) && v > 0);
+        
+        const maxP = allP.length > 0 ? Math.max(...allP) : 100000;
+        const maxV = allV.length > 0 ? Math.max(...allV) : 1;
+
+        const layout = {
+            title: { text: `Transformação de Estado no Diagrama PV (SI)`, font: { size: 16, color: '#333' } },
+            xaxis: { title: 'Volume (V) [m³]', zeroline: true, range: [0, maxV * 1.2] },
+            yaxis: { title: 'Pressão (P) [Pa]', zeroline: true, range: [0, maxP * 1.2] },
+            margin: { t: 60, b: 40, l: 50, r: 10 }, /* Margens menores */
+            showlegend: true,
+            legend: { x: 1, y: 1.05, orientation: 'h', font: { size: 10 } },
+            paper_bgcolor: '#ffffff', plot_bgcolor: '#fcfcfc'
+        };
+
+        Plotly.newPlot('plotly-container', [isotherm1, isotherm2, trajectoryTrace, state1Trace, state2Trace], layout, {responsive: true});
+    }
+
+    // Função auxiliar para gerar dados de isoterma
+    function generateIsothermData(n, T, vMin = 0.1, vMax = 2.0, numPoints = 100) {
+        const R = 8.314;
+        const vData = [];
+        const pData = [];
+        const step = (vMax - vMin) / numPoints;
+        const nRT = n * R * T;
+
+        for (let V = vMin; V <= vMax; V += step) {
+            const P = nRT / V;
+            if (P < 300000 && P > 0) {
+                vData.push(V);
+                pData.push(P);
+            }
+        }
+        return { vData, pData };
+    }
+
+    function showExplanation() {
+        alert("Lei Combinada dos Gases: P₁V₁/T₁ = P₂V₂/T₂\n\nInstruções:\n1. Preencha 5 das 6 variáveis. Use 'x' (ou deixe o campo em branco) para a variável desconhecida.\n2. O cálculo interno é feito em Unidades SI (Pascal, m³, Kelvin).\n3. O gráfico mostra a transformação do Estado 1 para o Estado 2 no Diagrama PV.");
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        // Inicializa o gráfico com valores padrão
+        solveCombinedGasLaw(); 
+    });
+</script>
+
+</body>
+</html>
