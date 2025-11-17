@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimuLab  </title>
+    <title>SimuLab </title>
     <link rel="icon" type="image/png" href="dados/logo-icon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
@@ -21,12 +21,23 @@
         }
 
         /* ----------------------------------- */
-        /* ESTILOS DO CONTEÚDO E PÁGINA (MANTIDOS NO HTML) */
+        /* ESTILOS DO CONTEÚDO E PÁGINA */
         /* ----------------------------------- */
         .hero-section { background-color: #f0f0f0; padding: 80px 40px; text-align: center; }
         .hero-section h2 { font-size: 2.5em; color: #D2691E; margin-bottom: 10px; }
         .hero-section p { font-size: 1.2em; color: #555; max-width: 700px; margin: 0 auto 30px; }
-        .hero-button { background-color: #D2691E; color: white; text-decoration: none; font-weight: bold; padding: 12px 30px; border-radius: 5px; font-size: 1.1em; transition: background-color 0.3s; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+        .hero-button { 
+            background-color: #D2691E; 
+            color: white; 
+            text-decoration: none; 
+            font-weight: bold; 
+            padding: 12px 30px; 
+            border-radius: 5px; 
+            font-size: 1.1em; 
+            transition: background-color 0.3s; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+            display: inline-block; /* Garante que o botão WhatsApp funcione bem */
+        }
         .hero-button:hover { background-color: #c05c18; }
         .feature-section { padding: 60px 40px; display: flex; justify-content: space-around; align-items: center; gap: 40px; max-width: 1200px; margin: 0 auto; }
         .feature-text { flex: 1; text-align: left; }
@@ -42,7 +53,90 @@
         .info-card h4 { color: #333; margin-top: 0; }
         footer { background-color: #333; color: white; text-align: center; padding: 20px 0; font-size: 0.9em; }
 
-        /* RESPONSIVIDADE BÁSICA (Apenas as regras do conteúdo) */
+        /* ----------------------------------- */
+        /* ESTILOS FALE CONOSCO */
+        /* ----------------------------------- */
+        .contact-section {
+            background-color: #D2691E; 
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .contact-section h3 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto 20px auto; /* Adiciona margem abaixo do formulário */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-bottom: 20px; /* Espaço antes da separação */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .contact-form input[type="email"],
+        .contact-form textarea {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box; 
+        }
+        
+        .contact-form textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .contact-form button {
+            background-color: #333;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .contact-form button:hover {
+            background-color: #555;
+        }
+
+        .contact-buttons-group {
+            max-width: 600px;
+            margin: 20px auto 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        /* Estilo específico para o botão do WhatsApp */
+        .whatsapp-button {
+            background-color: #25D366; /* Verde WhatsApp */
+            text-decoration: none;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            color: white;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .whatsapp-button:hover {
+            background-color: #1eab56;
+        }
+
+
+        /* RESPONSIVIDADE BÁSICA */
         @media (max-width: 768px) {
             .feature-section { flex-direction: column; text-align: center; }
             .feature-text { text-align: center; }
@@ -51,7 +145,7 @@
         }
     </style>
     
-    </head>
+</head>
 <body>
     <main>
         <section class="hero-section" id="home">
@@ -98,10 +192,33 @@
                 </div>
             </div>
         </section>
+        
+        <section class="contact-section" id="contato">
+            <h3>Fale Conosco e Sugira Novidades! 🚀</h3>
+            <p>Sua opinião é fundamental para evoluir o SimuLab. Escolha como prefere nos enviar suas sugestões ou feedback:</p>
+            
+            <form class="contact-form" action="mailto:erikbernardosan@gmail.com" method="POST" enctype="text/plain">
+                <input type="email" name="email_remetente" placeholder="Seu E-mail (Opcional)">
+                <textarea name="corpo_sugestao" placeholder="Sua Sugestão, Dúvida ou Feedback Detalhado" required></textarea>
+                <button type="submit">Enviar Sugestão (Via E-mail) <i class="fas fa-paper-plane"></i></button>
+            </form>
+
+            <div class="contact-buttons-group">
+                <p>Ou, se preferir um contato rápido:</p>
+                <a 
+                    href="https://wa.me/5547992677825?text=Ol%C3%A1%2C%20gostaria%20de%20enviar%20uma%20sugest%C3%A3o%20para%20o%20SimuLab." 
+                    target="_blank" 
+                    class="whatsapp-button"
+                >
+                    Falar no WhatsApp <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </section>
+
     </main>
 
     <footer>
-        &copy; 2025 Plataforma Educacional. Todos os direitos reservados.
+        &copy; 2025 SimuLab. Todos os direitos reservados.
     </footer>
 
     <script src="dados/head.js"></script>
