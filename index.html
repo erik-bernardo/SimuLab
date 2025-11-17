@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <style>
-        /* Cores: #D2691E (Principal), #f8f8f8 (Fundo) */
+        /* Cores: #D2691E (Principal - Marrom), #f8f8f8 (Fundo) */
         /* ----------------------------------- */
         /* ESTILOS GERAIS */
         /* ----------------------------------- */
@@ -36,7 +36,7 @@
             font-size: 1.1em; 
             transition: background-color 0.3s; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
-            display: inline-block; /* Garante que o botão WhatsApp funcione bem */
+            display: inline-block;
         }
         .hero-button:hover { background-color: #c05c18; }
         .feature-section { padding: 60px 40px; display: flex; justify-content: space-around; align-items: center; gap: 40px; max-width: 1200px; margin: 0 auto; }
@@ -54,7 +54,7 @@
         footer { background-color: #333; color: white; text-align: center; padding: 20px 0; font-size: 0.9em; }
 
         /* ----------------------------------- */
-        /* ESTILOS FALE CONOSCO */
+        /* ESTILOS FALE CONOSCO (MELHORADO) */
         /* ----------------------------------- */
         .contact-section {
             background-color: #D2691E; 
@@ -67,68 +67,52 @@
             font-size: 2em;
             margin-bottom: 15px;
         }
-
-        .contact-form {
-            max-width: 600px;
-            margin: 0 auto 20px auto; /* Adiciona margem abaixo do formulário */
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            padding-bottom: 20px; /* Espaço antes da separação */
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .contact-form input[type="email"],
-        .contact-form textarea {
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1em;
-            width: 100%;
-            box-sizing: border-box; 
-        }
         
-        .contact-form textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .contact-form button {
-            background-color: #333;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-
-        .contact-form button:hover {
-            background-color: #555;
-        }
-
-        .contact-buttons-group {
-            max-width: 600px;
-            margin: 20px auto 0 auto;
+        .contact-options {
+            max-width: 700px;
+            margin: 30px auto 0;
             display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap; /* Permite quebrar linha em telas menores */
+            gap: 20px;
         }
-        
-        /* Estilo específico para o botão do WhatsApp */
-        .whatsapp-button {
-            background-color: #25D366; /* Verde WhatsApp */
+
+        /* Estilo para o Botão Google Forms (Mais destacado) */
+        .google-forms-button {
+            background-color: white; /* Fundo branco para destaque */
+            color: #4285F4; /* Azul Google para o texto */
             text-decoration: none;
             font-weight: bold;
-            padding: 12px 30px;
-            border-radius: 5px;
-            font-size: 1.1em;
+            padding: 15px 35px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            transition: all 0.3s;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Sombra forte */
+            display: inline-flex; /* Alinha o ícone e o texto */
+            align-items: center;
+            gap: 10px;
+        }
+
+        .google-forms-button:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Estilo para o Botão WhatsApp (Cor do WhatsApp) */
+        .whatsapp-button {
+            background-color: #25D366; /* Verde WhatsApp */
             color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 15px 35px;
+            border-radius: 8px;
+            font-size: 1.2em;
             transition: background-color 0.3s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .whatsapp-button:hover {
@@ -142,6 +126,8 @@
             .feature-text { text-align: center; }
             .info-grid { flex-direction: column; }
             .info-card { flex-basis: 100%; }
+            .contact-options { flex-direction: column; gap: 15px; } /* Empilha os botões em telas pequenas */
+            .google-forms-button, .whatsapp-button { width: 80%; max-width: 350px; justify-content: center; }
         }
     </style>
     
@@ -194,23 +180,25 @@
         </section>
         
         <section class="contact-section" id="contato">
-            <h3>Fale Conosco e Sugira Novidades! 🚀</h3>
-            <p>Sua opinião é fundamental para evoluir o SimuLab. Escolha como prefere nos enviar suas sugestões ou feedback:</p>
+            <h3>Envie seu Feedback e Sugestões! 🚀</h3>
+            <p>Sua opinião é fundamental para evoluir o SimuLab. Escolha a forma de contato que melhor lhe atende:</p>
             
-            <form class="contact-form" action="mailto:erikbernardosan@gmail.com" method="POST" enctype="text/plain">
-                <input type="email" name="email_remetente" placeholder="Seu E-mail (Opcional)">
-                <textarea name="corpo_sugestao" placeholder="Sua Sugestão, Dúvida ou Feedback Detalhado" required></textarea>
-                <button type="submit">Enviar Sugestão (Via E-mail) <i class="fas fa-paper-plane"></i></button>
-            </form>
+            <div class="contact-options">
+                
+                <a 
+                    href="SUA_URL_DO_GOOGLE_FORMS_AQUI" 
+                    target="_blank" 
+                    class="google-forms-button"
+                >
+                    <i class="fab fa-google"></i> Abrir Formulário de Feedback
+                </a>
 
-            <div class="contact-buttons-group">
-                <p>Ou, se preferir um contato rápido:</p>
                 <a 
                     href="https://wa.me/5547992677825?text=Ol%C3%A1%2C%20gostaria%20de%20enviar%20uma%20sugest%C3%A3o%20para%20o%20SimuLab." 
                     target="_blank" 
                     class="whatsapp-button"
                 >
-                    Falar no WhatsApp <i class="fab fa-whatsapp"></i>
+                    <i class="fab fa-whatsapp"></i> Falar no WhatsApp
                 </a>
             </div>
         </section>
