@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURAÇÃO ---
     // A sequência de teclas que queremos detectar (pode ser maiúscula ou minúscula)
     const secretCode = ['b', 'a', 'n', 'a', 'n', 'a']; 
-    const targetUrl = 'love.html'; // Para onde vai ser redirecionado
+    const targetUrl = 'https://erik-bernardo.github.io/SimuLab/devjokes/love.html'; // Para onde vai ser redirecionado
     
     let codeIndex = 0; // Contador para saber em qual letra estamos
 
