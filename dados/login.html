@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Simulab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --laranja-simulab: #d96c2c;
+            --laranja-hover: #c45e23;
+            --laranja-light: #ff8a50;
+            --branco: #ffffff;
+            --cinza-claro: #f4f4f4;
+            --texto: #2c3e50;
+            --texto-secundario: #7f8c8d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #fff5f0 0%, #ffffff 50%, #fff8f4 100%);
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(217, 108, 44, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -200px;
+            right: -200px;
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(217, 108, 44, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -150px;
+            left: -150px;
+            animation: pulse 10s ease-in-out infinite reverse;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 
+                        0 0 0 1px rgba(217, 108, 44, 0.1);
+            display: flex;
+            width: 100%;
+            overflow: hidden;
+            min-height: 650px;
+            transition: transform 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Lado da Ilustração */
+        .illustration-side {
+            flex: 1;
+            background: linear-gradient(135deg, var(--laranja-simulab) 0%, var(--laranja-light) 100%);
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .illustration-side::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            top: -50%;
+            left: -50%;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .illustration-side h1 { 
+            font-weight: 700; 
+            margin-bottom: 15px; 
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .illustration-side p { 
+            opacity: 0.95; 
+            font-weight: 300; 
+            line-height: 1.8; 
+            font-size: 1.05rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .rocket-img {
+            width: 85%;
+            max-width: 320px;
+            margin-bottom: 35px;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.25));
+            animation: float 4s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-25px) rotate(5deg); }
+        }
+
+        /* Lado do Formulário */
+        .form-side {
+            flex: 1.2;
+            padding: 60px 50px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .auth-toggle {
+            display: flex;
+            background: var(--cinza-claro);
+            border-radius: 14px;
+            padding: 6px;
+            margin-bottom: 35px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .auth-toggle button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            border-radius: 10px;
+            color: #888;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 15px;
+        }
+
+        .auth-toggle button.active {
+            background: white;
+            color: var(--laranja-simulab);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: scale(1.02);
+        }
+
+        .form-header {
+            margin-bottom: 35px;
+        }
+
+        .form-header h2 {
+            color: var(--texto);
+            margin-bottom: 8px;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .form-header p {
+            color: var(--texto-secundario);
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        /* Seleção de Cargo (Aluno/Professor) - Apenas no Cadastro */
+        .role-selector {
+            display: none;
+            gap: 15px;
+            margin-bottom: 25px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .role-selector.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .role-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .role-option input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .role-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #777;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .role-label i {
+            font-size: 1.1rem;
+        }
+
+        .role-option input:checked + .role-label {
+            border-color: var(--laranja-simulab);
+            color: var(--laranja-simulab);
+            background: rgba(217, 108, 44, 0.08);
+            box-shadow: 0 4px 12px rgba(217, 108, 44, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .role-label:hover {
+            border-color: var(--laranja-simulab);
+            transform: translateY(-2px);
+        }
+
+        /* Inputs */
+        .input-group {
+            position: relative;
+            margin-bottom: 22px;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #bbb;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 18px 16px 50px;
+            border: 2px solid #e8e8e8;
+            border-radius: 14px;
+            outline: none;
+            font-family: inherit;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .input-group input:focus {
+            border-color: var(--laranja-simulab);
+            box-shadow: 0 0 0 4px rgba(217, 108, 44, 0.1);
+            background: white;
+        }
+
+        .input-group input:focus + i,
+        .input-group:focus-within i {
+            color: var(--laranja-simulab);
+        }
+
+        .main-btn {
+            width: 100%;
+            padding: 17px;
+            background: linear-gradient(135deg, var(--laranja-simulab) 0%, var(--laranja-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            box-shadow: 0 8px 20px rgba(217, 108, 44, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .main-btn:hover::before {
+            left: 100%;
+        }
+
+        .main-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(217, 108, 44, 0.4);
+        }
+
+        .main-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .social-text {
+            text-align: center;
+            margin: 30px 0 18px;
+            font-size: 14px;
+            color: var(--texto-secundario);
+            position: relative;
+        }
+
+        .social-text::before,
+        .social-text::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .social-text::before { left: 0; }
+        .social-text::after { right: 0; }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+        }
+
+        .social-icons a {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            border: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #555;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+            background: white;
+        }
+
+        .social-icons a:hover {
+            background: var(--laranja-simulab);
+            color: white;
+            border-color: var(--laranja-simulab);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(217, 108, 44, 0.3);
+        }
+
+        @media (max-width: 968px) {
+            .glass-card { 
+                flex-direction: column; 
+                min-height: auto;
+            }
+            .illustration-side { 
+                padding: 40px 30px; 
+                min-height: 350px;
+            }
+            .rocket-img { width: 180px; }
+            .form-side { padding: 40px 30px; }
+            .illustration-side h1 { font-size: 2rem; }
+        }
+
+        @media (max-width: 480px) {
+            .form-side { padding: 30px 20px; }
+            .illustration-side { padding: 30px 20px; }
+            .form-header h2 { font-size: 1.5rem; }
+            .role-label { font-size: 14px; padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="glass-card">
+        <div class="illustration-side">
+            <img src="https://erik-bernardo.github.io/SimuLab/dados/logo-icon.png" alt="Foguete Simulab" class="rocket-img">
+            <h1>SIMULAB</h1>
+            <p>Sua plataforma completa de estudos. <br> Transforme seu aprendizado em resultados.</p>
+        </div>
+
+        <div class="form-side">
+            <div class="auth-toggle">
+                <button id="btnEntrar" class="active" onclick="alternarTela('entrar')">Entrar</button>
+                <button id="btnCadastrar" onclick="alternarTela('cadastrar')">Cadastrar</button>
+            </div>
+
+            <div class="form-header">
+                <h2 id="formTitle">Bem-vindo de volta!</h2>
+                <p id="formSub">Acesse sua conta para continuar.</p>
+            </div>
+
+            <form id="authForm">
+                <!-- Role selector - only shown during sign up -->
+                <div class="role-selector" id="roleSelector">
+                    <div class="role-option">
+                        <input type="radio" name="cargo" id="aluno" value="aluno" checked>
+                        <label for="aluno" class="role-label">
+                            <i class="fas fa-user-graduate"></i>
+                            <span>Aluno</span>
+                        </label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" name="cargo" id="professor" value="professor">
+                        <label for="professor" class="role-label">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>Professor</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Nickname field - only shown during sign up -->
+                <div class="input-group" id="nicknameGroup" style="display: none;">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="nickname" placeholder="Nome de usuário">
+                </div>
+
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" placeholder="E-mail" required>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="senha" placeholder="Senha" required>
+                </div>
+
+                <button type="submit" class="main-btn" id="btnAcao">Entrar na Plataforma</button>
+            </form>
+
+            <p class="social-text">Ou acesse com</p>
+            <div class="social-icons">
+                <a href="#" aria-label="Login com Google"><i class="fab fa-google"></i></a>
+                <a href="#" aria-label="Login com Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Login com GitHub"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let modo = 'entrar';
+
+    function alternarTela(novoModo) {
+        modo = novoModo;
+        const btnEntrar = document.getElementById('btnEntrar');
+        const btnCadastrar = document.getElementById('btnCadastrar');
+        const formTitle = document.getElementById('formTitle');
+        const formSub = document.getElementById('formSub');
+        const btnAcao = document.getElementById('btnAcao');
+        const roleSelector = document.getElementById('roleSelector');
+        const nicknameGroup = document.getElementById('nicknameGroup');
+        const nicknameInput = document.getElementById('nickname');
+
+        if (modo === 'cadastrar') {
+            btnEntrar.classList.remove('active');
+            btnCadastrar.classList.add('active');
+            formTitle.innerText = "Crie sua conta";
+            formSub.innerText = "Junte-se a nós e comece sua jornada de aprendizado.";
+            btnAcao.innerText = "Finalizar Cadastro";
+            roleSelector.classList.add('show');
+            nicknameGroup.style.display = 'block';
+            nicknameInput.setAttribute('required', 'required');
+        } else {
+            btnCadastrar.classList.remove('active');
+            btnEntrar.classList.add('active');
+            formTitle.innerText = "Bem-vindo de volta!";
+            formSub.innerText = "Acesse sua conta para continuar.";
+            btnAcao.innerText = "Entrar na Plataforma";
+            roleSelector.classList.remove('show');
+            nicknameGroup.style.display = 'none';
+            nicknameInput.removeAttribute('required');
+        }
+    }
+
+    // Integração com o Script de Back-end (auth.js)
+    document.getElementById('authForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+
+        if (modo === 'cadastrar') {
+            const cargo = document.querySelector('input[name="cargo"]:checked').value;
+            const nickname = document.getElementById('nickname').value;
+            
+            // Call the backend function with nickname
+            if (window.cadastrarComRole) {
+                window.cadastrarComRole(email, senha, cargo, nickname);
+            } else {
+                console.log('Cadastro:', { email, senha, cargo, nickname });
+            }
+        } else {
+            // Login mode
+            if (window.logarComRole) {
+                window.logarComRole(email, senha);
+            } else {
+                console.log('Login:', { email, senha });
+            }
+        }
+    });
+</script>
+
+<script type="module" src="auth.js"></script>
+
+</body>
+</html>
