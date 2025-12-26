@@ -13,6 +13,7 @@ import {
     setDoc, 
     getDoc 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, sendPasswordResetEmail, ... } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // 2. Sua Configuração
 const firebaseConfig = {
@@ -100,4 +101,17 @@ window.loginGoogle = async () => {
     } catch (error) {
         console.error("Erro no Google Login:", error);
     }
+    window.recuperarSenha = async (email) => {
+    try {
+        await sendPasswordResetEmail(auth, email);
+        alert("Sucesso! Um e-mail de redefinição foi enviado para: " + email);
+    } catch (error) {
+        console.error("Erro ao recuperar:", error);
+        if (error.code === 'auth/user-not-found') {
+            alert("Este e-mail não está cadastrado no Simulab.");
+        } else {
+            alert("Erro ao enviar e-mail de recuperação. Tente novamente.");
+        }
+    }
 };
+
