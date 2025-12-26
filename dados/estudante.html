@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard do Aluno - SimuLab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --laranja-simulab: #d96c2c;
+            --laranja-hover: #c45e23;
+            --branco: #ffffff;
+            --cinza-claro: #f8f9fa;
+            --texto: #2c3e50;
+            --shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--cinza-claro);
+            margin: 0;
+            color: var(--texto);
+        }
+
+        /* Espaçamento para o cabeçalho fixo do head.js */
+        main {
+            padding: 120px 20px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Seção de Boas-vindas (Melhoria do seu "User/Turma") */
+        .welcome-banner {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            border-left: 8px solid var(--laranja-simulab);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-avatar {
+            width: 70px;
+            height: 70px;
+            background: var(--laranja-simulab);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .user-text h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .user-text p {
+            margin: 5px 0 0;
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+
+        /* Grid de Navegação (Exercícios, Simuladores, Conteúdo) */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .nav-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--texto);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid transparent;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--laranja-simulab);
+        }
+
+        .nav-card i {
+            font-size: 3rem;
+            color: var(--laranja-simulab);
+            margin-bottom: 20px;
+        }
+
+        .nav-card h3 {
+            margin: 10px 0;
+            font-size: 1.4rem;
+        }
+
+        .nav-card p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .welcome-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+            .user-info {
+                flex-direction: column;
+            }
+            main {
+                padding-top: 140px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <script src="https://erik-bernardo.github.io/SimuLab/dados/head.js"></script>
+
+    <main>
+        <section class="welcome-banner">
+            <div class="user-info">
+                <div class="user-avatar" id="avatarLetra">U</div>
+                <div class="user-text">
+                    <h2 id="boasVindas">Bem-vindo, Carregando...</h2>
+                    <p id="infoTurma"><i class="fas fa-users"></i> Turma: Ensino Médio - 3º Ano</p>
+                </div>
+            </div>
+            <div class="user-stats">
+                </div>
+        </section>
+
+        <section class="nav-grid">
+            <a href="exercicios.html" class="nav-card">
+                <i class="fas fa-edit"></i>
+                <h3>Exercícios</h3>
+                <p>Pratique seus conhecimentos com listas de questões focadas no ENEM e vestibulares.</p>
+            </a>
+
+            <a href="simuladores.html" class="nav-card">
+                <i class="fas fa-flask"></i>
+                <h3>Simuladores</h3>
+                <p>Explore laboratórios virtuais de Física, Química e Biologia de forma interativa.</p>
+            </a>
+
+            <a href="materias.html" class="nav-card">
+                <i class="fas fa-book-open"></i>
+                <h3>Conteúdo</h3>
+                <p>Acesse resumos, videoaulas e materiais de apoio organizados por matéria.</p>
+            </a>
+        </section>
+    </main>
+
+    <script type="module">
+        // Importante: Como você está usando Firebase, vamos buscar o nome do usuário logado
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const auth = getAuth();
+        const db = getFirestore();
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const docRef = doc(db, "usuarios", user.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const dados = docSnap.data();
+                    document.getElementById('boasVindas').innerText = `Bem-vindo, ${dados.nome}!`;
+                    document.getElementById('avatarLetra').innerText = dados.nome.charAt(0).toUpperCase();
+                    // Se você salvou a turma no cadastro, pode exibir aqui:
+                    if(dados.turma) document.getElementById('infoTurma').innerHTML = `<i class="fas fa-users"></i> Turma: ${dados.turma}`;
+                }
+            } else {
+                // Se não estiver logado, volta para o login
+                window.location.href = "login.html";
+            }
+        });
+    </script>
+</body>
+</html>
