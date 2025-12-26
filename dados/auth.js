@@ -1,4 +1,4 @@
-// 1. Importações Únicas e Organizadas
+// 1. Importações (Apenas UMA de cada serviço)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
     getAuth, 
@@ -6,7 +6,7 @@ import {
     signInWithEmailAndPassword, 
     GoogleAuthProvider, 
     signInWithPopup,
-    sendPasswordResetEmail // Importado corretamente aqui
+    sendPasswordResetEmail 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
     getFirestore, 
@@ -38,11 +38,10 @@ window.cadastrarComRole = async (email, senha, cargo, nickname) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
         const user = userCredential.user;
 
-        // É AQUI que enviamos o cargo e o nickname para o Banco de Dados (Firestore)
         await setDoc(doc(db, "usuarios", user.uid), {
             nome: nickname,
             email: email,
-            role: cargo, // <--- O cargo entra aqui!
+            role: cargo,
             dataCriacao: new Date()
         });
 
@@ -58,7 +57,6 @@ window.cadastrarComRole = async (email, senha, cargo, nickname) => {
 window.logarComRole = async (email, senha) => {
     const btn = document.getElementById('btnAcao');
     const originalText = btn.innerText;
-    
     try {
         btn.innerText = "Carregando..."; 
         btn.disabled = true;
@@ -72,13 +70,7 @@ window.logarComRole = async (email, senha) => {
         if (docSnap.exists()) {
             const dados = docSnap.data();
             alert(`Olá novamente, ${dados.nome}!`);
-            
-            // Redirecionamento baseado no cargo salvo no Firestore
-            if (dados.role === 'professor') {
-                window.location.href = "painel-professor.html";
-            } else {
-                window.location.href = "index.html";
-            }
+            window.location.href = dados.role === 'professor' ? "painel-professor.html" : "index.html";
         }
     } catch (error) {
         console.error(error);
@@ -94,8 +86,7 @@ window.loginGoogle = async () => {
     try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
-
-        const docRef = doc(db, "usuarios", user.uid);
+        const docRef = doc(doc(db, "usuarios", user.uid));
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) {
@@ -103,12 +94,10 @@ window.loginGoogle = async () => {
                 uid: user.uid,
                 nome: user.displayName,
                 email: user.email,
-                role: "aluno", // Google Login assume 'aluno' por padrão
+                role: "aluno",
                 dataCadastro: new Date()
             });
         }
-
-        alert(`Olá, ${user.displayName}!`);
         window.location.href = "index.html";
     } catch (error) {
         console.error("Erro no Google Login:", error);
@@ -119,9 +108,9 @@ window.loginGoogle = async () => {
 window.recuperarSenha = async (email) => {
     try {
         await sendPasswordResetEmail(auth, email);
-        alert("Sucesso! Um e-mail de redefinição foi enviado para: " + email);
+        alert("Sucesso! Verifique seu e-mail para redefinir a senha.");
     } catch (error) {
         console.error("Erro ao recuperar:", error);
-        alert("Erro ao enviar e-mail de recuperação.");
+        alert("Erro ao enviar e-mail. Verifique se o endereço está correto.");
     }
 };
