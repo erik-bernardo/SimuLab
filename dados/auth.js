@@ -1,9 +1,20 @@
-
+// 1. Importações (Organizadas para evitar duplicidade)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+    getAuth, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    GoogleAuthProvider, 
+    signInWithPopup 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+    getFirestore, 
+    doc, 
+    setDoc, 
+    getDoc 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// 2. Sua Configuração
 const firebaseConfig = {
   apiKey: "AIzaSyD3-eHPjAMn2bh9OSKOxoOegYnz5u0TKss",
   authDomain: "simulab-236af.firebaseapp.com",
@@ -14,15 +25,15 @@ const firebaseConfig = {
   measurementId: "G-9H7YF1731Z"
 };
 
-
+// 3. Inicialização
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const provider = new GoogleAuthProvider(); // Provedor do Google
 
-//Cadastro
+// --- FUNÇÃO DE CADASTRO ---
 window.cadastrarComRole = async (email, senha, cargo, nickname) => {
     try {
-
         const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
         const user = userCredential.user;
 
@@ -34,15 +45,14 @@ window.cadastrarComRole = async (email, senha, cargo, nickname) => {
         });
 
         alert(`Bem-vindo, ${nickname}! Conta de ${cargo} criada.`);
-        window.location.href = "index.html"; // Redireciona para a home
-
+        window.location.href = "index.html"; 
     } catch (error) {
         console.error("Erro no cadastro:", error);
         alert("Erro ao cadastrar: " + error.message);
     }
 };
 
-// LOGIN 
+// --- FUNÇÃO DE LOGIN ---
 window.logarComRole = async (email, senha) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, senha);
@@ -64,7 +74,7 @@ window.logarComRole = async (email, senha) => {
     } catch (error) {
         alert("Erro ao logar: Verifique e-mail e senha.");
     }
-onst provider = new GoogleAuthProvider();
+};
 
 // --- LOGIN COM GOOGLE ---
 window.loginGoogle = async () => {
@@ -72,17 +82,15 @@ window.loginGoogle = async () => {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
 
-        // Verificamos se o usuário já existe no Firestore
         const docRef = doc(db, "usuarios", user.uid);
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) {
-            // Se for novo, salva no banco como 'aluno' por padrão
             await setDoc(doc(db, "usuarios", user.uid), {
                 uid: user.uid,
                 nome: user.displayName,
                 email: user.email,
-                role: "aluno", // Padrão para login social
+                role: "aluno", 
                 dataCadastro: new Date()
             });
         }
