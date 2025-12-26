@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD3-eHPjAMn2bh9OSKOxoOegYnz5u0TKss",
@@ -63,5 +63,33 @@ window.logarComRole = async (email, senha) => {
         }
     } catch (error) {
         alert("Erro ao logar: Verifique e-mail e senha.");
+    }
+onst provider = new GoogleAuthProvider();
+
+// --- LOGIN COM GOOGLE ---
+window.loginGoogle = async () => {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        // Verificamos se o usuário já existe no Firestore
+        const docRef = doc(db, "usuarios", user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+            // Se for novo, salva no banco como 'aluno' por padrão
+            await setDoc(doc(db, "usuarios", user.uid), {
+                uid: user.uid,
+                nome: user.displayName,
+                email: user.email,
+                role: "aluno", // Padrão para login social
+                dataCadastro: new Date()
+            });
+        }
+
+        alert(`Olá, ${user.displayName}!`);
+        window.location.href = "index.html";
+    } catch (error) {
+        console.error("Erro no Google Login:", error);
     }
 };
