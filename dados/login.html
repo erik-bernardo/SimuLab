@@ -212,7 +212,26 @@
             font-size: 14px;
             font-weight: 400;
         }
-
+        
+         .forgot-container {
+            text-align: right;
+            margin-top: -15px;
+            margin-bottom: 20px;
+        }
+        
+        .forgot-container a {
+            font-size: 13px;
+            color: var(--texto-secundario);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .forgot-container a:hover {
+            color: var(--laranja-simulab);
+            text-decoration: underline;
+        }
+                
         /* Seleção de Cargo (Aluno/Professor) - Apenas no Cadastro */
         .role-selector {
             display: none;
@@ -480,7 +499,9 @@
                     <i class="fas fa-lock"></i>
                     <input type="password" id="senha" placeholder="Senha" required>
                 </div>
-
+                <div class="forgot-container" id="forgotContainer">
+    <a href="#" onclick="handleRecuperarSenha(event)">Esqueceu sua senha?</a>
+</div>
                 <button type="submit" class="main-btn" id="btnAcao">Entrar na Plataforma</button>
             </form>
 
@@ -506,6 +527,7 @@
         const roleSelector = document.getElementById('roleSelector');
         const nicknameGroup = document.getElementById('nicknameGroup');
         const nicknameInput = document.getElementById('nickname');
+        const forgotContainer = document.getElementById('forgotContainer');
 
         if (modo === 'cadastrar') {
             btnEntrar.classList.remove('active');
@@ -516,6 +538,7 @@
             roleSelector.classList.add('show');
             nicknameGroup.style.display = 'block';
             nicknameInput.setAttribute('required', 'required');
+            forgotContainer.style.display = 'none';
         } else {
             btnCadastrar.classList.remove('active');
             btnEntrar.classList.add('active');
@@ -525,6 +548,24 @@
             roleSelector.classList.remove('show');
             nicknameGroup.style.display = 'none';
             nicknameInput.removeAttribute('required');
+            forgotContainer.style.display = 'block'; // Mostra na tela de login
+        }
+    }
+
+function handleRecuperarSenha(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        
+        if (!email) {
+            alert("Por favor, digite seu e-mail no campo acima para recuperar a senha.");
+            document.getElementById('email').focus();
+            return;
+        }
+
+        if (window.recuperarSenha) {
+            window.recuperarSenha(email);
+        } else {
+            console.error("Função recuperarSenha não encontrada no auth.js");
         }
     }
 
@@ -538,18 +579,12 @@
             const cargo = document.querySelector('input[name="cargo"]:checked').value;
             const nickname = document.getElementById('nickname').value;
             
-            // Call the backend function with nickname
             if (window.cadastrarComRole) {
                 window.cadastrarComRole(email, senha, cargo, nickname);
-            } else {
-                console.log('Cadastro:', { email, senha, cargo, nickname });
             }
         } else {
-            // Login mode
             if (window.logarComRole) {
                 window.logarComRole(email, senha);
-            } else {
-                console.log('Login:', { email, senha });
             }
         }
     });
