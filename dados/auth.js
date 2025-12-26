@@ -46,7 +46,7 @@ window.cadastrarComRole = async (email, senha, cargo, nickname) => {
         });
 
         alert(`Bem-vindo, ${nickname}! Conta de ${cargo} criada.`);
-        window.location.href = "index.html"; 
+        window.location.href = "https://erik-bernardo.github.io/SimuLab/index.html"; 
     } catch (error) {
         console.error("Erro no cadastro:", error);
         alert("Erro ao cadastrar: " + error.message);
