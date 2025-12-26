@@ -1,11 +1,12 @@
-// 1. Importações (Organizadas para evitar duplicidade)
+// 1. Importações Únicas e Organizadas
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
     getAuth, 
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword, 
     GoogleAuthProvider, 
-    signInWithPopup 
+    signInWithPopup,
+    sendPasswordResetEmail // Importado corretamente aqui
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
     getFirestore, 
@@ -13,35 +14,35 @@ import {
     setDoc, 
     getDoc 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth, sendPasswordResetEmail, ... } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// 2. Sua Configuração
+// 2. Configuração
 const firebaseConfig = {
-  apiKey: "AIzaSyD3-eHPjAMn2bh9OSKOxoOegYnz5u0TKss",
-  authDomain: "simulab-236af.firebaseapp.com",
-  projectId: "simulab-236af",
-  storageBucket: "simulab-236af.firebasestorage.app",
-  messagingSenderId: "896702101080",
-  appId: "1:896702101080:web:978462e9f99fdb4cb07c2d",
-  measurementId: "G-9H7YF1731Z"
+    apiKey: "AIzaSyD3-eHPjAMn2bh9OSKOxoOegYnz5u0TKss",
+    authDomain: "simulab-236af.firebaseapp.com",
+    projectId: "simulab-236af",
+    storageBucket: "simulab-236af.firebasestorage.app",
+    messagingSenderId: "896702101080",
+    appId: "1:896702101080:web:978462e9f99fdb4cb07c2d",
+    measurementId: "G-9H7YF1731Z"
 };
 
 // 3. Inicialização
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const provider = new GoogleAuthProvider(); // Provedor do Google
+const provider = new GoogleAuthProvider();
 
-// --- FUNÇÃO DE CADASTRO ---
+// --- CADASTRO ---
 window.cadastrarComRole = async (email, senha, cargo, nickname) => {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
         const user = userCredential.user;
 
+        // É AQUI que enviamos o cargo e o nickname para o Banco de Dados (Firestore)
         await setDoc(doc(db, "usuarios", user.uid), {
             nome: nickname,
             email: email,
-            role: cargo,
+            role: cargo, // <--- O cargo entra aqui!
             dataCriacao: new Date()
         });
 
@@ -53,9 +54,15 @@ window.cadastrarComRole = async (email, senha, cargo, nickname) => {
     }
 };
 
-// --- FUNÇÃO DE LOGIN ---
+// --- LOGIN ---
 window.logarComRole = async (email, senha) => {
+    const btn = document.getElementById('btnAcao');
+    const originalText = btn.innerText;
+    
     try {
+        btn.innerText = "Carregando..."; 
+        btn.disabled = true;
+
         const userCredential = await signInWithEmailAndPassword(auth, email, senha);
         const user = userCredential.user;
 
@@ -66,6 +73,7 @@ window.logarComRole = async (email, senha) => {
             const dados = docSnap.data();
             alert(`Olá novamente, ${dados.nome}!`);
             
+            // Redirecionamento baseado no cargo salvo no Firestore
             if (dados.role === 'professor') {
                 window.location.href = "painel-professor.html";
             } else {
@@ -73,7 +81,11 @@ window.logarComRole = async (email, senha) => {
             }
         }
     } catch (error) {
-        alert("Erro ao logar: Verifique e-mail e senha.");
+        console.error(error);
+        alert("Erro ao logar: Verifique suas credenciais.");
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
     }
 };
 
@@ -91,7 +103,7 @@ window.loginGoogle = async () => {
                 uid: user.uid,
                 nome: user.displayName,
                 email: user.email,
-                role: "aluno", 
+                role: "aluno", // Google Login assume 'aluno' por padrão
                 dataCadastro: new Date()
             });
         }
@@ -101,17 +113,15 @@ window.loginGoogle = async () => {
     } catch (error) {
         console.error("Erro no Google Login:", error);
     }
-    window.recuperarSenha = async (email) => {
+};
+
+// --- RECUPERAR SENHA ---
+window.recuperarSenha = async (email) => {
     try {
         await sendPasswordResetEmail(auth, email);
         alert("Sucesso! Um e-mail de redefinição foi enviado para: " + email);
     } catch (error) {
         console.error("Erro ao recuperar:", error);
-        if (error.code === 'auth/user-not-found') {
-            alert("Este e-mail não está cadastrado no Simulab.");
-        } else {
-            alert("Erro ao enviar e-mail de recuperação. Tente novamente.");
-        }
+        alert("Erro ao enviar e-mail de recuperação.");
     }
 };
-
