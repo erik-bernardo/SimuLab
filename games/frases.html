@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sintaxe Pro: Anatomia do Texto</title>
+    <style>
+        :root {
+            --bg: #f4f7f6;
+            --frase: #3498db;
+            --oracao: #2ecc71;
+            --periodo: #f1c40f;
+            --errado: #e74c3c;
+            --dark: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .game-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            width: 95%;
+            max-width: 800px;
+        }
+
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .stats { display: flex; justify-content: space-between; font-weight: bold; color: #7f8c8d; }
+
+        /* Área do Texto */
+        .sentence-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            padding: 30px;
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .segment {
+            padding: 12px 18px;
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 19px;
+            position: relative;
+            user-select: none;
+        }
+
+        /* Classes de Seleção (Fundo) */
+        .sel-frase { background-color: var(--frase) !important; color: white; border-color: #2980b9; }
+        .sel-oracao { background-color: var(--oracao) !important; color: white; border-color: #27ae60; }
+        
+        /* Classe de Contorno (Período) - Aplicada junto com as outras */
+        .sel-periodo { 
+            box-shadow: 0 0 0 4px var(--periodo); /* Contorno dourado */
+            border-color: var(--periodo) !important;
+            z-index: 2;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tool-btn {
+            padding: 12px 20px;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            background: #eee;
+        }
+
+        .tool-btn.active { transform: translateY(-3px); border-color: #000; }
+        .btn-f { color: var(--frase); }
+        .btn-o { color: var(--oracao); }
+        .btn-p { color: #d4ac0d; border: 2px dashed #d4ac0d; }
+
+        .action-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 10px;
+            background: var(--dark);
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #explanation-panel {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff8e1;
+            border-radius: 8px;
+            border: 1px solid #ffe082;
+        }
+
+        .locked { pointer-events: none; opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <div class="game-card">
+        <div class="header">
+            <h1>Anatomia do Texto</h1>
+            <div class="stats">
+                <span>Nível: <span id="level-num">1</span></span>
+                <span>Pontos: <span id="score">0</span></span>
+            </div>
+        </div>
+
+        <div class="toolbar" id="toolbar">
+            <button class="tool-btn btn-f" onclick="setTool('frase')">● FRASE</button>
+            <button class="tool-btn btn-o" onclick="setTool('oracao')">● ORAÇÃO</button>
+            <button class="tool-btn btn-p" onclick="setTool('periodo')">▢ PERÍODO</button>
+        </div>
+
+        <div class="sentence-area" id="sentence-area"></div>
+
+        <button class="action-btn" id="main-btn" onclick="verify()">VERIFICAR ACERTOS</button>
+
+        <div id="explanation-panel">
+            <h3 style="margin-top:0">Análise do Mestre:</h3>
+            <div id="explanation-content"></div>
+        </div>
+    </div>
+
+    <script>
+   const levels = [
+    {
+        text: ["Bom dia!", "O sol nasceu."],
+        ans_type: ["frase", "oracao"],
+        ans_period: [false, true],
+        desc: ["<b>Bom dia!</b>: Frase nominal.", "<b>O sol nasceu</b>: Oração (verbo nasceu) e Período Simples."]
+    },
+    {
+        text: ["Que susto!", "A porta bateu."],
+        ans_type: ["frase", "oracao"],
+        ans_period: [false, true],
+        desc: ["<b>Que susto!</b>: Frase nominal.", "<b>A porta bateu</b>: Oração pelo verbo bater."]
+    },
+    {
+        text: ["Fogo!", "Fujam todos!"],
+        ans_type: ["frase", "oracao"],
+        ans_period: [false, true],
+        desc: ["<b>Fogo!</b>: Frase nominal (emoção sem verbo).", "<b>Fujam todos!</b>: Oração (verbo fugir)."]
+    },
+    {
+        text: ["Atenção.", "O sinal abriu", "e", "os carros passaram."],
+        ans_type: ["frase", "oracao", null, "oracao"],
+        ans_period: [false, true, true, true],
+        desc: ["<b>Atenção</b>: Frase.", "<b>O sinal... passaram</b>: Período composto com duas orações e um conectivo."]
+    },
+    {
+        text: ["Silêncio.", "A aula começou."],
+        ans_type: ["frase", "oracao"],
+        ans_period: [false, true],
+        desc: ["<b>Silêncio</b>: Frase.", "<b>A aula começou</b>: Oração e Período Simples."]
+    },
+    {
+        text: ["Trabalhei muito", "mas", "ganhei pouco."],
+        ans_type: ["oracao", null, "oracao"],
+        ans_period: [true, true, true],
+        desc: ["<b>Todo o conjunto</b> é um Período Composto com duas orações ligadas pelo 'mas'."]
+    },
+    {
+        text: ["Socorro!", "Eu caí."],
+        ans_type: ["frase", "oracao"],
+        ans_period: [false, true],
+        desc: ["<b>Socorro!</b>: Frase.", "<b>Eu caí</b>: Oração."]
+    },
+    {
+        text: ["Incrível!", "O time jogou", "e", "venceu."],
+        ans_type: ["frase", "oracao", null, "oracao"],
+        ans_period: [false, true, true, true],
+        desc: ["<b>Incrível</b>: Frase.", "<b>O time... venceu</b>: Período Composto."]
+    },
+    {
+        text: ["Diga a verdade", "ou", "fique calado."],
+        ans_type: ["oracao", null, "oracao"],
+        ans_period: [true, true, true],
+        desc: ["Período Composto por duas orações alternativas."]
+    },
+    {
+        text: ["Parabéns!", "Você merece."],
+        ans_type: ["frase", "oracao"],
+        ans_period: [false, true],
+        desc: ["<b>Parabéns</b>: Frase.", "<b>Você merece</b>: Oração."]
+    },
+    {
+        text: ["Choveu", "por isso", "não fui."],
+        ans_type: ["oracao", null, "oracao"],
+        ans_period: [true, true, true],
+        desc: ["Período Composto explicativo."]
+    },
+    {
+        text: ["Cuidado!", "O carro vem", "e", "está rápido."],
+        ans_type: ["frase", "oracao", null, "oracao"],
+        ans_period: [false, true, true, true],
+        desc: ["Uma frase seguida de um período composto."]
+    },
+    {
+        text: ["Que alegria!", "Meu amigo chegou."],
+        ans_type: ["frase", "oracao"],
+        ans_period: [false, true],
+        desc: ["Frase Nominal seguida de Oração."]
+    },
+    {
+        text: ["Penso,", "logo", "existo."],
+        ans_type: ["oracao", null, "oracao"],
+        ans_period: [true, true, true],
+        desc: ["Famoso período composto conclusivo."]
+    },
+    {
+        text: ["Ei!", "Olhe para cá."],
+        ans_type: ["frase", "oracao"],
+        ans_period: [false, true],
+        desc: ["<b>Ei!</b>: Interjeição (Frase).", "<b>Olhe...</b>: Oração (verbo olhar)."]
+    },
+    {
+        text: ["Saímos cedo", "entretanto", "atrasamos."],
+        ans_type: ["oracao", null, "oracao"],
+        ans_period: [true, true, true],
+        desc: ["Período Composto adversativo."]
+    },
+    {
+        text: ["Justiça!", "O povo clama", "e", "a lei falha."],
+        ans_type: ["frase", "oracao", null, "oracao"],
+        ans_period: [false, true, true, true],
+        desc: ["Frase de impacto e período composto."]
+    },
+    {
+        text: ["Oi.", "Tudo bem?", "Espero que sim."],
+        ans_type: ["frase", "frase", "oracao"],
+        ans_period: [false, false, true],
+        desc: ["Duas frases curtas e uma oração (verbo esperar)."]
+    },
+    {
+        text: ["Estude", "para que", "venca."],
+        ans_type: ["oracao", null, "oracao"],
+        ans_period: [true, true, true],
+        desc: ["Período Composto final (objetivo)."]
+    },
+    {
+        text: ["Paz!", "A guerra terminou."],
+        ans_type: ["frase", "oracao"],
+        ans_period: [false, true],
+        desc: ["<b>Paz!</b>: Frase Nominal.", "<b>A guerra terminou</b>: Oração (verbo terminar)."]
+    }
+];
+
+        let cur = 0;
+        let points = 0;
+        let tool = null;
+        let userType = [];
+        let userPeriod = [];
+        let locked = false;
+
+        function init() {
+            locked = false;
+            userType = new Array(levels[cur].text.length).fill(null);
+            userPeriod = new Array(levels[cur].text.length).fill(false);
+            
+            const area = document.getElementById('sentence-area');
+            area.innerHTML = '';
+            area.classList.remove('locked');
+            document.getElementById('toolbar').classList.remove('locked');
+            document.getElementById('explanation-panel').style.display = 'none';
+            document.getElementById('main-btn').innerText = "VERIFICAR ACERTOS";
+            document.getElementById('main-btn').style.background = "#2c3e50";
+
+            levels[cur].text.forEach((t, i) => {
+                const div = document.createElement('div');
+                div.className = 'segment';
+                div.innerText = t;
+                div.onclick = () => clickSegment(i, div);
+                area.appendChild(div);
+            });
+        }
+
+        function setTool(t) {
+            tool = t;
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function clickSegment(i, el) {
+            if(!tool) return;
+
+            if(tool === 'periodo') {
+                userPeriod[i] = !userPeriod[i]; // Toggle contorno
+                el.classList.toggle('sel-periodo');
+            } else {
+                // Se clicar no mesmo tipo, remove. Se não, troca.
+                if(userType[i] === tool) {
+                    userType[i] = null;
+                    el.classList.remove('sel-frase', 'sel-oracao');
+                } else {
+                    userType[i] = tool;
+                    el.classList.remove('sel-frase', 'sel-oracao');
+                    el.classList.add('sel-' + tool);
+                }
+            }
+        }
+
+        function verify() {
+            if(locked) { next(); return; }
+
+            const level = levels[cur];
+            let hits = 0;
+            let totalPossible = level.text.length * 2; // Tipo + Período para cada bloco
+
+            level.text.forEach((_, i) => {
+                if(userType[i] === level.ans_type[i]) hits++;
+                if(userPeriod[i] === level.ans_period[i]) hits++;
+            });
+
+            const roundPoints = Math.round((hits / totalPossible) * 100);
+            points += roundPoints;
+            document.getElementById('score').innerText = points;
+
+            showAnalysis(roundPoints);
+        }
+
+        function showAnalysis(roundScore) {
+            locked = true;
+            document.getElementById('sentence-area').classList.add('locked');
+            document.getElementById('toolbar').classList.add('locked');
+            
+            const content = document.getElementById('explanation-content');
+            content.innerHTML = `<p>Você marcou <b>${roundScore}%</b> desta estrutura corretamente.</p>`;
+            
+            levels[cur].desc.forEach(d => {
+                content.innerHTML += `<p style="font-size:0.9rem; margin:5px 0;">• ${d}</p>`;
+            });
+
+            document.getElementById('explanation-panel').style.display = 'block';
+            document.getElementById('main-btn').innerText = "PRÓXIMO NÍVEL";
+            document.getElementById('main-btn').style.background = "#27ae60";
+        }
+
+        function next() {
+            cur++;
+            if(cur < levels.length) init();
+            else {
+                alert("Fim da Jornada! Pontuação Total: " + points);
+                cur = 0; points = 0;
+                document.getElementById('score').innerText = "0";
+                init();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
