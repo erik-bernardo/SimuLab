@@ -1,760 +1,226 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análise de Funções com Resolução Formal</title>
-    
+    <title>Laboratório de Polinômios</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
     <style>
-        /* [ESTILOS GERAIS MANTIDOS] */
-        body { font-family: 'Arial', sans-serif; display: flex; margin: 0; padding: 0; background-color: #e9ebee; min-height: 100vh; }
-        .left-panel { width: 400px; background-color: #f8f8f8; border-right: 1px solid #ccc; padding: 20px; box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; align-items: center; gap: 20px; } 
+        :root {
+            --primary: #4a90e2;
+            --secondary: #2c3e50;
+            --bg: #f5f7fa;
+            --white: #ffffff;
+            --accent: #e74c3c;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; }
         
-        .analysis-panel {
-            background-color: #ffffff;
+        .main-container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        /* Estilo da Calculadora */
+        .calculator {
+            background: var(--white);
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 350px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
-        h2 { color: #4b5cff; margin-top: 0; margin-bottom: 20px; font-size: 20px; text-align: center; }
-        .analysis-results p { margin: 5px 0; font-size: 15px; color: #333; }
-        .analysis-results strong { color: #4b5cff; }
-
-        .evaluation-group { margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
-        .evaluation-group button { width: 30%; padding: 8px; background-color: #673ab7; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background-color 0.3s; }
-        .evaluation-group button:hover { background-color: #512da8; }
-
-        #y-value { margin-top: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background-color: #f9f9f9; text-align: center; }
-
-        /* Estilos do Passo a Passo (Resolução Formal) */
-        #step-by-step-output {
-            margin-top: 15px;
+        .screen {
+            background: #ecf0f1;
             padding: 15px;
-            border: 1px solid #ccc;
             border-radius: 8px;
-            background-color: #fff;
-            max-height: 300px;
-            overflow-y: auto;
-            font-size: 14px;
-        }
-        .resolution-section { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #eee; }
-        .resolution-section:last-child { border-bottom: none; padding-bottom: 0; }
-        .resolution-section h4 { font-size: 16px; color: #4b5cff; margin: 0 0 5px 0; border-left: 3px solid #673ab7; padding-left: 8px; }
-        .formula-line { font-family: monospace; background-color: #e8eaf6; padding: 4px 6px; border-radius: 4px; display: block; margin: 5px 0; overflow-x: auto; white-space: nowrap; }
-        .final-answer { font-size: 16px; font-weight: bold; color: #2e7d32; padding: 5px 0; border-top: 1px solid #ccc; margin-top: 10px; text-align: center; }
-        
-        /* Estilos para Análise Polinomial */
-        .poly-result { margin: 5px 0; padding: 5px; border-bottom: 1px dotted #ccc; }
-        .poly-result strong { font-weight: bold; color: #e91e63; } 
-        .poly-coefs { font-family: monospace; font-size: 14px; background-color: #fbebf7; padding: 3px 6px; border-radius: 4px; display: inline-block; }
-
-        /* [ESTILOS DO PAINEL DIREITO MANTIDOS] */
-        .right-panel { flex-grow: 1; background-color: #ffffff; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-        .graph-controls { padding: 15px; border-bottom: 1px solid #ccc; background-color: #fafafa; }
-        .graph-input { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
-        .graph-input input { flex-grow: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; position: relative; z-index: 10;}
-        #js-code-display { background-color: #e0f7fa; color: #004d40; padding: 5px 10px; border-radius: 4px; font-family: monospace; font-size: 12px; white-space: nowrap; overflow-x: auto; }
-        .plot-btn, .clear-btn { padding: 8px 15px; background-color: #4b5cff; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
-        .clear-btn { background-color: #f44336; }
-        /* NOVO: Estilo para o botão de Ajuda */
-        .help-btn { 
-            padding: 8px 10px; 
-            background-color: #ff9800; 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            transition: background-color 0.3s; 
-            font-size: 14px;
-        }
-        .help-btn:hover {
-            background-color: #e68900;
+            margin-bottom: 20px;
+            min-height: 50px;
+            font-size: 1.2rem;
+            word-wrap: break-word;
+            border: 2px solid #ddd;
+            color: var(--secondary);
+            font-weight: bold;
         }
 
-        #chartjs-container { flex-grow: 1; width: 100%; padding: 20px; box-sizing: border-box; display: flex; justify-content: center; align-items: center; }
-        .graph-keypad { padding: 15px; background-color: #e9ebee; border-top: 1px solid #ccc; display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
-        .keypad-op { background-color: #e0f7fa; color: #007bff; }
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            padding: 15px 5px;
+            border: none;
+            border-radius: 8px;
+            background: #f8f9fa;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--secondary);
+            border-bottom: 3px solid #ddd;
+        }
+
+        button:hover { background: #e9ecef; transform: translateY(-2px); }
+        button:active { transform: translateY(0); border-bottom: 1px solid #ddd; }
+
+        .btn-op { background: #d1d8e0; }
+        .btn-var { background: #ffeaa7; color: #d35400; }
+        .btn-action { background: var(--primary); color: white; grid-column: span 2; border-bottom: 3px solid #357abd; }
+        .btn-clear { background: var(--accent); color: white; grid-column: span 2; border-bottom: 3px solid #c0392b; }
+
+        /* Estilo do Gráfico */
+        .display-area {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-container { flex-grow: 1; min-height: 400px; }
+
+        h2 { margin-top: 0; color: var(--secondary); font-size: 1.2rem; }
+
+        @media (max-width: 800px) {
+            .main-container { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="left-panel">
+<div class="main-container">
+    <div class="calculator">
+        <h2>Montar Polinômio</h2>
+        <div class="screen" id="display">0</div>
         
-        <div id="polynomial-analysis" class="analysis-panel">
-            <h2>Análise Polinomial ($ax^2 + bx + c$)</h2>
-            
-            <div id="poly-results">
-                <p>Nenhuma função quadrática plotada. Tente: <span class="poly-coefs">x² - x - 2</span></p>
-            </div>
+        <div class="keypad">
+            <button onclick="addChar('7')">7</button>
+            <button onclick="addChar('8')">8</button>
+            <button onclick="addChar('9')">9</button>
+            <button class="btn-op" onclick="addChar('/')">÷</button>
+
+            <button onclick="addChar('4')">4</button>
+            <button onclick="addChar('5')">5</button>
+            <button onclick="addChar('6')">6</button>
+            <button class="btn-op" onclick="addChar('*')">×</button>
+
+            <button onclick="addChar('1')">1</button>
+            <button onclick="addChar('2')">2</button>
+            <button onclick="addChar('3')">3</button>
+            <button class="btn-op" onclick="addChar('-')">-</button>
+
+            <button onclick="addChar('0')">0</button>
+            <button onclick="addChar('.')">.</button>
+            <button onclick="addChar('(')">(</button>
+            <button class="btn-op" onclick="addChar('+')">+</button>
+
+            <button class="btn-var" onclick="addChar('x')">x</button>
+            <button class="btn-var" onclick="addChar('^2')">x²</button>
+            <button class="btn-var" onclick="addChar('^3')">x³</button>
+            <button class="btn-var" onclick="addChar('^')">xⁿ</button>
+
+            <button class="btn-clear" onclick="clearDisplay()">Limpar</button>
+            <button class="btn-action" onclick="updateGraph()">Gerar Gráfico</button>
         </div>
-        
-        <div class="analysis-panel">
-            <h2>Análise Global do Gráfico 📉</h2>
-            
-            <div class="analysis-results">
-                <p>Domínio (X Plotado): <strong id="domain-value">[-6.5, 6.5]</strong></p>
-                <p>Mínimo (Y): <strong id="min-value">Aguardando Gráfico...</strong></p>
-                <p>Máximo (Y): <strong id="max-value">Aguardando Gráfico...</strong></p>
-                <p>Imagem (Y Global): <strong id="range-value">Aguardando Gráfico...</strong></p>
-            </div>
-
-            <div class="evaluation-group">
-                <label>Calcular **Resultado** $f(x)$:</label>
-                <div style="display: flex; align-items: center; gap: 5px;">
-                    <label for="x-input" style="margin-bottom: 0;">**Domínio (x)** =</label>
-                    <input type="number" id="x-input" value="1.5708" step="any" style="flex-grow: 1;">
-                    <button onclick="evaluateAtX()">Calcular</button>
-                </div>
-                <div id="y-value">
-                    <p>f(<strong id="x-result-label">1.5708</strong>) $\approx$ **Resultado** (y): <strong id="y-result">...</strong></p>
-                </div>
-            </div>
-
-            <div id="step-by-step-output">
-                **Resolução de f(x):**
-                <p>Digite um valor para 'x' e clique em "Calcular".</p>
-            </div>
-
-        </div>
-
     </div>
 
-    <div class="right-panel">
-        <div class="graph-controls">
-            <div class="graph-input">
-                <label for="chartjs-input">y =</label>
-                <div style="flex-grow: 1; position: relative;">
-                    <input type="text" id="chartjs-input" placeholder="Ex: x² - x - 2" value="x² - x - 2">
-                    <div id="suggestion-box"></div>
-                </div>
-                
-                <button class="plot-btn" onclick="plotChartJsFunction()">Plotar</button>
-                <button class="help-btn" onclick="showParameterAnalysis()">Ajuda da Fórmula</button> 
-                <button class="clear-btn" onclick="clearChartJs()">Limpar</button>
-            </div>
-            
-            <label style="font-size: 12px; color: #555;">Fórmula JS para Plotagem:</label>
-            <div id="js-code-display">Aguardando função...</div>
+    <div class="display-area">
+        <h2>Visualização Gráfica</h2>
+        <div class="chart-container">
+            <canvas id="polyChart"></canvas>
         </div>
-        
-        <div id="chartjs-container">
-            <canvas id="myChart"></canvas>
-        </div>
-
-        <div class="graph-keypad">
-            <button class="keypad-btn keypad-func" data-value="sin(">sin(</button>
-            <button class="keypad-btn keypad-func" data-value="cos(">cos(</button>
-            <button class="keypad-btn keypad-func" data-value="tan(">tan(</button>
-            <button class="keypad-btn keypad-const" data-value="pi">π</button>
-            <button class="keypad-btn keypad-const" data-value="x">x</button>
-            <button class="keypad-btn keypad-op" data-value="(">(</button>
-            
-            <button class="keypad-btn" data-value="7">7</button>
-            <button class="keypad-btn" data-value="8">8</button>
-            <button class="keypad-btn" data-value="9">9</button>
-            <button class="keypad-btn keypad-op" data-value="/">/</button>
-            <button class="keypad-btn keypad-op" data-value="•">•</button> 
-            <button class="keypad-btn keypad-op" data-value=")">)</button>
-
-            <button class="keypad-btn" data-value="4">4</button>
-            <button class="keypad-btn" data-value="5">5</button>
-            <button class="keypad-btn" data-value="6">6</button>
-            <button class="keypad-btn keypad-op" data-value="+">+</button>
-            <button class="keypad-btn keypad-op" data-value="-">-</button>
-            <button class="keypad-btn keypad-op" onclick="deleteChar()">⌫</button>
-
-            <button class="keypad-btn" data-value="1">1</button>
-            <button class="keypad-btn" data-value="2">2</button>
-            <button class="keypad-btn" data-value="3">3</button>
-            <button class="keypad-btn keypad-op" data-value="^">^</button> 
-            <button class="keypad-btn keypad-op" data-value=".">.</button>
-            <button class="keypad-btn keypad-op" data-value="0">0</button>
+        <div id="info" style="margin-top:15px; font-size: 0.9rem; color: #666;">
+            Dica: Polinômios de grau par (como x²) têm as pontas para o mesmo lado. Grau ímpar (como x³) têm pontas em lados opostos.
         </div>
     </div>
+</div>
 
 <script>
-    let chartInstance; 
-    let currentFunctionString = ""; 
-    let currentJSFunction = null; 
-    let inSuperscriptMode = false;
-    const superscriptMap = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
-    const reverseSuperscriptMap = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9' };
-    const superscriptKeys = Object.keys(superscriptMap);
+    let currentExpr = "x^2";
+    let myChart;
+    const displayElement = document.getElementById('display');
 
-    const CONSTANT_MAP = { 'pi': Math.PI, 'e': Math.E };
-
-    const MATH_FUNCTIONS = {
-        'sin(': 'Math.sin(', 'cos(': 'Math.cos(', 'tan(': 'Math.tan(',
-        'asin(': 'Math.asin(', 'acos(': 'Math.acos(', 'atan(': 'Math.atan(',
-        'sqrt(': 'Math.sqrt(', 'abs(': 'Math.abs(', 'log(': 'Math.log(', 
-        'log10(': 'Math.log10(', 'exp(': 'Math.exp(', 'ceil(': 'Math.ceil(',
-        'floor(': 'Math.floor(', 'round(': 'Math.round(',
-        'pi': 'Math.PI', 'e': 'Math.E',
-    };
-    
-    const SUGGESTIONS = Object.keys(MATH_FUNCTIONS)
-        .filter(key => key.includes('(') || key.length > 1)
-        .map(key => key.replace('(', '')); 
-
-
-    // --- FUNÇÕES DE PRÉ-PROCESSAMENTO E PLOTAGEM (MANTIDAS) ---
-    
-    function sanitizeFunctionString(formulaString) {
-        let processedString = formulaString;
-        
-        // 1. Converte o operador de multiplicação visual
-        processedString = processedString.replace(/•/g, '*');
-
-        // 2. Converte caracteres de sobrescrito de volta para '^' e depois para Math.pow()
-        let simplifiedString = '';
-        let currentSuperscript = '';
-        for (let i = 0; i < processedString.length; i++) {
-            const char = processedString[i];
-            if (reverseSuperscriptMap[char]) {
-                currentSuperscript += reverseSuperscriptMap[char];
-            } else {
-                if (currentSuperscript) {
-                    simplifiedString += '^' + currentSuperscript;
-                    currentSuperscript = '';
-                }
-                simplifiedString += char;
-            }
+    function addChar(char) {
+        if (displayElement.innerText === "0" && char !== '.') {
+            currentExpr = char;
+        } else {
+            currentExpr += char;
         }
-        if (currentSuperscript) {
-            simplifiedString += '^' + currentSuperscript;
-        }
-        processedString = simplifiedString;
-
-        // B. Substitui a notação de potência simples (Base^Exp) por Math.pow()
-        processedString = processedString.replace(/([a-z0-9\.\)]+)\^([a-z0-9\.]+)/gi, 'Math.pow($1, $2)');
-        processedString = processedString.replace(/x\^(\d)/gi, 'Math.pow(x, $1)'); 
-        processedString = processedString.replace(/(\d)\^(\d)/gi, 'Math.pow($1, $2)');
-        
-        // 3. Substitui funções e constantes
-        for (const mathKey in MATH_FUNCTIONS) {
-            const escapedKey = mathKey.replace(/([()])/g, "\\$1");
-            const regex = new RegExp(escapedKey, 'gi'); 
-            processedString = processedString.replace(regex, MATH_FUNCTIONS[mathKey]);
-        }
-        
-        // 4. Garante que multiplicações implícitas sejam explícitas
-        processedString = processedString.replace(/(\d+)([a-z(])/gi, '$1*$2');
-        processedString = processedString.replace(/(Math\.PI|Math\.E|x)([a-z(])/g, '$1*$2');
-        
-        return processedString;
+        displayElement.innerText = currentExpr.replace(/\*/g, '×').replace(/\//g, '÷');
     }
 
+    function clearDisplay() {
+        currentExpr = "0";
+        displayElement.innerText = "0";
+    }
 
-    function generateFunctionData(formulaString, xMin = -6.5, xMax = 6.5, numPoints = 500) {
-        const data = [];
-        const step = (xMax - xMin) / numPoints;
-        const jsFormula = sanitizeFunctionString(formulaString);
-        document.getElementById('js-code-display').textContent = jsFormula;
-
+    function updateGraph() {
+        const ctx = document.getElementById('polyChart').getContext('2d');
+        
         try {
-            currentJSFunction = new Function('x', 'Math', `return ${jsFormula};`);
-        } catch (e) {
-            console.error("Erro de sintaxe ao criar função JS:", e);
-            document.getElementById('js-code-display').textContent = `ERRO: ${e.message}`;
-            alert("Erro de sintaxe na função. Verifique parênteses ou operadores.");
-            return [];
-        }
+            const node = math.parse(currentExpr);
+            const expr = node.compile();
 
-        let minY = Infinity;
-        let maxY = -Infinity;
-        let validPointFound = false;
+            const xValues = [];
+            const yValues = [];
 
-        for (let x = xMin; x <= xMax; x += step) {
-            let y;
-            try {
-                y = currentJSFunction(x, Math);
-                
-                if (Math.abs(y) > 100 || isNaN(y) || !isFinite(y)) {
-                    y = NaN; 
-                } else {
-                    minY = Math.min(minY, y);
-                    maxY = Math.max(maxY, y);
-                    validPointFound = true;
+            // Gerar pontos de -10 a 10
+            for (let x = -10; x <= 10; x += 0.5) {
+                xValues.push(x);
+                try {
+                    const y = expr.evaluate({x: x});
+                    yValues.push(y);
+                } catch(e) {
+                    yValues.push(null);
                 }
-
-                data.push({ x: x, y: y });
-
-            } catch (e) {
-                data.push({ x: x, y: NaN });
             }
-        }
-        
-        updateAnalysisPanel(xMin, xMax, validPointFound ? minY : null, validPointFound ? maxY : null);
-        analyzePolynomial(formulaString); 
-        
-        return data;
-    }
 
-    // --- FUNÇÃO PARA ANÁLISE POLINOMIAL (SEGUNDO GRAU - MANTIDA) ---
-    function analyzePolynomial(formulaString) {
-        const outputDiv = document.getElementById('poly-results');
-        let cleanStr = formulaString.toLowerCase();
-        
-        cleanStr = cleanStr.replace(/x²/g, 'x^2').replace(/•/g, '*');
-        
-        let a = 0, b = 0, c = 0;
-        
-        const aMatch = cleanStr.match(/([+-]?\s*\d*\.?\d*)\s*x\^2/);
-        if (aMatch) {
-            let val = aMatch[1].replace(/\s/g, '');
-            if (val === '+' || val === '') a = 1;
-            else if (val === '-') a = -1;
-            else a = parseFloat(val);
-        }
+            if (myChart) myChart.destroy();
 
-        const bMatch = cleanStr.match(/([+-]?\s*\d*\.?\d*)\s*x(?![\^])/);
-        if (bMatch) {
-            let val = bMatch[1].replace(/\s/g, '');
-            if (val === '+' || val === '') b = 1;
-            else if (val === '-') b = -1;
-            else b = parseFloat(val);
-        }
-        
-        const cMatch = cleanStr.match(/([+-]?\s*\d+\.?\d*)$/);
-        if (cMatch && !cleanStr.includes('^')) { 
-             c = parseFloat(cMatch[1].replace(/\s/g, ''));
-        }
-
-        const isQuadratic = a !== 0 && !cleanStr.includes('sin(') && !cleanStr.includes('cos(') && !cleanStr.includes('log(') && !cleanStr.includes('pi') && !cleanStr.includes('sqrt(');
-        
-        if (!isQuadratic) {
-            outputDiv.innerHTML = '<p>Esta função não é um polinômio de segundo grau simples.</p><p>Tente: <span class="poly-coefs">x² - x - 2</span></p>';
-            return;
-        }
-
-        // --- CÁLCULO DE DELTA, RAÍZES E VÉRTICE ---
-        const delta = b * b - 4 * a * c;
-        const vx = -b / (2 * a);
-        const vy = currentJSFunction(vx, Math);
-        
-        let rootsHTML = '';
-        let deltaType = 'Duas raízes reais (x₁ $\\neq$ x₂)';
-
-        if (delta > 0) {
-            const x1 = (-b + Math.sqrt(delta)) / (2 * a);
-            const x2 = (-b - Math.sqrt(delta)) / (2 * a);
-            rootsHTML = `<p class="poly-result">x₁ $\\approx$ ${x1.toFixed(4)}</p><p class="poly-result">x₂ $\\approx$ ${x2.toFixed(4)}</p>`;
-        } else if (delta === 0) {
-            const x1 = -b / (2 * a);
-            rootsHTML = `<p class="poly-result">x₁ = x₂ $\\approx$ ${x1.toFixed(4)}</p>`;
-            deltaType = 'Uma raiz real (x₁ = x₂)';
-        } else {
-            rootsHTML = '<p class="poly-result">Não há raízes reais.</p>';
-            deltaType = 'Não há raízes reais (Raízes complexas)';
-        }
-        
-        outputDiv.innerHTML = `
-            <h4>Coeficientes:</h4>
-            <p class="poly-coefs">a = ${a.toFixed(2)} | b = ${b.toFixed(2)} | c = ${c.toFixed(2)}</p>
-            
-            <h4>Discriminante ($\Delta$):</h4>
-            <p class="poly-result">$\Delta = b^2 - 4ac$</p>
-            <p class="poly-result">$\Delta = $ <strong>${delta.toFixed(4)}</strong></p>
-            <p class="poly-result">${deltaType}</p>
-
-            <h4>Raízes (Z<span style="vertical-align: super; font-size: 0.7em;">eros</span>):</h4>
-            ${rootsHTML}
-
-            <h4>Vértice (Máximo/Mínimo):</h4>
-            <p class="poly-result">x<span style="vertical-align: sub; font-size: 0.7em;">v</span> = <strong>${vx.toFixed(4)}</strong></p>
-            <p class="poly-result">y<span style="vertical-align: sub; font-size: 0.7em;">v</span> = <strong>${vy.toFixed(4)}</strong></p>
-            <p class="poly-result">Concavidade: ${a > 0 ? 'Para Cima (Mínimo)' : 'Para Baixo (Máximo)'}</p>
-        `;
-    }
-
-    // --- NOVA FUNÇÃO: EXPLICAÇÃO DE PARÂMETROS ---
-    function showParameterAnalysis() {
-        const formula = document.getElementById('chartjs-input').value.toLowerCase();
-        let explanation = "Não foi possível identificar o tipo de função (Quadrática ou Trigonométrica) para fornecer uma análise detalhada dos parâmetros.";
-        
-        const TRIG_REGEX = /sin\(|cos\(|tan\(/;
-
-        if (TRIG_REGEX.test(formula)) {
-            // Explicação para Funções Trigonométricas (ex: y = A + B * sin(C * x + D))
-            explanation = "Função Trigonométrica (exemplo: y = A + B * sin(C * x + D)):\n\n" +
-                          "1. Coeficiente A (Deslocamento Vertical):\n" +
-                          "   - Desloca a onda para cima (A > 0) ou para baixo (A < 0).\n" +
-                          "   - Define o Eixo de Simetria da onda (Linha Média).\n" +
-                          "\n" +
-                          "2. Coeficiente B (Amplitude):\n" +
-                          "   - Define a altura da onda (amplitude vertical).\n" +
-                          "   - Aumenta a amplitude (B > 1) ou comprime (B < 1).\n" +
-                          "   - A Imagem da função será [A - |B|, A + |B|].\n" +
-                          "\n" +
-                          "3. Coeficiente C (Período):\n" +
-                          "   - Define a frequência da onda (compressão horizontal).\n" +
-                          "   - O Período (P) é calculado por P = 2π / |C|.\n" +
-                          "   - Se C > 1, o período diminui (mais ondas). Se C < 1, o período aumenta (menos ondas).\n" +
-                          "\n" +
-                          "4. Coeficiente D (Defasagem/Fase):\n" +
-                          "   - Desloca a onda horizontalmente (translação horizontal).\n" +
-                          "   - Afeta o ponto de início do ciclo.";
-
-        } else if (formula.includes('x^2') || formula.includes('x²')) {
-            // Explicação para Funções Quadráticas (ex: y = a * x^2 + b * x + c)
-            explanation = "Função Quadrática (Parábola: y = a * x² + b * x + c):\n\n" +
-                          "1. Coeficiente a (Concavidade):\n" +
-                          "   - Se a > 0: Concavidade para cima (a função tem um Ponto de Mínimo).\n" +
-                          "   - Se a < 0: Concavidade para baixo (a função tem um Ponto de Máximo).\n" +
-                          "   - Afeta a abertura da parábola (aumenta o valor, fecha a parábola).\n" +
-                          "\n" +
-                          "2. Coeficiente b (Inclinação/Simetria):\n" +
-                          "   - Define a inclinação da parábola.\n" +
-                          "   - Afeta a posição horizontal do Vértice (Eixo de Simetria x = -b / 2a).\n" +
-                          "\n" +
-                          "3. Coeficiente c (Translação Vertical/Intercepto):\n" +
-                          "   - Desloca a parábola verticalmente.\n" +
-                          "   - É o valor onde a parábola cruza o eixo y (o ponto (0, c)).";
-        }
-        
-        alert("Análise dos Parâmetros da Função:\n\n" + explanation);
-    }
-
-    // --- FUNÇÕES GERAIS DE CONTROLE (MANTIDAS) ---
-
-    function updateAnalysisPanel(xMin, xMax, minY, maxY) {
-        // [Lógica de atualização do painel de Análise MANTIDA, com rótulos ajustados no HTML]
-        const domainElement = document.getElementById('domain-value');
-        const minElement = document.getElementById('min-value');
-        const maxElement = document.getElementById('max-value');
-        const rangeElement = document.getElementById('range-value');
-
-        domainElement.textContent = `[${xMin.toFixed(2)}, ${xMax.toFixed(2)}]`;
-
-        if (minY !== null && maxY !== null) {
-            minElement.textContent = minY.toFixed(4);
-            maxElement.textContent = maxY.toFixed(4);
-            rangeElement.textContent = `[${minY.toFixed(4)}, ${maxY.toFixed(4)}]`;
-        } else {
-            minElement.textContent = 'Não encontrado no intervalo';
-            maxElement.textContent = 'Não encontrado no intervalo';
-            rangeElement.textContent = 'Não encontrado no intervalo';
-        }
-        
-        document.getElementById('y-result').textContent = '...';
-    }
-
-
-    function plotChartJsFunction() {
-        const inputElement = document.getElementById('chartjs-input');
-        currentFunctionString = inputElement.value.trim();
-
-        if (!currentFunctionString) {
-            clearChartJs();
-            return;
-        }
-
-        const dataPoints = generateFunctionData(currentFunctionString);
-        const ctx = document.getElementById('myChart').getContext('2d');
-        
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-
-        if (dataPoints.length === 0 && currentFunctionString.length > 0) {
-            currentJSFunction = null;
-            updateAnalysisPanel(-6.5, 6.5, null, null);
-            analyzePolynomial(currentFunctionString);
-            return;
-        }
-
-        chartInstance = new Chart(ctx, {
-            type: 'scatter', 
-            data: {
-                datasets: [{
-                    label: 'y = ' + currentFunctionString,
-                    data: dataPoints,
-                    borderColor: '#4b5cff',
-                    borderWidth: 2,
-                    fill: false,
-                    showLine: true, 
-                    pointRadius: 0, 
-                    tension: 0 
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: { display: true, text: 'Gráfico de Função: y = ' + currentFunctionString, font: { size: 18 } },
-                    legend: { display: false }
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xValues,
+                    datasets: [{
+                        label: `f(x) = ${currentExpr}`,
+                        data: yValues,
+                        borderColor: '#4a90e2',
+                        backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
                 },
-                scales: {
-                    x: {
-                        type: 'linear', position: 'bottom', title: { display: true, text: 'x (radianos)' }, min: -6.5, max: 6.5, grid: { color: '#eee' },
-                        ticks: {
-                            callback: function(val, index) {
-                                const pi = Math.PI;
-                                if (Math.abs(val - (-2*pi)) < 0.1) return '-2π';
-                                if (Math.abs(val - (-pi)) < 0.1) return '-π';
-                                if (Math.abs(val - 0) < 0.1) return '0';
-                                if (Math.abs(val - pi) < 0.1) return 'π';
-                                if (Math.abs(val - (2*pi)) < 0.1) return '2π';
-                                return '';
-                            }
-                        }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'linear', position: 'bottom', title: {display: true, text: 'Eixo X'} },
+                        y: { title: {display: true, text: 'Eixo Y'} }
                     },
-                    y: {
-                        title: { display: true, text: 'y' }, grid: { color: '#eee' }, suggestedMin: -3, suggestedMax: 3
+                    plugins: {
+                        legend: { labels: { font: { size: 14, weight: 'bold' } } }
                     }
                 }
-            }
-        });
+            });
+
+        } catch (error) {
+            alert("Erro na expressão! Verifique se os sinais estão corretos.");
+        }
     }
 
-    function clearChartJs() {
-        if (chartInstance) {
-            chartInstance.destroy();
-            chartInstance = null;
-        }
-        document.getElementById('chartjs-input').value = "";
-        document.getElementById('js-code-display').textContent = 'Aguardando função...';
-        document.getElementById('step-by-step-output').innerHTML = 'Passo a Passo de Cálculo:<p>Nenhuma função plotada.</p>';
-        document.getElementById('poly-results').innerHTML = '<p>Nenhuma função quadrática plotada. Tente: <span class="poly-coefs">x² - x - 2</span></p>';
-        currentJSFunction = null;
-        updateAnalysisPanel(-6.5, 6.5, null, null); 
-    }
-
-    function evaluateAtX() {
-        const xInput = document.getElementById('x-input');
-        const xValue = parseFloat(xInput.value);
-        const yResultElement = document.getElementById('y-result');
-        const xLabelElement = document.getElementById('x-result-label');
-        const stepOutputElement = document.getElementById('step-by-step-output');
-        
-        xLabelElement.textContent = xValue.toFixed(4);
-        
-        if (!currentJSFunction || !currentFunctionString) {
-            yResultElement.textContent = 'N/A';
-            stepOutputElement.innerHTML = '<h4>Função Não Plotada</h4><p>Nenhuma função está disponível para cálculo.</p>';
-            return;
-        }
-
-        if (isNaN(xValue)) {
-            yResultElement.textContent = 'x inválido.';
-            stepOutputElement.innerHTML = '<h4>Entrada Inválida</h4><p>O valor de x fornecido é inválido.</p>';
-            return;
-        }
-
-        // --- GERAÇÃO DO PASSO A PASSO (RESOLUÇÃO FORMAL) ---
-        let stepsHTML = '';
-        let finalY;
-
-        // 1. Apresentação da Função
-        stepsHTML += '<div class="resolution-section">';
-        stepsHTML += '<h4>1. Função Definida</h4>';
-        stepsHTML += `<p>A função a ser avaliada é:</p>`;
-        stepsHTML += `<span class="formula-line">f(x) = ${currentFunctionString}</span>`;
-        stepsHTML += '</div>';
-
-        // 2. Substituição
-        stepsHTML += '<div class="resolution-section">';
-        stepsHTML += '<h4>2. Substituição de Variáveis</h4>';
-        
-        let substitutionFormulaVisual = currentFunctionString.replace(/x/g, `(${xValue.toFixed(6)})`);
-        
-        for (const [key, value] of Object.entries(CONSTANT_MAP)) {
-            const regex = new RegExp(key, 'g'); 
-            substitutionFormulaVisual = substitutionFormulaVisual.replace(regex, `(${value.toFixed(6)})`);
-        }
-
-        stepsHTML += `<p>Substituindo <b>x (Domínio) = ${xValue.toFixed(6)}</b>, obtemos:</p>`;
-        stepsHTML += `<span class="formula-line">f(${xValue.toFixed(6)}) = ${substitutionFormulaVisual}</span>`;
-        stepsHTML += '</div>';
-        
-        // 3. Executa o Cálculo e Resultado Final
-        stepsHTML += '<div class="resolution-section">';
-        stepsHTML += '<h4>3. Cálculo e Resultado Final (Imagem)</h4>'; 
-
-        try {
-            finalY = currentJSFunction(xValue, Math);
-            
-            if (isNaN(finalY) || !isFinite(finalY)) {
-                yResultElement.textContent = 'Indefinido';
-                stepsHTML += `<p>O cálculo resultou em um valor <span class="final-answer" style="color: #d32f2f;">Indefinido</span> (Ex: divisão por zero ou domínio inválido).</p>`;
-            } else {
-                yResultElement.textContent = finalY.toFixed(6);
-                stepsHTML += `<p>O valor calculado de <b>y (Imagem)</b> para o <b>x</b> fornecido é:</p>`;
-                stepsHTML += `<div class="final-answer">f(${xValue.toFixed(4)}) $\\approx$ ${finalY.toFixed(6)}</div>`;
-            }
-        } catch (e) {
-            yResultElement.textContent = 'Erro';
-            stepsHTML += `<p>Houve um erro de execução no cálculo. Verifique a sintaxe da função.</p>`;
-            console.error("Erro ao avaliar y:", e);
-        }
-        
-        stepsHTML += '</div>';
-        stepOutputElement.innerHTML = stepsHTML;
-    }
-
-
-    // --- FUNÇÕES DO TECLADO E SUGESTÃO (MANTIDAS) ---
-    const inputField = document.getElementById('chartjs-input');
-    const keypadButtons = document.querySelectorAll('.graph-keypad .keypad-btn');
-    const suggestionBox = document.getElementById('suggestion-box');
-    let activeSuggestionIndex = -1;
-
-    keypadButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const value = button.getAttribute('data-value');
-            if (value === '^') {
-                inSuperscriptMode = true; 
-            }
-            if (value) {
-                inputField.value += value;
-                inputField.focus(); 
-            }
-            hideSuggestions();
-        });
-    });
-
-    function deleteChar() {
-        const lastChar = inputField.value.slice(-1);
-        if (reverseSuperscriptMap[lastChar] || lastChar === '^') {
-            inSuperscriptMode = false;
-        }
-        inputField.value = inputField.value.slice(0, -1);
-        inputField.focus();
-        showSuggestions();
-    }
-    
-    inputField.addEventListener('input', () => {
-        showSuggestions();
-
-        if (inSuperscriptMode) {
-            let value = inputField.value;
-            const lastChar = value.slice(-1);
-            const secondLastChar = value.slice(-2, -1);
-            
-            if (secondLastChar === '^' && superscriptMap[lastChar]) {
-                const superscriptChar = superscriptMap[lastChar];
-                value = value.slice(0, -2);
-                inputField.value = value + superscriptChar;
-                inSuperscriptMode = true;
-                
-            } else if (inputField.value.slice(-1) !== '^' && !superscriptMap[lastChar]) {
-                inSuperscriptMode = false;
-            }
-        }
-        
-        if (inputField.value.slice(-1) === '^') {
-            inSuperscriptMode = true;
-        }
-    });
-
-    inputField.addEventListener('keydown', (e) => {
-        const items = suggestionBox.querySelectorAll('.suggestion-item');
-        
-        if (e.key === 'ArrowDown' && (inSuperscriptMode || suggestionBox.style.display === 'block')) {
-            e.preventDefault();
-            if (inSuperscriptMode) {
-                inSuperscriptMode = false;
-                return;
-            }
-            if (items.length > 0) {
-                activeSuggestionIndex = (activeSuggestionIndex + 1) % items.length;
-                updateActiveSuggestion();
-            }
-            return;
-        }
-        
-        if (suggestionBox.style.display === 'block' && items.length > 0) {
-            if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                activeSuggestionIndex = (activeSuggestionIndex - 1 + items.length) % items.length;
-                updateActiveSuggestion();
-            } else if (e.key === 'Enter') {
-                if (activeSuggestionIndex >= 0) {
-                    e.preventDefault();
-                    const selectedText = items[activeSuggestionIndex].textContent.replace('(...)', '').replace('(', '');
-                    selectSuggestion(selectedText);
-                } else {
-                    plotChartJsFunction();
-                    hideSuggestions();
-                }
-            } else if (e.key === 'Escape') {
-                hideSuggestions();
-            }
-        } else if (e.key === 'Enter') {
-            plotChartJsFunction();
-        }
-    });
-    
-    function showSuggestions() {
-        const text = inputField.value.toLowerCase();
-        const lastWordMatch = text.match(/([a-z]+)$/i); 
-        const currentInput = lastWordMatch ? lastWordMatch[1] : '';
-        
-        suggestionBox.innerHTML = '';
-        activeSuggestionIndex = -1;
-
-        if (currentInput.length === 0) {
-            hideSuggestions();
-            return;
-        }
-
-        const filteredSuggestions = SUGGESTIONS.filter(suggestion => 
-            suggestion.startsWith(currentInput)
-        );
-
-        if (filteredSuggestions.length === 0) {
-            hideSuggestions();
-            return;
-        }
-
-        filteredSuggestions.forEach((suggestion, index) => {
-            const div = document.createElement('div');
-            div.className = 'suggestion-item';
-            div.textContent = suggestion + (suggestion.length > 2 && !suggestion.includes('pi') && !suggestion.includes('e') ? '(...)' : ''); 
-            div.onclick = () => selectSuggestion(suggestion);
-            div.onmouseover = () => { activeSuggestionIndex = index; updateActiveSuggestion(); };
-            suggestionBox.appendChild(div);
-        });
-
-        suggestionBox.style.display = 'block';
-    }
-
-    function hideSuggestions() {
-        suggestionBox.style.display = 'none';
-        suggestionBox.innerHTML = '';
-    }
-
-    function selectSuggestion(suggestion) {
-        const text = inputField.value;
-        const newText = text.replace(/([a-z]+)$/i, suggestion + (suggestion.includes('pi') || suggestion.includes('e') ? '' : '('));
-        inputField.value = newText;
-        inputField.focus();
-        hideSuggestions();
-    }
-
-    function updateActiveSuggestion() {
-        const items = suggestionBox.querySelectorAll('.suggestion-item');
-        items.forEach((item, index) => {
-            item.classList.toggle('active', index === activeSuggestionIndex);
-        });
-    }
-
-    document.addEventListener('click', (e) => {
-        if (e.target !== inputField && !suggestionBox.contains(e.target) && e.target.className !== 'keypad-btn' && e.target.className !== 'help-btn') {
-            hideSuggestions();
-            inSuperscriptMode = false;
-        }
-    });
-
-    // --- INICIALIZAÇÃO ---
-    document.addEventListener('DOMContentLoaded', () => {
-        plotChartJsFunction(); 
-    });
+    // Inicializa com x^2
+    window.onload = () => {
+        displayElement.innerText = "x^2";
+        updateGraph();
+    };
 </script>
 
 </body>
