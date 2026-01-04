@@ -1,34 +1,503 @@
-<body>
-    <div id="game-container">
-        <canvas id="game-canvas" width="800" height="500"></canvas>
-        
-        <div id="game-ui">
-            <div class="info-box score-box">
-                <span id="score-label">PONTOS:</span>
-                <span id="score-value">0</span>
-            </div>
-            <div class="info-box life-box">
-                <span id="life-label">VIDAS:</span>
-                <span id="life-value">❤️❤️❤️</span>
-            </div>
-            
-            <div id="educational-tip-box">
-                <p id="tip-text"></p>
-            </div>
-        </div>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acento Speed - Versão Final</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cor-fundo-ceu: #87ceeb;
+            --cor-pista-lateral: #6a5acd;
+            --cor-pista-central: #9370db;
+            --cor-card-borda: #000000;
+            --cor-card-fundo: #ffffff;
+            --cor-texto: #ecf0f1;
+            --cor-erro: #ff5252; 
+            --cor-acerto: #42f47f; 
+            --cor-ui-bg: rgba(0, 0, 0, 0.85);
+            --cor-sombra: #000000;
+        }
 
-        <div id="feedback-box" class="hidden">
-            <div id="message-text"></div>
-            <div id="rule-tip"></div>
-        </div>
-        
-        <div id="game-over-screen" class="hidden">
-            <h1>FIM DE JOGO</h1>
-            <p>Sua Pontuação Final:</p>
-            <span id="final-score">0</span>
-            <button id="restart-button">JOGAR NOVAMENTE</button>
-        </div>
+        body {
+            background-color: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Press Start 2P', cursive;
+            color: var(--cor-texto);
+            font-size: 10px;
+            overflow: hidden; 
+        }
+
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 500px;
+            border: 8px solid var(--cor-card-borda); 
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: var(--cor-fundo-ceu); 
+        }
+
+        #game-canvas {
+            display: block;
+        }
+
+        .hidden { display: none !important; }
+
+        /* UI Superior */
+        #game-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            box-sizing: border-box;
+            pointer-events: none; 
+            z-index: 5;
+            text-shadow: 2px 2px var(--cor-sombra);
+            color: #000; 
+        }
+
+        .info-box { font-size: 1.2em; }
+
+        /* Caixa de Dica Educacional (Flutuante) */
+        #educational-tip-box {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            background-color: var(--cor-ui-bg);
+            border: 4px solid var(--cor-erro);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        #tip-text {
+            color: white;
+            line-height: 1.6;
+            margin: 0;
+            font-size: 0.8em;
+        }
+
+        /* Telas de Overlay */
+        #feedback-box, #game-over-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 10;
+        }
+
+        button {
+            font-family: 'Press Start 2P', cursive;
+            padding: 15px 25px;
+            font-size: 1em;
+            background-color: var(--cor-acerto);
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            border-bottom: 5px solid #27ae60;
+        }
+
+        button:hover { background-color: #5ef799; }
+
+        .shake { animation: shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+            40%, 60% { transform: translate3d(8px, 0, 0); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="game-canvas" width="800" height="500"></canvas>
+    
+    <div id="game-ui">
+        <div class="info-box">PONTOS: <span id="score-value">0</span></div>
+        <div class="info-box">VIDAS: <span id="life-value">❤️❤️❤️</span></div>
     </div>
 
-    <script src="acento_speed.js"></script>
+    <div id="educational-tip-box">
+        <p id="tip-text"></p>
+    </div>
+
+    <div id="feedback-box">
+        <h2 id="message-text">ACENTO SPEED</h2>
+        <p id="rule-tip" style="width: 80%; line-height: 1.5;"></p>
+        <button id="start-button">PRESSIONE ENTER</button>
+    </div>
+    
+    <div id="game-over-screen" class="hidden">
+        <h1>FIM DE JOGO</h1>
+        <p>Pontuação Final:</p>
+        <span id="final-score" style="font-size: 3em; color: var(--cor-acerto);">0</span>
+        <button id="restart-button">JOGAR NOVAMENTE</button>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+const gameContainer = document.getElementById('game-container'); 
+const scoreValue = document.getElementById('score-value');
+const lifeValue = document.getElementById('life-value');
+const gameOverScreen = document.getElementById('game-over-screen');
+const finalScore = document.getElementById('final-score');
+const restartButton = document.getElementById('restart-button');
+const feedbackBox = document.getElementById('feedback-box');
+const messageText = document.getElementById('message-text');
+const ruleTip = document.getElementById('rule-tip');
+const educationalTipBox = document.getElementById('educational-tip-box');
+const tipText = document.getElementById('tip-text');
+
+// --- CONSTANTES ---
+const GAME_WIDTH = 800;
+const GAME_HEIGHT = 500;
+const NUM_LANES = 3; 
+const PLAYER_LANE_Y = GAME_HEIGHT * 0.85; 
+const PLAYER_SIZE = 50; 
+const CARD_WIDTH = 160;
+const CARD_HEIGHT = 75;
+const LANE_X_POSITIONS = [160, 400, 640]; 
+
+const BASE_SPEED = 0.15; 
+const MAX_SPEED = 0.3; 
+const SPEED_INCREMENT = 0.000005; 
+const TIP_DURATION = 3500;
+
+// --- BANCO DE PALAVRAS ---
+const WORD_BANK = [
+
+    // PROPAROXÍTONAS (Sempre acentuadas)
+    ["Pássaro", "Passaro", "Passaró", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Último", "Ultimo", "Ultimó", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Público", "Publico", "Publicó", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Dúvida", "Duvida", "Duvidá", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Lógica", "Logica", "Logicá", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Próximo", "Proximo", "Proximó", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Matemática", "Matematica", "Matematicá", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Música", "Musica", "Musicá", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Física", "Fisica", "Fisicá", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Árvore", "Arvore", "Arvorê", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Exército", "Exercito", "Exercitó", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Sábado", "Sabado", "Sabadó", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Página", "Pagina", "Paginá", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Gramática", "Gramatica", "Gramaticá", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Trânsito", "Transito", "Transitó", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Século", "Seculo", "Seculó", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Fôlego", "Folego", "Folegó", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Ângulo", "Angulo", "Anguló", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Líquido", "Liquido", "Liquidó", "Regra: Todas as proparoxítonas são acentuadas."],
+    ["Vítima", "Vitima", "Vitimá", "Regra: Todas as proparoxítonas são acentuadas."],
+
+    // OXÍTONAS (Terminadas em A, E, O, EM, ENS)
+    ["Crachá", "Cracha", "Crachà", "Regra: Oxítonas terminadas em A são acentuadas."],
+    ["Marajá", "Maraja", "Marajà", "Regra: Oxítonas terminadas em A são acentuadas."],
+    ["Pajé", "Paje", "Pajê", "Regra: Oxítonas terminadas em E são acentuadas."],
+    ["Jacaré", "Jacare", "Jacarê", "Regra: Oxítonas terminadas em E são acentuadas."],
+    ["Dendê", "Dende", "Dendé", "Regra: Oxítonas terminadas em E são acentuadas."],
+    ["Paletó", "Paleto", "Paletô", "Regra: Oxítonas terminadas em O são acentuadas."],
+    ["Jiló", "Jilo", "Jilô", "Regra: Oxítonas terminadas em O são acentuadas."],
+    ["Dominó", "Domino", "Dominô", "Regra: Oxítonas terminadas em O são acentuadas."],
+    ["Alguém", "Alguem", "Alguêm", "Regra: Oxítonas terminadas em EM são acentuadas."],
+    ["Refém", "Refem", "Refêm", "Regra: Oxítonas terminadas em EM são acentuadas."],
+    ["Armazém", "Armazem", "Armazêm", "Regra: Oxítonas terminadas em EM são acentuadas."],
+    ["Contém", "Contem", "Contêm", "Regra: Oxítonas terminadas em EM são acentuadas."],
+    ["Vatapa", "Vatapa", "Vatápá", "Regra: Oxítonas terminadas em A são acentuadas."],
+    ["Guaraná", "Guarana", "Guaranà", "Regra: Oxítonas terminadas em A são acentuadas."],
+    ["Picolé", "Picole", "Picolê", "Regra: Oxítonas terminadas em E são acentuadas."],
+    ["Vovó", "Vovo", "Vovô", "Regra: Oxítonas terminadas em O (aberto) são acentuadas."],
+    ["Vovô", "Vovo", "Vovó", "Regra: Oxítonas terminadas em O (fechado) são acentuadas."],
+    ["Mocotó", "Mocoto", "Mocotô", "Regra: Oxítonas terminadas em O são acentuadas."],
+    ["Ninguém", "Ninguem", "Ninguêm", "Regra: Oxítonas terminadas em EM são acentuadas."],
+    ["Manténs", "Mantens", "Mántens", "Regra: Oxítonas terminadas em ENS são acentuadas."],
+
+    // PAROXÍTONAS (L, R, N, X, PS, I, IS, US, UM, UNS, ÃO, ÃO, DITONGO)
+    ["Açúcar", "Acucar", "Açucár", "Regra: Paroxítonas terminadas em R são acentuadas."],
+    ["Caráter", "Carater", "Caratér", "Regra: Paroxítonas terminadas em R são acentuadas."],
+    ["Repórter", "Reporter", "Reportér", "Regra: Paroxítonas terminadas em R são acentuadas."],
+    ["Útil", "Util", "Utíl", "Regra: Paroxítonas terminadas em L são acentuadas."],
+    ["Difícil", "Dificil", "Dificíl", "Regra: Paroxítonas terminadas em L são acentuadas."],
+    ["Amável", "Amavel", "Amavél", "Regra: Paroxítonas terminadas em L são acentuadas."],
+    ["Imóvel", "Imovel", "Imovél", "Regra: Paroxítonas terminadas em L são acentuadas."],
+    ["Hífen", "Hifen", "Hifén", "Regra: Paroxítonas terminadas em N são acentuadas."],
+    ["Pólen", "Polen", "Polén", "Regra: Paroxítonas terminadas em N são acentuadas."],
+    ["Tórax", "Torax", "Toráx", "Regra: Paroxítonas terminadas em X são acentuadas."],
+    ["Fênix", "Fenix", "Feníx", "Regra: Paroxítonas terminadas em X são acentuadas."],
+    ["Bíceps", "Biceps", "Bicéps", "Regra: Paroxítonas terminadas em PS são acentuadas."],
+    ["Lápis", "Lapis", "Lapís", "Regra: Paroxítonas terminadas em IS são acentuadas."],
+    ["Grátis", "Gratis", "Gratís", "Regra: Paroxítonas terminadas em IS são acentuadas."],
+    ["Íris", "Iris", "Irís", "Regra: Paroxítonas terminadas em IS são acentuadas."],
+    ["Vírus", "Virus", "Virús", "Regra: Paroxítonas terminadas em US são acentuadas."],
+    ["Vênus", "Venus", "Venús", "Regra: Paroxítonas terminadas em US são acentuadas."],
+    ["Álbum", "Album", "Albúm", "Regra: Paroxítonas terminadas em UM são acentuadas."],
+    ["Fórum", "Forum", "Forúm", "Regra: Paroxítonas terminadas em UM são acentuadas."],
+    ["Órfão", "Orfao", "Orfão", "Regra: Paroxítonas terminadas em ÃO são acentuadas."],
+    ["Órgão", "Orgao", "Orgão", "Regra: Paroxítonas terminadas em ÃO são acentuadas."],
+    ["Sótão", "Sotao", "Sotão", "Regra: Paroxítonas terminadas em ÃO são acentuadas."],
+    ["Ímã", "Ima", "Imã", "Regra: Paroxítonas terminadas em Ã são acentuadas."],
+    ["Série", "Serie", "Serié", "Regra: Paroxítonas terminadas em ditongo são acentuadas."],
+    ["Glória", "Gloria", "Gloriá", "Regra: Paroxítonas terminadas em ditongo são acentuadas."],
+    ["Rádio", "Radio", "Radió", "Regra: Paroxítonas terminadas em ditongo são acentuadas."],
+    ["Régua", "Regua", "Reguá", "Regra: Paroxítonas terminadas em ditongo são acentuadas."],
+    ["Dúzia", "Duzia", "Duziá", "Regra: Paroxítonas terminadas em ditongo são acentuadas."],
+    ["Fértil", "Fertil", "Fertíl", "Regra: Paroxítonas terminadas em L são acentuadas."],
+    ["Vôlei", "Volei", "Voleí", "Regra: Paroxítonas terminadas em ditongo são acentuadas."],
+
+    // HIATOS (I e U tônicos)
+    ["País", "Pais", "País", "Regra: Acentua-se o I tônico em hiato sozinho na sílaba."],
+    ["Baú", "Bau", "Báu", "Regra: Acentua-se o U tônico em hiato sozinho na sílaba."],
+    ["Saída", "Saida", "Saidá", "Regra: Acentua-se o I tônico em hiato sozinho na sílaba."],
+    ["Viúva", "Viuva", "Viuvá", "Regra: Acentua-se o U tônico em hiato sozinho na sílaba."],
+    ["Jaú", "Jau", "Jáú", "Regra: Acentua-se o U tônico em hiato sozinho na sílaba."],
+    ["Ruído", "Ruido", "Ruidó", "Regra: Acentua-se o I tônico em hiato sozinho na sílaba."],
+    ["Egoísta", "Egoista", "Egoistá", "Regra: Acentua-se o I tônico seguido de S em hiato."],
+    ["Raízes", "Raizes", "Raizés", "Regra: Acentua-se o I tônico em hiato sozinho na sílaba."],
+    ["Heroína", "Heroina", "Heroiná", "Regra: Acentua-se o I tônico em hiato sozinho na sílaba."],
+    ["Paraíba", "Paraiba", "Paraibá", "Regra: Acentua-se o I tônico em hiato sozinho na sílaba."],
+    ["Guaíba", "Guaiba", "Guaibá", "Regra: Acentua-se o I tônico em hiato sozinho na sílaba."],
+    ["Luís", "Luis", "Lúis", "Regra: Acentua-se o I tônico seguido de S em hiato."],
+    ["Baliza", "Baliza", "Balizá", "Dica: Baliza não tem acento (I não é hiato tônico sozinho)."],
+    ["Rainha", "Rainha", "Raínha", "Dica: Hiato seguido de NH não é acentuado."],
+    ["Bainha", "Bainha", "Baínha", "Dica: Hiato seguido de NH não é acentuado."],
+
+    // MONOSSÍLABOS TÔNICOS (A, E, O)
+    ["Pá", "Pa", "Pà", "Regra: Monossílabos tônicos terminados em A são acentuados."],
+    ["Pé", "Pe", "Pê", "Regra: Monossílabos tônicos terminados em E são acentuados."],
+    ["Pó", "Po", "Pô", "Regra: Monossílabos tônicos terminados em O são acentuados."],
+    ["Já", "Ja", "Jà", "Regra: Monossílabos tônicos terminados em A são acentuados."],
+    ["Fé", "Fe", "Fê", "Regra: Monossílabos tônicos terminados em E são acentuados."],
+    ["Nós", "Nos", "Nôs", "Regra: Monossílabos tônicos terminados em O(s) são acentuados."],
+    ["Vós", "Vos", "Vôs", "Regra: Monossílabos tônicos terminados em O(s) são acentuados."],
+    ["Mês", "Mes", "Més", "Regra: Monossílabos tônicos terminados em E(s) são acentuados."],
+    ["Três", "Tres", "Trés", "Regra: Monossílabos tônicos terminados em E(s) são acentuados."],
+    ["Lá", "La", "Là", "Regra: Monossílabos tônicos terminados em A são acentuados."],
+    ["Cá", "Ca", "Cà", "Regra: Monossílabos tônicos terminados em A são acentuados."],
+    ["Dê", "De", "Dé", "Regra: Monossílabos tônicos terminados em E são acentuados (verbo)."],
+    ["Crê", "Cre", "Cré", "Regra: Monossílabos tônicos terminados em E são acentuados."],
+    ["Lê", "Le", "Lé", "Regra: Monossílabos tônicos terminados em E são acentuados."],
+    ["Só", "So", "Sô", "Regra: Monossílabos tônicos terminados em O são acentuados."],
+];
+
+let gameState = 'waiting'; 
+let score = 0;
+let lives = 3;
+let speed = BASE_SPEED;
+let playerTargetLane = 1; 
+let playerCurrentX = LANE_X_POSITIONS[1]; 
+let cards = []; 
+let lastTime = 0;
+let tipTimer = 0;
+let comboCount = 0;
+let hitFlashTimer = 0;
+
+// --- LÓGICA ---
+
+function showFloatingFeedback(rule, correctWord) {
+    tipText.innerHTML = `<span style="color: #ff5252;">ERRO!</span> A correta era <span style="color: #42f47f;">${correctWord}</span>.<br>${rule}`;
+    educationalTipBox.style.opacity = '1';
+    tipTimer = TIP_DURATION;
+}
+
+function generateCards() {
+    const wordEntry = WORD_BANK[Math.floor(Math.random() * WORD_BANK.length)];
+    const correctLane = Math.floor(Math.random() * NUM_LANES);
+    let wordsInSet = [];
+    let wrongOptions = [wordEntry[1], wordEntry[2]];
+
+    for(let i = 0; i < NUM_LANES; i++) {
+        if (i === correctLane) wordsInSet.push(wordEntry[0]);
+        else wordsInSet.push(wrongOptions.pop());
+    }
+
+    for(let i = 0; i < NUM_LANES; i++) {
+        cards.push({
+            x: LANE_X_POSITIONS[i],
+            y: -100,
+            words: wordsInSet,
+            correctLane: correctLane,
+            laneIndex: i,
+            ruleTip: wordEntry[3],
+            passed: false
+        });
+    }
+}
+
+function updateGame(deltaTime) {
+    if (gameState !== 'running') return;
+
+    speed = Math.min(MAX_SPEED, speed + SPEED_INCREMENT * deltaTime);
+    
+    // Movimentação do jogador
+    const targetX = LANE_X_POSITIONS[playerTargetLane];
+    playerCurrentX += (targetX - playerCurrentX) * 0.2;
+
+    // Feedback flutuante
+    if (tipTimer > 0) {
+        tipTimer -= deltaTime;
+        if (tipTimer <= 0) educationalTipBox.style.opacity = '0';
+    }
+
+    // Flash de impacto
+    if (hitFlashTimer !== 0) {
+        hitFlashTimer = hitFlashTimer > 0 ? hitFlashTimer - deltaTime : Math.min(0, hitFlashTimer + deltaTime);
+    }
+
+    // Atualizar Cards
+    for (let i = cards.length - 1; i >= 0; i--) {
+        const card = cards[i];
+        card.y += speed * deltaTime;
+
+        // Detecção de Colisão / Passagem
+        if (card.y > GAME_HEIGHT * 0.75 && !card.passed) {
+            card.passed = true;
+            
+            if (card.laneIndex === card.correctLane) {
+                if (playerTargetLane === card.correctLane) {
+                    // ACERTO
+                    score += 10 + (comboCount * 2);
+                    comboCount++;
+                    scoreValue.textContent = score;
+                    hitFlashTimer = 150;
+                } else {
+                    // ERRO (Não pegou a certa)
+                    lives--;
+                    comboCount = 0;
+                    hitFlashTimer = -300;
+                    showFloatingFeedback(card.ruleTip, card.words[card.correctLane]);
+                    triggerShake();
+                }
+            } else if (playerTargetLane === card.laneIndex) {
+                // ERRO (Pegou a errada)
+                lives--;
+                comboCount = 0;
+                hitFlashTimer = -300;
+                showFloatingFeedback(card.ruleTip, card.words[card.correctLane]);
+                triggerShake();
+            }
+
+            updateLivesDisplay();
+            if (lives <= 0) gameOver();
+        }
+
+        if (card.y > GAME_HEIGHT) cards.splice(i, 1);
+    }
+
+    if (cards.length === 0 || cards[cards.length-1].y > 300) generateCards();
+}
+
+function triggerShake() {
+    gameContainer.classList.add('shake');
+    setTimeout(() => gameContainer.classList.remove('shake'), 200);
+}
+
+function updateLivesDisplay() {
+    lifeValue.textContent = '❤️'.repeat(Math.max(0, lives)) + '🖤'.repeat(Math.max(0, 3 - lives));
+}
+
+// --- DESENHO ---
+
+function draw() {
+    ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+    // Estradas
+    ctx.fillStyle = '#6a5acd'; ctx.fillRect(0, 0, 800, 500); // Fundo
+    LANE_X_POSITIONS.forEach(x => {
+        ctx.fillStyle = '#9370db';
+        ctx.fillRect(x - 80, 0, 160, 500);
+    });
+
+    // Cards
+    cards.forEach(card => {
+        ctx.fillStyle = 'white';
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 4;
+        ctx.fillRect(card.x - 75, card.y, 150, 60);
+        ctx.strokeRect(card.x - 75, card.y, 150, 60);
+        
+        ctx.fillStyle = 'black';
+        ctx.font = "12px 'Press Start 2P'";
+        ctx.textAlign = 'center';
+        ctx.fillText(card.words[card.laneIndex], card.x, card.y + 35);
+    });
+
+    // Jogador (Sombra/Bola)
+    ctx.fillStyle = 'black';
+    ctx.beginPath();
+    ctx.arc(playerCurrentX, PLAYER_LANE_Y, 20, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Flash de Acerto/Erro
+    if (hitFlashTimer > 0) {
+        ctx.fillStyle = 'rgba(66, 244, 127, 0.3)';
+        ctx.fillRect(0,0,800,500);
+    } else if (hitFlashTimer < 0) {
+        ctx.fillStyle = 'rgba(255, 82, 82, 0.3)';
+        ctx.fillRect(0,0,800,500);
+    }
+}
+
+function gameLoop(currentTime) {
+    const deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
+    updateGame(deltaTime);
+    draw();
+    if (gameState === 'running') requestAnimationFrame(gameLoop);
+}
+
+// --- CONTROLES E INIT ---
+
+function startGame() {
+    gameState = 'running';
+    score = 0; lives = 3; speed = BASE_SPEED;
+    cards = []; comboCount = 0;
+    updateLivesDisplay();
+    scoreValue.textContent = '0';
+    feedbackBox.classList.add('hidden');
+    gameOverScreen.classList.add('hidden');
+    lastTime = performance.now();
+    requestAnimationFrame(gameLoop);
+}
+
+function gameOver() {
+    gameState = 'gameover';
+    finalScore.textContent = score;
+    gameOverScreen.classList.remove('hidden');
+}
+
+window.addEventListener('keydown', (e) => {
+    if (gameState === 'waiting' && e.key === 'Enter') startGame();
+    if (gameState === 'running') {
+        if (e.key === 'ArrowLeft') playerTargetLane = Math.max(0, playerTargetLane - 1);
+        if (e.key === 'ArrowRight') playerTargetLane = Math.min(2, playerTargetLane + 1);
+    }
+});
+
+restartButton.addEventListener('click', startGame);
+
+// Inicialização
+ruleTip.textContent = "Colete apenas as palavras com a acentuação CORRETA. Use as SETAS para mover. Feedback de erro não pausa o jogo!";
+</script>
+
 </body>
+</html>
