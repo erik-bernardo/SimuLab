@@ -153,10 +153,10 @@ function WordBlock(word, isCorrect, yPos) {
     this.isColumnBase = false; 
     
     this.draw = function() {
-        ctx.fillStyle = this.isCorrect ? '#50e3c2' : '#f0f0f0'; 
+        ctx.fillStyle = this.isCorrect ? '#ffffffff' : '#f0f0f0'; 
         ctx.fillRect(this.x, this.y, this.width, this.height);
 
-        ctx.strokeStyle = this.isCorrect ? '#3cb44b' : '#333333'; 
+        ctx.strokeStyle = this.isCorrect ? '#000000ff' : '#333333'; 
         ctx.lineWidth = 4;
         ctx.strokeRect(this.x, this.y, this.width, this.height);
 
