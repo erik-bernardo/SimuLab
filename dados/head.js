@@ -6,39 +6,39 @@
 // 1. ÍNDICE DE PESQUISA COMPLETO
 const SEARCH_INDEX = [
 
-  // ---------- SIMULADORES: MATEMÁTICA ----------
-  { term: "Sim. Cálculo de Matriz", path: "Simulador > Matemática > Simulador", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/matriz.html" },
-  { term: "Sim. Análise de Funções", path: "Simulador > Matemática > Análise", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/funcoes.html" },
-  { term: "Sim. Juros Simples", path: "Simulador > Matemática > Financeira", url: "simulacoes/https://erik-bernardo.github.io/SimuLab/simulacoes/juros.html" },
-  { term: "Sim. Custo e Venda", path: "Simulador > Matemática > Financeira", url: "simulacoes/https://erik-bernardo.github.io/SimuLab/simulacoes/custo_venda.html" },
-  { term: "Sim. Porcentagem", path: "Simulador > Matemática > Fundamentos", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/porcentagem.html" },
-  { term: "Sim. Probabilidade", path: "Simulador > Matemática > Estatística", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/probabilidade.html" },
-  { term: "Sim. Análise Combinatória", path: "Simulador > Matemática > Análise", url: "simulacoes/combinatoria.html" },
-  { term: "Sim. Sequências Numéricas", path: "Simulador > Matemática > Álgebra", url: "simulacoes/sequencias_numericas.html" },
-  { term: "Sim. Conjuntos Numéricos", path: "Simulador > Matemática > Fundamentos", url: "simulacoes/conjuntos_numericos.html" },
-  { term: "Sim. Geometria Plana", path: "Simulador > Matemática > Geometria", url: "simulacoes/geometria_plana.html" },
-  { term: "Sim. Arcos e Ângulos", path: "Simulador > Matemática > Trigonometria", url: "simulacoes/arcos_angulos.html" },
-  { term: "Sim. Sistema Linear", path: "Simulador > Matemática > Sistemas", url: "simulacoes/sistem-linear.html" },
+ // ---------- SIMULADORES: MATEMÁTICA ----------
+{ term: "Sim. Cálculo de Matriz", path: "Simulador > Matemática > Simulador", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/matriz.html" },
+{ term: "Sim. Análise de Funções", path: "Simulador > Matemática > Análise", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/funcoes.html" },
+{ term: "Sim. Juros", path: "Simulador > Matemática > Financeira", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/juros.html" },
+{ term: "Sim. Custo e Venda", path: "Simulador > Matemática > Financeira", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/custo_venda.html" },
+{ term: "Sim. Porcentagem", path: "Simulador > Matemática > Fundamentos", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/porcentagem.html" },
+{ term: "Sim. Probabilidade", path: "Simulador > Matemática > Estatística", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/probabilidade.html" },
+{ term: "Sim. Análise Combinatória", path: "Simulador > Matemática > Análise", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/combinatoria.html" },
+{ term: "Sim. Sequências Numéricas", path: "Simulador > Matemática > Álgebra", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/sequencias_numericas.html" },
+{ term: "Sim. Conjuntos Numéricos", path: "Simulador > Matemática > Fundamentos", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/conjuntos_numericos.html" },
+{ term: "Sim. Geometria Plana", path: "Simulador > Matemática > Geometria", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/geometria_plana.html" },
+{ term: "Sim. Arcos e Ângulos", path: "Simulador > Matemática > Trigonometria", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/arcos_angulos.html" },
+{ term: "Sim. Sistema Linear", path: "Simulador > Matemática > Sistemas", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/sistem-linear.html" },
 
-  // ---------- SIMULADORES: FÍSICA ----------
-  { term: "Sim. Queda Livre", path: "Simulador > Física > Cinemática", url: "simulacoes/queda_livre.html" },
-  { term: "Sim. MRU (Mov. Retilíneo Uniforme)", path: "Simulador > Física > Cinemática", url: "simulacoes/mru.html" },
-  { term: "Sim. Gravitação Universal", path: "Simulador > Física > Mecânica", url: "simulacoes/gravitacao_universal.html" },
-  { term: "Sim. Conservação de Energia", path: "Simulador > Física > Mecânica", url: "simulacoes/energia.html" },
-  { term: "Sim. Hidrostática", path: "Simulador > Física > Mecânica", url: "simulacoes/hidrostatica.html" },
-  { term: "Sim. Ondas", path: "Simulador > Física > Ondulatória", url: "simulacoes/ondas.html" },
-  { term: "Sim. Calorimetria", path: "Simulador > Física > Termologia", url: "simulacoes/calorimetria.html" },
-  { term: "Sim. Dilatação Térmica", path: "Simulador > Física > Termologia", url: "simulacoes/dilatacao_termica.html" },
-  { term: "Sim. Escalas Termométricas", path: "Simulador > Física > Termologia", url: "simulacoes/escalas_termometricas.html" },
+// ---------- SIMULADORES: FÍSICA ----------
+{ term: "Sim. Queda Livre", path: "Simulador > Física > Cinemática", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/queda_livre.html" },
+{ term: "Sim. MRU/MRUV", path: "Simulador > Física > Cinemática", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/mru.html" },
+{ term: "Sim. Gravitação Universal", path: "Simulador > Física > Mecânica", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/gravitacao_universal.html" },
+{ term: "Sim. Conservação de Energia", path: "Simulador > Física > Mecânica", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/energia.html" },
+{ term: "Sim. Hidrostática", path: "Simulador > Física > Mecânica", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/hidrostatica.html" },
+{ term: "Sim. Ondas", path: "Simulador > Física > Ondulatória", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/ondas.html" },
+{ term: "Sim. Calorimetria", path: "Simulador > Física > Termologia", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/calorimetria.html" },
+{ term: "Sim. Dilatação Térmica", path: "Simulador > Física > Termologia", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/dilatacao_termica.html" },
+{ term: "Sim. Escalas Termométricas", path: "Simulador > Física > Termologia", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/escalas_termometricas.html" },
 
-  // ---------- SIMULADORES: QUÍMICA ----------
-  { term: "Sim. Tabela Periódica", path: "Simulador > Química > Geral", url: "simulacoes/tabela_periodica.html" },
-  { term: "Sim. Ligações Químicas", path: "Simulador > Química > Geral", url: "simulacoes/ligacoes.html" },
-  { term: "Sim. Reações Químicas", path: "Simulador > Química > Geral", url: "simulacoes/reacoes.html" },
-  { term: "Sim. Ácidos e Bases", path: "Simulador > Química > Inorgânica", url: "simulacoes/acidos_bases.html" },
-  { term: "Sim. NOX (Nº Oxidação)", path: "Simulador > Química > RedOx", url: "simulacoes/nox.html" },
-  { term: "Sim. Estequiometria", path: "Simulador > Química > Cálculos", url: "simulacoes/estequiometria.html" },
-  { term: "Sim. Soluções", path: "Simulador > Química > Físico-Química", url: "simulacoes/solucoes.html" },
+// ---------- SIMULADORES: QUÍMICA ----------
+{ term: "Sim. Tabela Periódica", path: "Simulador > Química > Geral", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/tabela_periodica.html" },
+{ term: "Sim. Ligações Químicas", path: "Simulador > Química > Geral", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/ligacoes.html" },
+{ term: "Sim. Reações Químicas", path: "Simulador > Química > Geral", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/reacoes.html" },
+{ term: "Sim. Ácidos e Bases", path: "Simulador > Química > Inorgânica", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/acidos_bases.html" },
+{ term: "Sim. NOX (Nº Oxidação)", path: "Simulador > Química > RedOx", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/nox.html" },
+{ term: "Sim. Estequiometria", path: "Simulador > Química > Cálculos", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/estequiometria.html" },
+{ term: "Sim. Soluções", path: "Simulador > Química > Físico-Química", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/solucoes.html" },
 
   // ---------- SIMULADOR: PROGRAMAÇÃO ----------
   { term: "Simulador IDE Virtual", path: "Simulador > Programação > Testador", url: "codeTester.html" },
@@ -71,13 +71,8 @@ const headerHTML = `
         <nav class="nav-links">
             <a href="https://erik-bernardo.github.io/SimuLab/sobre.html" class="nav-link">Sobre</a>
             <a href="https://erik-bernardo.github.io/SimuLab/recursos.html" class="nav-link">Recursos</a>
-            <a href="https://erik-bernardo.github.io/SimuLab/materias.html" class="nav-link main-action">CONTEÚDO</a>
             
-            <div id="header-user-area" class="user-area-header">
-                <a href="https://erik-bernardo.github.io/SimuLab/dados/login.html" class="login-btn-header">
-                    <i class="fas fa-user-circle"></i> Entrar
-                </a>
-            </div>
+       
         </nav>
     </header>
     <div style="height: 75px;"></div> `;
