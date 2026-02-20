@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -23,9 +24,36 @@
         /* ----------------------------------- */
         /* ESTILOS DO CONTEÚDO E PÁGINA */
         /* ----------------------------------- */
-        .hero-section { background-color: #f0f0f0; padding: 80px 40px; text-align: center; }
-        .hero-section h2 { font-size: 2.5em; color: #D2691E; margin-bottom: 10px; }
-        .hero-section p { font-size: 1.2em; color: #555; max-width: 700px; margin: 0 auto 30px; }
+       /* --- HERO SECTION COM IMAGE OVERLAY --- */
+.hero-section { 
+    /* Camada preta (rgba 0,0,0,0.6) sobre a imagem */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                      url('https://www.florence.edu.br/blog/wp-content/uploads/2022/04/Florence-tecnicas-de-estudo.jpg');
+    
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Opcional: dá um leve efeito parallax ao rolar */
+    padding: 120px 40px; /* Aumentei um pouco o respiro */
+    text-align: center; 
+    color: white; /* Cor do texto alterada para branco para dar contraste */
+}
+
+/* Ajuste específico para o título no fundo escuro */
+.hero-section h2 { 
+    font-size: 2.8em; 
+    color: #ffffff; /* Branco puro para máxima leitura */
+    margin-bottom: 15px; 
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* Sombra no texto para destacar do fundo */
+}
+
+/* Ajuste para o parágrafo no fundo escuro */
+.hero-section p { 
+    font-size: 1.3em; 
+    color: #e0e0e0; /* Cinza claro para não cansar a vista */
+    max-width: 800px; 
+    margin: 0 auto 40px; 
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
         .hero-button { 
             background-color: #D2691E; 
             color: white; 
