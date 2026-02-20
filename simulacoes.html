@@ -98,65 +98,52 @@
         /* MENU DE MATÉRIAS E CARDS */
         /* ----------------------------------- */
 
-        .header-tools {
-            display: flex; /* Define o contêiner principal para o menu e os cards */
-            align-items: flex-start;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
+       /* Container que faz o banner e os cards ficarem lado a lado */
+.main-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    margin-top: 20px;
+}
 
-        .subject-menu-container {
-            display: flex;
-            flex-direction: column;
-            background-color: white;
-            border: 1px solid #ccc;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 10px 0;
-            width: 200px;
-            margin-top: 10px;
-            flex-shrink: 0; /* Impede que o menu encolha */
-        }
+/* Sidebar do Banner */
+.ads-sidebar {
+    width: 160px; /* Largura do banner */
+    flex-shrink: 0;
+    position: sticky;
+    top: 20px;
+    z-index: 10;
+}
 
-        .subject-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 15px;
-            font-size: 14px;
-            color: #333;
-            cursor: pointer;
-            font-weight: 500;
-        }
+.banner-simulab {
+    background-color: #000;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    border: 1px solid #444;
+}
 
-        .subject-item:hover {
-            background-color: #f0f0f0;
-        }
-        
-        /* Estilo para o item de menu selecionado */
-        .subject-item.selected {
-            background-color: #f0f0f0;
-            color: #D2691E;
-        }
+/* Efeito de destaque no banner */
+.banner-simulab:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(210, 105, 30, 0.5); /* Brilho Laranja */
+    filter: brightness(1.1);
+}
 
-        .subject-item .fas {
-            font-size: 10px;
-            color: #777;
-        }
+.banner-simulab img {
+    width: 100%;
+    display: block;
+}
 
-        /* ----------------------------------- */
-        /* CARDS (LAYOUT CONSOLIDADO) */
-        /* ----------------------------------- */
-
-        /* AGORA É UM ITEM FLEX DENTRO DE .header-tools */
-        .card-container-wrapper {
-            display: flex;
-            flex-wrap: wrap; 
-            gap: 20px;
-            justify-content: center; /* Centraliza a linha de cards */
-            padding: 20px 0;
-            flex-grow: 1; /* Permite que o wrapper de cards ocupe o espaço restante */
-            margin-left: 0; /* REMOVIDO: a margem de 230px, pois o gap já a controla */
-        }
+/* Ajuste no container de cards para não quebrar o layout */
+.card-container-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    flex-grow: 1;
+    justify-content: flex-start; /* Alinha os cards à esquerda, perto do banner */
+}
         
         /* Estilo para o link do card */
         .card-link {
@@ -238,34 +225,24 @@
 </head>
 <body>
 
-    <main class="content-area">
-
-        <div class="header-tools">
-            <div class="subject-menu-container">
-                <div class="subject-item">
-                    Química <i class="fas fa-arrow-down"></i>
-                </div>
-                <div class="subject-item">
-                    Física <i class="fas fa-arrow-down"></i>
-                </div>
-                <div class="subject-item">
-                    Matemática <i class="fas fa-arrow-down"></i>
-                </div>
-                <div class="subject-item">
-                    Matemática Financeira <i class="fas fa-arrow-down"></i>
-                </div>
-                <div class="subject-item more">
-                    Mostrar Todos <i class="fas fa-arrow-down"></i>
-                </div>
-            </div>
-
-            <div class="card-container-wrapper">
-                <a href="simulacoes/geometria_plana.html" class="card-link" data-subject="matematica">
-                    <div class="content-card">
-                        <i class="fas fa-chart-area card-icon"></i> <p class="card-title">Geometria Plana</p>
-                    </div>
+  <main class="content-area">
+    <div class="main-wrapper">
+        
+        <aside class="ads-sidebar">
+            <div class="ad-unit banner-simulab">
+                <a href="https://erik-bernardo.github.io/SIMULAB/">
+                    <img src="dados/Educação.png" alt="SimuLab - Estude Agora">
                 </a>
-                <a href="simulacoes/conjuntos_numericos.html" class="card-link" data-subject="matematica">
+            </div>
+        </aside>
+
+        <div class="card-container-wrapper">
+            <a href="simulacoes/geometria_plana.html" class="card-link" data-subject="matematica">
+                <div class="content-card">
+                    <i class="fas fa-chart-area card-icon"></i> <p class="card-title">Geometria Plana</p>
+                </div>
+            </a>
+             <a href="simulacoes/conjuntos_numericos.html" class="card-link" data-subject="matematica">
                     <div class="content-card">
                         <i class="fas fa-calculator card-icon"></i> <p class="card-title">Conjuntos Numéricos</p>
                     </div>
@@ -286,11 +263,7 @@
                     </div>
                 </a>
                
-                <a href="simulacoes/desconto_simples.html" class="card-link" data-subject="matematica financeira">
-                    <div class="content-card">
-                        <i class="fas fa-minus-circle card-icon"></i> <p class="card-title">Desconto Simples</p>
-                    </div>
-                </a>
+             
                 <a href="simulacoes/porcentagem.html" class="card-link" data-subject="matematica financeira">
                     <div class="content-card">
                         <i class="fas fa-percent card-icon"></i> <p class="card-title">Porcentagem e Frações</p>
@@ -311,11 +284,7 @@
                         <i class="fas fa-car-side card-icon"></i> <p class="card-title">MRU</p>
                     </div>
                 </a>
-                <a href="simulacoes/mruv.html" class="card-link" data-subject="fisica">
-                    <div class="content-card">
-                        <i class="fas fa-rocket card-icon"></i> <p class="card-title">MRUV</p>
-                    </div>
-                </a>
+             
                 <a href="simulacoes/energia.html" class="card-link" data-subject="fisica">
                     <div class="content-card">
                         <i class="fas fa-bolt card-icon"></i> <p class="card-title">Energia</p>
@@ -440,37 +409,10 @@
                         <i class="fas fa-battery-full card-icon"></i> <p class="card-title">Eletroquímica</p>
                     </div>
                 </a>
-                
-              
-              
-              
-               
-
-                <a href="simulacoes/juros_compostos.html" class="card-link" data-subject="matematica financeira">
-                    <div class="content-card">
-                        <i class="fas fa-chart-line card-icon"></i> <p class="card-title">Juros Compostos</p>
-                    </div>
-                </a>
-              
-                <a href="simulacoes/fluxo_caixa.html" class="card-link" data-subject="matematica financeira">
-                    <div class="content-card">
-                        <i class="fas fa-money-bill-wave card-icon"></i> <p class="card-title">Fluxo de Caixa</p>
-                    </div>
-                </a>
-                <a href="simulacoes/rendas.html" class="card-link" data-subject="matematica financeira">
-                    <div class="content-card">
-                        <i class="fas fa-hand-holding-usd card-icon"></i> <p class="card-title">Rendas (Séries de Pagamentos)</p>
-                    </div>
-                </a>
-                <a href="simulacoes/cet.html" class="card-link" data-subject="matematica financeira">
-                    <div class="content-card">
-                        <i class="fas fa-file-invoice-dollar card-icon"></i> <p class="card-title">Custo Efetivo Total (CET)</p>
-                    </div>
-                </a>
-            </div>
             </div>
 
-    </main>
+    </div> </main>
+
 <script src="dados/head.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -587,7 +529,3 @@
         
 </body>
 </html>
-
-
-
-
