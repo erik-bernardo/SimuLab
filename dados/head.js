@@ -7,10 +7,9 @@
 const SEARCH_INDEX = [
 
   // ---------- SIMULADORES: MATEMÁTICA ----------
-  { term: "Sim. Cálculo de Matriz", path: "Simulador > Matemática > Simulador", url: "simulacoes/matriz.html" },
-  { term: "Sim. Análise de Funções", path: "Simulador > Matemática > Análise", url: "simulacoes/funcoes.html" },
-  { term: "Sim. Juros Simples", path: "Simulador > Matemática > Financeira", url: "simulacoes/juros_simples.html" },
-  { term: "Sim. Juros Compostos", path: "Simulador > Matemática > Financeira", url: "simulacoes/juros_compostos.html" },
+  { term: "Sim. Cálculo de Matriz", path: "Simulador > Matemática > Simulador", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/matriz.html" },
+  { term: "Sim. Análise de Funções", path: "Simulador > Matemática > Análise", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/funcoes.html" },
+  { term: "Sim. Juros Simples", path: "Simulador > Matemática > Financeira", url: "simulacoes/https://erik-bernardo.github.io/SimuLab/simulacoes/juros.html" },
   { term: "Sim. Desconto Simples", path: "Simulador > Matemática > Financeira", url: "simulacoes/desconto_simples.html" },
   { term: "Sim. Custo e Venda", path: "Simulador > Matemática > Financeira", url: "simulacoes/custo_venda.html" },
   { term: "Sim. Regra 50-30", path: "Simulador > Matemática > Financeira", url: "simulacoes/50-30.html" },
@@ -55,92 +54,7 @@ const SEARCH_INDEX = [
   { term: "Game Labirinto", path: "Jogos > Matemática", url: "games/labirinto.html" },
   { term: "Game Akinator", path: "Jogos > Geral", url: "games/make-your-akinator.html" },
 
-  // ---------- CONTEÚDO DIDÁTICO: MATEMÁTICA ----------
-  { term: "Cálculo e Limites", path: "Conteúdo > Matemática", url: "conteudos/calculo.html" },
-  { term: "Sistemas Lineares", path: "Conteúdo > Matemática", url: "conteudos/sistemas.html" },
-  { term: "Polinômios", path: "Conteúdo > Matemática", url: "conteudos/polinomios.html" },
-  { term: "Estatística Avançada", path: "Conteúdo > Matemática", url: "conteudos/estatistica.html" },
-  { term: "Juros Simples", path: "Conteúdo > Matemática > Financeira", url: "conteudos/juros-simples.html" },
-  { term: "Juros Compostos", path: "Conteúdo > Matemática > Financeira", url: "conteudos/juros-compostos.html" },
-  { term: "Arcos e Ângulos", path: "Conteúdo > Matemática > Geometria", url: "conteudos/arcos.html" },
-  { term: "Geometria Analítica", path: "Conteúdo > Matemática > Geometria", url: "conteudos/analitica.html" },
-
-  // ---------- CONTEÚDO DIDÁTICO: BIOLOGIA ----------
-  { term: "Sistema Digestório", path: "Conteúdo > Biologia > Corpo", url: "biologia/digestorio.html" },
-  { term: "Sistema Circulatório", path: "Conteúdo > Biologia > Corpo", url: "biologia/circulatorio.html" },
-  { term: "Sistema Respiratório", path: "Conteúdo > Biologia > Corpo", url: "biologia/respiratorio.html" },
-  { term: "Sistema Nervoso", path: "Conteúdo > Biologia > Corpo", url: "biologia/nervoso.html" },
-  { term: "Sistema Imunológico", path: "Conteúdo > Biologia > Corpo", url: "biologia/imunologico.html" },
-  { term: "Sistema Muscular", path: "Conteúdo > Biologia > Corpo", url: "biologia/muscular.html" },
-  { term: "Sistema Esquelético", path: "Conteúdo > Biologia > Corpo", url: "biologia/esqueletico.html" },
-  { term: "Sistema Urinário", path: "Conteúdo > Biologia > Corpo", url: "biologia/urinario.html" },
-  { term: "Sistema Reprodutor", path: "Conteúdo > Biologia > Corpo", url: "biologia/reprodutor.html" },
-  { term: "Classificação Animal", path: "Conteúdo > Biologia > Animal", url: "biologia/classificacao.html" },
-  { term: "Comportamento Animal", path: "Conteúdo > Biologia > Animal", url: "biologia/comportamento.html" },
-  { term: "Fisiologia Animal", path: "Conteúdo > Biologia > Animal", url: "biologia/fisiologia.html" },
-  { term: "DNA e RNA", path: "Conteúdo > Biologia > Genética", url: "biologia/dna.html" },
-  { term: "Herança Genética", path: "Conteúdo > Biologia > Genética", url: "biologia/heranca.html" },
-  { term: "Mutação", path: "Conteúdo > Biologia > Genética", url: "biologia/mutacao.html" },
-  { term: "Estrutura Celular", path: "Conteúdo > Biologia > Células", url: "biologia/estrutura-celular.html" },
-  { term: "Divisão Celular", path: "Conteúdo > Biologia > Células", url: "biologia/divisao.html" },
-  { term: "Metabolismo Celular", path: "Conteúdo > Biologia > Células", url: "biologia/metabolismo.html" },
-
-  // ---------- CONTEÚDO DIDÁTICO: FÍSICA ----------
-  { term: "MRU", path: "Conteúdo > Física > Mecânica", url: "fisica/mru.html" },
-  { term: "MRUV", path: "Conteúdo > Física > Mecânica", url: "fisica/mruv.html" },
-  { term: "Energia", path: "Conteúdo > Física > Mecânica", url: "fisica/energia.html" },
-  { term: "Queda Livre", path: "Conteúdo > Física > Mecânica", url: "fisica/queda.html" },
-  { term: "Dilatação Térmica", path: "Conteúdo > Física > Termodinâmica", url: "fisica/dilatacao.html" },
-  { term: "Calorimetria", path: "Conteúdo > Física > Termodinâmica", url: "fisica/calorimetria.html" },
-  { term: "Escalas Termométricas", path: "Conteúdo > Física > Termodinâmica", url: "fisica/escalas.html" },
-  { term: "Ondas e Óptica", path: "Conteúdo > Física > Ondas", url: "fisica/ondas.html" },
-  { term: "Hidrostática", path: "Conteúdo > Física > Ondas", url: "fisica/hidrostatica.html" },
-  { term: "Gravitação Universal", path: "Conteúdo > Física > Ondas", url: "fisica/gravidade.html" },
-  { term: "Eletricidade", path: "Conteúdo > Física > Eletromagnetismo", url: "fisica/eletricidade.html" },
-  { term: "Eletrostática", path: "Conteúdo > Física > Eletromagnetismo", url: "fisica/eletrostatica.html" },
-  { term: "Eletromagnetismo", path: "Conteúdo > Física > Eletromagnetismo", url: "fisica/eletromagnetismo.html" },
-  { term: "Circuitos Elétricos", path: "Conteúdo > Física > Eletromagnetismo", url: "fisica/circuitos.html" },
-  { term: "Óptica Geométrica", path: "Conteúdo > Física > Eletromagnetismo", url: "fisica/optica.html" },
-
-  // ---------- CONTEÚDO DIDÁTICO: QUÍMICA ----------
-  { term: "Tabela Periódica", path: "Conteúdo > Química > Geral", url: "quimica/tabela-periodica.html" },
-  { term: "Ligações Químicas", path: "Conteúdo > Química > Geral", url: "quimica/ligacoes.html" },
-  { term: "Ácidos e Bases", path: "Conteúdo > Química > Geral", url: "quimica/acidos-bases.html" },
-  { term: "Balanceamento", path: "Conteúdo > Química > Geral", url: "quimica/balanceamento.html" },
-  { term: "Funções Inorgânicas", path: "Conteúdo > Química > Geral", url: "quimica/funcoes-inorganicas.html" },
-  { term: "NOX", path: "Conteúdo > Química > Inorgânica", url: "quimica/nox.html" },
-  { term: "Estequiometria", path: "Conteúdo > Química > Inorgânica", url: "quimica/estequiometria.html" },
-  { term: "Soluções", path: "Conteúdo > Química > Inorgânica", url: "quimica/solucoes.html" },
-  { term: "Reações Químicas", path: "Conteúdo > Química > Inorgânica", url: "quimica/reacoes.html" },
-  { term: "Cinética Química", path: "Conteúdo > Química > Inorgânica", url: "quimica/cinetica.html" },
-  { term: "Orgânica", path: "Conteúdo > Química > Orgânica", url: "quimica/organica.html" },
-  { term: "Eletroquímica", path: "Conteúdo > Química > Orgânica", url: "quimica/eletroquimica.html" },
-  { term: "Termoquímica", path: "Conteúdo > Química > Orgânica", url: "quimica/termoquimica.html" },
-  { term: "Radioatividade", path: "Conteúdo > Química > Orgânica", url: "quimica/radioatividade.html" },
-  { term: "Polímeros", path: "Conteúdo > Química > Orgânica", url: "quimica/polimeros.html" },
-
-  // ---------- CONTEÚDO DIDÁTICO: PROGRAMAÇÃO ----------
-  { term: "Algoritmos", path: "Conteúdo > Programação > Básica", url: "programacao/algoritmos.html" },
-  { term: "Variáveis e Tipos", path: "Conteúdo > Programação > Básica", url: "programacao/variaveis.html" },
-  { term: "Estruturas de Controle", path: "Conteúdo > Programação > Básica", url: "programacao/controle.html" },
-  { term: "Funções", path: "Conteúdo > Programação > Avançada", url: "programacao/funcoes.html" },
-  { term: "POO", path: "Conteúdo > Programação > Avançada", url: "programacao/poo.html" },
-  { term: "Recursão", path: "Conteúdo > Programação > Avançada", url: "programacao/recursao.html" },
-  { term: "HTML & CSS", path: "Conteúdo > Programação > Web", url: "programacao/html-css.html" },
-  { term: "JavaScript", path: "Conteúdo > Programação > Web", url: "programacao/javascript.html" },
-  { term: "Frameworks", path: "Conteúdo > Programação > Web", url: "programacao/frameworks.html" },
-  { term: "SQL", path: "Conteúdo > Programação > Banco de Dados", url: "programacao/sql.html" },
-  { term: "NoSQL", path: "Conteúdo > Programação > Banco de Dados", url: "programacao/nosql.html" },
-  { term: "Modelagem de Dados", path: "Conteúdo > Programação > Banco de Dados", url: "programacao/modelagem.html" },
-
-  // ---------- PÁGINAS PRINCIPAIS DAS MATÉRIAS ----------
-  { term: "Sistemas", path: "Matéria > Matemática", url: "materias/sistemas.html" },
-  { term: "Biologia", path: "Matéria > Biologia", url: "materias/biologia.html" },
-  { term: "Física", path: "Matéria > Física", url: "materias/fisica.html" },
-  { term: "Matemática", path: "Matéria > Matemática", url: "materias/matematica.html" },
-  { term: "Programação", path: "Matéria > Programação", url: "materias/programacao.html" },
-  { term: "Química", path: "Matéria > Química", url: "materias/quimica.html" }
-
+ 
 ];
 
 // 2. HTML DO CABEÇALHO
