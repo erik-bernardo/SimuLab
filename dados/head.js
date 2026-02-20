@@ -1,12 +1,6 @@
-/**
- * head.js - Versão 2.0 (Integrada com Firebase Session)
- * Responsável pelo cabeçalho, busca e controle de acesso visual.
- */
-
-// 1. ÍNDICE DE PESQUISA COMPLETO
 const SEARCH_INDEX = [
 
- // ---------- SIMULADORES: MATEMÁTICA ----------
+   // ---------- SIMULADORES: MATEMÁTICA ----------
 { term: "Sim. Cálculo de Matriz", path: "Simulador > Matemática > Simulador", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/matriz.html" },
 { term: "Sim. Análise de Funções", path: "Simulador > Matemática > Análise", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/funcoes.html" },
 { term: "Sim. Juros", path: "Simulador > Matemática > Financeira", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/juros.html" },
@@ -48,10 +42,10 @@ const SEARCH_INDEX = [
   { term: "Game Labirinto", path: "Jogos > Matemática", url: "games/labirinto.html" },
   { term: "Game Akinator", path: "Jogos > Geral", url: "games/make-your-akinator.html" },
 
- 
 ];
 
-// 2. HTML DO CABEÇALHO
+
+// 2. ESTRUTURA HTML DO CABEÇALHO 
 const headerHTML = `
     <header class="top-bar">
         <div class="logo-area">
@@ -62,144 +56,269 @@ const headerHTML = `
         
         <div class="search-wrapper">
             <div class="search-container">
-                <input type="text" class="search-input" id="globalSearchInput" placeholder="Buscar no SimuLab...">
-                <button class="search-button"><i class="fas fa-search"></i></button>
+                <input type="text" class="search-input" id="globalSearchInput" placeholder="Buscar por 'queda livre', 'matriz', 'juros' ou 'game'...">
+                <button class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
             <ul class="search-suggestions" id="searchSuggestions"></ul>
         </div>
 
         <nav class="nav-links">
-            <a href="https://erik-bernardo.github.io/SimuLab/sobre.html" class="nav-link">Sobre</a>
+            <a href="https://erik-bernardo.github.io/SimuLab/sobre.html" class="nav-link">Sobre o Projeto</a>
             <a href="https://erik-bernardo.github.io/SimuLab/recursos.html" class="nav-link">Recursos</a>
-            
-       
+            <a href="https://erik-bernardo.github.io/SimuLab/simulacoes.html" class="nav-link main-action">ACESSAR CONTEÚDO</a>
         </nav>
     </header>
-    <div style="height: 75px;"></div> `;
+`;
 
-// 3. CSS DO CABEÇALHO
+// 3. ESTILOS CSS SOMENTE DO CABEÇALHO E PESQUISA
 const headerStyles = `
+    /* ----------------------------------- */
+    /* BARRA SUPERIOR DE NAVEGAÇÃO (TOP-BAR) */
+    /* ----------------------------------- */
     .top-bar {
-        background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 0 40px; min-height: 75px; position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
-    }
-    .logo-image { max-height: 50px; }
-    
-    .search-wrapper { flex-grow: 1; max-width: 400px; margin: 0 30px; position: relative; }
-    .search-container { display: flex; border: 1px solid #ddd; border-radius: 25px; overflow: hidden; transition: 0.3s; }
-    .search-container:focus-within { border-color: #d96c2c; box-shadow: 0 0 8px rgba(217,108,44,0.2); }
-    .search-input { border: none; padding: 10px 20px; outline: none; width: 100%; font-family: inherit; }
-    .search-button { border: none; background: #d96c2c; color: white; padding: 0 20px; cursor: pointer; }
-
-    .search-suggestions { 
-        position: absolute; top: 100%; left: 0; right: 0; background: white; 
-        border-radius: 0 0 15px 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
-        list-style: none; padding: 0; margin: 0; display: none; overflow: hidden;
-    }
-    .search-suggestions li { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
-    .search-suggestions li:hover { background: #fff5f0; }
-    .suggestion-path { font-size: 11px; color: #999; display: block; }
-
-    .nav-links { display: flex; align-items: center; gap: 20px; }
-    .nav-link { text-decoration: none; color: #444; font-size: 14px; font-weight: 600; transition: 0.3s; }
-    .nav-link:hover { color: #d96c2c; }
-    .nav-link.main-action { background: #d96c2c; color: white; padding: 10px 20px; border-radius: 8px; }
-
-    .user-area-header { border-left: 1px solid #eee; padding-left: 20px; }
-    .login-btn-header { 
-        text-decoration: none; color: #d96c2c; border: 2px solid #d96c2c;
-        padding: 6px 18px; border-radius: 20px; font-weight: bold; display: flex; align-items: center; gap: 8px;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between; 
+        align-items: stretch;
+        border-bottom: 1px solid #ddd;
+        padding: 0 40px; 
+        min-height: 70px;
     }
     
-    .user-profile-header { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-    .user-info-mini { text-align: right; }
-    .u-name { display: block; font-size: 13px; font-weight: bold; color: #333; }
-    .u-role { display: block; font-size: 10px; color: #d96c2c; text-transform: uppercase; }
-    .user-avatar-mini { 
-        width: 38px; height: 38px; border-radius: 50%; background: #d96c2c; 
-        color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;
+    .logo-area {
+        display: flex;
+        align-items: center;
     }
-    .user-avatar-mini img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
+    .logo-link {
+        text-decoration: none;
+        color: #D2691E;
+        font-size: 18px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+    }
+
+    .logo-image {
+        max-height: 70px; 
+        width: auto;
+        object-fit: fill;
+    }
+    
+    /* ----------------------------------- */
+    /* ESTILOS DA BARRA DE PESQUISA E SUGESTÕES */
+    /* ----------------------------------- */
+    .search-wrapper {
+        position: relative; 
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+        max-width: 400px;
+        margin: 0 20px;
+    }
+    
+    .search-container {
+        display: flex;
+        width: 100%;
+    }
+
+    .search-input {
+        flex-grow: 1;
+        padding: 10px 15px;
+        border: 1px solid #ccc;
+        border-right: none;
+        border-radius: 5px 0 0 5px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .search-input:focus {
+        border-color: #D2691E;
+        box-shadow: 0 0 5px rgba(210, 105, 30, 0.5);
+    }
+
+    .search-button {
+        padding: 10px 15px;
+        background-color: #D2691E;
+        color: white;
+        border: 1px solid #D2691E;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .search-button:hover {
+        background-color: #c05c18;
+        border-color: #c05c18;
+    }
+    
+    /* Lista de Sugestões */
+    .search-suggestions {
+        position: absolute;
+        top: 100%; 
+        left: 0;
+        right: 0;
+        background-color: white;
+        border: 1px solid #D2691E;
+        border-top: none;
+        border-radius: 0 0 5px 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000; 
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: none; 
+    }
+    
+    .search-suggestions li {
+        padding: 10px 15px;
+        cursor: pointer;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .search-suggestions li:last-child {
+        border-bottom: none;
+    }
+
+    .search-suggestions li:hover {
+        background-color: #ffebcc; 
+        font-weight: bold;
+    }
+    
+    .suggestion-path {
+        font-size: 0.8em;
+        color: #777;
+        display: block;
+    }
+    
+    /* Links de Navegação */
+    .nav-links { display: flex; align-items: center; }
+    .nav-link { text-decoration: none; color: #555; font-size: 14px; font-weight: bold; padding: 0 15px; transition: color 0.3s, background-color 0.3s; display: flex; align-items: center; text-transform: uppercase; height: 100%; }
+    .nav-link:hover { color: #D2691E; background-color: #f0f0f0; }
+    .nav-link.main-action { background-color: #D2691E; color: white; padding: 0 20px; margin-left: 20px; }
+    .nav-link.main-action:hover { background-color: #c05c18; color: white; }
+
+
+    /* RESPONSIVIDADE BÁSICA (SOMENTE CABEÇALHO) */
     @media (max-width: 768px) {
-        .top-bar { padding: 0 15px; }
-        .search-wrapper, .nav-link:not(.main-action) { display: none; }
+        .top-bar { padding: 0 20px; flex-wrap: wrap; }
+        .search-wrapper { order: 3; width: 100%; margin: 10px 0 0 0; }
+        .search-input { border-radius: 5px; border-right: 1px solid #ccc; }
+        .search-button { border-radius: 5px; margin-left: 10px; }
+        .search-container { display: block; }
+        .search-suggestions { border-radius: 5px; width: 100%; margin-top: 50px; }
+        .nav-link { padding: 0 10px; }
     }
 `;
 
+
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. INJETAR CSS E HTML
+
+    // --- PARTE 1: INJEÇÃO DE HTML E CSS DO CABEÇALHO ---
+
+    // 1. INJETA OS ESTILOS CSS ESPECÍFICOS DO CABEÇALHO NO <head>
     const styleSheet = document.createElement("style");
     styleSheet.innerText = headerStyles;
     document.head.appendChild(styleSheet);
+    
+    // 2. INJETA O CABEÇALHO HTML NO INÍCIO DO <body>
+    // MÉTODO CORRIGIDO: Injeta o HTML diretamente como uma string no topo do body.
+    // Isso garante que os elementos existam no DOM antes de tentarmos buscá-los.
     document.body.insertAdjacentHTML('afterbegin', headerHTML);
 
-    // 2. REFERÊNCIAS
+
+    // --- PARTE 2: LÓGICA DE BUSCA E AUTOCOMPLETE ---
+    
+    // 3. REFERÊNCIAS DE ELEMENTOS (agora que foram injetados)
     const searchInput = document.getElementById('globalSearchInput');
     const suggestionsList = document.getElementById('searchSuggestions');
-    const searchButton = document.querySelector('.search-button');
-    const userArea = document.getElementById('header-user-area');
+    // Seletor mais específico para o botão de pesquisa
+    const searchButton = document.querySelector('.top-bar button.search-button'); 
+    
+    // BLOCO DE SEGURANÇA FINAL: Se qualquer elemento falhar, apenas reporta e para.
+    if (!searchInput || !searchButton || !suggestionsList) {
+        console.error("ERRO GRAVE: O cabeçalho foi injetado, mas elementos críticos de busca não foram encontrados.");
+        console.error("Verifique a ortografia dos IDs e classes no headerHTML.");
+        return; 
+    }
+    
+    // 4. FUNÇÃO PRINCIPAL DE PESQUISA
+    function performSearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        suggestionsList.style.display = 'none'; 
 
-    // 3. LÓGICA DE USUÁRIO (SESSÃO)
-    window.addEventListener("sessionUpdate", (e) => {
-        const session = e.detail;
-
-        if (session.isLoggedIn) {
-            // Define destino: Estudante ou Professor
-            const dashboardUrl = session.role === 'aluno' 
-                ? "https://erik-bernardo.github.io/SimuLab/dados/estudante.html" 
-                : "https://erik-bernardo.github.io/SimuLab/dados/painel-professor.html";
-
-            const avatarHTML = session.fotoUrl 
-                ? `<img src="${session.fotoUrl}">` 
-                : `<span>${session.nome.charAt(0).toUpperCase()}</span>`;
-
-            userArea.innerHTML = `
-                <a href="${dashboardUrl}" class="user-profile-header">
-                    <div class="user-info-mini">
-                        <span class="u-name">${session.nome.split(' ')[0]}</span>
-                        <span class="u-role">${session.turma || session.role}</span>
-                    </div>
-                    <div class="user-avatar-mini">${avatarHTML}</div>
-                </a>
-            `;
+        if (searchTerm.length > 1) {
+            const match = SEARCH_INDEX.find(item => 
+                item.term.toLowerCase().includes(searchTerm) || 
+                item.url.toLowerCase().includes(searchTerm)
+            );
+            
+            if (match) {
+                window.location.href = match.url;
+            } else {
+                alert(`Pesquisa: "${searchTerm}" não encontrou um arquivo correspondente. Redirecionando para a página de Matérias.`);
+                window.location.href = 'materias.html'; 
+            }
         } else {
-            userArea.innerHTML = `
-                <a href="https://erik-bernardo.github.io/SimuLab/dados/login.html" class="login-btn-header">
-                    <i class="fas fa-user-circle"></i> Entrar
-                </a>
-            `;
+            alert('Por favor, digite pelo menos 2 caracteres para iniciar a busca.');
         }
-    });
-
-    // 4. LÓGICA DE BUSCA
-    function handleSearch() {
-        const query = searchInput.value.toLowerCase().trim();
-        if (query.length < 2) return;
-        const match = SEARCH_INDEX.find(i => i.term.toLowerCase().includes(query));
-        if (match) window.location.href = match.url;
-        else window.location.href = "https://erik-bernardo.github.io/SimuLab/materias.html";
     }
 
+    // 5. LÓGICA DE AUTOCOMPLETE
     searchInput.addEventListener('input', () => {
-        const query = searchInput.value.toLowerCase().trim();
-        suggestionsList.innerHTML = '';
-        if (query.length > 1) {
-            const results = SEARCH_INDEX.filter(i => i.term.toLowerCase().includes(query)).slice(0, 5);
-            if (results.length > 0) {
-                results.forEach(res => {
+        const query = searchInput.value.trim().toLowerCase();
+        suggestionsList.innerHTML = ''; 
+
+        if (query.length > 1) { 
+            const filtered = SEARCH_INDEX.filter(item => 
+                item.term.toLowerCase().includes(query) || 
+                item.path.toLowerCase().includes(query) ||
+                item.url.toLowerCase().includes(query)
+            ).slice(0, 5); 
+
+            if (filtered.length > 0) {
+                filtered.forEach(item => {
                     const li = document.createElement('li');
-                    li.innerHTML = `<strong>${res.term}</strong><span class="suggestion-path">${res.path}</span>`;
-                    li.onclick = () => window.location.href = res.url;
+                    li.innerHTML = `
+                        <strong>${item.term}</strong>
+                        <span class="suggestion-path">${item.path} (Arquivo: ${item.url})</span>
+                    `;
+                    li.addEventListener('click', () => {
+                        window.location.href = item.url;
+                        searchInput.value = item.term;
+                        suggestionsList.style.display = 'none';
+                    });
                     suggestionsList.appendChild(li);
                 });
                 suggestionsList.style.display = 'block';
-            } else { suggestionsList.style.display = 'none'; }
-        } else { suggestionsList.style.display = 'none'; }
+            } else {
+                suggestionsList.style.display = 'none';
+            }
+        } else {
+            suggestionsList.style.display = 'none';
+        }
     });
 
-    searchButton.onclick = handleSearch;
-    searchInput.onkeypress = (e) => { if(e.key === 'Enter') handleSearch(); };
-    document.onclick = (e) => { if (!e.target.closest('.search-wrapper')) suggestionsList.style.display = 'none'; };
-});
+    // 6. ATRIBUIÇÃO DOS EVENTOS
+    searchButton.addEventListener('click', performSearch);
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
+
+    // 7. Ocultar sugestões quando o usuário clica fora
+    document.addEventListener('click', (e) => {
+        const searchWrapper = document.querySelector('.search-wrapper');
+        if (searchWrapper && !searchWrapper.contains(e.target)) {
+            suggestionsList.style.display = 'none';
+        }
+    });
