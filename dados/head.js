@@ -322,3 +322,4 @@ document.addEventListener('DOMContentLoaded', () => {
             suggestionsList.style.display = 'none';
         }
     });
+    });
