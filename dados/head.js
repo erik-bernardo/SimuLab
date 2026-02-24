@@ -43,21 +43,14 @@ const SEARCH_INDEX = [
   { term: "Game Flappy Blocks", path: "Jogos > Física", url: "games/flappy-blocks/index.html" },
   { term: "Game Labirinto", path: "Jogos > Matemática", url: "games/labirinto.html" },
   { term: "Game Akinator", path: "Jogos > Geral", url: "games/make-your-akinator.html" },
-  { term: "Voa-Palavra: Sinônimos Perfeitos
-", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/flappy-words/index.html" },
+  { term: "Voa-Palavra: Sinônimos Perfeitos", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/flappy-words/index.html" },
      { term: "Cobras Escadas", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/escada/index.html" },
-{ term: "Porques Blast
-", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/porque-blast/index.html" },
-  { term: "Acentos Runner
-", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/acentos/index.html" },
-  { term: "Português Social
-", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/portugues-social/index.html" },
-  { term: "Frase Oração e Periodo
-", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/frases.html" },
-  { term: "The seer
-", path: "Jogos > Inglês", url: "https://erik-bernardo.github.io/SimuLab/games/seer/index.html" },
-  { term: "Who is the owner?
-", path: "Jogos > Inglês", url: "https://erik-bernardo.github.io/SimuLab/games/owner/index.html" },
+{ term: "Porques Blast", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/porque-blast/index.html" },
+  { term: "Acentos Runner", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/acentos/index.html" },
+  { term: "Português Social", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/portugues-social/index.html" },
+  { term: "Frase Oração e Periodo", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/frases.html" },
+  { term: "The seer", path: "Jogos > Inglês", url: "https://erik-bernardo.github.io/SimuLab/games/seer/index.html" },
+  { term: "Who is the owner?", path: "Jogos > Inglês", url: "https://erik-bernardo.github.io/SimuLab/games/owner/index.html" },
   { term: "", path: "Jogos > ", url: "" },
 
    
