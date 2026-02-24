@@ -248,28 +248,21 @@ document.addEventListener('DOMContentLoaded', () => {
     styleSheet.innerText = headerStyles;
     document.head.appendChild(styleSheet);
     
-    // 2. INJETA O CABEÇALHO HTML NO INÍCIO DO <body>
-    // MÉTODO CORRIGIDO: Injeta o HTML diretamente como uma string no topo do body.
-    // Isso garante que os elementos existam no DOM antes de tentarmos buscá-los.
     document.body.insertAdjacentHTML('afterbegin', headerHTML);
 
 
-    // --- PARTE 2: LÓGICA DE BUSCA E AUTOCOMPLETE ---
     
-    // 3. REFERÊNCIAS DE ELEMENTOS (agora que foram injetados)
     const searchInput = document.getElementById('globalSearchInput');
     const suggestionsList = document.getElementById('searchSuggestions');
     // Seletor mais específico para o botão de pesquisa
     const searchButton = document.querySelector('.top-bar button.search-button'); 
     
-    // BLOCO DE SEGURANÇA FINAL: Se qualquer elemento falhar, apenas reporta e para.
     if (!searchInput || !searchButton || !suggestionsList) {
         console.error("ERRO GRAVE: O cabeçalho foi injetado, mas elementos críticos de busca não foram encontrados.");
         console.error("Verifique a ortografia dos IDs e classes no headerHTML.");
         return; 
     }
     
-    // 4. FUNÇÃO PRINCIPAL DE PESQUISA
     function performSearch() {
         const searchTerm = searchInput.value.trim().toLowerCase();
         suggestionsList.style.display = 'none'; 
@@ -284,14 +277,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = match.url;
             } else {
                 alert(`Pesquisa: "${searchTerm}" não encontrou um arquivo correspondente. Redirecionando para a página de Matérias.`);
-                window.location.href = 'materias.html'; 
+                window.location.href = 'https://erik-bernardo.github.io/SimuLab/simulacoes.html'; 
             }
         } else {
             alert('Por favor, digite pelo menos 2 caracteres para iniciar a busca.');
         }
     }
 
-    // 5. LÓGICA DE AUTOCOMPLETE
     searchInput.addEventListener('input', () => {
         const query = searchInput.value.trim().toLowerCase();
         suggestionsList.innerHTML = ''; 
