@@ -1,3 +1,6 @@
+    <link rel="icon" type="image/png" href="logo-icon.png">
+
+
 const SEARCH_INDEX = [
 
    // ---------- SIMULADORES: MATEMÁTICA ----------
