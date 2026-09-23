@@ -1,4 +1,3 @@
-    <link rel="icon" type="image/png" href="logo-icon.png">
 
 
 const SEARCH_INDEX = [
@@ -83,6 +82,7 @@ const headerHTML = `
             <a href="https://erik-bernardo.github.io/SimuLab/sobre.html" class="nav-link">Sobre o Projeto</a>
             <a href="https://erik-bernardo.github.io/SimuLab/recursos.html" class="nav-link">Recursos</a>
             <a href="https://erik-bernardo.github.io/SimuLab/simulacoes.html" class="nav-link main-action">ACESSAR CONTEÚDO</a>
+                <link rel="icon" type="image/png" href="logo-icon.png">
         </nav>
     </header>
 `;
