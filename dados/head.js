@@ -1,5 +1,3 @@
-
-
 const SEARCH_INDEX = [
 
    // ---------- SIMULADORES: MATEMÁTICA ----------
