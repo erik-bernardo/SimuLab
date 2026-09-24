@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Página do Jogo</title>
+  <style>
+    /* Reprodução do design da imagem enviada */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #c35515; /* Cor de fundo laranja/castanho das laterais */
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    /* Cartão branco centralizado */
+    .container {
+      background-color: #ffffff;
+      width: 100%;
+      max-width: 900px;
+      padding: 40px;
+      box-sizing: border-box;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    /* ÁREA DO JOGO (Retângulo Preto) */
+    .screen-area {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9; /* Mantém a proporção de tela de jogo */
+      background-color: #000000;
+      margin-bottom: 30px;
+    }
+
+    /* Frame que carrega o jogo HTML5 */
+    .screen-area iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Ícone de Tela Cheia no canto inferior direito */
+    .fullscreen-btn {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 2px solid #666;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .fullscreen-btn:hover {
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Título do Jogo */
+    h1 {
+      font-size: 42px;
+      font-weight: bold;
+      margin: 0 0 15px 0;
+      color: #000000;
+    }
+
+    /* Texto de Descrição */
+    p {
+      font-size: 18px;
+      line-height: 1.5;
+      color: #000000;
+      margin: 0;
+      white-space: pre-line; /* Mantém as quebras de linha digitadas no formulário */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Área do jogo HTML5 -->
+    <div class="screen-area">
+      <iframe id="gameFrame" src="about:blank" allowfullscreen></iframe>
+      <button class="fullscreen-btn" id="btnFullscreen" title="Tela Cheia">
+        <!-- Ícone similar ao da imagem fornecida -->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Título dinâmico -->
+    <h1 id="gameTitle">A carregar...</h1>
+
+    <!-- Descrição dinâmica -->
+    <p id="gameDescription">A carregar informações do jogo...</p>
+  </div>
+
+  <!-- Importando o Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // ⚠️ ATENÇÃO: Substitua pelos mesmos dados do seu Firebase Config
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_PROJECT_ID.firebaseapp.com",
+      projectId: "SEU_PROJECT_ID",
+      storageBucket: "SEU_PROJECT_ID.appspot.com",
+      messagingSenderId: "SEU_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Função para ler o parâmetro ID da URL (ex: jogo.html?id=ABC12345)
+    function getGameId() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('id');
+    }
+
+    // Busca os dados na base de dados e atualiza a página
+    async function loadGameData() {
+      const gameId = getGameId();
+
+      if (!gameId) {
+        document.getElementById('gameTitle').textContent = "Jogo não encontrado!";
+        document.getElementById('gameDescription').textContent = "Nenhum ID de jogo foi fornecido na URL.";
+        return;
+      }
+
+      try {
+        const docRef = doc(db, "jogos", gameId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+
+          // Atualiza os elementos HTML com as informações do Firebase
+          document.getElementById('gameTitle').textContent = data.titulo;
+          document.getElementById('gameDescription').textContent = data.descricao;
+          document.getElementById('gameFrame').src = data.urlJogo;
+          document.title = data.titulo; // Atualiza o título da aba
+        } else {
+          document.getElementById('gameTitle').textContent = "Jogo não encontrado!";
+          document.getElementById('gameDescription').textContent = "O jogo solicitado não existe no banco de dados.";
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados do jogo:", error);
+      }
+    }
+
+    // Funcionalidade do Botão de Tela Cheia
+    document.getElementById('btnFullscreen').addEventListener('click', () => {
+      const iframe = document.getElementById('gameFrame');
+      if (iframe.requestFullscreen) {
+        iframe.requestFullscreen();
+      } else if (iframe.webkitRequestFullscreen) { /* Safari */
+        iframe.webkitRequestFullscreen();
+      }
+    });
+
+    // Executa a busca assim que a página carrega
+    loadGameData();
+  </script>
+</body>
+</html>
