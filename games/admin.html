@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>CMS - Cadastrar Novo Jogo</title>
+  <style>
+    /* Estilização básica do formulário de administração */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
+    .form-container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+    h2 { margin-top: 0; color: #333; }
+    .field { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #d35400;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+    button:hover { background-color: #a04000; }
+    #status { margin-top: 15px; font-weight: bold; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>Painel CMS - Publicar Jogo</h2>
+    
+    <div class="field">
+      <label for="titulo">Nome do Jogo:</label>
+      <input type="text" id="titulo" placeholder="Ex: Aventura Espacial">
+    </div>
+
+    <div class="field">
+      <label for="urlJogo">URL do Jogo HTML5 (Link do iframe):</label>
+      <input type="url" id="urlJogo" placeholder="https://exemplo.com/meu-jogo/index.html">
+    </div>
+
+    <div class="field">
+      <label for="descricao">Descrição do Jogo:</label>
+      <textarea id="descricao" rows="5" placeholder="Escreva sobre o jogo..."></textarea>
+    </div>
+
+    <button id="btnPublicar">Publicar Jogo</button>
+    <div id="status"></div>
+  </div>
+
+  <!-- Importando o Firebase SDK (Versão Web Modular) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // ⚠️ ATENÇÃO: Substitua os dados abaixo pelas suas credenciais do Firebase Console
+    const firebaseConfig = {
+  apiKey: "AIzaSyBZudqE1WaCjueB2ySnpnvSVEweh1cOXoA",
+  authDomain: "simulab-e0810.firebaseapp.com",
+  projectId: "simulab-e0810",
+  storageBucket: "simulab-e0810.firebasestorage.app",
+  messagingSenderId: "548341439779",
+  appId: "1:548341439779:web:63ca1f3bbf95cd0c490096",
+  measurementId: "G-R339F57HZG"
+};
+    // Inicializa o Firebase e a base de dados Firestore
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Evento de clique no botão de publicar
+    document.getElementById('btnPublicar').addEventListener('click', async () => {
+      const titulo = document.getElementById('titulo').value.trim();
+      const urlJogo = document.getElementById('urlJogo').value.trim();
+      const descricao = document.getElementById('descricao').value.trim();
+      const status = document.getElementById('status');
+
+      if (!titulo || !urlJogo || !descricao) {
+        status.style.color = 'red';
+        status.textContent = 'Por favor, preencha todos os campos!';
+        return;
+      }
+
+      status.style.color = 'blue';
+      status.textContent = 'A publicar jogo...';
+
+      try {
+        // Envia os dados para a coleção 'jogos' no Firestore
+        const docRef = await addDoc(collection(db, "jogos"), {
+          titulo: titulo,
+          urlJogo: urlJogo,
+          descricao: descricao,
+          criadoEm: new Date()
+        });
+
+        status.style.color = 'green';
+        status.innerHTML = `Jogo publicado com sucesso!<br>ID do jogo: <b>${docRef.id}</b>`;
+        
+        // Limpa o formulário
+        document.getElementById('titulo').value = '';
+        document.getElementById('urlJogo').value = '';
+        document.getElementById('descricao').value = '';
+
+      } catch (error) {
+        console.error("Erro ao salvar no Firebase:", error);
+        status.style.color = 'red';
+        status.textContent = 'Erro ao salvar o jogo. Verifique o console.';
+      }
+    });
+  </script>
+</body>
+</html>
