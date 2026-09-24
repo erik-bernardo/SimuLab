@@ -2,33 +2,33 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>CMS - Cadastrar Novo Jogo</title>
+  <title>Gerador de Páginas de Jogos</title>
   <style>
-    /* Estilização básica do formulário de administração */
+    /* Estilização do painel administrativo */
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f9;
-      display: flex;
-      justify-content: center;
-      padding: 40px;
-    }
-    .form-container {
-      background: white;
       padding: 30px;
+      margin: 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: white;
+      padding: 25px;
       border-radius: 8px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 500px;
     }
     h2 { margin-top: 0; color: #333; }
-    .field { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    .field { margin-bottom: 18px; }
+    label { display: block; margin-bottom: 6px; font-weight: bold; }
     input, textarea {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 4px;
       box-sizing: border-box;
+      font-size: 14px;
     }
     button {
       background-color: #d35400;
@@ -38,16 +38,36 @@
       border-radius: 4px;
       cursor: pointer;
       font-size: 16px;
+      font-weight: bold;
       width: 100%;
     }
     button:hover { background-color: #a04000; }
-    #status { margin-top: 15px; font-weight: bold; text-align: center; }
+    
+    .output-area {
+      margin-top: 25px;
+      display: none;
+    }
+    textarea#codigoGerado {
+      font-family: monospace;
+      background-color: #272822;
+      color: #f8f8f2;
+      height: 220px;
+      width: 100%;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+    .btn-copy {
+      background-color: #27ae60;
+      margin-top: 10px;
+    }
+    .btn-copy:hover { background-color: #1e8449; }
   </style>
 </head>
 <body>
 
-  <div class="form-container">
-    <h2>Painel CMS - Publicar Jogo</h2>
+  <div class="container">
+    <h2>Painel do Parceiro - Gerar Nova Página</h2>
+    <p>Preencha os campos para gerar o código HTML com o jogo ajustado na tela preta.</p>
     
     <div class="field">
       <label for="titulo">Nome do Jogo:</label>
@@ -61,71 +81,148 @@
 
     <div class="field">
       <label for="descricao">Descrição do Jogo:</label>
-      <textarea id="descricao" rows="5" placeholder="Escreva sobre o jogo..."></textarea>
+      <textarea id="descricao" rows="4" placeholder="Escreva a descrição do jogo aqui..."></textarea>
     </div>
 
-    <button id="btnPublicar">Publicar Jogo</button>
-    <div id="status"></div>
+    <button onclick="gerarCodigoHTML()">Gerar Código da Página</button>
+
+    <div class="output-area" id="outputArea">
+      <h3>Código Gerado com Sucesso!</h3>
+      <p>Copie o código abaixo e cole no seu ficheiro <b>.html</b>:</p>
+      <textarea id="codigoGerado" readonly></textarea>
+      <button class="btn-copy" onclick="copiarCodigo()">Copiar Código</button>
+    </div>
   </div>
 
-  <!-- Importando o Firebase SDK (Versão Web Modular) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    // ⚠️ ATENÇÃO: Substitua os dados abaixo pelas suas credenciais do Firebase Console
-    const firebaseConfig = {
-  apiKey: "AIzaSyBZudqE1WaCjueB2ySnpnvSVEweh1cOXoA",
-  authDomain: "simulab-e0810.firebaseapp.com",
-  projectId: "simulab-e0810",
-  storageBucket: "simulab-e0810.firebasestorage.app",
-  messagingSenderId: "548341439779",
-  appId: "1:548341439779:web:63ca1f3bbf95cd0c490096",
-  measurementId: "G-R339F57HZG"
-};
-    // Inicializa o Firebase e a base de dados Firestore
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Evento de clique no botão de publicar
-    document.getElementById('btnPublicar').addEventListener('click', async () => {
+  <script>
+    function gerarCodigoHTML() {
       const titulo = document.getElementById('titulo').value.trim();
       const urlJogo = document.getElementById('urlJogo').value.trim();
       const descricao = document.getElementById('descricao').value.trim();
-      const status = document.getElementById('status');
 
       if (!titulo || !urlJogo || !descricao) {
-        status.style.color = 'red';
-        status.textContent = 'Por favor, preencha todos os campos!';
+        alert('Por favor, preencha todos os campos!');
         return;
       }
 
-      status.style.color = 'blue';
-      status.textContent = 'A publicar jogo...';
+      // Modelo HTML atualizado com ajustes CSS de preenchimento de tela
+      const templateHTML = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>${titulo}</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #c35515;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      background-color: #ffffff;
+      width: 100%;
+      max-width: 900px;
+      padding: 40px;
+      box-sizing: border-box;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+    
+    /* Moldura preta do jogo com proporção e encaixe perfeito */
+    .screen-area {
+      position: relative;
+      width: 100%;
+      height: 480px; /* Altura fixa garantida para o jogo */
+      background-color: #000000;
+      margin-bottom: 30px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    /* Configuração para o iframe preencher 100% do espaço */
+    .screen-area iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+    
+    .fullscreen-btn {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border: 1px solid #666;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    .fullscreen-btn:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    h1 {
+      font-size: 42px;
+      font-weight: bold;
+      margin: 0 0 15px 0;
+      color: #000000;
+    }
+    p {
+      font-size: 18px;
+      line-height: 1.5;
+      color: #000000;
+      margin: 0;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
 
-      try {
-        // Envia os dados para a coleção 'jogos' no Firestore
-        const docRef = await addDoc(collection(db, "jogos"), {
-          titulo: titulo,
-          urlJogo: urlJogo,
-          descricao: descricao,
-          criadoEm: new Date()
-        });
+  <div class="container">
+    <div class="screen-area" id="gameContainer">
+      <iframe id="gameFrame" src="${urlJogo}" allowfullscreen></iframe>
+      <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Tela Cheia">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+        </svg>
+      </button>
+    </div>
 
-        status.style.color = 'green';
-        status.innerHTML = `Jogo publicado com sucesso!<br>ID do jogo: <b>${docRef.id}</b>`;
-        
-        // Limpa o formulário
-        document.getElementById('titulo').value = '';
-        document.getElementById('urlJogo').value = '';
-        document.getElementById('descricao').value = '';
+    <h1>${titulo}</h1>
+    <p>${descricao}</p>
+  </div>
 
-      } catch (error) {
-        console.error("Erro ao salvar no Firebase:", error);
-        status.style.color = 'red';
-        status.textContent = 'Erro ao salvar o jogo. Verifique o console.';
+  <script>
+    function toggleFullscreen() {
+      const container = document.getElementById('gameContainer');
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if (container.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen();
       }
-    });
+    }
+  <\/script>
+</body>
+</html>`;
+
+      document.getElementById('codigoGerado').value = templateHTML;
+      document.getElementById('outputArea').style.display = 'block';
+    }
+
+    function copiarCodigo() {
+      const codigoInput = document.getElementById('codigoGerado');
+      codigoInput.select();
+      document.execCommand('copy');
+      alert('Código copiado com sucesso!');
+    }
   </script>
 </body>
 </html>
