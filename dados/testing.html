@@ -23,71 +23,54 @@
 
   <script>
     async function buscarSimulador(perguntaDoUsuario) {
-      // ⚠️ Cole aqui a sua nova chave gerada no Groq Console
-      const apiKey = "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"; 
+      // ⚠️ Cole a sua NOVA chave criada no Groq (Substitua o texto entre aspas)
+      const apiKey = "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"; 
 
-      // URL da Groq encapsulada com corsproxy.io para permitir rodar em arquivos locais (file:///)
+      // Chamada direta à API da Groq
       const urlGroq = "https://api.groq.com/openai/v1/chat/completions";
-      const urlComProxy = "https://corsproxy.io/?" + encodeURIComponent(urlGroq);
 
       try {
-    async function buscarSimulador(perguntaDoUsuario) {
-  const apiKey = "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"; 
-
-  try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
-        messages: [
-          {
-            role: "system",
-            content: `Você é o assistente virtual do SimuLab (https://erik-bernardo.github.io/SimuLab/). 
-            Sua única função é indicar os simuladores disponíveis no site.
-
-            CATÁLOGO DE SIMULADORES DISPONÍVEIS:
-            - Página de Simulações: Link: https://erik-bernardo.github.io/SimuLab/simulacoes.html
-            - Página Inicial: Link: https://erik-bernardo.github.io/SimuLab/index.html
-
-            REGRAS DE RESPOSTA:
-            1. Responda em português de forma amigável e direta (máximo 2 ou 3 frases).
-            2. Sempre formate os links em HTML clicável assim: <a href="URL" target="_blank">Nome do Simulador</a>.
-            3. Se o usuário pedir algo que não existe no SimuLab, diga educadamente que ainda não temos esse simulador.`
+        const response = await fetch(urlGroq, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
           },
-          {
-            role: "user",
-            content: perguntaDoUsuario
-          }
-        ]
-      })
-    });
+          body: JSON.stringify({
+            model: "llama-3.1-8b-instant",
+            messages: [
+              {
+                role: "system",
+                content: `Você é o assistente virtual do SimuLab (https://erik-bernardo.github.io/SimuLab/). 
+                Sua única função é indicar os simuladores disponíveis no site.
 
-    const dados = await response.json();
+                CATÁLOGO DE SIMULADORES DISPONÍVEIS:
+                - Página de Simulações: Link: https://erik-bernardo.github.io/SimuLab/simulacoes.html
+                - Página Inicial: Link: https://erik-bernardo.github.io/SimuLab/index.html
 
-    if (dados.error) {
-      return "Erro na API: " + dados.error.message;
-    }
+                REGRAS DE RESPOSTA:
+                1. Responda em português de forma amigável e direta (máximo 2 ou 3 frases).
+                2. Sempre formate os links em HTML clicável assim: <a href="URL" target="_blank">Nome do Simulador</a>.
+                3. Se o usuário pedir algo que não existe no SimuLab, diga educadamente que ainda não temos esse simulador.`
+              },
+              {
+                role: "user",
+                content: perguntaDoUsuario
+              }
+            ]
+          })
+        });
 
-    return dados.choices[0]?.message?.content || "Erro ao obter resposta da IA.";
-  } catch (erro) {
-    console.error(erro);
-    return "Erro de conexão: " + erro.message;
-  }
-}
         const dados = await response.json();
 
-        // Tratamento de erros vindo diretamente da API
+        // Se a API retornar algum erro de chave ou limite
         if (dados.error) {
           return "Erro na API da Groq: " + dados.error.message;
         }
 
         return dados.choices[0]?.message?.content || "Erro ao obter resposta da IA.";
       } catch (erro) {
-        console.error(erro);
+        console.error("Erro detalhado:", erro);
         return "Erro de conexão: " + erro.message;
       }
     }
