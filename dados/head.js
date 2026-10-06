@@ -1,39 +1,39 @@
 const SEARCH_INDEX = [
 
    // ---------- SIMULADORES: MATEMÁTICA ----------
-{ term: "Sim. Cálculo de Matriz", path: "Simulador > Matemática > Simulador", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/matriz.html" },
-{ term: "Sim. Análise de Funções", path: "Simulador > Matemática > Análise", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/funcoes.html" },
-{ term: "Sim. Juros", path: "Simulador > Matemática > Financeira", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/juros.html" },
-{ term: "Sim. Custo e Venda", path: "Simulador > Matemática > Financeira", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/custo_venda.html" },
-{ term: "Sim. Porcentagem", path: "Simulador > Matemática > Fundamentos", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/porcentagem.html" },
-{ term: "Sim. Probabilidade", path: "Simulador > Matemática > Estatística", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/probabilidade.html" },
-{ term: "Sim. Análise Combinatória", path: "Simulador > Matemática > Análise", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/combinatoria.html" },
-{ term: "Sim. Sequências Numéricas", path: "Simulador > Matemática > Álgebra", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/sequencias_numericas.html" },
-{ term: "Sim. Conjuntos Numéricos", path: "Simulador > Matemática > Fundamentos", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/conjuntos_numericos.html" },
-{ term: "Sim. Geometria Plana", path: "Simulador > Matemática > Geometria", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/geometria_plana.html" },
-{ term: "Sim. Arcos e Ângulos", path: "Simulador > Matemática > Trigonometria", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/arcos_angulos.html" },
-{ term: "Sim. Sistema Linear", path: "Simulador > Matemática > Sistemas", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/sistem-linear.html" },
+{ term: "Sim. Cálculo de Matriz", path: "Simulador > Matemática > Simulador", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/matriz.html" },
+{ term: "Sim. Análise de Funções", path: "Simulador > Matemática > Análise", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/funcoes.html" },
+{ term: "Sim. Juros", path: "Simulador > Matemática > Financeira", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/juros.html" },
+{ term: "Sim. Custo e Venda", path: "Simulador > Matemática > Financeira", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/custo_venda.html" },
+{ term: "Sim. Porcentagem", path: "Simulador > Matemática > Fundamentos", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/porcentagem.html" },
+{ term: "Sim. Probabilidade", path: "Simulador > Matemática > Estatística", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/probabilidade.html" },
+{ term: "Sim. Análise Combinatória", path: "Simulador > Matemática > Análise", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/combinatoria.html" },
+{ term: "Sim. Sequências Numéricas", path: "Simulador > Matemática > Álgebra", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/sequencias_numericas.html" },
+{ term: "Sim. Conjuntos Numéricos", path: "Simulador > Matemática > Fundamentos", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/conjuntos_numericos.html" },
+{ term: "Sim. Geometria Plana", path: "Simulador > Matemática > Geometria", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/geometria_plana.html" },
+{ term: "Sim. Arcos e Ângulos", path: "Simulador > Matemática > Trigonometria", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/arcos_angulos.html" },
+{ term: "Sim. Sistema Linear", path: "Simulador > Matemática > Sistemas", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/sistem-linear.html" },
 
 // ---------- SIMULADORES: FÍSICA ----------
-{ term: "Sim. Queda Livre", path: "Simulador > Física > Cinemática", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/queda_livre.html" },
-{ term: "Sim. MRU/MRUV", path: "Simulador > Física > Cinemática", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/mru.html" },
-{ term: "Sim. Gravitação Universal", path: "Simulador > Física > Mecânica", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/gravitacao_universal.html" },
-{ term: "Sim. Conservação de Energia", path: "Simulador > Física > Mecânica", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/energia.html" },
-{ term: "Sim. Hidrostática", path: "Simulador > Física > Mecânica", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/hidrostatica.html" },
-{ term: "Sim. Ondas", path: "Simulador > Física > Ondulatória", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/ondas.html" },
-{ term: "Sim. Calorimetria", path: "Simulador > Física > Termologia", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/calorimetria.html" },
-{ term: "Sim. Dilatação Térmica", path: "Simulador > Física > Termologia", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/dilatacao_termica.html" },
-{ term: "Sim. Escalas Termométricas", path: "Simulador > Física > Termologia", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/escalas_termometricas.html" },
+{ term: "Sim. Queda Livre", path: "Simulador > Física > Cinemática", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/queda_livre.html" },
+{ term: "Sim. MRU/MRUV", path: "Simulador > Física > Cinemática", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/mru.html" },
+{ term: "Sim. Gravitação Universal", path: "Simulador > Física > Mecânica", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/gravitacao_universal.html" },
+{ term: "Sim. Conservação de Energia", path: "Simulador > Física > Mecânica", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/energia.html" },
+{ term: "Sim. Hidrostática", path: "Simulador > Física > Mecânica", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/hidrostatica.html" },
+{ term: "Sim. Ondas", path: "Simulador > Física > Ondulatória", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/ondas.html" },
+{ term: "Sim. Calorimetria", path: "Simulador > Física > Termologia", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/calorimetria.html" },
+{ term: "Sim. Dilatação Térmica", path: "Simulador > Física > Termologia", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/dilatacao_termica.html" },
+{ term: "Sim. Escalas Termométricas", path: "Simulador > Física > Termologia", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/escalas_termometricas.html" },
 
 // ---------- SIMULADORES: QUÍMICA ----------
-{ term: "Sim. Tabela Periódica", path: "Simulador > Química > Geral", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/tabela_periodica.html" },
-{ term: "Sim. Ligações Químicas", path: "Simulador > Química > Geral", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/ligacoes.html" },
-{ term: "Sim. Reações Químicas", path: "Simulador > Química > Geral", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/reacoes.html" },
-{ term: "Sim. Ácidos e Bases", path: "Simulador > Química > Inorgânica", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/acidos_bases.html" },
-{ term: "Sim. NOX (Nº Oxidação)", path: "Simulador > Química > RedOx", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/nox.html" },
-{ term: "Sim. Estequiometria", path: "Simulador > Química > Cálculos", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/estequiometria.html" },
-{ term: "Sim. Soluções", path: "Simulador > Química > Físico-Química", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/solucoes.html" },
-{ term: "Sim.Eletroquimica", path: "Simulador > Química > Físico-Química", url: "https://erik-bernardo.github.io/SimuLab/simulacoes/eletroquimica.html" },
+{ term: "Sim. Tabela Periódica", path: "Simulador > Química > Geral", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/tabela_periodica.html" },
+{ term: "Sim. Ligações Químicas", path: "Simulador > Química > Geral", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/ligacoes.html" },
+{ term: "Sim. Reações Químicas", path: "Simulador > Química > Geral", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/reacoes.html" },
+{ term: "Sim. Ácidos e Bases", path: "Simulador > Química > Inorgânica", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/acidos_bases.html" },
+{ term: "Sim. NOX (Nº Oxidação)", path: "Simulador > Química > RedOx", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/nox.html" },
+{ term: "Sim. Estequiometria", path: "Simulador > Química > Cálculos", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/estequiometria.html" },
+{ term: "Sim. Soluções", path: "Simulador > Química > Físico-Química", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/solucoes.html" },
+{ term: "Sim.Eletroquimica", path: "Simulador > Química > Físico-Química", url: "https://erik-bernardo.github.io/SimuLabb/simulacoes/eletroquimica.html" },
 
    
   // ---------- SIMULADOR: PROGRAMAÇÃO ----------
@@ -43,14 +43,14 @@ const SEARCH_INDEX = [
   { term: "Game Flappy Blocks", path: "Jogos > Física", url: "games/flappy-blocks/index.html" },
   { term: "Game Labirinto", path: "Jogos > Matemática", url: "games/labirinto.html" },
   { term: "Game Akinator", path: "Jogos > Geral", url: "games/make-your-akinator.html" },
-  { term: "Voa-Palavra: Sinônimos Perfeitos", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/flappy-words/index.html" },
-  { term: "Cobras Escadas", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/escada/index.html" },
-  { term: "Porques Blast", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/porque-blast/index.html" },
-  { term: "Acentos Runner", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/acentos/index.html" },
-  { term: "Português Social", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/portugues-social/index.html" },
-  { term: "Frase Oração e Periodo", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLab/games/frases.html" },
-  { term: "The seer", path: "Jogos > Inglês", url: "https://erik-bernardo.github.io/SimuLab/games/seer/index.html" },
-  { term: "Who is the owner?", path: "Jogos > Inglês", url: "https://erik-bernardo.github.io/SimuLab/games/owner/index.html" },
+  { term: "Voa-Palavra: Sinônimos Perfeitos", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLabb/games/flappy-words/index.html" },
+  { term: "Cobras Escadas", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLabb/games/escada/index.html" },
+  { term: "Porques Blast", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLabb/games/porque-blast/index.html" },
+  { term: "Acentos Runner", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLabb/games/acentos/index.html" },
+  { term: "Português Social", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLabb/games/portugues-social/index.html" },
+  { term: "Frase Oração e Periodo", path: "Jogos > Português", url: "https://erik-bernardo.github.io/SimuLabb/games/frases.html" },
+  { term: "The seer", path: "Jogos > Inglês", url: "https://erik-bernardo.github.io/SimuLabb/games/seer/index.html" },
+  { term: "Who is the owner?", path: "Jogos > Inglês", url: "https://erik-bernardo.github.io/SimuLabb/games/owner/index.html" },
   { term: "", path: "Jogos > ", url: "" },
 
    
@@ -62,7 +62,7 @@ const headerHTML = `
     <header class="top-bar">
         <div class="logo-area">
             <a href="https://erik-bernardo.github.io/SimuLab/index.html" class="logo-link">
-                <img src="https://erik-bernardo.github.io/SimuLab/dados/simulab_banner.png" alt="SimuLab Logo" class="logo-image">
+                <img src="https://erik-bernardo.github.io/SimuLabb/dados/simulab_banner.png" alt="SimuLab Logo" class="logo-image">
             </a>
         </div>
         
@@ -77,9 +77,9 @@ const headerHTML = `
         </div>
 
         <nav class="nav-links">
-            <a href="https://erik-bernardo.github.io/SimuLab/sobre.html" class="nav-link">Sobre o Projeto</a>
-            <a href="https://erik-bernardo.github.io/SimuLab/recursos.html" class="nav-link">Recursos</a>
-            <a href="https://erik-bernardo.github.io/SimuLab/simulacoes.html" class="nav-link main-action">ACESSAR CONTEÚDO</a>
+            <a href="https://erik-bernardo.github.io/SimuLabb/sobre.html" class="nav-link">Sobre o Projeto</a>
+            <a href="https://erik-bernardo.github.io/SimuLabb/recursos.html" class="nav-link">Recursos</a>
+            <a href="https://erik-bernardo.github.io/SimuLabb/simulacoes.html" class="nav-link main-action">ACESSAR CONTEÚDO</a>
         </nav>
     </header>
 `;
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = match.url;
             } else {
                 alert(`Pesquisa: "${searchTerm}" não encontrou um arquivo correspondente. Redirecionando para a página de Matérias.`);
-                window.location.href = 'https://erik-bernardo.github.io/SimuLab/simulacoes.html'; 
+                window.location.href = 'https://erik-bernardo.github.io/SimuLabb/simulacoes.html'; 
             }
         } else {
             alert('Por favor, digite pelo menos 2 caracteres para iniciar a busca.');
