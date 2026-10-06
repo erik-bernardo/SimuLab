@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Visual de Limites</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --bg-light: #f8f9fa;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-light);
+            color: var(--secondary-color);
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .input-field {
+            display: flex;
+            flex-direction: column;
+        }
+        label { font-weight: 600; margin-bottom: 5px; font-size: 0.9rem;}
+        input {
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        input:focus { border-color: var(--primary-color); outline: none; }
+        button {
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            align-self: flex-end;
+        }
+        button:hover { background-color: #2980b9; }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+
+        .tables-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .table-box {
+            flex: 1;
+            min-width: 300px;
+        }
+        .table-header-left { background-color: #d4e6f1; color: var(--secondary-color); padding: 10px; border-radius: 6px 6px 0 0; text-align: center; font-weight: bold;}
+        .table-header-right { background-color: #fadbd8; color: var(--secondary-color); padding: 10px; border-radius: 6px 6px 0 0; text-align: center; font-weight: bold;}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        th { background-color: #f8f9fa; }
+        tr:last-child td { border-bottom: none; font-weight: bold; background-color: #fffbf0;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Simulador Visual de Limites</h1>
+    <p class="subtitle">Entenda como a função se comporta ao se aproximar infinitamente de um ponto.</p>
+
+    <div class="input-group">
+        <div class="input-field">
+            <label for="functionInput">Função f(x):</label>
+            <input type="text" id="functionInput" value="(x^2 - 4) / (x - 2)" placeholder="Ex: x^2 + 1">
+        </div>
+        <div class="input-field">
+            <label for="pointInput">Ponto de aproximação (a):</label>
+            <input type="number" id="pointInput" value="2" step="any">
+        </div>
+        <button onclick="runSimulation()">Visualizar Limite</button>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="limitChart"></canvas>
+    </div>
+
+    <div class="tables-container">
+        <div class="table-box">
+            <div class="table-header-left">Aproximação pela Esquerda (x → a⁻)</div>
+            <table id="leftTable">
+                <thead><tr><th>x (cada vez mais perto)</th><th>f(x) (resultado)</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="table-box">
+            <div class="table-header-right">Aproximação pela Direita (x → a⁺)</div>
+            <table id="rightTable">
+                <thead><tr><th>x (cada vez mais perto)</th><th>f(x) (resultado)</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let myChart;
+
+    // Função principal chamada pelo botão
+    function runSimulation() {
+        const funcStr = document.getElementById('functionInput').value;
+        const aStr = document.getElementById('pointInput').value;
+        const a = parseFloat(aStr);
+
+        if (!funcStr || isNaN(a)) {
+            alert("Por favor, insira uma função válida e um ponto numérico.");
+            return;
+        }
+
+        let expr;
+        try {
+            // Compila a expressão usando math.js para performance e segurança
+            expr = math.compile(funcStr);
+        } catch (error) {
+            alert("Erro na função. Verifique a sintaxe (use 'x' como variável).");
+            return;
+        }
+
+        updateTables(expr, a);
+        updateChart(expr, a);
+    }
+
+    // Gera os dados numéricos para as tabelas
+    function updateTables(expr, a) {
+        const lBody = document.querySelector('#leftTable tbody');
+        const rBody = document.querySelector('#rightTable tbody');
+        lBody.innerHTML = ''; rBody.innerHTML = '';
+
+        // Passos de aproximação (potências de 10 negativas)
+        const steps = [0.1, 0.01, 0.001, 0.0001, 0.00001];
+
+        steps.forEach(step => {
+            const xL = a - step;
+            const xR = a + step;
+            
+            let yL, yR;
+            try { yL = expr.evaluate({x: xL}); } catch(e) { yL = NaN; }
+            try { yR = expr.evaluate({x: xR}); } catch(e) { yR = NaN; }
+
+            // Formatação para exibir muitas casas decimais e evidenciar a aproximação
+            lBody.innerHTML += `<tr><td>${xL.toFixed(5)}</td><td>${formatNumber(yL)}</td></tr>`;
+            // Adicionamos ao início da tabela direita para mostrar a "chegada" ao ponto
+            rBody.innerHTML = `<tr><td>${xR.toFixed(5)}</td><td>${formatNumber(yR)}</td></tr>` + rBody.innerHTML;
+        });
+    }
+
+    // Helper para formatar números ou mostrar "Indefinido"
+    function formatNumber(num) {
+        if (isNaN(num) || !isFinite(num)) return "<span style='color:red'>Indefinido/Infinito</span>";
+        // Retorna com até 6 casas decimais, removendo zeros à direita desnecessários
+        return parseFloat(num.toFixed(6)).toString();
+    }
+
+    // Gera e renderiza o gráfico com Chart.js
+    function updateChart(expr, a) {
+        const ctx = document.getElementById('limitChart').getContext('2d');
+        
+        // Define o intervalo do gráfico (zoom ao redor de 'a')
+        const range = 2.5; 
+        const stepSize = 0.05;
+        
+        const labels = [];
+        const dataPoints = [];
+        let targetPointY = null;
+        let targetPointDefined = true;
+
+        // Tenta calcular o valor EXATO no ponto 'a'
+        try {
+            targetPointY = expr.evaluate({x: a});
+            if (isNaN(targetPointY) || !isFinite(targetPointY)) {
+                targetPointDefined = false;
+                targetPointY = null; // ChartJS não desenha null
+            }
+        } catch (e) {
+            targetPointDefined = false;
+            targetPointY = null;
+        }
+
+        // Gera os pontos da linha ao redor de 'a'
+        for (let x = a - range; x <= a + range; x += stepSize) {
+            // Arredondamento para evitar problemas de ponto flutuante no eixo X
+            const cleanX = Math.round(x * 100) / 100; 
+            labels.push(cleanX);
+
+            // Evita calcular exatamente no ponto 'a' durante o loop da linha principal
+            // para não quebrar o gráfico se for uma indefinição 0/0
+            if (Math.abs(cleanX - a) < 0.0001) {
+                dataPoints.push(null); // Cria uma pequena quebra na linha se for o ponto exato
+            } else {
+                try {
+                    const y = expr.evaluate({x: cleanX});
+                    dataPoints.push(isFinite(y) ? y : null);
+                } catch (e) {
+                    dataPoints.push(null);
+                }
+            }
+        }
+
+        // Se já existe um gráfico, destrói para criar o novo
+        if (myChart) myChart.destroy();
+
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'f(x)',
+                        data: dataPoints,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4, // Deixa a linha mais curva/suave
+                        pointRadius: 0, // Esconde os pontos individuais da linha
+                        fill: true
+                    },
+                    {
+                        // Dataset específico apenas para marcar o ponto 'a'
+                        label: targetPointDefined ? `Valor em a (Definido)` : `Valor em a (Indefinido)`,
+                        data: labels.map(x => Math.abs(x - a) < 0.01 ? targetPointY : null),
+                        borderColor: '#e74c3c',
+                        backgroundColor: targetPointDefined ? '#e74c3c' : 'white', // Cor sólida se definido, branco (buraco) se não
+                        pointRadius: 7,
+                        pointHoverRadius: 9,
+                        pointBorderWidth: 2,
+                        showLine: false // Mostra apenas o ponto, não liga com linha
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index',
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#eee' },
+                        title: { display: true, text: 'Eixo X (Aproximação)' }
+                    },
+                    y: {
+                        grid: { color: '#eee' },
+                        title: { display: true, text: 'Eixo Y (Valor da Função)' }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                             label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) { label += ': '; }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y.toFixed(4);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Executa uma simulação inicial ao carregar a página
+    window.onload = runSimulation;
+
+</script>
+
+</body>
+</html>

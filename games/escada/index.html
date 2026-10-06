@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cobras e Escadas do Conhecimento</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>🐍 Escadas e Cobras do Conhecimento 🪜</h1>
+        <button id="dark-mode-toggle"><i class="fas fa-moon"></i> Modo Escuro</button>
+    </header>
+
+    <main>
+        <div id="game-container">
+            <aside id="game-controls">
+                
+                <div id="game-setup">
+                    <h2>Configuração do Jogo</h2>
+                    <label for="num-players">Número de Jogadores (1-4):</label>
+                    <select id="num-players" min="1" max="4" value="2">
+                        <option value="1">1 Jogador</option>
+                        <option value="2" selected>2 Jogadores</option>
+                        <option value="3">3 Jogadores</option>
+                        <option value="4">4 Jogadores</option>
+                    </select>
+                    <button id="setup-button" class="action-button">Iniciar Jogo</button>
+                </div>
+                
+                <div id="turn-display" class="hidden">
+                    <h2>Vez de: <span id="current-player-name"></span></h2>
+                    
+                    <div id="dice-section">
+                        <button id="roll-dice-button" class="action-button">Lançar Dado</button>
+                        <div id="dice-result" class="hidden">?</div>
+                    </div>
+                </div>
+
+                <div id="score-board" class="hidden">
+                    <h2>Placar</h2>
+                    <ul id="players-list"></ul>
+                </div>
+
+            </aside>
+            
+            <div id="board-container">
+                <div id="board-display">
+                    </div>
+                
+                <div id="player-token-1" class="player-token player-1-bg hidden">P1</div>
+                <div id="player-token-2" class="player-token player-2-bg hidden">P2</div>
+                <div id="player-token-3" class="player-token player-3-bg hidden">P3</div>
+                <div id="player-token-4" class="player-token player-4-bg hidden">P4</div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="quiz-area" class="hidden">
+        <div id="quiz-card">
+            <p id="theme-text"></p>
+            <p id="question-text"></p>
+            <div id="options-container">
+                </div>
+            <p id="feedback-message" class="hidden"></p>
+            <button id="continue-button" class="action-button hidden">CONTINUAR</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

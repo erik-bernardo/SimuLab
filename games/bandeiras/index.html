@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adivinhe a Bandeira - Digitação</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="game-header">
+            <div class="score-box">
+                <span>PONTOS:</span>
+                <span id="score-value">0</span>
+            </div>
+            <div class="timer-box">
+                <span>TEMPO:</span>
+                <span id="timer-value">60</span>s
+            </div>
+        </div>
+
+        <div id="central-area">
+            
+            <div id="flag-container">
+                <img id="current-flag" src="" alt="Bandeira do País a ser adivinhado">
+            </div>
+
+            <div id="dialog-bubble" class="speech-bubble">
+                <p id="npc-statement">De qual país é esta bandeira?</p>
+            </div>
+        </div>
+
+        <div id="input-container">
+            <input type="text" id="answer-input" placeholder="Digite o nome do país aqui...">
+            <button id="submit-button" class="big-button">ENVIAR</button>
+        </div>
+        
+        <div id="feedback-area">
+            <p id="feedback-message"></p>
+        </div>
+
+        <div id="overlay" class="game-overlay">
+            <div id="game-start-screen" class="screen-box">
+                <h1>Adivinhe a Bandeira</h1>
+                <p>Você tem 60 segundos para digitar o nome de todas as bandeiras que conseguir!</p>
+                <button id="start-button" class="big-button">INICIAR DESAFIO</button>
+            </div>
+
+            <div id="game-over-screen" class="screen-box hidden">
+                <h2>Fim de Jogo!</h2>
+                <p>Bandeiras Adivinhadas:</p>
+                <span id="final-score">0</span>
+                <button id="restart-button" class="big-button">JOGAR NOVAMENTE</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="flag_guesser.js"></script>
+</body>
+</html>

@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Química: Cálculo de NOX Estrutural</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* ----------------------------------- */
+        /* ESTILOS GERAIS E LAYOUT SIMULADOR */
+        /* ----------------------------------- */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            overflow: hidden; 
+        }
+
+        .simulation-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        
+        /* PAINEL ESQUERDO: CONTROLES E CÁLCULO */
+        .left-panel {
+            flex: 0 0 240px; 
+            display: flex;
+            flex-direction: column;
+            background-color: #ddd; 
+            padding: 15px;
+            box-sizing: border-box;
+            border-right: 1px solid #aaa;
+        }
+        
+        .logo-plataforma-left {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #D2691E;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #D2691E;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        /* Área dos Controles Manuais */
+        .controls-manual-input {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Área do Cálculo */
+        .calculation-output-area {
+            flex-grow: 1; 
+            background-color: #494949; 
+            color: #fff; 
+            padding: 10px;
+            border-radius: 4px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3) inset;
+            white-space: pre-wrap; /* Mantém a formatação de nova linha (\n) */
+        }
+        
+        .final-nox {
+            color: #FFC107;
+            font-weight: bold;
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px dashed #777;
+        }
+
+        /* ----------------------------------- */
+        /* CENTRO: ÁREA DE VISUALIZAÇÃO/GRID (COM SVG PARA LIGAÇÕES) */
+        /* ----------------------------------- */
+        .main-simulation-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            position: relative;
+        }
+
+        .grid-area {
+            flex-grow: 1;
+            background-image: linear-gradient(to right, #add8e6 1px, transparent 1px),
+                              linear-gradient(to bottom, #add8e6 1px, transparent 1px);
+            background-size: 25px 25px; 
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Camada SVG para as Ligações */
+        #bond-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Permite interagir com os átomos abaixo */
+            z-index: 5;
+        }
+        
+        .bond-line {
+            transition: stroke 0.1s; 
+        }
+
+        /* Cores das Ligações */
+        .bond-covalent { stroke: #2E86C1; stroke-width: 3; }      /* Azul */
+        .bond-ionic { stroke: #E74C3C; stroke-width: 3; stroke-dasharray: 5,5; } /* Vermelho/Tracejado */
+        .bond-metallic { stroke: #F39C12; stroke-width: 5; }       /* Laranja/Espesso */
+
+
+        .drop-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #aaa;
+            font-size: 1.5em;
+            font-style: italic;
+            pointer-events: none;
+            padding: 20px;
+            border: 3px dashed #D2691E;
+            border-radius: 15px;
+            z-index: 1; 
+        }
+
+        /* Elemento Arrastado (Átomo no Grid) */
+        .atom-visual {
+            position: absolute;
+            cursor: move; 
+            width: 50px; 
+            height: 50px;
+            border-radius: 50%;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            border: 3px solid white;
+            transition: border-color 0.2s;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .atom-visual:hover {
+            border-color: #FFC107;
+        }
+        
+        .element-symbol-visual {
+            font-size: 1.2em;
+            color: white;
+            font-weight: bold;
+            line-height: 1;
+        }
+        
+        /* Cores dos Elementos */
+        .el-NM { background-color: #E74C3C; }
+        .el-M { background-color: #2ECC71; } 
+        .el-SM { background-color: #F39C12; }
+        .el-GN { background-color: #3498DB; }
+        .el-MTS { background-color: #9B59B6; }
+
+        /* ----------------------------------- */
+        /* COLUNA DIREITA: TABELA PERIÓDICA RECOLHÍVEL */
+        /* ----------------------------------- */
+        
+        .right-panel-wrapper {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .right-panel {
+            width: 360px; 
+            background-color: #f7f7f7;
+            padding: 15px;
+            box-shadow: -6px 0 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease-in-out;
+            height: 100%;
+            overflow-y: auto;
+            box-sizing: border-box;
+            border-top: 10px solid #D2691E; 
+            transform: translateX(0);
+        }
+
+        .right-panel.hidden {
+            transform: translateX(360px); 
+        }
+        
+        .toggle-button {
+            position: fixed; 
+            top: 50%;
+            right: 360px; 
+            transform: translateY(-50%);
+            width: 40px;
+            height: 80px;
+            background-color: #D2691E; 
+            color: white;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            font-size: 1.5em;
+            z-index: 200; 
+            line-height: 80px;
+            text-align: center;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+            transition: right 0.3s ease-in-out; 
+        }
+
+        .toggle-button.on-edge {
+            right: 0px; 
+        }
+        
+        /* Estilos da Tabela Periódica Dinâmica */
+        #periodic-table-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr); 
+            gap: 4px;
+            margin-top: 15px;
+        }
+
+        .element-tile {
+            font-weight: bold;
+            padding: 6px 3px;
+            text-align: center;
+            border-radius: 4px;
+            cursor: grab;
+            user-select: none;
+            font-size: 0.7em;
+            min-height: 45px;
+            position: relative;
+        }
+        
+        .element-tile.NM { background-color: #F08080; color: #333; } 
+        .element-tile.M { background-color: #ADD8E6; color: #333; } 
+        .element-tile.GN { background-color: #D3D3D3; color: #333; } 
+        .element-tile.SM { background-color: #FFC0CB; color: #333; } 
+        .element-tile.MTS { background-color: #9B59B6; color: #fff; } 
+        
+        .nox-fixed { color: #4CAF50; }
+        .nox-variable { color: #D2691E; }
+
+    </style>
+</head>
+<body>
+
+    <div class="simulation-container">
+        
+        <div class="left-panel">
+            <div class="logo-plataforma-left">
+               <i class="fas fa-microscope"></i> PLATAFORMA - QUÍMICA
+            </div>
+            
+            <h4 style="margin-top: 0; color: #333;"><i class="fas fa-keyboard"></i> Entrada Manual (NOX)</h4>
+            <div class="controls-manual-input">
+                
+                <div class="input-group">
+                    <label for="compoundsInput" class="label-text">Fórmula:</label>
+                    <input type="text" id="compoundsInput" class="input-field" placeholder="Ex: H2SO4" value="H2O">
+                </div>
+                
+                <div class="input-group">
+                    <label for="elementToCalculate" class="label-text">Elemento Alvo:</label>
+                    <input type="text" id="elementToCalculate" class="input-field" placeholder="Ex: S" value="O">
+                </div>
+                
+                <div class="input-group">
+                    <label for="chargeInput" class="label-text">Carga Total:</label>
+                    <input type="number" id="chargeInput" class="input-field" placeholder="0" value="0">
+                </div>
+                
+                <button class="calculate-button-manual" onclick="calculateNox(true)">
+                    <i class="fas fa-calculator"></i> CALCULAR E MONTAR
+                </button>
+            </div>
+            
+            <button class="calculate-button-manual" onclick="clearSimulation()" style="background-color: #E74C3C;">
+                <i class="fas fa-trash"></i> LIMPAR SIMULAÇÃO
+            </button>
+
+
+            <div class="calculation-output-area">
+                <div style="color: #fff; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; border-bottom: 1px solid #777; padding-bottom: 5px;">
+                    <i class="fas fa-cogs"></i> PROCESSO E RESULTADO
+                </div>
+                <div id="result-display">
+                    Aguardando montagem ou cálculo manual...
+                </div>
+            </div>
+        </div>
+
+        <div class="main-simulation-area">
+            <div class="grid-area" id="drop-area">
+                 <svg id="bond-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+                 
+                 <span class="drop-placeholder" id="placeholder-text">
+                    Arraste elementos aqui para montar a estrutura livremente.
+                 </span>
+                </div>
+        </div>
+        
+        <div class="right-panel-wrapper">
+            <div class="right-panel" id="rightPanel">
+                <h3><i class="fas fa-atom"></i> Tabela Periódica Completa</h3>
+                <p style="font-size: 0.8em; color: #555;">Arraste para o centro. As ligações são desenhadas com cores baseadas no tipo:</p>
+                <ul style="font-size: 0.8em; margin-left: -15px;">
+                    <li><span style="color:#2E86C1; font-weight: bold;">Covalente (NM-NM)</span></li>
+                    <li><span style="color:#E74C3C; font-weight: bold;">Iônica (M-NM)</span></li>
+                    <li><span style="color:#F39C12; font-weight: bold;">Metálica (M-M)</span></li>
+                </ul>
+                <div id="periodic-table-grid">
+                    </div>
+            </div>
+        </div>
+        
+        <button class="toggle-button" id="toggleButton" title="Recolher Tabela Periódica">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+    </div>
+
+    <script>
+        // --- DADOS DOS ELEMENTOS (COMPLETO) ---
+        const ELEMENTS_DATA = [
+            { z: 1, symbol: 'H', name: 'Hidrogênio', class: 'NM', nox: '+1' },
+            { z: 2, symbol: 'He', name: 'Hélio', class: 'GN', nox: '0' },
+            { z: 3, symbol: 'Li', name: 'Litio', class: 'M', nox: '+1' },
+            { z: 4, symbol: 'Be', name: 'Berilio', class: 'M', nox: '+2' },
+            { z: 5, symbol: 'B', name: 'Boro', class: 'SM', nox: 'Var.' },
+            { z: 6, symbol: 'C', name: 'Carbono', class: 'NM', nox: 'Var.' },
+            { z: 7, symbol: 'N', name: 'Nitrogênio', class: 'NM', nox: 'Var.' },
+            { z: 8, symbol: 'O', name: 'Oxigênio', class: 'NM', nox: '-2' },
+            { z: 9, symbol: 'F', name: 'Flúor', class: 'NM', nox: '-1' },
+            { z: 10, symbol: 'Ne', name: 'Neonio', class: 'GN', nox: '0' },
+            { z: 11, symbol: 'Na', name: 'Sódio', class: 'M', nox: '+1' },
+            { z: 12, symbol: 'Mg', name: 'Magnésio', class: 'M', nox: '+2' },
+            { z: 13, symbol: 'Al', name: 'Aluminio', class: 'M', nox: '+3' },
+            { z: 14, symbol: 'Si', name: 'Silício', class: 'SM', nox: 'Var.' },
+            { z: 15, symbol: 'P', name: 'Fósforo', class: 'NM', nox: 'Var.' },
+            { z: 16, symbol: 'S', name: 'Enxofre', class: 'NM', nox: 'Var.' },
+            { z: 17, symbol: 'Cl', name: 'Cloro', class: 'NM', nox: 'Var.' },
+            { z: 18, symbol: 'Ar', name: 'Argonio', class: 'GN', nox: '0' },
+            { z: 19, symbol: 'K', name: 'Potássio', class: 'M', nox: '+1' },
+            { z: 20, symbol: 'Ca', name: 'Cálcio', class: 'M', nox: '+2' },
+            { z: 25, symbol: 'Mn', name: 'Manganês', class: 'MTS', nox: 'Var.' }, 
+            { z: 26, symbol: 'Fe', name: 'Ferro', class: 'MTS', nox: 'Var.' },
+            { z: 29, symbol: 'Cu', name: 'Cobre', class: 'MTS', nox: 'Var.' },
+            { z: 30, symbol: 'Zn', name: 'Zinco', class: 'MTS', nox: '+2' },
+            { z: 34, symbol: 'Se', name: 'Selênio', class: 'NM', nox: 'Var.' },
+            { z: 35, symbol: 'Br', name: 'Bromo', class: 'NM', nox: 'Var.' },
+            { z: 47, symbol: 'Ag', name: 'Prata', class: 'MTS', nox: '+1' },
+            { z: 53, symbol: 'I', name: 'Iodo', class: 'NM', nox: 'Var.' },
+            { z: 80, symbol: 'Hg', name: 'Mercúrio', class: 'MTS', nox: 'Var.' },
+            { z: 92, symbol: 'U', name: 'Urânio', class: 'MTS', nox: 'Var.' },
+        ].sort((a, b) => a.z - b.z);
+        
+        const fixedNoxMap = {
+            'Li': 1, 'Na': 1, 'K': 1, 'Rb': 1, 'Cs': 1, 'Fr': 1, 
+            'Be': 2, 'Mg': 2, 'Ca': 2, 'Sr': 2, 'Ba': 2, 'Ra': 2, 
+            'Ag': 1, 'Zn': 2, 'Cd': 2, 'Al': 3, 'Ga': 3,
+            'F': -1, 
+            'O': -2, 
+            'H': 1 
+        };
+        
+        const ELEMENT_MAP = ELEMENTS_DATA.reduce((acc, el) => {
+            acc[el.symbol] = el;
+            return acc;
+        }, {});
+
+
+        const resultDisplay = document.getElementById('result-display');
+        const rightPanel = document.getElementById('rightPanel');
+        const toggleButton = document.getElementById('toggleButton');
+        const periodicTableGrid = document.getElementById('periodic-table-grid');
+        const dropArea = document.getElementById('drop-area');
+        const placeholderText = document.getElementById('placeholder-text');
+        const bondSvg = document.getElementById('bond-svg');
+        
+        let placedElements = []; 
+        let elementCounter = 0;
+        let isDraggingAtom = false;
+
+        const ATOM_SIZE = 50; 
+        const ATOM_HALF = ATOM_SIZE / 2;
+        const BOND_THRESHOLD_DISTANCE = 90; 
+
+
+        // --- FUNÇÕES DE UTILIDADE E CÁLCULO ---
+
+        /**
+         * Normaliza o símbolo para o formato padrão (primeira maiúscula, resto minúscula).
+         */
+        function normalizeSymbol(symbol) {
+            if (!symbol) return '';
+            const s = symbol.trim().toLowerCase();
+            if (s.length === 0) return '';
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+        
+        /**
+         * Substitui caracteres numéricos Unicode (subscritos/sobrescritos) por dígitos ASCII normais.
+         */
+        function normalizeFormula(formula) {
+            let normalized = formula;
+            // Caracteres subscritos
+            const subscriptMap = {
+                '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4',
+                '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9'
+            };
+            // Caracteres sobrescritos
+            const superscriptMap = {
+                '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
+                '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9'
+            };
+
+            for (const [unicode, digit] of Object.entries({...subscriptMap, ...superscriptMap})) {
+                normalized = normalized.replaceAll(unicode, digit);
+            }
+            return normalized;
+        }
+
+
+        function generatePeriodicTable() {
+            periodicTableGrid.innerHTML = '';
+            ELEMENTS_DATA.forEach(element => {
+                const tile = document.createElement('div');
+                let classType = element.class; 
+                
+                tile.className = `element-tile ${classType}`;
+                tile.setAttribute('draggable', true);
+                tile.dataset.symbol = element.symbol;
+                tile.dataset.nox = element.nox;
+                tile.dataset.name = element.name;
+                tile.dataset.class = classType; 
+                
+                const noxClass = (element.nox === 'X' || element.nox === 'Var.') ? 'nox-variable' : 'nox-fixed';
+                
+                tile.innerHTML = `
+                    <span class="element-tile-symbol">${element.symbol}</span>
+                    <span style="font-size: 0.6em; font-weight: normal;">Z=${element.z}</span>
+                    <span class="element-tile-nox ${noxClass}">${element.nox}</span>
+                `;
+                
+                tile.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        symbol: element.symbol,
+                        nox: element.nox,
+                        name: element.name,
+                        class: classType
+                    }));
+                });
+                periodicTableGrid.appendChild(tile);
+            });
+        }
+        
+        function formatFormula(formula) {
+             // Aceita símbolos case-insensitive e os formata com <sub> para visualização
+             return formula.replace(/([A-Z][a-z]*)(\d*)/g, (match, symbol, index) => {
+                 const normalized = normalizeSymbol(symbol);
+                 return normalized + (index ? '<sub>' + index + '</sub>' : '');
+             });
+        }
+
+        function clearSimulation() {
+             dropArea.querySelectorAll('.atom-visual').forEach(el => el.remove());
+             bondSvg.innerHTML = '';
+             placedElements = [];
+             
+             document.getElementById('compoundsInput').value = '';
+             document.getElementById('elementToCalculate').value = '';
+             document.getElementById('chargeInput').value = 0;
+             resultDisplay.innerHTML = 'Aguardando montagem ou cálculo manual.';
+             placeholderText.style.display = 'block';
+        }
+
+        function parseFormula(formula) {
+            // Primeiro, normaliza a fórmula para garantir que todos os números são ASCII
+            const normalizedFormula = normalizeFormula(formula);
+            
+            // Em seguida, processa a fórmula limpa
+            const regex = /([A-Z][a-z]*)(\d*)/g;
+            const atoms = [];
+            let match;
+            
+            while ((match = regex.exec(normalizedFormula)) !== null) {
+                const symbol = normalizeSymbol(match[1]); // Usa normalizeSymbol
+                const count = parseInt(match[2] || 1);
+                for (let i = 0; i < count; i++) {
+                    atoms.push(symbol);
+                }
+            }
+            return atoms;
+        }
+
+        function calculateNox(isManual) {
+            
+            let compoundRawInput = document.getElementById('compoundsInput').value.trim();
+            let elementTargetInput = document.getElementById('elementToCalculate').value.trim();
+            let chargeValue = parseInt(document.getElementById('chargeInput').value.trim() || 0);
+            
+            if (!compoundRawInput || !elementTargetInput) {
+                resultDisplay.innerHTML = 'ERRO: Fórmula ou elemento alvo inválidos.';
+                return;
+            }
+
+            // --- TRATAMENTO DE ENTRADA E FILTRAGEM DE REAÇÕES ---
+            
+            // 1. Normaliza a entrada para lidar com caracteres Unicode como subscritos/sobrescritos
+            let normalizedInput = normalizeFormula(compoundRawInput);
+            
+            // 2. Filtra a entrada para apenas o primeiro composto (antes de + ou =)
+            const reactionSymbols = /[\+\=\s]/;
+            const firstBreak = normalizedInput.search(reactionSymbols);
+            
+            let compoundRaw = normalizedInput;
+            if (firstBreak !== -1) {
+                compoundRaw = normalizedInput.substring(0, firstBreak).trim();
+            }
+            
+            let elementTarget = normalizeSymbol(elementTargetInput); 
+
+            // --- PASSO 1: Montar estrutura visual se for cálculo manual ---
+            if (isManual) {
+                renderFormulaStructure(compoundRaw, elementTarget);
+            }
+            
+            // --- PASSO 2: CÁLCULO DE NOX ---
+            
+            let displayOutput = '';
+            
+            if (normalizedInput.search(reactionSymbols) !== -1 && normalizedInput.trim() !== compoundRaw) {
+                 displayOutput += `AVISO: Detectamos uma **reação** ou **série de compostos**. O simulador de NOX calcula apenas o **primeiro composto**: **${compoundRaw}**.\n\n`;
+            }
+            
+            displayOutput += `Fórmula: **${formatFormula(compoundRaw)}**\n`;
+            displayOutput += `Elemento Alvo: **${elementTarget}**\n`;
+            displayOutput += `Carga Total: **${chargeValue}**\n\n`;
+            displayOutput += "--- PASSO A PASSO DO CÁLCULO ---\n";
+
+            // Processa a fórmula
+            const regex = /([A-Z][a-z]*)(\d*)/g;
+            const elements = [];
+            let match;
+            
+            while ((match = regex.exec(compoundRaw)) !== null) {
+                const symbol = normalizeSymbol(match[1]); 
+                const index = parseInt(match[2] || 1);
+                elements.push({ symbol, index });
+            }
+
+            let sumFixedNox = 0;
+            let targetIndex = 0;
+            let equationDisplay = "";
+
+            elements.forEach(element => {
+                let nox;
+                const isTarget = (element.symbol === elementTarget);
+                
+                if (fixedNoxMap[element.symbol] !== undefined) {
+                    nox = fixedNoxMap[element.symbol];
+                    sumFixedNox += nox * element.index;
+                    equationDisplay += `(${nox} * ${element.index}) + `;
+                    displayOutput += `-> NOX(${element.symbol}): ${nox} * ${element.index} = ${nox * element.index} (Fixo)\n`;
+
+                } else if (isTarget) {
+                    targetIndex = element.index;
+                    equationDisplay += `(${element.index}X) + `;
+                    displayOutput += `-> NOX(${element.symbol}): X (Alvo) * ${element.index} = ${element.index}X\n`;
+                } else {
+                    // Elemento variável que não é o alvo. Assumimos 0 ou ignoramos para o cálculo do alvo X.
+                    equationDisplay += `(${element.symbol}?) + `; 
+                    displayOutput += `-> NOX(${element.symbol}): Variável. Não utilizado no cálculo de NOX do alvo.\n`;
+                }
+            });
+
+            if (targetIndex === 0) {
+                 resultDisplay.innerHTML = `${displayOutput}ERRO: Elemento alvo (${elementTarget}) não encontrado na fórmula ou já possui NOX fixo.`;
+                 return;
+            }
+
+            equationDisplay = equationDisplay.slice(0, -3) + ` = ${chargeValue}`;
+            
+            const rightSide = chargeValue - sumFixedNox;
+            const finalNox = rightSide / targetIndex;
+            
+            displayOutput += `\n`;
+            displayOutput += `Equação Montada:\n`;
+            displayOutput += `${equationDisplay}\n\n`;
+            displayOutput += `Resolução (${targetIndex}X = ${rightSide}):\n`;
+            displayOutput += `X = ${finalNox.toFixed(2)}\n`;
+            
+            
+            resultDisplay.innerHTML = displayOutput;
+            
+            const finalNoxElement = document.createElement('div');
+            finalNoxElement.className = 'final-nox';
+            finalNoxElement.textContent = `NOX Final de ${elementTarget}: ${finalNox.toFixed(2)}`;
+            resultDisplay.appendChild(finalNoxElement);
+        }
+        
+        
+        /**
+         * Determina o tipo de ligação com base na classificação dos elementos.
+         */
+        function getBondType(symbolA, symbolB) {
+            const classA = ELEMENT_MAP[symbolA]?.class;
+            const classB = ELEMENT_MAP[symbolB]?.class;
+
+            if (!classA || !classB) return 'COVALENT'; 
+
+            const isMetalA = classA === 'M' || classA === 'MTS';
+            const isMetalB = classB === 'M' || classB === 'MTS';
+            const isNonmetalA = classA === 'NM';
+            const isNonmetalB = classB === 'NM';
+            const isSemimetalA = classA === 'SM';
+            const isSemimetalB = classB === 'SM';
+
+            // 1. Ionic: Metal + Não-Metal (ou Semimetal)
+            if ((isMetalA && (isNonmetalB || isSemimetalB)) || (isMetalB && (isNonmetalA || isSemimetalA))) {
+                return 'IONIC';
+            }
+
+            // 2. Covalent: Não-Metal + Não-Metal ou Não-Metal + Semimetal
+            if ((isNonmetalA || isSemimetalA) && (isNonmetalB || isSemimetalB)) {
+                return 'COVALENT';
+            }
+
+            // 3. Metallic: Metal + Metal
+            if (isMetalA && isMetalB) {
+                return 'METALLIC';
+            }
+
+            return 'COVALENT'; 
+        }
+
+        function renderFormulaStructure(formula, targetElement) {
+            clearSimulation();
+            const atoms = parseFormula(formula);
+            
+            if (atoms.length === 0) return;
+
+            const areaWidth = dropArea.clientWidth;
+            const areaHeight = dropArea.clientHeight;
+            const centerX = areaWidth / 2;
+            const centerY = areaHeight / 2;
+            const radius = 100; 
+
+            // Identifica o átomo central (o que não tem NOX fixo ou o alvo)
+            let centerSymbol = targetElement; 
+            if (fixedNoxMap[centerSymbol] !== undefined) {
+                 centerSymbol = atoms.find(s => fixedNoxMap[s] === undefined) || centerSymbol;
+            }
+            if (atoms.length === 1) centerSymbol = atoms[0]; 
+
+            let centerCount = 0;
+            const nonCenterAtoms = atoms.filter(s => {
+                if (s === centerSymbol && centerCount === 0) {
+                    centerCount++;
+                    return false; 
+                }
+                return true;
+            });
+            
+            placedElements = [];
+            
+            // 1. Adiciona o átomo central
+            placedElements.push({
+                id: 'atom-' + elementCounter++,
+                symbol: centerSymbol,
+                class: ELEMENT_MAP[centerSymbol] ? ELEMENT_MAP[centerSymbol].class : 'NM',
+                x: centerX - ATOM_HALF,
+                y: centerY - ATOM_HALF,
+                isCenter: true 
+            });
+            
+            // 2. Adiciona os átomos periféricos em círculo ao redor do centro
+            const numPeripherals = nonCenterAtoms.length;
+            nonCenterAtoms.forEach((symbol, index) => {
+                const angle = (index / numPeripherals) * 2 * Math.PI;
+                const r = numPeripherals > 0 ? radius : 0; 
+                const x = centerX + r * Math.cos(angle) - ATOM_HALF;
+                const y = centerY + r * Math.sin(angle) - ATOM_HALF;
+                
+                placedElements.push({
+                    id: 'atom-' + elementCounter++,
+                    symbol: symbol,
+                    class: ELEMENT_MAP[symbol] ? ELEMENT_MAP[symbol].class : 'NM',
+                    x: x,
+                    y: y,
+                    isCenter: false 
+                });
+            });
+
+            renderPlacedElements(); 
+            placeholderText.style.display = 'none';
+        }
+
+        function drawBonds() {
+            bondSvg.innerHTML = '';
+            
+            const isFreeMode = placedElements.every(el => !el.isCenter);
+            
+            let connections = [];
+
+            if (isFreeMode) {
+                 // Ligações para modo livre (por proximidade)
+                 for (let i = 0; i < placedElements.length; i++) {
+                    for (let j = i + 1; j < placedElements.length; j++) {
+                        const atomA = placedElements[i];
+                        const atomB = placedElements[j];
+
+                        const centerAx = atomA.x + ATOM_HALF;
+                        const centerAy = atomA.y + ATOM_HALF;
+                        const centerBx = atomB.x + ATOM_HALF;
+                        const centerBy = atomB.y + ATOM_HALF;
+
+                        const distance = Math.sqrt(Math.pow(centerAx - centerBx, 2) + Math.pow(centerAy - centerBy, 2));
+
+                        if (distance < BOND_THRESHOLD_DISTANCE) {
+                           connections.push({ atomA, atomB });
+                        }
+                    }
+                }
+            } else {
+                // Ligações para modo estrutural (estrela)
+                const centerAtom = placedElements.find(a => a.isCenter);
+                if (centerAtom) {
+                     const nonCenterAtoms = placedElements.filter(a => !a.isCenter);
+                     nonCenterAtoms.forEach(atomB => {
+                        connections.push({ atomA: centerAtom, atomB });
+                     });
+                }
+            }
+            
+            // Desenha todas as ligações
+            connections.forEach(({ atomA, atomB }) => {
+                const bondType = getBondType(atomA.symbol, atomB.symbol);
+                
+                const centerAx = atomA.x + ATOM_HALF;
+                const centerAy = atomA.y + ATOM_HALF;
+                const centerBx = atomB.x + ATOM_HALF;
+                const centerBy = atomB.y + ATOM_HALF;
+
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', centerAx);
+                line.setAttribute('y1', centerAy);
+                line.setAttribute('x2', centerBx);
+                line.setAttribute('y2', centerBy);
+                line.setAttribute('class', `bond-line bond-${bondType.toLowerCase()}`);
+                
+                bondSvg.appendChild(line);
+            });
+        }
+        
+
+        function renderPlacedElements() {
+            dropArea.querySelectorAll('.atom-visual').forEach(el => {
+                if (!el.classList.contains('temp-dragging')) {
+                    el.remove();
+                }
+            });
+            
+            if (placedElements.length > 0) {
+                placeholderText.style.display = 'none';
+                
+                placedElements.forEach(atom => {
+                    let el = document.getElementById(atom.id);
+                    if (!el) {
+                        el = document.createElement('div');
+                        el.className = `atom-visual el-${atom.class}`;
+                        el.id = atom.id;
+                        el.setAttribute('draggable', true);
+                        el.innerHTML = `<span class="element-symbol-visual">${atom.symbol}</span>`;
+                        el.addEventListener('dragstart', handleAtomDragStart);
+                        el.addEventListener('click', () => removeAtom(atom.id));
+                        dropArea.appendChild(el);
+                    }
+                    el.style.left = `${atom.x}px`;
+                    el.style.top = `${atom.y}px`;
+                });
+                
+                drawBonds();
+
+                const { chemicalFormula, targetSymbol } = getFormulaFromPlacedElements();
+                if (chemicalFormula) {
+                    document.getElementById('compoundsInput').value = chemicalFormula;
+                    if (targetSymbol) {
+                       document.getElementById('elementToCalculate').value = targetSymbol;
+                       calculateNox(false); 
+                    } else {
+                         document.getElementById('elementToCalculate').value = '';
+                         resultDisplay.innerHTML = `Composto: ${chemicalFormula}. Não foi possível identificar um elemento variável para calcular.`;
+                    }
+                }
+            } else {
+                placeholderText.style.display = 'block';
+                drawBonds(); 
+            }
+        }
+        
+        function getFormulaFromPlacedElements() {
+            let formula = {}; 
+            placedElements.forEach(el => {
+                formula[el.symbol] = (formula[el.symbol] || 0) + 1;
+            });
+            
+            let chemicalFormula = Object.keys(formula)
+                .map(symbol => symbol + (formula[symbol] > 1 ? formula[symbol] : ''))
+                .join('');
+                
+            let targetSymbol = null;
+            for (const symbol in formula) {
+                if (!fixedNoxMap[symbol]) {
+                    targetSymbol = symbol; 
+                    break;
+                }
+            }
+            return { chemicalFormula, targetSymbol, count: placedElements.length };
+        }
+        
+        function removeAtom(id) {
+            placedElements = placedElements.filter(atom => atom.id !== id);
+            renderPlacedElements();
+        }
+
+        // --- Lógica de Arrastar Átomos JÁ COLOCADOS ---
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let draggedAtomId = null;
+
+        function handleAtomDragStart(e) {
+            draggedAtomId = e.target.id;
+            const rect = e.target.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+                type: 'atom',
+                id: draggedAtomId,
+                offsetX: dragOffsetX,
+                offsetY: dragOffsetY
+            }));
+            isDraggingAtom = true;
+            e.target.classList.add('temp-dragging');
+        }
+
+        dropArea.addEventListener('dragover', (e) => e.preventDefault());
+
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            
+            const areaRect = dropArea.getBoundingClientRect();
+            const dataString = e.dataTransfer.getData('text/plain');
+            
+            try {
+                const data = JSON.parse(dataString);
+                
+                if (data.type === 'atom' && data.id) {
+                    // Reposicionamento de átomo já existente
+                    const index = placedElements.findIndex(atom => atom.id === data.id);
+                    if (index !== -1) {
+                        let newX = e.clientX - areaRect.left - data.offsetX;
+                        let newY = e.clientY - areaRect.top - data.offsetY;
+                        
+                        newX = Math.max(0, Math.min(newX, dropArea.clientWidth - ATOM_SIZE));
+                        newY = Math.max(0, Math.min(newY, dropArea.clientHeight - ATOM_SIZE));
+
+                        placedElements[index].x = newX;
+                        placedElements[index].y = newY;
+                        
+                        placedElements.forEach(a => a.isCenter = false);
+
+                        renderPlacedElements();
+                    }
+                } else if (data.symbol) {
+                     // Drop de elemento novo da Tabela Periódica
+                      const id = 'atom-' + elementCounter++;
+                      
+                      let newX = e.clientX - areaRect.left - ATOM_HALF;
+                      let newY = e.clientY - areaRect.top - ATOM_HALF;
+                      
+                      newX = Math.max(0, Math.min(newX, dropArea.clientWidth - ATOM_SIZE));
+                      newY = Math.max(0, Math.min(newY, dropArea.clientHeight - ATOM_SIZE));
+    
+                      const newAtom = {
+                          id: id,
+                          symbol: data.symbol,
+                          class: data.class,
+                          x: newX, 
+                          y: newY,
+                          isCenter: false
+                      };
+                      placedElements.push(newAtom);
+                      placedElements.forEach(a => a.isCenter = false);
+                      renderPlacedElements();
+                }
+                
+            } catch (error) {
+                 // Ignora erro de parsing se for um elemento novo (dragged data é só o symbol)
+            } finally {
+                isDraggingAtom = false;
+                if (draggedAtomId) {
+                    const el = document.getElementById(draggedAtomId);
+                    if(el) el.classList.remove('temp-dragging');
+                }
+            }
+        });
+
+
+        // --- LÓGICA DO PAINEL RECOLHÍVEL ---
+
+        toggleButton.addEventListener('click', () => {
+            const isHidden = rightPanel.classList.toggle('hidden');
+            
+            toggleButton.classList.toggle('on-edge', isHidden);
+            
+            const icon = toggleButton.querySelector('.fas');
+            if (isHidden) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        });
+
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            generatePeriodicTable();
+            // Inicia com o cálculo e montagem da estrutura de H2O, conforme solicitado.
+            calculateNox(true); 
+        });
+    </script>
+</body>
+</html>

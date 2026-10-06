@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador - Sistema Linear com Maçãs e Laranjas (2x2 e 3x3)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 30px 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            max-width: 950px;
+            width: 100%;
+        }
+        h2 {
+            color: #D2691E;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        /* Tabs e Seleção */
+        .tab-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1.1em;
+            color: #555;
+            transition: color 0.3s;
+        }
+        .tab-button.active {
+            color: #D2691E;
+            border-bottom: 3px solid #D2691E;
+            font-weight: bold;
+        }
+        /* Entrada */
+        .system-input {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .equation {
+            display: flex;
+            align-items: center;
+            font-size: 1.1em;
+            gap: 10px;
+        }
+        .equation input {
+            width: 55px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .operator {
+            font-weight: bold;
+        }
+        .input-label {
+            width: 90px;
+            text-align: right;
+            white-space: nowrap;
+        }
+        /* Botão */
+        .calc-button {
+            background-color: #D2691E;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            width: 100%;
+            margin-top: 25px;
+            transition: background-color 0.3s;
+        }
+        .calc-button:hover {
+            background-color: #c05c18;
+        }
+        /* Resultados e Passo a Passo */
+        .results, .step-by-step {
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+        }
+        .results h3, .step-by-step h3 {
+            color: #555;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 0;
+            text-align: center;
+        }
+        .result-item {
+            font-size: 1.2em;
+            margin: 15px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-top: 15px;
+            text-align: center;
+        }
+        /* Estilos do Passo a Passo */
+        .method-section {
+            margin-top: 30px;
+            border-top: 2px solid #f0f0f0;
+            padding-top: 15px;
+        }
+        .method-section h4 {
+            color: #D2691E;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            text-align: left;
+        }
+        .step-by-step p {
+            margin: 5px 0;
+            padding-left: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .step-by-step strong {
+            color: #000;
+        }
+        .step-by-step .matrix {
+            font-size: 1.5em;
+            font-weight: bold;
+            display: block;
+            margin: 10px 0 20px 0;
+            text-align: center;
+        }
+        /* Layout para 3x3 */
+        .equation-3x3 {
+            display: flex;
+            align-items: center;
+            font-size: 1.1em;
+            gap: 10px;
+        }
+        .equation-3x3 input {
+            width: 45px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🍎🍊 Simulador de Preços por Sistema Linear</h2>
+
+        <div class="tab-selector">
+            <button class="tab-button active" data-system="2x2" id="tab-2x2">Sistema 2x2 (Maçã e Laranja)</button>
+            <button class="tab-button" data-system="3x3" id="tab-3x3">Sistema 3x3 (X, Y, Z)</button>
+        </div>
+
+        <div id="input-2x2" class="system-input active-system">
+            <p>X = Maçã, Y = Laranja</p>
+            <div class="equation">
+                <span class="input-label">Compra 1:</span>
+                <input type="number" id="a1" value="2" min="1">
+                <span>X</span>
+                <span class="operator">+</span>
+                <input type="number" id="b1" value="3" min="1">
+                <span>Y</span>
+                <span class="operator">=</span>
+                <input type="number" id="c1" value="13.50" step="any" min="0.01">
+                <span>Total (R$)</span>
+            </div>
+            <div class="equation">
+                <span class="input-label">Compra 2:</span>
+                <input type="number" id="a2" value="4" min="1">
+                <span>X</span>
+                <span class="operator">+</span>
+                <input type="number" id="b2" value="1" min="1">
+                <span>Y</span>
+                <span class="operator">=</span>
+                <input type="number" id="c2" value="14.50" step="any" min="0.01">
+                <span>Total (R$)</span>
+            </div>
+        </div>
+
+        <div id="input-3x3" class="system-input" style="display: none;">
+            <p>X, Y, Z = Variáveis</p>
+            <div class="equation-3x3">
+                <span class="input-label">Eq 1:</span>
+                <input type="number" id="a1_3" value="1">
+                <span>X</span>
+                <span class="operator">+</span>
+                <input type="number" id="b1_3" value="1">
+                <span>Y</span>
+                <span class="operator">+</span>
+                <input type="number" id="c1_3" value="1">
+                <span>Z</span>
+                <span class="operator">=</span>
+                <input type="number" id="d1_3" value="6" step="any">
+                <span>Total</span>
+            </div>
+            <div class="equation-3x3">
+                <span class="input-label">Eq 2:</span>
+                <input type="number" id="a2_3" value="1">
+                <span>X</span>
+                <span class="operator">+</span>
+                <input type="number" id="b2_3" value="-1">
+                <span>Y</span>
+                <span class="operator">+</span>
+                <input type="number" id="c2_3" value="1">
+                <span>Z</span>
+                <span class="operator">=</span>
+                <input type="number" id="d2_3" value="2" step="any">
+                <span>Total</span>
+            </div>
+            <div class="equation-3x3">
+                <span class="input-label">Eq 3:</span>
+                <input type="number" id="a3_3" value="2">
+                <span>X</span>
+                <span class="operator">+</span>
+                <input type="number" id="b3_3" value="1">
+                <span>Y</span>
+                <span class="operator">+</span>
+                <input type="number" id="c3_3" value="-1">
+                <span>Z</span>
+                <span class="operator">=</span>
+                <input type="number" id="d3_3" value="3" step="any">
+                <span>Total</span>
+            </div>
+        </div>
+
+
+        <button id="calculateSystem" class="calc-button">Calcular e Ver Passo a Passo</button>
+
+        <div class="results">
+            <h3>Resultado Final</h3>
+            <p id="system-error" class="error-message" style="display: none;"></p>
+            <div id="solution-output">
+                <div id="output-2x2">
+                    <p class="result-item">Preço da Maçã (X): <span id="priceX">R$ 0,00</span></p>
+                    <p class="result-item">Preço da Laranja (Y): <span id="priceY">R$ 0,00</span></p>
+                </div>
+                <div id="output-3x3" style="display: none;">
+                    <p class="result-item">Valor de X: <span id="valueX_3">0</span></p>
+                    <p class="result-item">Valor de Y: <span id="valueY_3">0</span></p>
+                    <p class="result-item">Valor de Z: <span id="valueZ_3">0</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step-output" style="display: none;">
+            <h3>Passo a Passo da Solução</h3>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentSystem = '2x2';
+
+            const calcButton = document.getElementById('calculateSystem');
+            const systemError = document.getElementById('system-error');
+            const stepByStepOutput = document.getElementById('step-by-step-output');
+            const input2x2 = document.getElementById('input-2x2');
+            const input3x3 = document.getElementById('input-3x3');
+            const output2x2 = document.getElementById('output-2x2');
+            const output3x3 = document.getElementById('output-3x3');
+
+            // --- Funções Auxiliares ---
+            const formatValue = (value) => {
+                return parseFloat(value.toFixed(5));
+            };
+
+            const formatCurrency = (value) => {
+                return value.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            };
+
+            // --- Lógica de Troca de Sistema (Tabs) ---
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentSystem = e.target.getAttribute('data-system');
+
+                    if (currentSystem === '2x2') {
+                        input2x2.style.display = 'flex';
+                        input3x3.style.display = 'none';
+                        output2x2.style.display = 'block';
+                        output3x3.style.display = 'none';
+                    } else {
+                        input2x2.style.display = 'none';
+                        input3x3.style.display = 'flex';
+                        output2x2.style.display = 'none';
+                        output3x3.style.display = 'block';
+                    }
+                    systemError.style.display = 'none';
+                    stepByStepOutput.style.display = 'none';
+                });
+            });
+
+            // --- SOLVER GERAL ---
+            function solveSystem() {
+                // Oculta/limpa mensagens anteriores
+                systemError.style.display = 'none';
+                stepByStepOutput.style.display = 'none';
+                stepByStepOutput.innerHTML = '<h3>Passo a Passo da Solução</h3>';
+
+                if (currentSystem === '2x2') {
+                    solve2x2();
+                } else {
+                    solve3x3();
+                }
+            }
+
+            // --- SOLVER 2x2 ---
+
+            function solve2x2() {
+                const a1 = parseFloat(document.getElementById('a1').value);
+                const b1 = parseFloat(document.getElementById('b1').value);
+                const c1 = parseFloat(document.getElementById('c1').value);
+                const a2 = parseFloat(document.getElementById('a2').value);
+                const b2 = parseFloat(document.getElementById('b2').value);
+                const c2 = parseFloat(document.getElementById('c2').value);
+
+                if (isNaN(a1) || isNaN(b1) || isNaN(c1) || isNaN(a2) || isNaN(b2) || isNaN(c2)) {
+                    systemError.textContent = "Erro: Por favor, preencha todos os campos do sistema 2x2.";
+                    systemError.style.display = 'block';
+                    return;
+                }
+                
+                const f = formatValue; // Alias
+                
+                // 1. Cálculo dos Determinantes (Regra de Cramer)
+                const D = (a1 * b2) - (b1 * a2);
+                const Dx = (c1 * b2) - (b1 * c2);
+                const Dy = (a1 * c2) - (c1 * a2);
+
+                if (Math.abs(D) < 1e-9) { 
+                    systemError.textContent = Math.abs(Dx) < 1e-9 && Math.abs(Dy) < 1e-9 ? 
+                        "O sistema é Possível e Indeterminado (SPI)." : 
+                        "O sistema é Impossível (SI).";
+                    systemError.style.display = 'block';
+                    return;
+                }
+                
+                const X = Dx / D;
+                const Y = Dy / D;
+
+                if (X < 0 || Y < 0) {
+                    systemError.textContent = "O cálculo resultou em um preço negativo. Verifique a coerência dos valores.";
+                    systemError.style.display = 'block';
+                    return;
+                }
+
+                document.getElementById('priceX').textContent = formatCurrency(X);
+                document.getElementById('priceY').textContent = formatCurrency(Y);
+                stepByStepOutput.style.display = 'block';
+                
+                // 2. Geração do Passo a Passo Completo (Cramer, Substituição, Adição)
+                stepByStepOutput.innerHTML += generateCramer2x2(a1, b1, c1, a2, b2, c2, D, Dx, Dy, X, Y);
+                stepByStepOutput.innerHTML += generateSubstitution2x2(a1, b1, c1, a2, b2, c2, X, Y);
+                stepByStepOutput.innerHTML += generateElimination2x2(a1, b1, c1, a2, b2, c2, X, Y);
+            }
+            
+            // --- Geração de HTML 2x2 ---
+
+            function generateCramer2x2(a1, b1, c1, a2, b2, c2, D, Dx, Dy, X, Y) {
+                const f = formatValue;
+                return `
+                    <div class="method-section">
+                        <h4>Método 1: Regra de Cramer</h4>
+                        <p>O Determinante Principal (D) é:</p>
+                        <p class="matrix">| ${f(a1)}   ${f(b1)} |<br>| ${f(a2)}   ${f(b2)} |</p>
+                        <p>D = (${f(a1)} * ${f(b2)}) - (${f(b1)} * ${f(a2)}) = ${f(D)}</p>
+                        <p>Dx = (${f(c1)} * ${f(b2)}) - (${f(b1)} * ${f(c2)}) = ${f(Dx)}</p>
+                        <p>Dy = (${f(a1)} * ${f(c2)}) - (${f(c1)} * ${f(a2)}) = ${f(Dy)}</p>
+                        <p><strong>X = Dx / D</strong> = ${f(Dx)} / ${f(D)} = ${formatCurrency(X)}</p>
+                        <p><strong>Y = Dy / D</strong> = ${f(Dy)} / ${f(D)} = ${formatCurrency(Y)}</p>
+                    </div>
+                `;
+            }
+
+            function generateSubstitution2x2(a1, b1, c1, a2, b2, c2, X, Y) {
+                const f = formatValue;
+                const isolateYEq1 = `Y = (${f(c1)} - ${f(a1)}X) / ${f(b1)}`;
+                const subEq2 = `${f(a2)}X + ${f(b2)} * ((${f(c1)} - ${f(a1)}X) / ${f(b1)}) = ${f(c2)}`;
+                const solveX = `${f(a2 * b1 + b2 * (-a1))}X = ${f(c2 * b1 - b2 * c1)}`;
+                const finalX = `X = ${formatCurrency(X)}`;
+                const finalY = `Y = (${f(c1)} - ${f(a1)} * ${f(X)}) / ${f(b1)} = ${formatCurrency(Y)}`;
+
+                return `
+                    <div class="method-section">
+                        <h4>Método 2: Substituição</h4>
+                        <p>1. Isolamos Y na Eq 1 (${f(a1)}X + ${f(b1)}Y = ${f(c1)}): <strong>${isolateYEq1}</strong></p>
+                        <p>2. Substituímos Y na Eq 2 (${f(a2)}X + ${f(b2)}Y = ${f(c2)}): <strong>${subEq2}</strong></p>
+                        <p>3. Distribuímos e simplificamos para resolver X: <strong>${solveX}</strong></p>
+                        <p>4. Encontramos <strong>${finalX}</strong></p>
+                        <p>5. Substituímos X na Eq 1 para encontrar Y: <strong>${finalY}</strong></p>
+                    </div>
+                `;
+            }
+
+            function generateElimination2x2(a1, b1, c1, a2, b2, c2, X, Y) {
+                const f = formatValue;
+                const multiplierY = f(-b2 / b1); // Multiplicador para eliminar Y
+                const multiplierX = f(-a2 / a1); // Multiplicador para eliminar X
+                
+                // Para simplificar a exibição, usamos o método mais comum: multiplicar para igualar e subtrair.
+                const factorY1 = f(b2); 
+                const factorY2 = f(-b1);
+                
+                const factorX1 = f(a2);
+                const factorX2 = f(-a1);
+
+                return `
+                    <div class="method-section">
+                        <h4>Método 3: Adição/Subtração (Eliminação)</h4>
+                        
+                        <h5>A. Eliminando Y (Laranjas)</h5>
+                        <p>1. Multiplicamos Eq 1 por <strong>${factorY1}</strong> e Eq 2 por <strong>${factorY2}</strong> para igualar os coeficientes de Y, mas com sinais opostos.</p>
+                        <p>2. Somamos as novas equações para eliminar Y. A nova equação de X é:</p>
+                        <p><strong>${f(a1*factorY1 + a2*factorY2)}X = ${f(c1*factorY1 + c2*factorY2)}</strong></p>
+                        <p>Resultado: <strong>X = ${formatCurrency(X)}</strong></p>
+                        
+                        <h5>B. Eliminando X (Maçãs)</h5>
+                        <p>1. Multiplicamos Eq 1 por <strong>${factorX1}</strong> e Eq 2 por <strong>${factorX2}</strong> para igualar os coeficientes de X, mas com sinais opostos.</p>
+                        <p>2. Somamos as novas equações para eliminar X. A nova equação de Y é:</p>
+                        <p><strong>${f(b1*factorX1 + b2*factorX2)}Y = ${f(c1*factorX1 + c2*factorX2)}</strong></p>
+                        <p>Resultado: <strong>Y = ${formatCurrency(Y)}</strong></p>
+                    </div>
+                `;
+            }
+            
+            // --- SOLVER 3x3 ---
+
+            function solve3x3() {
+                const ids = ['a1_3', 'b1_3', 'c1_3', 'd1_3', 'a2_3', 'b2_3', 'c2_3', 'd2_3', 'a3_3', 'b3_3', 'c3_3', 'd3_3'];
+                const values = {};
+                
+                ids.forEach(id => {
+                    const val = parseFloat(document.getElementById(id).value);
+                    if (isNaN(val)) {
+                        systemError.textContent = "Erro: Por favor, preencha todos os 12 campos do sistema 3x3.";
+                        systemError.style.display = 'block';
+                        return;
+                    }
+                    values[id] = val;
+                });
+                if (systemError.style.display === 'block') return;
+
+                const { a1_3: a1, b1_3: b1, c1_3: c1, d1_3: d1,
+                       a2_3: a2, b2_3: b2, c2_3: c2, d2_3: d2,
+                       a3_3: a3, b3_3: b3, c3_3: c3, d3_3: d3 } = values;
+                
+                const f = formatValue;
+
+                // Função Sarrus 3x3 (para D, Dx, Dy, Dz)
+                const sarrus = (m11, m12, m13, m21, m22, m23, m31, m32, m33) => {
+                    // Diagonais principais
+                    const p1 = m11 * m22 * m33;
+                    const p2 = m12 * m23 * m31;
+                    const p3 = m13 * m21 * m32;
+                    // Diagonais secundárias
+                    const s1 = m13 * m22 * m31;
+                    const s2 = m11 * m23 * m32;
+                    const s3 = m12 * m21 * m33;
+                    return f((p1 + p2 + p3) - (s1 + s2 + s3));
+                };
+
+                // 1. Cálculo dos Determinantes
+                const D = sarrus(a1, b1, c1, a2, b2, c2, a3, b3, c3);
+                const Dx = sarrus(d1, b1, c1, d2, b2, c2, d3, b3, c3);
+                const Dy = sarrus(a1, d1, c1, a2, d2, c2, a3, d3, c3);
+                const Dz = sarrus(a1, b1, d1, a2, b2, d2, a3, b3, d3);
+
+                if (Math.abs(D) < 1e-9) { 
+                    systemError.textContent = Math.abs(Dx) < 1e-9 && Math.abs(Dy) < 1e-9 && Math.abs(Dz) < 1e-9 ? 
+                        "O sistema é Possível e Indeterminado (SPI)." : 
+                        "O sistema é Impossível (SI).";
+                    systemError.style.display = 'block';
+                    return;
+                }
+
+                // 2. Cálculo das Variáveis
+                const X = f(Dx / D);
+                const Y = f(Dy / D);
+                const Z = f(Dz / D);
+
+                // 3. Exibição
+                document.getElementById('valueX_3').textContent = X;
+                document.getElementById('valueY_3').textContent = Y;
+                document.getElementById('valueZ_3').textContent = Z;
+                stepByStepOutput.style.display = 'block';
+                
+                stepByStepOutput.innerHTML += generateCramerSarrus3x3(a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, D, Dx, Dy, Dz, X, Y, Z);
+            }
+
+            // --- Geração de HTML 3x3 ---
+
+            function generateCramerSarrus3x3(a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, D, Dx, Dy, Dz, X, Y, Z) {
+                const f = formatValue;
+                
+                const matrixA = `
+                    | ${f(a1)}   ${f(b1)}   ${f(c1)} |<br>
+                    | ${f(a2)}   ${f(b2)}   ${f(c2)} |<br>
+                    | ${f(a3)}   ${f(b3)}   ${f(c3)} |
+                `;
+                
+                const sarrusCalc = (m11, m12, m13, m21, m22, m23, m31, m32, m33) => {
+                    const p1 = f(m11 * m22 * m33);
+                    const p2 = f(m12 * m23 * m31);
+                    const p3 = f(m13 * m21 * m32);
+                    const s1 = f(m13 * m22 * m31);
+                    const s2 = f(m11 * m23 * m32);
+                    const s3 = f(m12 * m21 * m33);
+                    return `(${p1} + ${p2} + ${p3}) - (${s1} + ${s2} + ${s3})`;
+                };
+                
+                return `
+                    <div class="method-section">
+                        <h4>Método: Regra de Cramer (com Regra de Sarrus)</h4>
+                        <p>O sistema de equações é:</p>
+                        <p>${f(a1)}X + ${f(b1)}Y + ${f(c1)}Z = ${f(d1)}</p>
+                        <p>${f(a2)}X + ${f(b2)}Y + ${f(c2)}Z = ${f(d2)}</p>
+                        <p>${f(a3)}X + ${f(b3)}Y + ${f(c3)}Z = ${f(d3)}</p>
+
+                        <h5>Passo 1: Determinante Principal (D)</h5>
+                        <p>Matriz A:</p><p class="matrix">${matrixA}</p>
+                        <p>D = ${sarrusCalc(a1, b1, c1, a2, b2, c2, a3, b3, c3)} = <strong>${f(D)}</strong></p>
+
+                        <h5>Passo 2: Determinantes de X, Y e Z</h5>
+                        <p>Para o cálculo, a Regra de Sarrus estende as duas primeiras colunas da matriz 3x3.</p>
+                        
+                        <p><strong>Dx</strong> (Coluna dos resultados substitui X):</p>
+                        <p>Dx = ${sarrusCalc(d1, b1, c1, d2, b2, c2, d3, b3, c3)} = <strong>${f(Dx)}</strong></p>
+                        
+                        <p><strong>Dy</strong> (Coluna dos resultados substitui Y):</p>
+                        <p>Dy = ${sarrusCalc(a1, d1, c1, a2, d2, c2, a3, d3, c3)} = <strong>${f(Dy)}</strong></p>
+
+                        <p><strong>Dz</strong> (Coluna dos resultados substitui Z):</p>
+                        <p>Dz = ${sarrusCalc(a1, b1, d1, a2, b2, d2, a3, b3, d3)} = <strong>${f(Dz)}</strong></p>
+
+                        <h5>Passo 3: Solução Final</h5>
+                        <p>X = Dx / D = ${f(Dx)} / ${f(D)} = <strong>${f(X)}</strong></p>
+                        <p>Y = Dy / D = ${f(Dy)} / ${f(D)} = <strong>${f(Y)}</strong></p>
+                        <p>Z = Dz / D = ${f(Dz)} / ${f(D)} = <strong>${f(Z)}</strong></p>
+                    </div>
+                `;
+            }
+
+            // Atribui o evento ao botão e executa o cálculo inicial 2x2
+            calcButton.addEventListener('click', solveSystem);
+            solveSystem();
+        });
+    </script>
+</body>
+</html>

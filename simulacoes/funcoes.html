@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratório de Polinômios</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --secondary: #2c3e50;
+            --bg: #f5f7fa;
+            --white: #ffffff;
+            --accent: #e74c3c;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; }
+        
+        .main-container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        /* Estilo da Calculadora */
+        .calculator {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .screen {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            min-height: 50px;
+            font-size: 1.2rem;
+            word-wrap: break-word;
+            border: 2px solid #ddd;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            padding: 15px 5px;
+            border: none;
+            border-radius: 8px;
+            background: #f8f9fa;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--secondary);
+            border-bottom: 3px solid #ddd;
+        }
+
+        button:hover { background: #e9ecef; transform: translateY(-2px); }
+        button:active { transform: translateY(0); border-bottom: 1px solid #ddd; }
+
+        .btn-op { background: #d1d8e0; }
+        .btn-var { background: #ffeaa7; color: #d35400; }
+        .btn-action { background: var(--primary); color: white; grid-column: span 2; border-bottom: 3px solid #357abd; }
+        .btn-clear { background: var(--accent); color: white; grid-column: span 2; border-bottom: 3px solid #c0392b; }
+
+        /* Estilo do Gráfico */
+        .display-area {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-container { flex-grow: 1; min-height: 400px; }
+
+        h2 { margin-top: 0; color: var(--secondary); font-size: 1.2rem; }
+
+        @media (max-width: 800px) {
+            .main-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+      <script src="https://erik-bernardo.github.io/SimuLab/dados/head.js"></script>
+    
+<div class="main-container">
+    <div class="calculator">
+        <h2>Montar Polinômio</h2>
+        <div class="screen" id="display">0</div>
+        
+        <div class="keypad">
+            <button onclick="addChar('7')">7</button>
+            <button onclick="addChar('8')">8</button>
+            <button onclick="addChar('9')">9</button>
+            <button class="btn-op" onclick="addChar('/')">÷</button>
+
+            <button onclick="addChar('4')">4</button>
+            <button onclick="addChar('5')">5</button>
+            <button onclick="addChar('6')">6</button>
+            <button class="btn-op" onclick="addChar('*')">×</button>
+
+            <button onclick="addChar('1')">1</button>
+            <button onclick="addChar('2')">2</button>
+            <button onclick="addChar('3')">3</button>
+            <button class="btn-op" onclick="addChar('-')">-</button>
+
+            <button onclick="addChar('0')">0</button>
+            <button onclick="addChar('.')">.</button>
+            <button onclick="addChar('(')">(</button>
+            <button class="btn-op" onclick="addChar('+')">+</button>
+
+            <button class="btn-var" onclick="addChar('x')">x</button>
+            <button class="btn-var" onclick="addChar('^2')">x²</button>
+            <button class="btn-var" onclick="addChar('^3')">x³</button>
+            <button class="btn-var" onclick="addChar('^')">xⁿ</button>
+
+            <button class="btn-clear" onclick="clearDisplay()">Limpar</button>
+            <button class="btn-action" onclick="updateGraph()">Gerar Gráfico</button>
+        </div>
+    </div>
+
+    <div class="display-area">
+        <h2>Visualização Gráfica</h2>
+        <div class="chart-container">
+            <canvas id="polyChart"></canvas>
+        </div>
+        <div id="info" style="margin-top:15px; font-size: 0.9rem; color: #666;">
+            Dica: Polinômios de grau par (como x²) têm as pontas para o mesmo lado. Grau ímpar (como x³) têm pontas em lados opostos.
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentExpr = "x^2";
+    let myChart;
+    const displayElement = document.getElementById('display');
+
+    function addChar(char) {
+        if (displayElement.innerText === "0" && char !== '.') {
+            currentExpr = char;
+        } else {
+            currentExpr += char;
+        }
+        displayElement.innerText = currentExpr.replace(/\*/g, '×').replace(/\//g, '÷');
+    }
+
+    function clearDisplay() {
+        currentExpr = "0";
+        displayElement.innerText = "0";
+    }
+
+    function updateGraph() {
+        const ctx = document.getElementById('polyChart').getContext('2d');
+        
+        try {
+            const node = math.parse(currentExpr);
+            const expr = node.compile();
+
+            const xValues = [];
+            const yValues = [];
+
+            // Gerar pontos de -10 a 10
+            for (let x = -10; x <= 10; x += 0.5) {
+                xValues.push(x);
+                try {
+                    const y = expr.evaluate({x: x});
+                    yValues.push(y);
+                } catch(e) {
+                    yValues.push(null);
+                }
+            }
+
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xValues,
+                    datasets: [{
+                        label: `f(x) = ${currentExpr}`,
+                        data: yValues,
+                        borderColor: '#4a90e2',
+                        backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'linear', position: 'bottom', title: {display: true, text: 'Eixo X'} },
+                        y: { title: {display: true, text: 'Eixo Y'} }
+                    },
+                    plugins: {
+                        legend: { labels: { font: { size: 14, weight: 'bold' } } }
+                    }
+                }
+            });
+
+        } catch (error) {
+            alert("Erro na expressão! Verifique se os sinais estão corretos.");
+        }
+    }
+
+    // Inicializa com x^2
+    window.onload = () => {
+        displayElement.innerText = "x^2";
+        updateGraph();
+    };
+</script>
+
+</body>
+</html>

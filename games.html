@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimuLab: Jogos Educativos</title>
+    
+    <link rel="icon" type="image/png" href="logo-icon.png"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css"> 
+    
+    <style>
+        /* ----------------------------------- */
+        /* RESET BÁSICO E ESTILOS GERAIS (Reutilizados) */
+        /* ----------------------------------- */
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f8f8f8; 
+            color: #333; 
+        } 
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            justify-content: flex-end;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #555;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 15px 15px;
+            transition: color 0.3s, background-color 0.3s;
+            display: flex;
+            align-items: center;
+            text-transform: uppercase;
+            border-bottom: 3px solid transparent;
+        }
+
+        /* Simulação de link de navegação ativo */
+        .nav-link[href="jogos.html"] { 
+            color: #D2691E;
+            border-bottom: 3px solid #D2691E;
+            background-color: #f0f0f0;
+        } 
+        
+        .hero-button {
+            background-color: #D2691E;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+        }
+
+        /* ----------------------------------- */
+        /* ESTILOS ESPECÍFICOS DE 'JOGOS' */
+        /* ----------------------------------- */
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .page-header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            color: #D2691E;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .intro-box {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        } 
+        
+        .intro-box p {
+            font-size: 1.1em;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        /* NOVO: Estilos para as Seções de Matérias */
+        .subject-section {
+            margin-bottom: 60px;
+            padding-top: 20px;
+            border-top: 1px dashed #D2691E;
+        }
+        
+        .subject-section:first-child {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .subject-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            color: #D2691E;
+        }
+        
+        .subject-header i {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+        
+        .subject-header h2 {
+            font-size: 2em;
+            margin: 0;
+            color: #333;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .game-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            min-height: 250px; /* Altura mínima para padronizar */
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .game-content {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        } 
+        
+        .game-status {
+            font-size: 0.9em;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 3px;
+            display: inline-block;
+            margin-bottom: 10px;
+            align-self: flex-start; /* Alinha a tag à esquerda */
+        }
+
+        .status-ready { background-color: #e6ffe6; color: #008000; border: 1px solid #008000; } 
+        .status-dev { background-color: #fff0e6; color: #D2691E; border: 1px solid #D2691E; }
+
+        .game-content h3 { /* Mudado de h2 para h3 */
+            font-size: 1.4em;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .game-content p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        } 
+
+        .game-content .access-button {
+            display: block;
+            text-align: center;
+            background-color: #555;
+            color: white;
+            padding: 10px 0;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            margin-top: auto; /* Garante que o botão fique no final */
+        }
+        
+        .game-content .access-button:hover {
+            background-color: #333;
+        }
+        
+        .game-content .access-button.disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        } 
+
+        .game-tech {
+            padding: 15px 25px;
+            background-color: #f7f7f7;
+            border-top: 1px solid #eee;
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+</head>
+<body> 
+    <main class="content-container">
+        
+        <div class="page-header">
+            <h1>🎮 Gamificação: Jogos Educativos e Lógicos</h1>
+            <p>Aprenda, revise e domine conceitos de todas as matérias de forma interativa e dinâmica.</p>
+        </div>
+
+        <div class="intro-box">
+            <p>
+                Explore nossa biblioteca de jogos, criados para transformar o estudo em uma jornada divertida. De sinônimos a estruturas de programação, o SimuLab é seu laboratório de aprendizado!
+            </p>
+            <a href="codeTester.html" class="hero-button" style="margin-top: 15px;">Acesse o Code Tester <i class="fas fa-code"></i></a>
+        </div>
+
+        <section class="subject-section">
+            <div class="subject-header">
+                <i class="fas fa-book-open"></i>
+                <h2>Língua Portuguesa e Literatura</h2>
+            </div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponível</span>
+                        <h3>Voa-Palavra: Sinônimos Perfeitos</h3>
+                        <p>
+                            Controle o pássaro e colete o sinônimo perfeito da palavra-chave. Um desafio de reflexo e vocabulário para dominar a semântica.
+                        </p>
+                        <a href="games/flappy-words/index.html" class="access-button">Jogar Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        <b> Foco: Semântica (Sinônimos Perfeitos) </b>
+                    </div>
+                </div>
+
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponível</span>
+                        <h3>Cobras Escadas (Conjugação)</h3>
+                        <p>
+                            Conjuge o verbo corretamente no tempo e modo solicitados antes que o tempo acabe. Pratique a morfologia verbal de forma rápida.
+                        </p>
+                        <a href="games/escada/index.html" class="access-button">Jogar Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        <b> Foco: Morfologia Verbal (Conjugação) </b>
+                    </div>
+                </div>
+                    <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponível</span>
+                        <h3>Porques Blast</h3>
+                        <p>
+                            Atire o porque certo pra completar as frases antes qye seje tarde. Pratique e entenda como funciona os porques.
+                        </p>
+                        <a href="games/porque-blast/index.html" class="access-button">Jogar Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        <b> Foco: Porques </b>
+                    </div>
+                </div>
+                    <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponível</span>
+                        <h3>Acentos Runner</h3>
+                        <p>
+                            Corra até a porta correta, uma corrida dos acentos aonde se ganha quem sabe melhor acentuar. Pratique a acentuação gráfica de algumas palavras
+                        </p>
+                        <a href="games/acentos/index.html" class="access-button">Jogar Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        <b> Foco: Acentuação </b>
+                    </div>
+                </div>
+                    <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponível</span>
+                        <h3>Português Social</h3>
+                        <p>
+                           Você consegue responder corretamente essas perguntas num contexto social. Pratique a diferenciação dessas palavras
+                        </p>
+                        <a href="games/portugues-social/index.html" class="access-button">Jogar Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        <b> Foco: mau/mal bem/bom mas/mais </b>
+                    </div>
+                </div>
+                   <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponível</span>
+                        <h3> Frase Oração e Periodo</h3>
+                        <p>
+                           Você sabe sobre Frase Oração e Periodo? Vamos conferir
+                        </p>
+                        <a href="games/frases.html" class="access-button">Jogar Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        <b> Foco:  Frase Oração e Periodo </b>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="subject-section">
+            <div class="subject-header">
+                <i class="fas fa-language"></i>
+                <h2>Língua Estrangeira (Inglês)</h2>
+            </div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponivel</span>
+                        <h3>The seer</h3>
+                        <p>
+                           Decifre o destino: acerte o Vaticínio de primeira (2 PONTOS) ou consulte o Grimório (1 PONTO) para selar seu futuro!
+                        </p>
+                        <a href="games/seer/index.html" class="access-button">Jogue Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        <b> Foco: Will and Going To </b>
+                    </div>
+                </div>
+                
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponivel</span>
+                        <h3>Who is the owner?</h3>
+                        <p>
+                           Arraste cada item até o dono correto e acerte o Pronome de Objeto (him, her, them, it) que completa a frase!
+                        </p>
+                        <a href="games/owner/index.html" class="access-button">Jogue Agora</a>
+                    </div>
+                       <div class="game-tech">
+                        <b> Foco: Will and Going To </b>
+                </div>
+            </div>
+        </section>
+
+        <section class="subject-section">
+            <div class="subject-header">
+                <i class="fas fa-calculator"></i>
+                <h2>Matemática</h2>
+            </div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponivel</span>
+                        <h3>Duelos de Cálculo Mental</h3>
+                        <p>
+                            Responda a equações de adição, subtração, multiplicação e divisão com tempo limitado. Um jogo rápido para aprimorar o cálculo mental.
+                        </p>
+                        <a href="https://erik-bernardo.github.io/SimuLab/games/duelos.html" class="access-button">Jogue Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Operações Básicas | **Nível:** Ensino Fundamental / Médio
+                    </div>
+                </div>
+                
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-dev">Em desenvolvimento</span>
+                        <h3>A Queda de Pi: Geometria</h3>
+                        <p>
+                            Calcule a área, perímetro ou volume de figuras geométricas que caem, usando as fórmulas corretas para evitar que elas atinjam o chão.
+                        </p>
+                        <a href="#" class="access-button disabled">Em Breve</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Geometria Plana e Espacial | **Nível:** Ensino Fundamental / Médio
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="subject-section">
+            <div class="subject-header">
+                <i class="fas fa-rocket"></i>
+                <h2>Física</h2>
+            </div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-dev">Em desenvolvimento</span>
+                        <h3>Seu-Pong: Colisão e Rebatimento</h3>
+                        <p>
+                            Domine o cálculo de colisão e as regras de rebatimento (inversão de velocidade) em 2D. Essencial para simulações de física.
+                        </p>
+                        <a href="#" class="access-button disabled">Em Desenvolvimento</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Colisão e Vetores de Movimento | **Linguagem:** JavaScript/Canvas
+                    </div>
+                </div>
+                
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-dev">Em desenvolvimento</span>
+                        <h3>Labirinto Elétrico</h3>
+                        <p>
+                            Aplique as leis de Ohm e Kirchhoff para resolver circuitos e fazer a energia chegar ao ponto final no labirinto.
+                        </p>
+                        <a href="#" class="access-button disabled">Em Breve</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Eletricidade Básica (Leis de Ohm)
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="subject-section">
+            <div class="subject-header">
+                <i class="fas fa-flask"></i>
+                <h2>Química</h2>
+            </div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-dev">Em desenvolvimento</span>
+                        <h3>A Tabela Periódica em Ação</h3>
+                        <p>
+                            Combine elementos corretamente para formar compostos estáveis e desvende os segredos da Tabela Periódica.
+                        </p>
+                        <a href="#" class="access-button disabled">Em Breve</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Tabela Periódica, Ligações Químicas
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="subject-section">
+            <div class="subject-header">
+                <i class="fas fa-dna"></i>
+                <h2>Biologia</h2>
+            </div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponivel</span>
+                        <h3>Atira Virus</h3>
+                        <p>
+                           Você é um globulo branco e terá que combater os virus,bacterias malignas
+                        </p>
+                        <a href="games/virus/index.html" class="access-button">Jogue Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Citologia (Organelas e Funções)
+                    </div>
+                </div>
+                   <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-dev">Em desenvolvimento</span>
+                        <h3>Immune Defense: Micro War</h3>
+                        <p>
+                            Proteja seu corpo das bactérias,virus e fungos nesse tower deffense.
+                        </p>
+                        <a href="https://erik-bernardo.github.io/SimuLab/games/Imune/" class="access-button">Em Desenvolvimento</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Sistema Imunologico | **Linguagem:** GameMaker/HTML5
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="subject-section">
+            <div class="subject-header">
+                <i class="fas fa-map-marked-alt"></i>
+                <h2>Geografia</h2>
+            </div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponível</span>
+                        <h3>Adivinhe a Bandeira (Digitação)</h3>
+                        <p>
+                            Teste seus conhecimentos de geografia e história, identificando bandeiras e capitais do mundo todo em um quiz rápido.
+                        </p>
+                        <a href="games/bandeiras/index.html" class="access-button">Jogue Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Geografia (Bandeiras, Capitais) | **Nível:** Todos
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="subject-section">
+            <div class="subject-header">
+                <i class="fas fa-landmark"></i>
+                <h2>História</h2>
+            </div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-dev">Em desenvolvimento</span>
+                        <h3>Linha do Tempo (Timeline)</h3>
+                        <p>
+                            Organize eventos históricos na ordem cronológica correta para desvendar a história. Pratique a contextualização histórica.
+                        </p>
+                        <a href="#" class="access-button disabled">Em Breve</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Cronologia e Contexto Histórico | **Nível:** Ensino Médio
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="subject-section">
+            <div class="subject-header">
+                <i class="fas fa-brain"></i>
+                <h2>Filosofia</h2>
+            </div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponivel</span>
+                        <h3>Seje Justo</h3>
+                        <p>
+                            Enfrente dilemas éticos e morais e tome decisões baseadas nas correntes filosóficas mais famosas, de Platão a Kant.
+                        </p>
+                        <a href="games/card/index.html" class="access-button">Jogue Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        <b></b>Foco: Republica de Platão </b>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="subject-section">
+            <div class="subject-header">
+                <i class="fas fa-terminal"></i>
+                <h2>Programação e Lógica</h2>
+            </div>
+            <div class="games-grid">
+                
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponível</span>
+                        <h3>Labirinto de Loops (For/While)</h3>
+                        <p>
+                            Programe o caminho do robô pelo labirinto usando o menor número possível de comandos de repetição. Desafio da eficiência.
+                        </p>
+                        <a href="games/labirinto.html" class="access-button">Jogar Agora</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Estruturas de Repetição | **Linguagem:** JavaScript
+                    </div>
+                </div>
+                
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-dev">Em desenvolvimento</span>
+                        <h3>Corredor de Condicionais (If/Else)</h3>
+                        <p>
+                            Use comandos condicionais para guiar um personagem pelas portas corretas. Entenda como o código toma decisões.
+                        </p>
+                        <a href="#" class="access-button disabled">Em Breve</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Estruturas Condicionais | **Linguagem:** JavaScript
+                    </div>
+                </div>
+                
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-dev">Em Desenvolvimento</span>
+                        <h3>Seu-FlappyBird: Gravidade e Variáveis</h3>
+                        <p>
+                            Aprenda a simular a gravidade e o movimento em 2D, manipulando variáveis de posição (eixos X e Y) dentro do **Loop de Jogo**.
+                        </p>
+                        <a href="games/flappy-blocks/index.html" class="access-button">Em Desenvolvimento</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Variáveis, Gravidade e Movimento | **Linguagem:** JavaScript/Canvas
+                    </div>
+                </div>
+
+                <div class="game-card">
+                    <div class="game-content">
+                        <span class="game-status status-ready">Disponível</span>
+                        <h3>Seu-Akinator: Árvore de Decisão</h3>
+                        <p>
+                            Explore a lógica por trás de jogos de adivinhação, construindo uma **Árvore de Decisão** eficiente com condicionais aninhadas.
+                        </p>
+                        <a href="games/make-your-akinator.html" class="access-button">Faça o seu agora</a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Lógica Condicional Aninhada | **Linguagem:** JavaScript
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+
+        <section class="subject-section" style="border: none; padding-top: 0;">
+             <div class="games-grid">
+                <div class="game-card" style="border: 2px dashed #D2691E; grid-column: 1 / -1;">
+                    <div class="game-content" style="align-items: center; text-align: center;">
+                        <span class="game-status status-dev">Seja um Criador</span>
+                        <h3 style="font-size: 1.8em;">Crie Seu Próprio Jogo para o SimuLab!</h3>
+                        <p style="max-width: 600px;">
+                            Usando o Code Tester e os conceitos que você aprendeu, crie seu mini-jogo (educativo ou de lógica) e submeta-o. Seu trabalho pode ser o próximo destaque da plataforma!
+                        </p>
+                        <a href="codeTester.html" class="access-button" style="background-color: #D2691E; width: 50%; margin-top: 15px;">Começar a Criar <i class="fas fa-code"></i></a>
+                    </div>
+                    <div class="game-tech">
+                        **Foco:** Criatividade e Aplicação Prática | **Linguagem:** HTML/CSS/JS
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+    <script src="dados/head.js"></script>
+    <script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="e3pwbdB7Yh7c7CqbtkE3u";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
+</body>
+</html>

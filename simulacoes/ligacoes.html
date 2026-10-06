@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Ligações Químicas - Tabela Periódica (Novo Layout e Correto)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* --- Variáveis de Estilo --- */
+        :root {
+            --cor-primaria: #00bcd4; /* Ciano */
+            --cor-ionica: #e91e63; /* Rosa Forte */
+            --cor-covalente: #4CAF50; /* Verde */
+            --cor-metalica: #FFC107; /* Amarelo */
+            --cor-fundo: #f0f4f8;
+            --cor-card: #ffffff;
+            --cor-texto: #333;
+            --metal-color: #1A66CC;
+            --nonmetal-color: #fE5F2F;
+            --semimetal-color: #9B59B6;
+            --gasnobre-color: #7f8c8d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--cor-card);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: var(--cor-primaria);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* --- Resultados (Topo da Tela) --- */
+        .results-area {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 30px; 
+            border-bottom: 2px solid #eee;
+        }
+        
+        #bond-title {
+            color: var(--cor-primaria);
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        #bond-type {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 0;
+            min-height: 40px;
+            transition: color 0.5s;
+        }
+        
+        #bond-details {
+            font-size: 1.1em;
+            color: #666;
+            min-height: 50px;
+            margin-top: 10px;
+        }
+
+        .ionica { color: var(--cor-ionica); }
+        .covalente { color: var(--cor-covalente); }
+        .metalica { color: var(--cor-metalica); }
+        
+        .initial-message {
+            color: #999;
+            font-style: italic;
+        }
+        
+        /* --- Drop Zones (Meio) --- */
+        .drop-area-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #eee; 
+            margin-bottom: 20px;
+        }
+
+        .drop-zone {
+            width: 180px;
+            height: 180px;
+            border: 3px dashed #ccc;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        .drop-zone.hover {
+            border-color: var(--cor-primaria);
+            background-color: #e0f7fa;
+        }
+
+        .drop-zone .element-block {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 10px;
+            cursor: default; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .clear-btn {
+            background: none;
+            border: none;
+            color: var(--cor-ionica);
+            cursor: pointer;
+            margin-top: 5px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        /* --- Tabela Periódica (Base) --- */
+        #periodic-table-container {
+            display: grid;
+            grid-template-columns: repeat(18, 1fr); 
+            grid-auto-rows: minmax(55px, auto); 
+            gap: 2px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .element-block {
+            width: auto;
+            height: 55px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+            cursor: grab;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            font-size: 0.8em;
+            text-align: center;
+            padding: 2px;
+            user-select: none;
+            transition: transform 0.1s;
+        }
+
+        .element-block:not(.GásNobre):active {
+            cursor: grabbing;
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .element-symbol {
+            font-size: 1.5em;
+            line-height: 1;
+        }
+        
+        .element-detail {
+            font-size: 0.5em;
+            line-height: 1;
+            opacity: 0.8;
+        }
+
+        /* Cores por Tipo */
+        .Metal { background-color: rgba(26, 102, 204, 0.2); color: var(--metal-color); border: 1px solid var(--metal-color); }
+        .Ametal { background-color: rgba(254, 95, 47, 0.2); color: var(--nonmetal-color); border: 1px solid var(--nonmetal-color); }
+        .Semimetal { background-color: rgba(155, 89, 182, 0.2); color: var(--semimetal-color); border: 1px solid var(--semimetal-color); }
+        .GásNobre { background-color: rgba(127, 140, 141, 0.1); color: var(--gasnobre-color); border: 1px solid var(--gasnobre-color); cursor: not-allowed; opacity: 0.6; }
+        
+        /* Células vazias e placeholders */
+        .empty-cell {
+            background-color: #eee;
+            border-radius: 4px;
+        }
+        .lanthanide-link, .actinide-link {
+            text-align: center;
+            font-size: 0.7em;
+            font-weight: bold;
+            color: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            cursor: default;
+        }
+        
+        /* Linhas separadas para Lantanídeos e Actinídeos */
+        .lanthanides-row-container, .actinides-row-container {
+            grid-column: 1 / -1; /* Ocupa todas as 18 colunas principais */
+            display: grid;
+            grid-template-columns: 2fr repeat(15, 1fr); /* Col 1: Label (2fr). Col 2-16: Elementos (1fr * 15) */
+            gap: 2px;
+            margin-top: 10px;
+            padding: 5px 0;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lanthanides-row-label, .actinides-row-label {
+            grid-column: 1 / 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: bold;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="results-area">
+            <h1><i class="fas fa-magic"></i> Simulador de Ligações Químicas</h1>
+            <h1 id="bond-title">Análise da Ligação Química:</h1>
+            <p id="bond-type" class="initial-message">Arraste dois elementos para o espaço acima!</p>
+            <p id="bond-details">A ligação é determinada pela natureza dos elementos e pela diferença de eletronegatividade ($\Delta EN$).</p>
+        </div>
+        
+        <div class="drop-area-container">
+            <div id="drop-zone-a" class="drop-zone drop-zone-a">
+                <p>Arraste Elemento A</p>
+            </div>
+            
+            <div class="bond-icon">
+                <i class="fas fa-link" style="font-size: 4em; color: #ccc;"></i>
+            </div>
+            
+            <div id="drop-zone-b" class="drop-zone drop-zone-b">
+                <p>Arraste Elemento B</p>
+            </div>
+        </div>
+
+        <div id="periodic-table-container">
+            </div>
+        
+    </div>
+
+    <script>
+        // --- BASE DE DADOS DOS ELEMENTOS ---
+        const ELEMENTS_DATA = [
+            { z: 1, name: "Hidrogênio", symbol: "H", user_type: "Ametal", en: 2.20 },
+            { z: 2, name: "Hélio", symbol: "He", user_type: "Gás Nobre", en: 0.0 },
+            { z: 3, name: "Lítio", symbol: "Li", user_type: "Metal", en: 0.98 },
+            { z: 4, name: "Berílio", symbol: "Be", user_type: "Metal", en: 1.57 },
+            { z: 5, name: "Boro", symbol: "B", user_type: "Semimetal", en: 2.04 },
+            { z: 6, name: "Carbono", symbol: "C", user_type: "Ametal", en: 2.55 },
+            { z: 7, name: "Nitrogênio", symbol: "N", user_type: "Ametal", en: 3.04 },
+            { z: 8, name: "Oxigênio", symbol: "O", user_type: "Ametal", en: 3.44 },
+            { z: 9, name: "Flúor", symbol: "F", user_type: "Ametal", en: 3.98 },
+            { z: 10, name: "Neônio", symbol: "Ne", user_type: "Gás Nobre", en: 0.0 },
+            { z: 11, name: "Sódio", symbol: "Na", user_type: "Metal", en: 0.93 },
+            { z: 12, name: "Magnésio", symbol: "Mg", user_type: "Metal", en: 1.31 },
+            { z: 13, name: "Alumínio", symbol: "Al", user_type: "Metal", en: 1.61 },
+            { z: 14, name: "Silício", symbol: "Si", user_type: "Semimetal", en: 1.90 },
+            { z: 15, name: "Fósforo", symbol: "P", user_type: "Ametal", en: 2.19 },
+            { z: 16, name: "Enxofre", symbol: "S", user_type: "Ametal", en: 2.58 },
+            { z: 17, name: "Cloro", symbol: "Cl", user_type: "Ametal", en: 3.16 },
+            { z: 18, name: "Argônio", symbol: "Ar", user_type: "Gás Nobre", en: 0.0 },
+            { z: 19, name: "Potássio", symbol: "K", user_type: "Metal", en: 0.82 },
+            { z: 20, name: "Cálcio", symbol: "Ca", user_type: "Metal", en: 1.00 },
+            { z: 21, name: "Escândio", symbol: "Sc", user_type: "Metal", en: 1.36 },
+            { z: 22, name: "Titânio", symbol: "Ti", user_type: "Metal", en: 1.54 },
+            { z: 23, name: "Vanádio", symbol: "V", user_type: "Metal", en: 1.63 },
+            { z: 24, name: "Cromo", symbol: "Cr", user_type: "Metal", en: 1.66 },
+            { z: 25, name: "Manganês", symbol: "Mn", user_type: "Metal", en: 1.55 },
+            { z: 26, name: "Ferro", symbol: "Fe", user_type: "Metal", en: 1.83 },
+            { z: 27, name: "Cobalto", symbol: "Co", user_type: "Metal", en: 1.88 },
+            { z: 28, name: "Níquel", symbol: "Ni", user_type: "Metal", en: 1.91 },
+            { z: 29, name: "Cobre", symbol: "Cu", user_type: "Metal", en: 1.90 },
+            { z: 30, name: "Zinco", symbol: "Zn", user_type: "Metal", en: 1.65 },
+            { z: 31, name: "Gálio", symbol: "Ga", user_type: "Metal", en: 1.81 },
+            { z: 32, name: "Germânio", symbol: "Ge", user_type: "Semimetal", en: 2.01 },
+            { z: 33, name: "Arsênio", symbol: "As", user_type: "Semimetal", en: 2.18 },
+            { z: 34, name: "Selênio", symbol: "Se", user_type: "Ametal", en: 2.55 },
+            { z: 35, name: "Bromo", symbol: "Br", user_type: "Ametal", en: 2.96 },
+            { z: 36, name: "Criptônio", symbol: "Kr", user_type: "Gás Nobre", en: 3.00 },
+            { z: 37, name: "Rubídio", symbol: "Rb", user_type: "Metal", en: 0.82 },
+            { z: 38, name: "Estrôncio", symbol: "Sr", user_type: "Metal", en: 0.95 },
+            { z: 39, name: "Ítrio", symbol: "Y", user_type: "Metal", en: 1.22 },
+            { z: 40, name: "Zircônio", symbol: "Zr", user_type: "Metal", en: 1.33 },
+            { z: 41, name: "Nióbio", symbol: "Nb", user_type: "Metal", en: 1.60 },
+            { z: 42, name: "Molibdênio", symbol: "Mo", user_type: "Metal", en: 2.16 },
+            { z: 43, name: "Tecnécio", symbol: "Tc", user_type: "Metal", en: 1.90 },
+            { z: 44, name: "Rutênio", symbol: "Ru", user_type: "Metal", en: 2.20 },
+            { z: 45, name: "Ródio", symbol: "Rh", user_type: "Metal", en: 2.28 },
+            { z: 46, name: "Paládio", symbol: "Pd", user_type: "Metal", en: 2.20 },
+            { z: 47, name: "Prata", symbol: "Ag", user_type: "Metal", en: 1.93 },
+            { z: 48, name: "Cádmio", symbol: "Cd", user_type: "Metal", en: 1.69 },
+            { z: 49, name: "Índio", symbol: "In", user_type: "Metal", en: 1.78 },
+            { z: 50, name: "Estanho", symbol: "Sn", user_type: "Metal", en: 1.96 },
+            { z: 51, name: "Antimônio", symbol: "Sb", user_type: "Semimetal", en: 2.05 },
+            { z: 52, name: "Telúrio", symbol: "Te", user_type: "Ametal", en: 2.10 },
+            { z: 53, name: "Iodo", symbol: "I", user_type: "Ametal", en: 2.66 },
+            { z: 54, name: "Xenônio", symbol: "Xe", user_type: "Gás Nobre", en: 2.60 },
+            { z: 55, name: "Césio", symbol: "Cs", user_type: "Metal", en: 0.79 },
+            { z: 56, name: "Bário", symbol: "Ba", user_type: "Metal", en: 0.89 },
+            { z: 57, name: "Lantânio", symbol: "La", user_type: "Metal", en: 1.10 }, /* Vai para a linha auxiliar */
+            { z: 58, name: "Cério", symbol: "Ce", user_type: "Metal", en: 1.12 },
+            { z: 59, name: "Praseodímio", symbol: "Pr", user_type: "Metal", en: 1.13 },
+            { z: 60, name: "Neodímio", symbol: "Nd", user_type: "Metal", en: 1.14 },
+            { z: 61, name: "Promécio", symbol: "Pm", user_type: "Metal", en: 1.13 },
+            { z: 62, name: "Samário", symbol: "Sm", user_type: "Metal", en: 1.17 },
+            { z: 63, name: "Európio", symbol: "Eu", user_type: "Metal", en: 1.20 },
+            { z: 64, name: "Gadolínio", symbol: "Gd", user_type: "Metal", en: 1.20 },
+            { z: 65, name: "Térbio", symbol: "Tb", user_type: "Metal", en: 1.20 },
+            { z: 66, name: "Disprósio", symbol: "Dy", user_type: "Metal", en: 1.22 },
+            { z: 67, name: "Hólmio", symbol: "Ho", user_type: "Metal", en: 1.23 },
+            { z: 68, name: "Érbio", symbol: "Er", user_type: "Metal", en: 1.24 },
+            { z: 69, name: "Túlio", symbol: "Tm", user_type: "Metal", en: 1.25 },
+            { z: 70, name: "Itérbio", symbol: "Yb", user_type: "Metal", en: 1.06 },
+            { z: 71, name: "Lutécio", symbol: "Lu", user_type: "Metal", en: 1.27 },
+            { z: 72, name: "Háfnio", symbol: "Hf", user_type: "Metal", en: 1.30 },
+            { z: 73, name: "Tântalo", symbol: "Ta", user_type: "Metal", en: 1.50 },
+            { z: 74, name: "Tungstênio", symbol: "W", user_type: "Metal", en: 2.36 },
+            { z: 75, name: "Rênio", symbol: "Re", user_type: "Metal", en: 1.90 },
+            { z: 76, name: "Ósmio", symbol: "Os", user_type: "Metal", en: 2.20 },
+            { z: 77, name: "Irídio", symbol: "Ir", user_type: "Metal", en: 2.20 },
+            { z: 78, name: "Platina", symbol: "Pt", user_type: "Metal", en: 2.28 },
+            { z: 79, name: "Ouro", symbol: "Au", user_type: "Metal", en: 2.54 },
+            { z: 80, name: "Mercúrio", symbol: "Hg", user_type: "Metal", en: 2.00 },
+            { z: 81, name: "Tálio", symbol: "Tl", user_type: "Metal", en: 1.62 },
+            { z: 82, name: "Chumbo", symbol: "Pb", user_type: "Metal", en: 1.87 },
+            { z: 83, name: "Bismuto", symbol: "Bi", user_type: "Metal", en: 2.02 },
+            { z: 84, name: "Polônio", symbol: "Po", user_type: "Semimetal", en: 2.00 },
+            { z: 85, name: "Ástato", symbol: "At", user_type: "Ametal", en: 2.20 },
+            { z: 86, name: "Radônio", symbol: "Rn", user_type: "Gás Nobre", en: 2.20 },
+            { z: 87, name: "Frâncio", symbol: "Fr", user_type: "Metal", en: 0.70 },
+            { z: 88, name: "Rádio", symbol: "Ra", user_type: "Metal", en: 0.90 },
+            { z: 89, name: "Actínio", symbol: "Ac", user_type: "Metal", en: 1.10 }, /* Vai para a linha auxiliar */
+            { z: 90, name: "Tório", symbol: "Th", user_type: "Metal", en: 1.30 },
+            { z: 91, name: "Protactínio", symbol: "Pa", user_type: "Metal", en: 1.50 },
+            { z: 92, name: "Urânio", symbol: "U", user_type: "Metal", en: 1.38 },
+            { z: 93, name: "Netúnio", symbol: "Np", user_type: "Metal", en: 1.36 },
+            { z: 94, name: "Plutônio", symbol: "Pu", user_type: "Metal", en: 1.28 },
+            { z: 95, name: "Amerício", symbol: "Am", user_type: "Metal", en: 1.30 },
+            { z: 96, name: "Cúrio", symbol: "Cm", user_type: "Metal", en: 1.30 },
+            { z: 97, name: "Berquélio", symbol: "Bk", user_type: "Metal", en: 1.30 },
+            { z: 98, name: "Califórnio", symbol: "Cf", user_type: "Metal", en: 1.30 },
+            { z: 99, name: "Einstênio", symbol: "Es", user_type: "Metal", en: 1.30 },
+            { z: 100, name: "Férmio", symbol: "Fm", user_type: "Metal", en: 1.30 },
+            { z: 101, name: "Mendelévio", symbol: "Md", user_type: "Metal", en: 1.30 },
+            { z: 102, name: "Nobélio", symbol: "No", user_type: "Metal", en: 1.30 },
+            { z: 103, name: "Laurêncio", symbol: "Lr", user_type: "Metal", en: 1.30 },
+            { z: 104, name: "Rutherfórdio", symbol: "Rf", user_type: "Metal", en: 1.30 },
+            { z: 105, name: "Dúbnio", symbol: "Db", user_type: "Metal", en: 1.30 },
+            { z: 106, name: "Seabórgio", symbol: "Sg", user_type: "Metal", en: 1.30 },
+            { z: 107, name: "Bóhrio", symbol: "Bh", user_type: "Metal", en: 1.30 },
+            { z: 108, name: "Hássio", symbol: "Hs", user_type: "Metal", en: 1.30 },
+            { z: 109, name: "Meitnério", symbol: "Mt", user_type: "Metal", en: 1.30 },
+            { z: 110, name: "Darmstádio", symbol: "Ds", user_type: "Metal", en: 1.30 },
+            { z: 111, name: "Roentgênio", symbol: "Rg", user_type: "Metal", en: 1.30 },
+            { z: 112, name: "Copernício", symbol: "Cn", user_type: "Metal", en: 1.30 },
+            { z: 113, name: "Nihônio", symbol: "Nh", user_type: "Metal", en: 1.30 },
+            { z: 114, name: "Fleróvio", symbol: "Fl", user_type: "Metal", en: 1.30 },
+            { z: 115, name: "Moscóvio", symbol: "Mc", user_type: "Metal", en: 1.30 },
+            { z: 116, name: "Livermório", symbol: "Lv", user_type: "Ametal", en: 1.30 }, 
+            { z: 117, name: "Tenessino", symbol: "Ts", user_type: "Ametal", en: 1.30 }, 
+            { z: 118, name: "Oganessônio", symbol: "Og", user_type: "Gás Nobre", en: 1.30 }, 
+        ];
+
+        // --- CONSTANTES DE CLASSIFICAÇÃO ---
+        const THRESHOLD_IONIC = 1.7; 
+        const THRESHOLD_POLAR = 0.4; 
+
+        // --- REFERÊNCIAS DOM ---
+        const periodicTableContainer = document.getElementById('periodic-table-container');
+        const dropZoneA = document.getElementById('drop-zone-a');
+        const dropZoneB = document.getElementById('drop-zone-b');
+        const bondTypeDisplay = document.getElementById('bond-type');
+        const bondDetailsDisplay = document.getElementById('bond-details');
+        const linkIcon = document.querySelector('.bond-icon i');
+
+        let elementA = null; 
+        let elementB = null;
+        
+        let lanthanidesRowContainer;
+        let actinidesRowContainer;
+        
+        // --- LÓGICA DE POSIÇÃO NA GRADE (CORRIGIDA) ---
+        
+        function getGridPosition(z) {
+            // Row 1
+            if (z === 1) return { row: 1, col: 1 }; // H
+            if (z === 2) return { row: 1, col: 18 }; // He
+
+            // Row 2 (Li to Ne)
+            if (z >= 3 && z <= 10) { 
+                const col = (z <= 4) ? (z - 2) : (z + 8); 
+                return { row: 2, col: col };
+            }
+            // Row 3 (Na to Ar)
+            if (z >= 11 && z <= 18) { 
+                const col = (z <= 12) ? (z - 10) : (z + 6); 
+                return { row: 3, col: col };
+            }
+            // Row 4 (K to Kr) - Full transition metals block
+            if (z >= 19 && z <= 36) { 
+                return { row: 4, col: z - 18 };
+            }
+            // Row 5 (Rb to Xe) - Full transition metals block
+            if (z >= 37 && z <= 54) { 
+                return { row: 5, col: z - 36 };
+            }
+
+            // Row 6 (Cs, Ba, Placeholder, Hf to Rn)
+            if (z >= 55 && z <= 56) { // Cs, Ba
+                return { row: 6, col: z - 54 };
+            }
+            if (z >= 72 && z <= 86) { // Hf to Rn (Columns 4 to 18)
+                return { row: 6, col: z - 68 }; // 72-68=4, 86-68=18
+            }
+            
+            // Row 7 (Fr, Ra, Placeholder, Rf to Og)
+            if (z >= 87 && z <= 88) { // Fr, Ra
+                return { row: 7, col: z - 86 };
+            }
+            if (z >= 104 && z <= 118) { // Rf to Og (Columns 4 to 18)
+                return { row: 7, col: z - 100 }; // 104-100=4, 118-100=18
+            }
+
+            // Auxiliary Rows (Lantanídeos e Actinídeos)
+            if (z >= 57 && z <= 71) { // La to Lu (15 elements)
+                const auxCol = z - 57 + 2; // Column 2 is the first element (La)
+                return { row: 8, col: auxCol };
+            }
+            if (z >= 89 && z <= 103) { // Ac to Lr (15 elements)
+                const auxCol = z - 89 + 2; // Column 2 is the first element (Ac)
+                return { row: 9, col: auxCol };
+            }
+
+            return { row: 0, col: 0 }; 
+        }
+
+        // --- FUNÇÕES DE LIGAÇÃO ---
+
+        function getElementData(symbol) {
+            return ELEMENTS_DATA.find(el => el.symbol === symbol) || null;
+        }
+
+        function simulateBond() {
+            bondTypeDisplay.className = '';
+            linkIcon.style.color = '#ccc';
+            
+            if (!elementA || !elementB) {
+                bondTypeDisplay.textContent = "Arraste dois elementos para o espaço acima!";
+                bondTypeDisplay.classList.add('initial-message');
+                bondDetailsDisplay.textContent = 'A ligação é determinada pela natureza dos elementos e pela diferença de eletronegatividade (ΔEN).';
+                return;
+            }
+
+            const deltaEN = Math.abs(elementA.en - elementB.en);
+            const deltaEN_formatted = deltaEN.toFixed(2);
+            let bondType = '';
+            
+            const typeA = elementA.user_type;
+            const typeB = elementB.user_type;
+            
+            const isMetalA = typeA === 'Metal';
+            const isMetalB = typeB === 'Metal';
+            const isNonMetalA = typeA === 'Ametal' || typeA === 'Semimetal'; 
+            const isNonMetalB = typeB === 'Ametal' || typeB === 'Semimetal';
+            
+            let details = `Ligando ${elementA.name} (${elementA.symbol}) [${typeA}] com ${elementB.name} (${elementB.symbol}) [${typeB}]. `;
+            details += `<br>ΔEN = |${elementA.en.toFixed(2)} - ${elementB.en.toFixed(2)}| = <span class="highlight">${deltaEN_formatted}</span>.`;
+
+            
+            if (isMetalA && isMetalB) {
+                bondType = 'Ligação METÁLICA';
+                details += `<br>Ocorre entre dois <span class="metalica">metais</span>, com elétrons deslocalizados (Mar de Elétrons).`;
+                bondTypeDisplay.classList.add('metalica');
+                linkIcon.style.color = 'var(--cor-metalica)';
+                
+            } else if ((isMetalA && isNonMetalB) || (isNonMetalA && isMetalB)) {
+                if (deltaEN >= THRESHOLD_IONIC) {
+                    bondType = 'Ligação IÔNICA';
+                    details += `<br>Transferência de elétrons (Metal doa para Ametal/Semimetal), pois $\\Delta EN$ (${deltaEN_formatted}) ≥ ${THRESHOLD_IONIC}.`;
+                    bondTypeDisplay.classList.add('ionica');
+                    linkIcon.style.color = 'var(--cor-ionica)';
+                } else {
+                    bondType = 'Ligação COVALENTE POLAR (Caráter Iônico Baixo)';
+                    details += `<br>Compartilhamento de elétrons com desequilíbrio (polarizado), pois $\\Delta EN$ (${deltaEN_formatted}) < ${THRESHOLD_IONIC}.`;
+                    bondTypeDisplay.classList.add('covalente');
+                    linkIcon.style.color = 'var(--cor-covalente)';
+                }
+
+            } else if (isNonMetalA && isNonMetalB) {
+                if (deltaEN < THRESHOLD_POLAR) {
+                    bondType = 'Ligação COVALENTE APOLAR';
+                    details += `<br>Compartilhamento de elétrons quase simétrico (apolar), pois $\\Delta EN$ (${deltaEN_formatted}) < ${THRESHOLD_POLAR}.`;
+                } else {
+                    bondType = 'Ligação COVALENTE POLAR';
+                    details += `<br>Compartilhamento de elétrons desequilibrado (polarizado), pois $0.4 \\le \\Delta EN$ (${deltaEN_formatted}) < ${THRESHOLD_IONIC}.`;
+                }
+                bondTypeDisplay.classList.add('covalente');
+                linkIcon.style.color = 'var(--cor-covalente)';
+
+            } else {
+                bondType = 'Ligação Não Reativa / Inválida';
+                details = 'Esta combinação de elementos não forma uma ligação estável (ex: Gás Nobre ou elementos radioativos com pouca informação).';
+                bondTypeDisplay.classList.add('initial-message');
+            }
+            
+            bondTypeDisplay.textContent = bondType;
+            bondDetailsDisplay.innerHTML = details;
+        }
+
+        // --- FUNÇÕES DE DRAG AND DROP E POPULAÇÃO DA TABELA ---
+        
+        function createBlock(element) {
+            const block = document.createElement('div');
+            block.className = `element-block ${element.user_type.replace(' ', '')}`; 
+            
+            if (element.user_type !== 'Gás Nobre') {
+                block.setAttribute('draggable', 'true');
+                block.setAttribute('data-symbol', element.symbol); 
+                
+                block.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', element.symbol);
+                    e.currentTarget.classList.add('dragging');
+                    const dragImg = block.cloneNode(true);
+                    dragImg.style.position = 'absolute';
+                    dragImg.style.left = '-1000px';
+                    dragImg.style.transform = 'scale(1.2)';
+                    document.body.appendChild(dragImg);
+                    e.dataTransfer.setDragImage(dragImg, 50, 50);
+                    setTimeout(() => dragImg.remove(), 100);
+                });
+                
+                block.addEventListener('dragend', (e) => {
+                    e.currentTarget.classList.remove('dragging');
+                });
+            } else {
+                block.setAttribute('title', 'Gases Nobres geralmente não formam ligações.');
+            }
+            
+            block.innerHTML = `
+                <div class="element-detail">Z: ${element.z} | EN: ${element.en.toFixed(2)}</div>
+                <div class="element-symbol">${element.symbol}</div>
+                <div class="element-detail">${element.name}</div>
+            `;
+            return block;
+        }
+
+        function populatePeriodicTable() {
+            
+            const createAuxiliaryRow = (id, label) => {
+                const container = document.createElement('div');
+                container.className = id; 
+                container.id = id;
+                container.innerHTML = `<div class="${id.replace('-row', '-label')}">${label}</div>`;
+                return container;
+            };
+
+            lanthanidesRowContainer = createAuxiliaryRow('lanthanides-row-container', '57-71 Lantanídeos');
+            actinidesRowContainer = createAuxiliaryRow('actinides-row-container', '89-103 Actinídeos');
+            
+            ELEMENTS_DATA.forEach(element => {
+                const pos = getGridPosition(element.z);
+                if (pos.row > 0 && pos.col > 0) {
+                    const block = createBlock(element);
+                    
+                    if (pos.row === 8 || pos.row === 9) {
+                        // Posiciona na fileira auxiliar (col 2 até 16)
+                        block.style.gridColumn = `${pos.col} / span 1`; 
+                        if (pos.row === 8) {
+                            lanthanidesRowContainer.appendChild(block);
+                        } else {
+                            actinidesRowContainer.appendChild(block);
+                        }
+                    } else {
+                        // Posiciona na tabela principal (col 1 até 18)
+                        block.style.gridArea = `${pos.row} / ${pos.col}`;
+                        periodicTableContainer.appendChild(block);
+                    }
+                }
+            });
+            
+            // Cria os placeholders no local de La/Ac na tabela principal (Coluna 3)
+            const createPlaceholder = (row, label, symbol) => {
+                const cell = document.createElement('div');
+                cell.className = 'element-block Metal'; // Usa a cor de metal para o La/Ac link
+                cell.style.gridArea = `${row} / 3`;
+                cell.innerHTML = `
+                    <div class="element-detail">Bl. f</div>
+                    <div class="element-symbol">${symbol}</div>
+                    <div class="element-detail">${label}</div>
+                `;
+                periodicTableContainer.appendChild(cell);
+            };
+            
+            // Coloca o Placeholder no lugar dos Lantanídeos e Actinídeos
+            createPlaceholder(6, '57-71', '*');
+            createPlaceholder(7, '89-103', '**');
+            
+            // Adiciona as fileiras auxiliares no final da grade principal
+            periodicTableContainer.appendChild(lanthanidesRowContainer);
+            periodicTableContainer.appendChild(actinidesRowContainer);
+        }
+        
+        function clearDropZone(zone) {
+            zone.innerHTML = `<p>Arraste Elemento ${zone.id.slice(-1).toUpperCase()}</p>`;
+            if (zone.id === 'drop-zone-a') {
+                elementA = null;
+            } else {
+                elementB = null;
+            }
+            simulateBond(); 
+        }
+
+        function setupDropListeners() {
+            [dropZoneA, dropZoneB].forEach(zone => {
+                
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault(); 
+                    zone.classList.add('hover');
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('hover');
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('hover');
+
+                    if (zone.querySelector('.element-block')) return;
+                    
+                    const symbol = e.dataTransfer.getData('text/plain');
+                    const elementData = getElementData(symbol);
+                    if (!elementData) return;
+
+                    const newBlock = createBlock(elementData); 
+                    newBlock.removeAttribute('draggable');
+                    newBlock.style.cursor = 'default';
+                    newBlock.style.transform = 'none';
+
+                    newBlock.className = newBlock.className.replace('dragging', '') + ' drop-block'; 
+
+                    zone.innerHTML = '';
+                    zone.appendChild(newBlock);
+
+                    const clearBtn = document.createElement('button');
+                    clearBtn.className = 'clear-btn';
+                    clearBtn.textContent = 'Remover Elemento';
+                    clearBtn.onclick = () => clearDropZone(zone);
+                    zone.appendChild(clearBtn);
+
+                    if (zone.id === 'drop-zone-a') {
+                        elementA = elementData;
+                    } else {
+                        elementB = elementData;
+                    }
+
+                    simulateBond();
+                });
+            });
+        }
+
+
+        // --- INICIALIZAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            populatePeriodicTable();
+            setupDropListeners();
+        });
+    </script>
+</body>
+</html>

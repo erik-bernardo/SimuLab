@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Justiça na Pólis: O Julgamento de Platão (Swipe)</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="game-background">
+        <div class="moon"></div>
+        <div class="hills left-hill"></div>
+        <div class="hills right-hill"></div>
+        <div class="stars"></div>
+    </div>
+
+    <div class="game-container">
+        
+        <div class="top-bar">
+            <div class="icon-slot">✝️</div>
+            <div class="icon-slot">🤸</div>
+            <div class="icon-slot">🗡️</div>
+            <div class="icon-slot">💲</div>
+        </div>
+
+        <div id="philosopher-info" class="philosopher-info">
+            <p>Filósofo Guia: <strong id="current-philosopher">Céfalo</strong></p>
+            <p class="philosopher-definition" id="philosopher-definition"></p>
+        </div>
+
+        <div class="card-stack">
+            <div id="decision-card" class="decision-card">
+                <div class="card-background-pattern"></div>
+                <div class="card-content">
+                    <h3 id="dilemma-title">Dilema 1: O Tesouro Esquecido</h3>
+                    <p id="dilemma-text"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="swipe-area-labels">
+            <span id="label-left" class="swipe-label"></span>
+            <span id="label-right" class="swipe-label"></span>
+        </div>
+
+        <div class="bottom-bar">
+            <div class="icon-slot">📦</div>
+            <div class="icon-slot">🦴</div>
+            <div class="icon-slot">🧭</div>
+            <div class="icon-slot">📖</div>
+        </div>
+
+        <div id="feedback-panel" class="feedback-panel hidden">
+            <p id="feedback-message"></p>
+            <button id="next-button">PRÓXIMO DILEMA</button>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

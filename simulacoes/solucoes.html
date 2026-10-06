@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Química: Soluções e Misturas (V5)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script src="https://erik-bernardo.github.io/SimuLab/dados/head.js"></script>
+
+    <style>
+        :root {
+            --sidebar-width: 300px;
+            --cor-destaque: #D2691E; /* Alterado para combinar com o tom do head.js */
+            --cor-fundo: #f0f0f0;
+            --cor-simulacao: #ffffff;
+            --cor-borda: #ccc;
+            --header-height: 70px; /* Altura da barra do head.js */
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--cor-fundo);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Ajuste para não cobrir o simulador com a barra de busca */
+        .simulation-container {
+            display: flex;
+            width: 100%;
+            height: calc(100vh - var(--header-height));
+            margin-top: var(--header-height);
+        }
+
+        .left-panel {
+            width: var(--sidebar-width);
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .section-title {
+            color: var(--cor-destaque);
+            border-bottom: 2px solid var(--cor-borda);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .draggable-item {
+            padding: 10px;
+            margin: 8px 0;
+            background-color: #f9f9f9;
+            border: 1px solid var(--cor-borda);
+            border-radius: 5px;
+            cursor: grab;
+            transition: all 0.2s;
+        }
+        
+        .draggable-item:hover { background-color: #fff4e6; border-color: var(--cor-destaque); }
+        .item-simbolo { font-weight: bold; color: var(--cor-destaque); margin-right: 10px; }
+        
+        .simulation-area {
+            flex-grow: 1;
+            background-color: var(--cor-simulacao);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* --- VISUAIS DO COPO --- */
+        #beaker-container {
+            position: relative;
+            width: 280px;
+            height: 350px;
+            border: 5px solid #333;
+            border-top: none;
+            border-radius: 0 0 30px 30px;
+            background-color: #fff;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        #beaker-solution {
+            position: absolute; bottom: 0; width: 100%; height: 0;
+            background: rgba(100, 149, 237, 0.5);
+            transition: height 0.5s ease-in-out, background 0.5s;
+        }
+
+        #beaker-sediment {
+            position: absolute; bottom: 0; width: 100%; height: 0;
+            background-color: #8B4513; transition: height 0.5s;
+        }
+
+        #beaker-oil-layer {
+            position: absolute; width: 100%; height: 0;
+            background-color: rgba(255, 255, 0, 0.6);
+            transition: height 0.8s ease-out; z-index: 4;
+        }
+
+        #falling-substance {
+            position: absolute; top: -50px; left: 50%;
+            width: 15px; height: 15px; border-radius: 50%;
+            z-index: 20; opacity: 0; pointer-events: none;
+        }
+
+        @keyframes fall-in {
+            0% { top: -20px; opacity: 1; transform: scale(1); }
+            100% { top: 300px; opacity: 0; transform: scale(0.5); }
+        }
+
+        #results-panel {
+            position: absolute; top: 20px; right: 20px;
+            width: 240px; padding: 15px;
+            background: white; border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="simulation-container">
+    <div class="left-panel">
+        <h2 class="section-title"><i class="fas fa-flask"></i> Substâncias</h2>
+        
+        <div id="water" class="draggable-item" draggable="true" data-type="solvent" data-symbol="H2O" data-name="Água" data-initial-volume="250">
+            <span class="item-simbolo">H₂O</span> Água (250 mL)
+        </div>
+
+        <div id="salt" class="draggable-item" draggable="true" data-type="solute" data-symbol="NaCl" data-name="Sal" data-mass="15" data-solubility-limit="35.9">
+            <span class="item-simbolo">NaCl</span> Sal Comum (15g)
+        </div>
+        
+        <div id="kmno4" class="draggable-item" draggable="true" data-type="solute" data-symbol="KMnO4" data-name="Permanganato" data-mass="3" data-color="purple" data-solubility-limit="6.4">
+            <span class="item-simbolo">KMnO₄</span> Permanganato (3g)
+        </div>
+
+        <div id="oleic-acid" class="draggable-item" draggable="true" data-type="solute" data-symbol="C18H34O2" data-name="Óleo" data-mass="15" data-color="yellow" data-solubility-limit="0">
+            <span class="item-simbolo">C₁₈H₃₄O₂</span> Ácido Oleico (15g)
+        </div>
+
+        <div id="sand" class="draggable-item" draggable="true" data-type="solute" data-symbol="SiO2" data-name="Areia" data-mass="10" data-color="gray" data-solubility-limit="0">
+            <span class="item-simbolo">SiO₂</span> Areia (10g)
+        </div>
+
+        <h2 class="section-title" style="margin-top: 20px;"><i class="fas fa-tools"></i> Controles</h2>
+        <button id="reset-solution" style="width:100%; padding: 10px; background: var(--cor-destaque); color: white; border: none; border-radius: 5px; cursor: pointer;">
+            <i class="fas fa-undo"></i> Reiniciar
+        </button>
+    </div>
+
+    <div class="simulation-area">
+        <div id="beaker-container">
+            <div id="beaker-oil-layer"></div> 
+            <div id="beaker-solution"></div>
+            <div id="beaker-sediment"></div>
+            <div id="falling-substance"></div> 
+            <div id="drop-target" style="position: absolute; width:100%; height:100%; top:0; left:0;"></div>
+        </div>
+
+        <div id="results-panel">
+            <h3 style="margin-top:0; font-size: 16px; border-bottom: 1px solid #eee;">Análise</h3>
+            <div style="font-size:13px; line-height: 1.6;">
+                <strong>Volume:</strong> <span id="volume-info">0 mL</span><br>
+                <strong>Massa:</strong> <span id="mass-info">0 g</span><br>
+                <strong>Conc.:</strong> <span id="concentration-info">0 g/mL</span><br>
+                <strong>Tipo:</strong> <span id="classification-info">Vazio</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // LÓGICA DO SIMULADOR
+    const BEAKER_MAX_VOL = 400;
+    const PX_MAX = 350;
+
+    let state = { solvent: 0, solutes: [] };
+
+    // Elementos
+    const beakerSol = document.getElementById('beaker-solution');
+    const beakerSed = document.getElementById('beaker-sediment');
+    const beakerOil = document.getElementById('beaker-oil-layer');
+    const fallObj = document.getElementById('falling-substance');
+
+    function updateVisuals() {
+        const vol = state.solvent;
+        const hPx = (vol / BEAKER_MAX_VOL) * PX_MAX;
+
+        // Sedimento (Areia)
+        const sand = state.solutes.find(s => s.symbol === 'SiO2');
+        const sedH = sand ? Math.min(hPx, sand.mass * 2) : 0;
+
+        // Óleo (Ácido Oleico)
+        const oil = state.solutes.find(s => s.symbol === 'C18H34O2');
+        const oilH = oil ? oil.mass * 2 : 0;
+
+        beakerSol.style.height = `${hPx}px`;
+        beakerSol.style.bottom = `${sedH}px`;
+        
+        beakerSed.style.height = `${sedH}px`;
+        
+        beakerOil.style.height = `${oilH}px`;
+        beakerOil.style.bottom = `${hPx + sedH}px`;
+
+        // Cor por Permanganato
+        const purple = state.solutes.find(s => s.symbol === 'KMnO4');
+        if(purple && vol > 0) {
+            const intensity = Math.min(0.9, purple.mass / 10);
+            beakerSol.style.background = `rgba(128, 0, 128, ${0.3 + intensity})`;
+        } else {
+            beakerSol.style.background = `rgba(100, 149, 237, 0.5)`;
+        }
+
+        // Texto informativo
+        document.getElementById('volume-info').textContent = vol + " mL";
+        const totalMass = state.solutes.reduce((a, b) => a + b.mass, 0);
+        document.getElementById('mass-info').textContent = totalMass + " g";
+        document.getElementById('classification-info').textContent = vol > 0 ? (oil || sand ? "Heterogênea" : "Homogênea") : "Vazio";
+    }
+
+    function animate(color) {
+        fallObj.style.animation = 'none';
+        fallObj.offsetHeight;
+        fallObj.style.backgroundColor = color === 'purple' ? 'purple' : (color === 'yellow' ? 'yellow' : '#ccc');
+        fallObj.style.animation = 'fall-in 0.8s ease-in forwards';
+    }
+
+    // Drag and Drop
+    document.querySelectorAll('.draggable-item').forEach(item => {
+        item.addEventListener('dragstart', e => e.dataTransfer.setData('id', e.target.id));
+    });
+
+    const dropZone = document.getElementById('drop-target');
+    dropZone.addEventListener('dragover', e => e.preventDefault());
+    dropZone.addEventListener('drop', e => {
+        const id = e.dataTransfer.getData('id');
+        const el = document.getElementById(id);
+        const type = el.dataset.type;
+
+        if(type === 'solvent') {
+            state.solvent = parseInt(el.dataset.initialVolume);
+        } else {
+            if(state.solvent === 0) return alert("Adicione água primeiro!");
+            const sym = el.dataset.symbol;
+            const mass = parseInt(el.dataset.mass);
+            const found = state.solutes.find(s => s.symbol === sym);
+            if(found) found.mass += mass; 
+            else state.solutes.push({symbol: sym, mass: mass});
+            animate(el.dataset.color);
+        }
+        setTimeout(updateVisuals, 400);
+    });
+
+    document.getElementById('reset-solution').onclick = () => {
+        state = { solvent: 0, solutes: [] };
+        updateVisuals();
+    };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora PFC com Vitrine Visual</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        :root {
+            --coca-red: #fe001a;
+            --dark-blue: #2c3e50;
+            --bg-gray: #f8f9fa;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-gray); overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 350px; background: var(--dark-blue); color: white; padding: 20px; overflow-y: auto; z-index: 10; }
+        .slot-card { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .slot-card input { width: 100%; border: none; border-radius: 4px; padding: 5px; margin-top: 5px; box-sizing: border-box; }
+
+        /* Centro */
+        .main-content { flex-grow: 1; padding: 25px; display: flex; flex-direction: column; overflow-y: auto; }
+        .result-box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        .big-number { font-size: 3rem; color: var(--coca-red); font-weight: bold; margin: 10px 0; }
+
+        /* Painel de Vitrine */
+        .showcase-panel { 
+            width: 400px; background: white; border-left: 2px solid #ddd; 
+            display: flex; flex-direction: column; transition: transform 0.3s ease;
+        }
+        .showcase-panel.collapsed { transform: translateX(100%); width: 0; display: none; }
+        .showcase-header { padding: 15px; background: #eee; display: flex; justify-content: space-between; align-items: center; }
+        .showcase-grid { flex-grow: 1; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
+        
+        .possibility-item { 
+            background: #f1f1f1; border: 1px solid #ddd; padding: 8px; border-radius: 5px; 
+            font-size: 0.75rem; text-align: center; font-family: monospace;
+        }
+        .filter-box { padding: 15px; border-bottom: 1px solid #ddd; background: #fafafa; }
+
+        .btn { cursor: pointer; border: none; padding: 10px; border-radius: 5px; font-weight: bold; transition: 0.2s; }
+        .btn-red { background: var(--coca-red); color: white; width: 100%; margin-top: 10px; }
+        .btn-toggle { position: absolute; top: 20px; right: 20px; background: var(--dark-blue); color: white; z-index: 100; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2><i class="fas fa-cog"></i> Configurações</h2>
+        
+        <div id="slot-list"></div>
+
+        <button class="btn btn-red" onclick="addSlot()"><i class="fas fa-plus"></i> Adicionar Item</button>
+        <button class="btn" style="width:100%; margin-top:5px;" onclick="resetSlots()">Resetar</button>
+        
+        <div style="margin-top: 20px; padding: 10px; border: 1px dashed #ffffff55; font-size: 0.85rem;">
+            <label><input type="checkbox" id="rep-check" checked onchange="calculate()"> Permitir Repetição</label>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="result-box">
+            <span style="color: #7f8c8d; font-weight: bold; text-transform: uppercase;">Total de Combinações</span>
+            <div id="res-val" class="big-number">0</div>
+            <div id="formula-tex" style="font-size: 1.2rem;"></div>
+        </div>
+
+      
+
+    <button class="btn btn-toggle" onclick="toggleShowcase()"><i class="fas fa-th"></i> Ver Vitrine</button>
+
+    <div id="showcase" class="showcase-panel collapsed">
+        <div class="showcase-header">
+            <h3><i class="fas fa-eye"></i> Vitrine Visual</h3>
+            <i class="fas fa-times" style="cursor:pointer" onclick="toggleShowcase()"></i>
+        </div>
+        <div class="filter-box">
+            <label style="font-size: 0.8rem; font-weight: bold;">Filtrar por valor na posição 1:</label>
+            <input type="number" id="filter-p1" placeholder="Ex: 3" style="width: 100%; padding: 5px; margin-top:5px;" oninput="updateShowcase()">
+            <div id="showcase-info" style="font-size: 0.7rem; color: #666; margin-top: 5px;"></div>
+        </div>
+        <div id="showcase-grid" class="showcase-grid"></div>
+    </div>
+
+    <script>
+        let slots = [{name: 'Lata', val: 3}, {name: 'Copo', val: 2}];
+        const LIMIT_RENDER = 500; // Evita travar o navegador
+
+        function renderSlots() {
+            const list = document.getElementById('slot-list');
+            list.innerHTML = '';
+            slots.forEach((s, i) => {
+                const div = document.createElement('div');
+                div.className = 'slot-card';
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between">
+                        <strong>#${i+1}</strong>
+                        <i class="fas fa-trash" style="cursor:pointer" onclick="removeSlot(${i})"></i>
+                    </div>
+                    <input type="text" value="${s.name}" oninput="slots[${i}].name = this.value" placeholder="Nome (ex: Copo)">
+                    <input type="number" min="1" value="${s.val}" oninput="updateVal(${i}, this.value)">
+                `;
+                list.appendChild(div);
+            });
+            calculate();
+        }
+
+        function updateVal(i, v) { slots[i].val = parseInt(v) || 1; calculate(); }
+        function addSlot() { slots.push({name: 'Item', val: 1}); renderSlots(); }
+        function removeSlot(i) { if(slots.length > 1) { slots.splice(i, 1); renderSlots(); } }
+        function resetSlots() { slots = [{name: 'Lata', val: 3}, {name: 'Copo', val: 2}]; renderSlots(); }
+        function toggleShowcase() { document.getElementById('showcase').classList.toggle('collapsed'); updateShowcase(); }
+
+        function calculate() {
+            let total = 1n;
+            let parts = [];
+            let isRep = document.getElementById('rep-check').checked;
+
+            slots.forEach((s, i) => {
+                let v = BigInt(isRep ? s.val : Math.max(1, s.val - i));
+                total *= v;
+                parts.push(v.toString());
+            });
+
+            document.getElementById('res-val').innerText = total.toLocaleString('pt-BR');
+            document.getElementById('formula-tex').innerHTML = `$$ ${parts.join(' \\times ')} = ${total.toLocaleString('pt-BR')} $$`;
+            if (window.MathJax) MathJax.typesetPromise();
+            updateShowcase();
+        }
+
+        function updateShowcase() {
+            const grid = document.getElementById('showcase-grid');
+            const info = document.getElementById('showcase-info');
+            const filterVal = parseInt(document.getElementById('filter-p1').value);
+            grid.innerHTML = '';
+
+            let possibilities = [[]];
+            let isRep = document.getElementById('rep-check').checked;
+
+            // Gera combinações (apenas o necessário para visualização)
+            for (let i = 0; i < slots.length; i++) {
+                let next = [];
+                let nOptions = isRep ? slots[i].val : Math.max(1, slots[i].val - i);
+                
+                possibilities.forEach(p => {
+                    for (let opt = 1; opt <= nOptions; opt++) {
+                        // Aplica o filtro na primeira posição se houver
+                        if (i === 0 && !isNaN(filterVal) && opt !== filterVal) continue;
+                        
+                        next.push([...p, opt]);
+                        if (next.length > LIMIT_RENDER) break;
+                    }
+                });
+                possibilities = next;
+                if (possibilities.length > LIMIT_RENDER) break;
+            }
+
+            possibilities.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'possibility-item';
+                item.innerText = p.join(' | ');
+                grid.appendChild(item);
+            });
+
+            info.innerText = isNaN(filterVal) 
+                ? `Mostrando as primeiras ${possibilities.length} combinações.`
+                : `Mostrando combinações onde o primeiro termo é ${filterVal}.`;
+        }
+
+        document.addEventListener('DOMContentLoaded', renderSlots);
+    </script>
+</body>
+</html>

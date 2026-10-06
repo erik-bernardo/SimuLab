@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roda-Roda da Cultura</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&family=Oswald:wght@400&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="roda_roda.css">
+</head>
+<body>
+
+    <div id="player-setup" class="setup-screen">
+        <h2>Configuração do Jogo</h2>
+        <label for="num-players-input">Número de Jogadores (1-8):</label>
+        <input type="number" id="num-players-input" value="2" min="1" max="8">
+        <button class="btn-next" id="start-game-btn">Começar Jogo</button>
+        
+        <hr>
+        <h3>Segmentos da Roda de Prêmios</h3>
+        <ul id="wheel-config-list">
+            </ul>
+        <p class="config-info">Prêmios/Ações podem ser customizados na variável `WHEEL_SEGMENTS` do arquivo JS.</p>
+    </div>
+
+
+    <div class="game-container" style="display:none;">
+        <h1>RODA-RODA DA CULTURA</h1>
+        
+        <div id="scoreboard" class="scoreboard">
+            </div>
+
+        <div id="category-display"></div>
+        
+        <div id="wheel-area" class="wheel-area">
+            <canvas id="prize-wheel" width="400" height="400"></canvas>
+            <div id="pointer"></div>
+            <button id="spin-btn" class="btn-spin" onclick="spinWheel()">GIRAR A RODA!</button>
+            <div id="wheel-result-display" class="wheel-result-display">Aperte o botão para girar!</div>
+        </div>
+
+        <div id="word-display"></div>
+
+        <div id="message-box"></div>
+
+        <div class="controls">
+            <p id="key-instruction">Aperte **QUALQUER LETRA** no teclado após girar a roda para chutar!</p>
+
+            <div class="input-group full-guess-only">
+                <input type="text" id="full-guess-input" placeholder="Palpite Completo (Aperte ENTER)" onkeyup="if(event.key === 'Enter') guessFullWord()">
+                <button class="btn-full" onclick="guessFullWord()">Chutar Palavra</button>
+            </div>
+            
+            <button class="btn-next" onclick="nextRound()">Próximo Assunto &raquo;</button>
+        </div>
+
+        <div id="guessed-letters">
+            Letras já usadas: <span>Nenhuma</span>
+        </div>
+    </div>
+
+    <script src="roda_roda.js"></script>
+</body>
+</html>

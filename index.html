@@ -1,0 +1,246 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimuLab </title>
+    <link rel="icon" type="image/png" href="dados/logo-icon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        /* Cores: #D2691E (Principal - Marrom), #f8f8f8 (Fundo) */
+        /* ----------------------------------- */
+        /* ESTILOS GERAIS */
+        /* ----------------------------------- */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        /* ----------------------------------- */
+        /* ESTILOS DO CONTEÚDO E PÁGINA */
+        /* ----------------------------------- */
+       /* --- HERO SECTION COM IMAGE OVERLAY --- */
+.hero-section { 
+    /* Camada preta (rgba 0,0,0,0.6) sobre a imagem */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                      url('https://www.florence.edu.br/blog/wp-content/uploads/2022/04/Florence-tecnicas-de-estudo.jpg');
+    
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Opcional: dá um leve efeito parallax ao rolar */
+    padding: 120px 40px; /* Aumentei um pouco o respiro */
+    text-align: center; 
+    color: white; /* Cor do texto alterada para branco para dar contraste */
+}
+
+/* Ajuste específico para o título no fundo escuro */
+.hero-section h2 { 
+    font-size: 2.8em; 
+    color: #ffffff; /* Branco puro para máxima leitura */
+    margin-bottom: 15px; 
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* Sombra no texto para destacar do fundo */
+}
+
+/* Ajuste para o parágrafo no fundo escuro */
+.hero-section p { 
+    font-size: 1.3em; 
+    color: #e0e0e0; /* Cinza claro para não cansar a vista */
+    max-width: 800px; 
+    margin: 0 auto 40px; 
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+        .hero-button { 
+            background-color: #D2691E; 
+            color: white; 
+            text-decoration: none; 
+            font-weight: bold; 
+            padding: 12px 30px; 
+            border-radius: 5px; 
+            font-size: 1.1em; 
+            transition: background-color 0.3s; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+            display: inline-block;
+        }
+        .hero-button:hover { background-color: #c05c18; }
+        .feature-section { padding: 60px 40px; display: flex; justify-content: space-around; align-items: center; gap: 40px; max-width: 1200px; margin: 0 auto; }
+        .feature-text { flex: 1; text-align: left; }
+        .feature-text h3 { color: #D2691E; font-size: 2em; margin-bottom: 15px; }
+        .feature-image-container { flex: 1; max-width: 500px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); overflow: hidden; }
+        .feature-image-container img { width: 100%; height: auto; display: block; }
+        .info-section { background-color: white; padding: 60px 40px; text-align: center; border-top: 1px solid #eee; }
+        .info-section h3 { color: #333; font-size: 1.8em; margin-bottom: 30px; }
+        .info-grid { display: flex; justify-content: center; gap: 30px; }
+        .info-card { flex-basis: 30%; padding: 20px; border-radius: 8px; border: 1px solid #ddd; transition: box-shadow 0.3s; }
+        .info-card:hover { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+        .info-card i { font-size: 2em; color: #D2691E; margin-bottom: 10px; }
+        .info-card h4 { color: #333; margin-top: 0; }
+        footer { background-color: #333; color: white; text-align: center; padding: 20px 0; font-size: 0.9em; }
+
+        /* ----------------------------------- */
+        /* ESTILOS FALE CONOSCO (MELHORADO) */
+        /* ----------------------------------- */
+        .contact-section {
+            background-color: #D2691E; 
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .contact-section h3 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+        
+        .contact-options {
+            max-width: 700px;
+            margin: 30px auto 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap; /* Permite quebrar linha em telas menores */
+            gap: 20px;
+        }
+
+        /* Estilo para o Botão Google Forms (Mais destacado) */
+        .google-forms-button {
+            background-color: white; /* Fundo branco para destaque */
+            color: #4285F4; /* Azul Google para o texto */
+            text-decoration: none;
+            font-weight: bold;
+            padding: 15px 35px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            transition: all 0.3s;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Sombra forte */
+            display: inline-flex; /* Alinha o ícone e o texto */
+            align-items: center;
+            gap: 10px;
+        }
+
+        .google-forms-button:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Estilo para o Botão WhatsApp (Cor do WhatsApp) */
+        .whatsapp-button {
+            background-color: #25D366; /* Verde WhatsApp */
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 15px 35px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .whatsapp-button:hover {
+            background-color: #1eab56;
+        }
+
+
+        /* RESPONSIVIDADE BÁSICA */
+        @media (max-width: 768px) {
+            .feature-section { flex-direction: column; text-align: center; }
+            .feature-text { text-align: center; }
+            .info-grid { flex-direction: column; }
+            .info-card { flex-basis: 100%; }
+            .contact-options { flex-direction: column; gap: 15px; } /* Empilha os botões em telas pequenas */
+            .google-forms-button, .whatsapp-button { width: 80%; max-width: 350px; justify-content: center; }
+        }
+    </style>
+    
+</head>
+<body>
+    <main>
+        <section class="hero-section" id="home">
+            <h2>Transforme seu Aprendizado em Resultados.</h2>
+            <p>
+                Sua plataforma completa de estudos para Ensino Médio e Curiosidades.
+                Acesse todo o conteúdo de simulações interativas.
+            </p>
+            <a href="https://erik-bernardo.github.io/SimuLab/simulacoes.html" class="hero-button">COMECE A ESTUDAR AGORA <i class="fas fa-arrow-right"></i></a>
+        </section>
+
+        <section class="feature-section" id="simulador">
+            <div class="feature-text">
+                <h3>Simulador em Destaque: Tabela Periódica</h3>
+                <p>
+                Entenda de forma prática como as famílias, períodos e propriedades influenciam o comportamento dos elementos químicos. Nossa ferramenta interativa de Química Geral descomplica a visualização das tendências (eletronegatividade, raio atômico, energia de ionização) e a identificação de metais, ametais e gases nobres.
+                <p>
+                    <a href="simulacoes/tabela_periodica.html" class="hero-button" style="background-color: #555;">Ver Simulação <i class="fas fa-calculator"></i></a>
+                </p>
+            </div>
+
+            <div class="feature-image-container">
+                <img src="dados/tabela.png" alt="Visualização da Tabela Periódica Interativa">
+            </div>
+        </section>
+
+        <section class="info-section" id="recursos">
+            <h3>Nossos Pilares Educacionais</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <i class="fas fa-globe-americas"></i>
+                    <h4>Cobertura Completa</h4>
+                    <p>Todo o conteúdo de Química, Física, Matemática  em um só lugar, seguindo o currículo padrão.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <h4>Foco na Prática</h4>
+                    <p>Jogos para fixação e simuladores interativos (Matemática Financeira, Física) para solidificar o conhecimento.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-lightbulb"></i>
+                    <h4>Inovação e Expansão</h4>
+                    <p>Nosso projeto está sempre evoluindo, adicionando novas matérias, simuladores e jogos a cada mês.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="contact-section" id="contato">
+            <h3>Envie seu Feedback e Sugestões! 🚀</h3>
+            <p>Sua opinião é fundamental para evoluir o SimuLab. Escolha a forma de contato que melhor lhe atende:</p>
+            
+            <div class="contact-options">
+                
+                <a 
+                    href="https://docs.google.com/forms/d/e/1FAIpQLSeuZHuF8Fp2-UIXH_fbMS7hN3OSddoI5HoehzwGJG2vAkJbTg/viewform?usp=publish-editor" 
+                    target="_blank" 
+                    class="google-forms-button"
+                >
+                    <i class="fab fa-google"></i> Abrir Formulário de Feedback
+                </a>
+
+                <a 
+                    href="https://wa.me/5547992677825?text=Ol%C3%A1%2C%20gostaria%20de%20enviar%20uma%20sugest%C3%A3o%20para%20o%20SimuLab." 
+                    target="_blank" 
+                    class="whatsapp-button"
+                >
+                    <i class="fab fa-whatsapp"></i> Falar no WhatsApp
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        &copy; 2026 SimuLab. Todos os direitos reservados.
+    </footer>
+    <script>(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="e3pwbdB7Yh7c7CqbtkE3u";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();</script>
+    <script src="dados/head.js"></script>
+    <script src="devjokes/mudacor.js"></script>
+    <script src="devjokes/easter_egg_slide.js"></script>
+    <script src="devjokes/love.js"></script>
+    
+</body>
+</html>

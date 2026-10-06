@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Ondas e Óptica</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* ----------------------------------- */
+        /* RESET E ESTILOS GERAIS */
+        /* ----------------------------------- */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f9;
+            color: #333;
+        }
+
+        .simulator-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #9b59b6; /* Cor de destaque (Roxo) */
+            text-align: center;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        /* ----------------------------------- */
+        /* PAINEL DE CONTROLES E ENTRADAS */
+        /* ----------------------------------- */
+        .controls-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #ecf0f1;
+        }
+
+        .input-group {
+            flex: 1 1 200px; 
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #2c3e50;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        #calculate-button {
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            margin-top: 25px;
+            align-self: flex-start;
+        }
+
+        #calculate-button:hover {
+            background-color: #8e44ad;
+        }
+
+        /* ----------------------------------- */
+        /* VISUALIZAÇÃO DA ONDA (SVG e CSS) */
+        /* ----------------------------------- */
+        .simulation-area {
+            height: 150px;
+            margin-top: 20px;
+            border: 1px solid #bdc3c7;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #eaf2f8; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* O SVG Path (A onda em si) */
+        .wave-path {
+            stroke: #2c3e50; /* Cor da onda */
+            stroke-width: 3;
+            fill: none;
+        }
+
+        /* Linha de Referência (Eixo) */
+        .reference-line {
+            stroke: #7f8c8d;
+            stroke-width: 1;
+        }
+
+
+        /* ----------------------------------- */
+        /* RESULTADOS */
+        /* ----------------------------------- */
+        #results {
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px dashed #9b59b6;
+            border-radius: 8px;
+            background-color: #f7f0fb;
+            font-size: 1.1em;
+        }
+
+        #calculated-value-output, #period-output {
+            font-weight: bold;
+            color: #9b59b6;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="simulator-container">
+        <h1>Simulador da Relação Fundamental da Ondulatória</h1>
+        
+        <div class="controls-panel">
+            <div class="input-group">
+                <label for="velocity">Velocidade ($v$ em m/s):</label>
+                <input type="number" id="velocity" placeholder="Deixe em branco para calcular">
+            </div>
+
+            <div class="input-group">
+                <label for="wavelength">Comprimento de Onda ($\lambda$ em m):</label>
+                <input type="number" id="wavelength" value="4" placeholder="Deixe em branco para calcular">
+            </div>
+
+            <div class="input-group">
+                <label for="frequency">Frequência ($f$ em Hz):</label>
+                <input type="number" id="frequency" value="2" placeholder="Deixe em branco para calcular">
+            </div>
+            
+            <button id="calculate-button">
+                <i class="fas fa-calculator"></i> Calcular Onda
+            </button>
+        </div>
+
+        <div class="simulation-area">
+            <svg id="wave-svg" width="100%" height="100%" viewBox="0 0 800 150" preserveAspectRatio="xMidYMid meet">
+                <line x1="0" y1="75" x2="800" y2="75" class="reference-line" />
+                <path id="wave-path" class="wave-path" d="M0,75"></path>
+            </svg>
+        </div>
+
+        <div id="results">
+            <h2>Resultados e Grandezas</h2>
+            <p><strong>Valor Calculado (<span id="calculated-label">v</span>):</strong> <span id="calculated-value-output">Aguardando...</span></p>
+            <p><strong>Período ($T$):</strong> <span id="period-output">Aguardando...</span></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calculate-button').addEventListener('click', calculateWaves);
+
+        function calculateWaves() {
+            const vInput = document.getElementById('velocity');
+            const lambdaInput = document.getElementById('wavelength');
+            const fInput = document.getElementById('frequency');
+            
+            let v = parseFloat(vInput.value);
+            let lambda = parseFloat(lambdaInput.value);
+            let f = parseFloat(fInput.value);
+            
+            const resultsDiv = document.getElementById('calculated-value-output');
+            const periodDiv = document.getElementById('period-output');
+            const calculatedLabel = document.getElementById('calculated-label');
+            
+            let calculatedValue;
+            let unit;
+            let missingVariable;
+
+            // 1. Validação e Determinação do Cálculo
+            const filledCount = [vInput.value, lambdaInput.value, fInput.value].filter(val => val.trim() !== '').length;
+
+            if (filledCount < 2 || filledCount > 2) {
+                alert('Por favor, preencha exatamente DOIS dos três campos (v, λ, f) para calcular o terceiro.');
+                resultsDiv.textContent = 'Erro: Faltam ou sobram dados.';
+                periodDiv.textContent = 'Erro';
+                return;
+            }
+
+            if (isNaN(v) && !isNaN(lambda) && !isNaN(f) && lambda > 0 && f > 0) {
+                calculatedValue = lambda * f;
+                unit = 'm/s';
+                missingVariable = 'v';
+            } else if (isNaN(lambda) && !isNaN(v) && !isNaN(f) && v > 0 && f > 0) {
+                calculatedValue = v / f;
+                unit = 'm';
+                missingVariable = 'λ';
+            } else if (isNaN(f) && !isNaN(v) && !isNaN(lambda) && v > 0 && lambda > 0) {
+                calculatedValue = v / lambda;
+                unit = 'Hz';
+                missingVariable = 'f';
+            } else {
+                alert('Erro: Verifique se os valores são positivos e válidos.');
+                return;
+            }
+
+            // 2. Cálculo do Período (T = 1/f)
+            let finalF = (missingVariable === 'f') ? calculatedValue : f;
+            let periodValue;
+            
+            if (finalF > 0) {
+                periodValue = 1 / finalF;
+                periodDiv.textContent = `${periodValue.toFixed(3)} s`;
+            } else {
+                periodDiv.textContent = 'Indefinido (Frequência = 0)';
+            }
+
+            // 3. Atualização da Interface
+            
+            calculatedLabel.textContent = missingVariable;
+            resultsDiv.textContent = `${calculatedValue.toFixed(3)} ${unit}`;
+            
+            // 4. Atualização da Visualização da Onda (Corrigido o erro de sintaxe SVG)
+            
+            let finalLambda = (missingVariable === 'λ') ? calculatedValue : lambda;
+            
+            const svgWidth = 800;
+            const waveAmplitude = 50; 
+            const referenceY = 75;
+            const numSegments = 100;
+            
+            // Ajusta o fator de ciclo para que a visualização seja proporcional ao Comprimento de Onda (λ)
+            // Se lambda é grande (onda longa), o ciclo é pequeno.
+            const cycles = Math.min(Math.max(2 * (4 / finalLambda), 1), 6); 
+
+            let pathData = `M0,${referenceY}`; // Ponto inicial (0, 75)
+            
+            // Começa do segundo ponto para usar o comando LineTo (L)
+            for (let i = 1; i <= numSegments; i++) {
+                const x = i * (svgWidth / numSegments);
+                // Gera o Y baseado na função seno, modulada pelo fator 'cycles'
+                const y = referenceY + waveAmplitude * Math.sin((x / svgWidth) * 2 * Math.PI * cycles);
+                
+                // Concatenação CORRIGIDA: L x,y
+                pathData += ` L${x.toFixed(2)},${y.toFixed(2)}`; 
+            }
+            
+            document.getElementById('wave-path').setAttribute('d', pathData);
+
+            // 5. Destaca o campo calculado
+            vInput.style.border = lambdaInput.style.border = fInput.style.border = '1px solid #bdc3c7';
+            
+            if (missingVariable === 'v') vInput.style.border = '2px solid #9b59b6';
+            if (missingVariable === 'λ') lambdaInput.style.border = '2px solid #9b59b6';
+            if (missingVariable === 'f') fInput.style.border = '2px solid #9b59b6';
+        }
+
+        // Garante que o cálculo inicial seja executado com os valores padrão
+        document.addEventListener('DOMContentLoaded', calculateWaves);
+    </script>
+</body>
+</html>

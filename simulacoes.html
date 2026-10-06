@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulab - Simuladores</title>
+    <link rel="icon" type="image/png" href="dados/logo-icon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* ----------------------------------- */
+        /* RESET BÁSICO E ESTILOS GERAIS */
+        /* ----------------------------------- */
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        .content-area {
+            padding: 20px 40px;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* ----------------------------------- */
+        /* MENU DE MATÉRIAS E CARDS PRINCIPAIS */
+        /* ----------------------------------- */
+
+        .main-wrapper {
+            display: flex;
+            align-items: flex-start;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .ads-sidebar {
+            width: 160px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 20px;
+            z-index: 10;
+        }
+
+        .banner-simulab {
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            border: 1px solid #444;
+        }
+
+        .banner-simulab:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(210, 105, 30, 0.5);
+            filter: brightness(1.1);
+        }
+
+        .banner-simulab img {
+            width: 100%;
+            display: block;
+        }
+
+        .card-container-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            flex-grow: 1;
+            justify-content: flex-start;
+        }
+        
+        .card-link {
+            flex: 1 1 190px;
+            max-width: 190px;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .content-card {
+            width: 100%;
+            height: 180px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+            cursor: pointer;
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .content-card:hover {
+            transform: scale(1.02);
+            box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .card-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            color: #D2691E;
+        }
+        
+        .card-title {
+            text-align: center;
+            color: #555;
+            font-weight: bold;
+            margin: 0;
+            padding: 0 10px;
+        }
+
+        /* ----------------------------------- */
+        /* SECÇÃO: SIMULADORES DE PARCEIROS    */
+        /* ----------------------------------- */
+
+        .partners-section {
+            width: 100%;
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 2px dashed #ccc;
+        }
+
+        .partners-header {
+            margin-bottom: 20px;
+        }
+
+        .partners-header h2 {
+            color: #D2691E;
+            font-size: 20px;
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .partners-header p {
+            color: #555;
+            font-size: 14px;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Container de botões parceiros (estilo retangular grande com imagem) */
+        .partner-card {
+            width: 210px;
+            height: 110px;
+            background-color: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+        }
+
+        .partner-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .partner-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Garante que a imagem preenche todo o card */
+            display: block;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1200px) {
+            .card-container-wrapper {
+                justify-content: space-around;
+                gap: 25px;
+            }
+            .card-link {
+                flex: 1 1 250px;
+                max-width: 250px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .card-link {
+                flex: 1 1 40%;
+                max-width: 45%;
+            }
+            .partner-card {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+  <main class="content-area">
+    <div class="main-wrapper">
+        
+        <aside class="ads-sidebar">
+            <div class="ad-unit banner-simulab">
+                <a href="https://erik-bernardo.github.io/SimuLab/index.html">
+                    <img src="dados/Educação.png" alt="SimuLab - Estude Agora">
+                </a>
+            </div>
+        </aside>
+
+        <div style="flex-grow: 1;">
+            <!-- SIMULADORES DO SIMULAB -->
+            <div class="card-container-wrapper">
+                <a href="simulacoes/geometria_plana.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-chart-area card-icon"></i> <p class="card-title">Geometria Plana</p>
+                    </div>
+                </a>
+                <a href="simulacoes/conjuntos_numericos.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-calculator card-icon"></i> <p class="card-title">Conjuntos Numéricos</p>
+                    </div>
+                </a>
+                <a href="simulacoes/funcoes.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-line-chart card-icon"></i> <p class="card-title">Função Afim e Quadrática</p>
+                    </div>
+                </a>
+                <a href="simulacoes/arcos_angulos.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-drafting-compass card-icon"></i> <p class="card-title">Arcos e Ângulos</p>
+                    </div>
+                </a>
+                <a href="simulacoes/sequencias_numericas.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-sort-numeric-up-alt card-icon"></i> <p class="card-title">Sequências Iniciais</p>
+                    </div>
+                </a>
+                <a href="simulacoes/porcentagem.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-percent card-icon"></i> <p class="card-title">Porcentagem e Frações</p>
+                    </div>
+                </a>
+                <a href="simulacoes/taxas.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-exchange-alt card-icon"></i> <p class="card-title">Taxas Equivalentes</p>
+                    </div>
+                </a>
+                <a href="simulacoes/custo_venda.html" class="card-link" data-subject="matematica financeira">
+                    <div class="content-card">
+                        <i class="fas fa-cash-register card-icon"></i> <p class="card-title">Custo e Venda</p>
+                    </div>
+                </a>
+                <a href="simulacoes/mru.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-car-side card-icon"></i> <p class="card-title">MRU</p>
+                    </div>
+                </a>
+                <a href="simulacoes/energia.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-bolt card-icon"></i> <p class="card-title">Energia</p>
+                    </div>
+                </a>
+                <a href="simulacoes/escalas_termometricas.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-thermometer-half card-icon"></i> <p class="card-title">Escalas Term.</p>
+                    </div>
+                </a>
+                <a href="simulacoes/queda_livre.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-gavel card-icon"></i> <p class="card-title">Queda Livre</p>
+                    </div>
+                </a>
+                <a href="simulacoes/tabela_periodica.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-atom card-icon"></i> <p class="card-title">Tabela Periódica</p>
+                    </div>
+                </a>
+                <a href="simulacoes/ligacoes.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-link card-icon"></i> <p class="card-title">Ligações Químicas</p>
+                    </div>
+                </a>
+                <a href="simulacoes/acidos_bases.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-vial card-icon"></i> <p class="card-title">Ácidos e Bases</p>
+                    </div>
+                </a>
+                <a href="simulacoes/matriz.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fa-solid fa-hashtag card-icon"></i> <p class="card-title">Matrizes</p>
+                    </div>
+                </a>
+                <a href="simulacoes/probabilidade.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-dice-six card-icon"></i> <p class="card-title">Probabilidade</p>
+                    </div>
+                </a>
+                <a href="simulacoes/combinatoria.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-sitemap card-icon"></i> <p class="card-title">Análise Combinatória</p>
+                    </div>
+                </a>
+                <a href="simulacoes/nox.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fa-solid fa-flask card-icon"></i> <p class="card-title">NOX</p>
+                    </div>
+                </a>
+                <a href="simulacoes/estequiometria.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-weight-hanging card-icon"></i> <p class="card-title">Estequiometria</p>
+                    </div>
+                </a>
+                <a href="simulacoes/solucoes.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-water card-icon"></i> <p class="card-title">Soluções</p>
+                    </div>
+                </a>
+                <a href="simulacoes/reacoes.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-atom card-icon"></i> <p class="card-title">Reações Químicas</p>
+                    </div>
+                </a>
+                <a href="simulacoes/cinetica.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-tachometer-alt card-icon"></i> <p class="card-title">Cinética Química</p>
+                    </div>
+                </a>
+                <a href="simulacoes/dilatacao_termica.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-expand-alt card-icon"></i> <p class="card-title">Dilatação Térmica</p>
+                    </div>
+                </a>
+                <a href="simulacoes/calorimetria.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-fire-alt card-icon"></i> <p class="card-title">Calorimetria</p>
+                    </div>
+                </a>
+                <a href="simulacoes/ondas.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-wave-square card-icon"></i> <p class="card-title">Ondas e Óptica</p>
+                    </div>
+                </a>
+                <a href="simulacoes/hidrostatica.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-faucet card-icon"></i> <p class="card-title">Hidrostática</p>
+                    </div>
+                </a>
+                <a href="simulacoes/gravitacao_universal.html" class="card-link" data-subject="fisica">
+                    <div class="content-card">
+                        <i class="fas fa-cogs card-icon"></i> <p class="card-title">Gravitação Universal</p>
+                    </div>
+                </a>
+                <a href="simulacoes/limites.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-infinity card-icon"></i> <p class="card-title">Cálculo e Limites</p>
+                    </div>
+                </a>
+                <a href="simulacoes/sistema-linear.html" class="card-link" data-subject="matematica">
+                    <div class="content-card">
+                        <i class="fas fa-divide card-icon"></i> <p class="card-title">Sistemas Lineares</p>
+                    </div>
+                </a>
+                <a href="simulacoes/eletroquimica.html" class="card-link" data-subject="quimica">
+                    <div class="content-card">
+                        <i class="fas fa-battery-full card-icon"></i> <p class="card-title">Eletroquímica</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- SECÇÃO DE SIMULADORES PARCEIROS (ESTILO BOTÕES DE IMAGEM) -->
+            <section class="partners-section">
+                <div class="partners-header">
+                    <h2><i class="fas fa-handshake"></i> Simuladores e Recursos Recomendados</h2>
+                    <p>Os recursos abaixo foram cuidadosamente selecionados e recomendados pela equipa do SimuLab para facilitar o trabalho dos docentes. <strong>Nota:</strong> Estas ferramentas pertencem a plataformas externas parceiras e abrem num novo separador.</p>
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                    <!-- MolView -->
+                    <a href="https://molview.org/" target="_blank" rel="noopener noreferrer" class="partner-card" data-subject="quimica">
+                        <img src="https://app.molview.com/og_image.png" alt="MolView">
+                    </a>
+
+                    <!-- PhET -->
+                    <a href="https://phet.colorado.edu/pt_BR/simulations/filter?type=html" target="_blank" rel="noopener noreferrer" class="partner-card" data-subject="fisica">
+                        <img src="https://phet.colorado.edu/images/phet-social-media-logo.png" alt="PhET Interactive Simulations">
+                    </a>
+
+                    <!-- GeoGebra -->
+                    <a href="https://www.geogebra.org/calculator" target="_blank" rel="noopener noreferrer" class="partner-card" data-subject="matematica">
+                        <img src="https://media.labxchange.org/org/Geogebra_landscape_logo.png" alt="GeoGebra">
+                    </a>
+                </div>
+            </section>
+        </div>
+
+    </div> 
+  </main>
+
+<script src="dados/head.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Lógica para o Menu de Matérias (Filtragem de Conteúdo incluindo parceiros)
+        const subjectItems = document.querySelectorAll('.subject-item');
+        const mainCards = document.querySelectorAll('.card-container-wrapper > .card-link');
+        const partnerCards = document.querySelectorAll('.partner-card');
+
+        function filterContent(subject) {
+            // Oculta/Mostra cards principais
+            mainCards.forEach(card => {
+                card.style.display = (subject === 'all' || card.getAttribute('data-subject') === subject) ? 'block' : 'none';
+            });
+
+            // Oculta/Mostra cards parceiros
+            partnerCards.forEach(card => {
+                card.style.display = (subject === 'all' || card.getAttribute('data-subject') === subject) ? 'flex' : 'none';
+            });
+        }
+
+        subjectItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const fullSubjectName = this.textContent.trim().replace(/\s\s+/g, ' ');
+                let filterKey;
+                
+                if (fullSubjectName.startsWith('Matemática Financeira')) {
+                    filterKey = 'matematica financeira';
+                } else if (fullSubjectName.startsWith('Mostrar Todos')) {
+                    filterKey = 'all';
+                } else {
+                    const key = fullSubjectName.split(' ')[0];
+                    if (key === 'Química') filterKey = 'quimica';
+                    else if (key === 'Física') filterKey = 'fisica';
+                    else if (key === 'Matemática') filterKey = 'matematica';
+                }
+
+                const isSelected = this.classList.contains('selected');
+                
+                subjectItems.forEach(i => {
+                    i.classList.remove('selected');
+                    const icon = i.querySelector('.fas');
+                    if (icon) {
+                        icon.classList.remove('fa-arrow-up');
+                        icon.classList.add('fa-arrow-down');
+                    }
+                });
+
+                if (isSelected) {
+                    filterContent('all');
+                    return;
+                }
+
+                this.classList.add('selected');
+                const icon = this.querySelector('.fas');
+                if (icon) {
+                    icon.classList.remove('fa-arrow-down');
+                    icon.classList.add('fa-arrow-up');
+                }
+
+                if (filterKey) {
+                    filterContent(filterKey);
+                }
+            });
+        });
+        
+        filterContent('all');
+    });
+</script>
+
+<script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="e3pwbdB7Yh7c7CqbtkE3u";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
+</body>
+</html>

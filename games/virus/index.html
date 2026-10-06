@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defesa Imunológica: O Jogo do Glóbulo Branco</title>
+    <link rel="stylesheet" href="imune.css">
+</head>
+<body>
+
+    <div id="game-container">
+        
+        <div id="status-display">
+            <div id="score-box">Pontos: <span id="score-value">0</span></div>
+            <div id="health-box">Vida: <span id="health-value">100</span>%</div>
+        </div>
+
+        <canvas id="game-canvas" width="800" height="600">
+            Seu navegador não suporta Canvas HTML5.
+        </canvas>
+
+        <div id="game-overlay" class="hidden">
+            <div id="start-screen">
+                <h1>Defesa Imunológica</h1>
+                <p>Controle o Glóbulo Branco (Macrófago) para fagocitar os invasores.</p>
+                <p>Mova-se com: **W A S D**</p>
+                <button id="start-button">Iniciar Batalha</button>
+            </div>
+            <div id="game-over-screen" class="hidden">
+                <h2>Game Over!</h2>
+                <p>Seu sistema falhou. Pontuação Final:</p>
+                <span id="final-score">0</span>
+                <button id="restart-button">Tentar Novamente</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="imune.js"></script>
+</body>
+</html>

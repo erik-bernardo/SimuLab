@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assistente SimuLab</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+    input { width: 70%; padding: 10px; font-size: 16px; }
+    button { padding: 10px 15px; font-size: 16px; cursor: pointer; }
+    #resposta { margin-top: 20px; padding: 15px; background: #FFCB57; border-radius: 5px; min-height: 50px; line-height: 1.5; }
+    #resposta a { color: #0066cc; font-weight: bold; text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <h2>Assistente SimuLab</h2>
+  <input type="text" id="pergunta" placeholder="Ex: Preciso de um simulador de circuitos...">
+  <button onclick="enviarPergunta()">Perguntar</button>
+
+  <h3>Resposta da IA:</h3>
+  <div id="resposta">Aguardando pergunta...</div>
+
+  <script>
+    async function buscarSimulador(perguntaDoUsuario) {
+      // ⚠️ Cole a sua NOVA chave criada no Groq (Substitua o texto entre aspas)
+      const apiKey = "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"; 
+
+      // Chamada direta à API da Groq
+      const urlGroq = "https://api.groq.com/openai/v1/chat/completions";
+
+      try {
+        const response = await fetch(urlGroq, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: "llama-3.1-8b-instant",
+            messages: [
+              {
+                role: "system",
+                content: `Você é o assistente virtual do SimuLab (https://erik-bernardo.github.io/SimuLab/). 
+                Sua única função é indicar os simuladores disponíveis no site.
+
+                CATÁLOGO DE SIMULADORES DISPONÍVEIS:
+                - Página de Simulações: Link: https://erik-bernardo.github.io/SimuLab/simulacoes.html
+                - Página Inicial: Link: https://erik-bernardo.github.io/SimuLab/index.html
+
+                REGRAS DE RESPOSTA:
+                1. Responda em português de forma amigável e direta (máximo 2 ou 3 frases).
+                2. Sempre formate os links em HTML clicável assim: <a href="URL" target="_blank">Nome do Simulador</a>.
+                3. Se o usuário pedir algo que não existe no SimuLab, diga educadamente que ainda não temos esse simulador.`
+              },
+              {
+                role: "user",
+                content: perguntaDoUsuario
+              }
+            ]
+          })
+        });
+
+        const dados = await response.json();
+
+        // Se a API retornar algum erro de chave ou limite
+        if (dados.error) {
+          return "Erro na API da Groq: " + dados.error.message;
+        }
+
+        return dados.choices[0]?.message?.content || "Erro ao obter resposta da IA.";
+      } catch (erro) {
+        console.error("Erro detalhado:", erro);
+        return "Erro de conexão: " + erro.message;
+      }
+    }
+
+    async function enviarPergunta() {
+      const campoTexto = document.getElementById("pergunta").value;
+      const divResposta = document.getElementById("resposta");
+
+      if (!campoTexto.trim()) return;
+
+      divResposta.innerHTML = "<em>Procurando o melhor simulador...</em>";
+
+      const respostaIA = await buscarSimulador(campoTexto);
+      divResposta.innerHTML = respostaIA;
+    }
+  </script>
+</body>
+</html>

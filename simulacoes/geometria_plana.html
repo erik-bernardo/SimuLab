@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEOPLAT - Simulador Interativo de Geometria Plana</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style/geometria.css"> 
+</head>
+<body tabindex="0">
+
+    <header class="top-bar">
+        <a href="https://erik-bernardo.github.io/SimuLab/simulacoes.html" class="logo-link"><i class="fas fa-drafting-compass"></i> GEOPLAT</a>
+        <span class="page-title">Simulador Interativo de Geometria Plana</span>
+    </header>
+
+    <div class="main-container-simplified">
+        
+        <div id="tool-header">
+            
+            <div class="tool-group tool-modes">
+                <button class="tool-button active-mode" id="mode-select-none" onclick="activateDrawingMode('none')">
+                    <i class="fas fa-arrows-alt"></i> Mover/Pan
+                </button>
+                <button class="tool-button" id="mode-select-polygon" onclick="activateDrawingMode('polygon')">
+                    <i class="fas fa-shapes"></i> Polígono Regular
+                </button>
+                <button class="tool-button" id="mode-select-polyline" onclick="activateDrawingMode('polyline')">
+                    <i class="fas fa-pencil-alt"></i> Desenho Livre
+                </button>
+                <button class="tool-button action-button" id="finishPolylineButton" style="display: none; background-color: #2ecc71;" onclick="finalizePolyline()">
+                    <i class="fas fa-check"></i> Finalizar Forma
+                </button>
+            </div>
+            
+            <div class="tool-group tool-settings">
+                <label for="grid-snap-select" style="font-size: 0.9em; margin-right: 5px;">Grade (Snap):</label>
+                <select id="grid-snap-select" class="dataInput tool-input" style="width: 80px;" onchange="updateGridSnap()">
+                    <option value="1">1 u</option>
+                    <option value="0.5">0.5 u</option>
+                    <option value="0.1">0.1 u</option>
+                    <option value="0">Livre (0)</option>
+                </select>
+
+                <select id="polygon-sides" class="dataInput tool-input" style="width: 100px;">
+                    <option value="4">Lados: 4</option>
+                    <option value="3">Lados: 3</option>
+                    <option value="5">Lados: 5</option>
+                    <option value="6">Lados: 6</option>
+                    <option value="8">Lados: 8</option>
+                    <option value="10">Lados: 10</option>
+                </select>
+                
+                <button class="tool-button action-button" style="background-color: #3498db;" onclick="showCalculationSteps()">
+                    <i class="fas fa-calculator"></i> Mostrar Cálculo
+                </button>
+
+                <button class="tool-button action-button" style="background-color: #e74c3c;" onclick="clearCanvas()">
+                    <i class="fas fa-trash"></i> Limpar Tudo
+                </button>
+            </div>
+
+            <div class="tool-group tool-results">
+                <div class="result-display">
+                    <i class="fas fa-ruler-combined"></i> Modo: <span id="mode-indicator">Normal</span>
+                </div>
+                <div class="result-display area-result">
+                    Área: <span id="res-area-drawn">0</span> u²
+                </div>
+                <div class="result-display perimeter-result">
+                    Perímetro: <span id="res-perimeter-drawn">0</span> u 
+                </div>
+            </div>
+
+        </div> <div class="main-content">
+            <canvas id="geometryCanvas"></canvas>
+            
+            <div id="mini-calculator">
+                <h4>Cálculo Rápido: Círculo (Raio r)</h4>
+                <div class="calc-input">
+                    <label for="circulo-raio">Raio (r)</label>
+                    <input type="number" id="circulo-raio" class="dataInput" value="5">
+                </div>
+                <div class="calc-result">
+                    A: <span id="res-area">0</span> u² | C: <span id="res-perimetro">0</span> u
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="calculation-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('calculation-modal')">&times;</span>
+            <h3>Passos do Cálculo da Forma Selecionada</h3>
+            <div id="calculation-details">
+                </div>
+        </div>
+    </div>
+
+    <div id="label-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('label-modal')">&times;</span>
+            <h3>Definir Tamanho dos Lados (Rotular)</h3>
+            <p style="font-size: 0.9em; color: #555;">Os valores customizados sobrescrevem o comprimento calculado pelas coordenadas dos pontos. **Clique com o botão direito** na forma para abrir este modal.</p>
+            <div id="label-inputs">
+                </div>
+            <button class="tool-button action-button" onclick="saveSideLabels()">
+                <i class="fas fa-save"></i> Salvar Lados
+            </button>
+        </div>
+    </div>
+
+    <script src="scripts/geometria.js"></script>
+</body>
+</html>

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batalha de Tanques: Duelo de Velocidade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@700&display=swap');
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #4b6cb7;
+            background: linear-gradient(to bottom, #182848, #4b6cb7);
+            font-family: 'Roboto', sans-serif;
+            touch-action: none;
+            color: rgb(255, 255, 255);
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none; /* Deixa os cliques (se houver) passarem */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .pixel-font { font-family: 'Press Start 2P', cursive; }
+
+        /* Estilos das listas de opções */
+        .option-box {
+            background: rgb(0, 0, 0);
+            border: 2px solid rgba(99, 93, 93, 0.3);
+            border-radius: 8px;
+            padding: 10px 20px;
+            margin: 8px 0;
+            font-size: 1.5rem;
+            text-align: center;
+            transition: all 0.1s;
+        }
+
+        /* Destaques de seleção */
+        .p1-selected { background: rgba(59, 130, 246, 0.8); border-color: #60a5fa; transform: scale(1.05); }
+        .p2-selected { background: rgba(239, 68, 68, 0.8); border-color: #f87171; transform: scale(1.05); }
+
+        /* Penalidade */
+        .penalty {
+            background: rgba(100, 100, 100, 0.5) !important;
+            border-color: #444 !important;
+            color: #888;
+        }
+        
+        .controls-hint {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 10px;
+        }
+
+        /* Efeito de flash de dano */
+        #damageOverlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: red;
+            opacity: 0;
+            z-index: 5;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas para os gráficos -->
+    <canvas id="gameCanvas"></canvas>
+    <div id="damageOverlay"></div>
+
+    <div class="ui-layer p-4 md:p-8" id="uiContainer">
+        <!-- Topo: Barras de Vida e Status -->
+        <div class="flex justify-between items-center w-full max-w-6xl mx-auto">
+            <!-- P1 -->
+            <div class="w-1/3 bg-black/50 p-3 rounded-lg border-2 border-blue-500 backdrop-blur-sm">
+                <div class="flex justify-between items-end mb-2">
+                    <div class="text-blue-400 font-bold pixel-font text-xs md:text-sm">JOGADOR 1</div>
+                    <div id="p1Status" class="text-xs font-bold text-red-400 hidden">PENALIDADE!</div>
+                </div>
+                <div class="w-full bg-gray-900 rounded h-4 md:h-6 overflow-hidden">
+                    <div id="hp1" class="bg-blue-500 h-full transition-all duration-300 shadow-[0_0_10px_rgba(59,130,246,0.8)]" style="width: 100%;"></div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <div class="font-bold text-xl text-white drop-shadow-md pixel-font">DUELO</div>
+            </div>
+
+            <!-- P2 -->
+            <div class="w-1/3 bg-black/50 p-3 rounded-lg border-2 border-red-500 backdrop-blur-sm text-right">
+                <div class="flex justify-between items-end mb-2 flex-row-reverse">
+                    <div class="text-red-400 font-bold pixel-font text-xs md:text-sm">JOGADOR 2</div>
+                    <div id="p2Status" class="text-xs font-bold text-red-400 hidden">PENALIDADE!</div>
+                </div>
+                <div class="w-full bg-gray-900 rounded h-4 md:h-6 overflow-hidden flex justify-end">
+                    <div id="hp2" class="bg-red-500 h-full transition-all duration-300 shadow-[0_0_10px_rgba(239,68,68,0.8)]" style="width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Centro: Pergunta e Opções -->
+        <div class="flex-grow flex flex-col justify-center items-center relative h-full">
+            
+            <!-- Menu Iniciar / Fim de jogo -->
+            <div id="overlayScreen" class="absolute inset-0 flex items-center justify-center bg-black/80 z-50 pointer-events-auto">
+                <div class="bg-gray-800 p-8 rounded-xl border-4 border-white text-center max-w-lg">
+                    <h1 id="mainTitle" class="text-3xl md:text-4xl font-bold mb-6 pixel-font text-yellow-400">MATH TANK DUEL</h1>
+                    <p id="mainDesc" class="mb-8 text-gray-300 leading-relaxed">
+                        Seja o mais rápido a resolver a conta!<br><br>
+                        <span class="text-blue-400 font-bold">P1:</span> W/S para mover, D para atirar<br>
+                        <span class="text-red-400 font-bold">P2:</span> Setas ↑/↓ para mover, ← para atirar<br><br>
+                        <span class="text-red-500">Errar congela seu tanque por 2 segundos!</span>
+                    </p>
+                    <button id="btnStart" class="bg-green-500 hover:bg-green-600 border-b-4 border-green-700 text-white font-bold py-3 px-8 rounded-lg text-xl pixel-font transition-all active:translate-y-1 active:border-b-0 w-full">
+                        START DUAL
+                    </button>
+                </div>
+            </div>
+
+            <!-- Área de Jogo -->
+            <div id="gamePlayArea" class="w-full max-w-5xl flex justify-between items-center hidden">
+                
+                <!-- P1 Opções -->
+                <div class="w-1/4 flex flex-col gap-2" id="p1OptionsContainer">
+                    <div class="option-box" id="p1-opt-0">A</div>
+                    <div class="option-box" id="p1-opt-1">B</div>
+                    <div class="option-box" id="p1-opt-2">C</div>
+                    <div class="option-box" id="p1-opt-3">D</div>
+                    <div class="controls-hint text-center font-bold text-blue-300">W/S move - D atira</div>
+                </div>
+
+                <!-- Pergunta Central -->
+                <div class="w-2/4 flex flex-col items-center">
+                    <div class="bg-white/90 px-8 py-6 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.2)] border-4 border-gray-800 text-center transform scale-110">
+                        <div class="text-sm text-gray-500 font-bold mb-2 uppercase tracking-widest">Resolva Rápido!</div>
+                        <div id="questionText" class="text-5xl md:text-6xl font-black text-gray-900 drop-shadow-sm">
+                            5 + 7 = ?
+                        </div>
+                    </div>
+                </div>
+
+                <!-- P2 Opções -->
+                <div class="w-1/4 flex flex-col gap-2" id="p2OptionsContainer">
+                    <div class="option-box" id="p2-opt-0">A</div>
+                    <div class="option-box" id="p2-opt-1">B</div>
+                    <div class="option-box" id="p2-opt-2">C</div>
+                    <div class="option-box" id="p2-opt-3">D</div>
+                    <div class="controls-hint text-center font-bold text-red-300">↑/↓ move - ← atira</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let cw, ch;
+
+        function resize() {
+            cw = window.innerWidth;
+            ch = window.innerHeight;
+            canvas.width = cw;
+            canvas.height = ch;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Variáveis de Estado do Jogo
+        let gameState = 'MENU'; // MENU, PLAYING, ANIMATING, GAMEOVER
+        let p1Health = 100;
+        let p2Health = 100;
+        const maxHealth = 100;
+
+        let currentAnswer = 0;
+        let optionsList = [];
+        
+        let p1Index = 0;
+        let p2Index = 0;
+        
+        let p1Penalty = false;
+        let p2Penalty = false;
+        let p1PenaltyTimeout, p2PenaltyTimeout;
+
+        // Elementos DOM
+        const elHP1 = document.getElementById('hp1');
+        const elHP2 = document.getElementById('hp2');
+        const elP1Status = document.getElementById('p1Status');
+        const elP2Status = document.getElementById('p2Status');
+        const questionText = document.getElementById('questionText');
+        const overlayScreen = document.getElementById('overlayScreen');
+        const gamePlayArea = document.getElementById('gamePlayArea');
+        const mainTitle = document.getElementById('mainTitle');
+        const mainDesc = document.getElementById('mainDesc');
+        const btnStart = document.getElementById('btnStart');
+        const damageOverlay = document.getElementById('damageOverlay');
+
+        // Classes de Gráficos (Partículas, Projetil, Tanque)
+        let particles = [];
+        let projectile = null;
+        let craters = []; // Marcas no chão
+
+        class Particle {
+            constructor(x, y, color, vx, vy, life, size) {
+                this.x = x; this.y = y; this.color = color;
+                this.vx = vx; this.vy = vy; this.life = life; this.maxLife = life;
+                this.size = size || (Math.random() * 4 + 2);
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                this.vy += 0.15; // gravidade
+                this.life--;
+            }
+            draw(ctx) {
+                ctx.globalAlpha = Math.max(0, this.life / this.maxLife);
+                ctx.fillStyle = this.color;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        class Tank {
+            constructor(x, y, color, isRightFacing) {
+                this.x = x; this.y = y; this.color = color;
+                this.isRightFacing = isRightFacing;
+                this.recoil = 0;
+                this.isPenalty = false;
+            }
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                let recoilOffset = this.isRightFacing ? -this.recoil : this.recoil;
+                ctx.translate(recoilOffset, 0);
+
+                // Se em penalidade, pisca escuro ou fica cinza
+                let currentColor = this.isPenalty ? '#555' : this.color;
+                
+                // Sombra
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillRect(-45, 30, 90, 10);
+
+                // Corpo
+                ctx.fillStyle = currentColor;
+                ctx.fillRect(-35, -15, 70, 20); // Topo
+                ctx.fillRect(-45, 5, 90, 20);   // Base
+                
+                // Detalhes / Esteiras
+                ctx.fillStyle = '#222';
+                ctx.fillRect(-50, 25, 100, 15);
+                ctx.fillStyle = '#666';
+                for(let i=-40; i<=40; i+=20) {
+                    ctx.beginPath(); ctx.arc(i, 32.5, 6, 0, Math.PI*2); ctx.fill();
+                }
+
+                // Canhão
+                ctx.fillStyle = this.isPenalty ? '#444' : '#888';
+                if (this.isRightFacing) {
+                    ctx.fillRect(15, -10, 50, 10);
+                } else {
+                    ctx.fillRect(-65, -10, 50, 10);
+                }
+
+                // Indicador de fumaça de penalidade
+                if (this.isPenalty && Math.random() > 0.7) {
+                    particles.push(new Particle(this.x + (Math.random()*40-20), this.y - 20, '#555', 0, -1, 30, 4));
+                }
+                
+                ctx.restore();
+                if(this.recoil > 0) this.recoil -= 1;
+            }
+            getBarrelTip() {
+                let recoilOffset = this.isRightFacing ? -this.recoil : this.recoil;
+                return {
+                    x: this.x + recoilOffset + (this.isRightFacing ? 65 : -65),
+                    y: this.y - 5
+                };
+            }
+        }
+
+        class Projectile {
+            constructor(startX, startY, targetX, targetY, shooterColor) {
+                this.x = startX; this.y = startY;
+                this.startX = startX; this.startY = startY;
+                this.targetX = targetX; this.targetY = targetY;
+                this.progress = 0;
+                this.speed = 0.03; // Rápido para o duelo
+                this.color = shooterColor;
+                let dist = Math.abs(targetX - startX);
+                this.arcHeight = dist * 0.15; // Trajetória mais reta, mais agressiva
+            }
+            update() {
+                this.progress += this.speed;
+                if (this.progress > 1) this.progress = 1;
+                this.x = this.startX + (this.targetX - this.startX) * this.progress;
+                let baseY = this.startY + (this.targetY - this.startY) * this.progress;
+                this.y = baseY - Math.sin(this.progress * Math.PI) * this.arcHeight;
+
+                particles.push(new Particle(this.x, this.y, '#FFA500', 0, 0, 10, 3)); // Rastro de fogo
+
+                return this.progress >= 1;
+            }
+            draw(ctx) {
+                ctx.fillStyle = '#FFF';
+                ctx.beginPath(); ctx.arc(this.x, this.y, 5, 0, Math.PI*2); ctx.fill();
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        let t1, t2;
+
+        function initEntities() {
+            let groundY = ch - 120;
+            t1 = new Tank(cw * 0.15, groundY, '#3B82F6', true);  // Blue
+            t2 = new Tank(cw * 0.85, groundY, '#EF4444', false); // Red
+            craters = [];
+            particles = [];
+        }
+
+        function generateQuestion() {
+            const types = ['+', '-', '*'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            let num1, num2;
+
+            if (type === '+') {
+                num1 = Math.floor(Math.random() * 30) + 5;
+                num2 = Math.floor(Math.random() * 30) + 5;
+                currentAnswer = num1 + num2;
+            } else if (type === '-') {
+                num1 = Math.floor(Math.random() * 50) + 20;
+                num2 = Math.floor(Math.random() * num1);
+                currentAnswer = num1 - num2;
+            } else {
+                num1 = Math.floor(Math.random() * 12) + 2;
+                num2 = Math.floor(Math.random() * 10) + 2;
+                currentAnswer = num1 * num2;
+            }
+
+            questionText.innerText = `${num1} ${type} ${num2}`;
+
+            optionsList = [currentAnswer];
+            while (optionsList.length < 4) {
+                let offset = Math.floor(Math.random() * 15) - 7;
+                if (offset === 0) offset = 2;
+                let wrong = currentAnswer + offset;
+                if (wrong < 0) wrong = Math.abs(wrong) + 1;
+                if (!optionsList.includes(wrong)) {
+                    optionsList.push(wrong);
+                }
+            }
+            optionsList.sort(() => Math.random() - 0.5);
+
+            // Atualizar UI
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`p1-opt-${i}`).innerText = optionsList[i];
+                document.getElementById(`p2-opt-${i}`).innerText = optionsList[i];
+            }
+            
+            p1Index = 0;
+            p2Index = 0;
+            updateSelectionUI();
+        }
+
+        function updateSelectionUI() {
+            for (let i = 0; i < 4; i++) {
+                let opt1 = document.getElementById(`p1-opt-${i}`);
+                let opt2 = document.getElementById(`p2-opt-${i}`);
+                
+                // Reseta classes
+                opt1.className = 'option-box';
+                opt2.className = 'option-box';
+
+                // Aplica seleção
+                if (i === p1Index && !p1Penalty) opt1.classList.add('p1-selected');
+                if (i === p2Index && !p2Penalty) opt2.classList.add('p2-selected');
+
+                // Aplica penalidade visual (cinza)
+                if (p1Penalty) opt1.classList.add('penalty');
+                if (p2Penalty) opt2.classList.add('penalty');
+            }
+        }
+
+        function applyPenalty(player) {
+            if (player === 1) {
+                p1Penalty = true;
+                elP1Status.classList.remove('hidden');
+                t1.isPenalty = true;
+                clearTimeout(p1PenaltyTimeout);
+                // Mini explosão de falha no próprio cano
+                let tip = t1.getBarrelTip();
+                createExplosion(tip.x, tip.y, 10, '#333');
+                
+                p1PenaltyTimeout = setTimeout(() => {
+                    p1Penalty = false;
+                    elP1Status.classList.add('hidden');
+                    if(t1) t1.isPenalty = false;
+                    updateSelectionUI();
+                }, 2000);
+            } else {
+                p2Penalty = true;
+                elP2Status.classList.remove('hidden');
+                t2.isPenalty = true;
+                clearTimeout(p2PenaltyTimeout);
+                let tip = t2.getBarrelTip();
+                createExplosion(tip.x, tip.y, 10, '#333');
+
+                p2PenaltyTimeout = setTimeout(() => {
+                    p2Penalty = false;
+                    elP2Status.classList.add('hidden');
+                    if(t2) t2.isPenalty = false;
+                    updateSelectionUI();
+                }, 2000);
+            }
+            updateSelectionUI();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (gameState !== 'PLAYING') {
+                // Previne rolagem de tela com setas mesmo fora do jogo
+                if(["ArrowUp","ArrowDown"," "].indexOf(e.code) > -1) {
+                    e.preventDefault();
+                }
+                return;
+            }
+
+            // --- Player 1 Controls (W, S, D) ---
+            if (!p1Penalty) {
+                if (e.key === 'w' || e.key === 'W') {
+                    p1Index = (p1Index - 1 + 4) % 4;
+                    updateSelectionUI();
+                } else if (e.key === 's' || e.key === 'S') {
+                    p1Index = (p1Index + 1) % 4;
+                    updateSelectionUI();
+                } else if (e.key === 'd' || e.key === 'D') {
+                    checkAnswer(1, p1Index);
+                }
+            }
+
+            // --- Player 2 Controls (ArrowUp, ArrowDown, ArrowLeft) ---
+            if (!p2Penalty) {
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    p2Index = (p2Index - 1 + 4) % 4;
+                    updateSelectionUI();
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    p2Index = (p2Index + 1) % 4;
+                    updateSelectionUI();
+                } else if (e.key === 'ArrowLeft') {
+                    checkAnswer(2, p2Index);
+                }
+            }
+        });
+
+        function checkAnswer(player, selectedIndex) {
+            let selectedValue = optionsList[selectedIndex];
+            
+            if (selectedValue === currentAnswer) {
+                // Acertou! Atira.
+                fireTank(player);
+            } else {
+                // Errou. Penalidade.
+                applyPenalty(player);
+            }
+        }
+
+        function fireTank(winnerPlayer) {
+            gameState = 'ANIMATING'; // Pausa os inputs temporariamente
+            
+            let attacker = winnerPlayer === 1 ? t1 : t2;
+            let target = winnerPlayer === 1 ? t2 : t1;
+            
+            attacker.recoil = 20;
+            let tip = attacker.getBarrelTip();
+            createExplosion(tip.x, tip.y, 20, '#FFFF00'); // Fogo do canhão
+
+            let targetX = target.x;
+            let targetY = target.y + 10; // Mira na base do tanque
+
+            projectile = new Projectile(tip.x, tip.y, targetX, targetY, attacker.color);
+        }
+
+        function onImpact() {
+            createExplosion(projectile.targetX, projectile.targetY, 50, '#FF4500');
+            craters.push({x: projectile.targetX, y: ch - 120, size: 40}); // Marca no chão
+
+            // Efeito de tela piscando vermelho
+            damageOverlay.style.opacity = 0.3;
+            setTimeout(() => damageOverlay.style.opacity = 0, 100);
+
+            // Calcula dano
+            let damage = 25;
+            if (projectile.color === t1.color) { // P1 atirou
+                p2Health -= damage;
+            } else { // P2 atirou
+                p1Health -= damage;
+            }
+
+            updateHealthBars();
+            projectile = null;
+
+            if (p1Health <= 0 || p2Health <= 0) {
+                setTimeout(endGame, 1000);
+            } else {
+                // Aguarda um momento antes de liberar nova pergunta
+                setTimeout(() => {
+                    generateQuestion();
+                    gameState = 'PLAYING';
+                }, 1000);
+            }
+        }
+
+        function createExplosion(x, y, amount, baseColor) {
+            for(let i=0; i<amount; i++) {
+                let vx = (Math.random() - 0.5) * 15;
+                let vy = (Math.random() - 0.5) * 15 - 5;
+                let color = Math.random() > 0.4 ? baseColor : '#FFF';
+                particles.push(new Particle(x, y, color, vx, vy, Math.random()*30 + 10));
+            }
+        }
+
+        function drawBackground() {
+            // Chão noturno/cyberpunk
+            let groundY = ch - 120;
+            
+            // Grade no fundo (estilo Tron/Retrowave)
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for(let i=0; i<cw; i+=50) { ctx.moveTo(i, 0); ctx.lineTo(i, groundY); }
+            for(let j=0; j<groundY; j+=50) { ctx.moveTo(0, j); ctx.lineTo(cw, j); }
+            ctx.stroke();
+
+            // Chão base
+            ctx.fillStyle = '#0f172a'; // Slate 900
+            ctx.fillRect(0, groundY, cw, ch - groundY);
+            
+            // Linha neon divisória
+            ctx.fillStyle = '#38bdf8'; // Cyan neon
+            ctx.fillRect(0, groundY, cw, 4);
+
+            // Craters (Marcas de tiro)
+            craters.forEach(c => {
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.ellipse(c.x, c.y + 4, c.size, c.size/3, 0, 0, Math.PI*2);
+                ctx.fill();
+            });
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, cw, ch);
+            
+            drawBackground();
+
+            if (t1 && t2) {
+                t1.draw(ctx);
+                t2.draw(ctx);
+            }
+
+            if (projectile) {
+                let hit = projectile.update();
+                projectile.draw(ctx);
+                if (hit) {
+                    onImpact();
+                }
+            }
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.update();
+                p.draw(ctx);
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // --- Funções de Controle de Jogo ---
+        function updateHealthBars() {
+            elHP1.style.width = Math.max(0, (p1Health / maxHealth) * 100) + '%';
+            elHP2.style.width = Math.max(0, (p2Health / maxHealth) * 100) + '%';
+        }
+
+        function startGame() {
+            p1Health = 100;
+            p2Health = 100;
+            p1Penalty = false;
+            p2Penalty = false;
+            clearTimeout(p1PenaltyTimeout);
+            clearTimeout(p2PenaltyTimeout);
+            elP1Status.classList.add('hidden');
+            elP2Status.classList.add('hidden');
+            
+            updateHealthBars();
+            initEntities();
+            
+            overlayScreen.classList.add('hidden');
+            gamePlayArea.classList.remove('hidden');
+            
+            generateQuestion();
+            gameState = 'PLAYING';
+        }
+
+        function endGame() {
+            gameState = 'GAMEOVER';
+            gamePlayArea.classList.add('hidden');
+            overlayScreen.classList.remove('hidden');
+            
+            let winner = p1Health > 0 ? 1 : 2;
+            mainTitle.innerText = `JOGADOR ${winner} VENCEU!`;
+            mainTitle.className = `text-4xl md:text-5xl font-bold mb-6 pixel-font ${winner === 1 ? 'text-blue-500' : 'text-red-500'} drop-shadow-lg`;
+            mainDesc.innerHTML = "As ruínas do tanque inimigo ainda fumegam.<br>Quer jogar outra partida?";
+            btnStart.innerText = "NOVO DUELO";
+        }
+
+        btnStart.addEventListener('click', startGame);
+
+        // Inicia a animação de fundo mesmo no menu
+        initEntities();
+        requestAnimationFrame(gameLoop);
+
+    </script>
+</body>
+</html>
