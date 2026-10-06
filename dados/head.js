@@ -61,7 +61,7 @@ const SEARCH_INDEX = [
 const headerHTML = `
     <header class="top-bar">
         <div class="logo-area">
-            <a href="https://erik-bernardo.github.io/SimuLab/index.html" class="logo-link">
+            <a href="https://erik-bernardo.github.io/SimuLabb/index.html" class="logo-link">
                 <img src="https://erik-bernardo.github.io/SimuLabb/dados/simulab_banner.png" alt="SimuLab Logo" class="logo-image">
             </a>
         </div>
