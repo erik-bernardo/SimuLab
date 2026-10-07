@@ -330,7 +330,7 @@
                 <div class="progress-box">
                     <div id="progressBar" class="progress-bar"></div>
                 </div>
-                <span id="goalText" style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Meta: 20.000 pts</span>
+                <span id="goalText" style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Meta: sem limite pts</span>
             </div>
 
             <!-- Moves Card -->
@@ -417,7 +417,7 @@
 
         const ELEMENT_KEYS = ['C', 'O', 'H', 'N'];
         const GRID_SIZE = 8;
-        const GOAL_SCORE = 20000;
+        const GOAL_SCORE = 2000000;
         const INITIAL_MOVES = 20;
 
         // Canvas Settings
@@ -1069,7 +1069,6 @@
             } else {
                 title.innerText = "MOVIMENTOS ESGOTADOS";
                 title.style.color = "#ef4444";
-                subtitle.innerText = "A reação química não alcançou a meta esperada.";
             }
 
             document.getElementById('modalScore').innerText = score.toLocaleString('pt-BR');
