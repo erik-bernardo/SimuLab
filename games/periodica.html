@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ChemCrush - Periodic Table Match 3</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #090d16;
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(14, 165, 233, 0.1) 0px, transparent 60%);
+            min-height: 100vh;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Glassmorphism styling */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Tile styles & animation */
+        .tile-cell {
+            position: relative;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease;
+            cursor: pointer;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 4px 6px -1px rgba(0,0,0,0.3);
+        }
+
+        .tile-cell:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .tile-cell.selected {
+            ring: 3px solid #38bdf8;
+            box-shadow: 0 0 15px #38bdf8, inset 0 0 10px rgba(56, 189, 248, 0.5);
+            animation: pulse-ring 1.2s infinite alternate;
+            z-index: 20;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(1.02); }
+            100% { transform: scale(1.08); }
+        }
+
+        .tile-cell.swapping {
+            transition: transform 0.22s ease-in-out;
+            z-index: 30;
+        }
+
+        .tile-cell.matched {
+            animation: pop-out 0.35s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop-out {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.25) rotate(10deg); filter: brightness(2); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* Tile Group Color Themes */
+        .group-nonmetal { background: linear-gradient(135deg, #059669, #10b981); border-color: #34d399; }
+        .group-alkali { background: linear-gradient(135deg, #dc2626, #f87171); border-color: #fca5a5; }
+        .group-halogen { background: linear-gradient(135deg, #d97706, #fbbf24); border-color: #fde047; }
+        .group-noble { background: linear-gradient(135deg, #7c3aed, #a855f7); border-color: #c084fc; }
+        .group-transition { background: linear-gradient(135deg, #2563eb, #3b82f6); border-color: #60a5fa; }
+        .group-alkaline { background: linear-gradient(135deg, #0284c7, #38bdf8); border-color: #7dd3fc; }
+
+        /* Special Bomb Glow Effects */
+        .special-rowcol {
+            position: relative;
+            overflow: hidden;
+        }
+        .special-rowcol::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+            animation: sweep 1.5s infinite linear;
+        }
+
+        @keyframes sweep {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .special-colorbomb {
+            background: radial-gradient(circle, #f43f5e, #8b5cf6, #06b6d4, #10b981) !important;
+            background-size: 200% 200% !important;
+            animation: rainbow-glow 2s infinite alternate ease-in-out;
+            border: 2px solid #ffffff !important;
+        }
+
+        @keyframes rainbow-glow {
+            0% { background-position: 0% 50%; box-shadow: 0 0 10px #f43f5e; }
+            50% { background-position: 100% 50%; box-shadow: 0 0 20px #8b5cf6; }
+            100% { background-position: 0% 50%; box-shadow: 0 0 10px #06b6d4; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(56, 189, 248, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(56, 189, 248, 0.6);
+        }
+
+        /* Canvas Particle Overlay */
+        #particleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between items-center p-2 md:p-4 select-none">
+
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Header Section -->
+    <header class="w-full max-w-5xl flex justify-between items-center glass-panel px-4 py-3 rounded-2xl mb-3 shadow-lg">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-cyan-500/30">
+                <i class="fa-solid fa-flask"></i>
+            </div>
+            <div>
+                <h1 class="font-orbitron font-extrabold text-xl md:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400">
+                    CHEM<span class="text-amber-400">CRUSH</span>
+                </h1>
+                <p class="text-xs text-slate-400 hidden sm:block">Periodic Table Elemental Fusion</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-4">
+            <button id="audioBtn" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700" title="Toggle Sound">
+                <i class="fa-solid fa-volume-high text-lg w-5 h-5 flex items-center justify-center"></i>
+            </button>
+            <button id="restartBtn" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700" title="Reset Game">
+                <i class="fa-solid fa-rotate-right text-lg w-5 h-5 flex items-center justify-center"></i>
+            </button>
+            <button id="helpBtn" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700" title="Instructions">
+                <i class="fa-solid fa-circle-question text-lg w-5 h-5 flex items-center justify-center"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-4 items-start flex-grow">
+        
+        <!-- Left Stats & Objectives Panel -->
+        <section class="lg:col-span-3 flex flex-col gap-3">
+            <!-- Score & Moves Card -->
+            <div class="glass-panel p-4 rounded-2xl flex flex-row lg:flex-col justify-around gap-2">
+                <div class="text-center lg:text-left">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Total Score</span>
+                    <div id="scoreDisplay" class="font-orbitron text-2xl lg:text-3xl font-bold text-cyan-400">0</div>
+                </div>
+                <div class="h-8 lg:h-px w-px lg:w-full bg-slate-700/60 self-center"></div>
+                <div class="text-center lg:text-left">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Moves Left</span>
+                    <div id="movesDisplay" class="font-orbitron text-2xl lg:text-3xl font-bold text-amber-400">25</div>
+                </div>
+                <div class="h-8 lg:h-px w-px lg:w-full bg-slate-700/60 self-center"></div>
+                <div class="text-center lg:text-left">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">High Score</span>
+                    <div id="highScoreDisplay" class="font-orbitron text-lg font-semibold text-slate-300">0</div>
+                </div>
+            </div>
+
+            <!-- Reaction Objectives Card -->
+            <div class="glass-panel p-4 rounded-2xl">
+                <h3 class="font-orbitron text-sm font-semibold text-emerald-400 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-atom"></i> Level Objective
+                </h3>
+                <p id="objectiveText" class="text-xs text-slate-300 mb-3">Synthesize target elements by forming matches!</p>
+                <div id="objectivesList" class="flex flex-wrap gap-2">
+                    <!-- Dynamic Objective Badges -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Center Match-3 Game Board Container -->
+        <section class="lg:col-span-6 flex flex-col items-center justify-center">
+            <div id="boardContainer" class="glass-panel p-2.5 sm:p-3 rounded-2xl relative w-full aspect-square max-w-[480px] shadow-2xl flex items-center justify-center border border-cyan-500/20">
+                <div id="gameBoard" class="grid grid-cols-8 gap-1.5 w-full h-full">
+                    <!-- 8x8 Grid Tiles Generated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Element Detail & Legend Panel -->
+        <section class="lg:col-span-3 flex flex-col gap-3">
+            <!-- Active/Inspected Element Detail -->
+            <div id="elementDetailCard" class="glass-panel p-4 rounded-2xl min-h-[170px] flex flex-col justify-between transition-all">
+                <div class="flex items-center gap-3">
+                    <div id="detailSymbolBox" class="w-14 h-14 rounded-xl group-nonmetal flex flex-col items-center justify-center border shadow-md font-orbitron">
+                        <span id="detailAtomicNum" class="text-[10px] text-white/80 self-start px-1 font-sans">1</span>
+                        <span id="detailSymbol" class="text-xl font-black text-white leading-none">H</span>
+                    </div>
+                    <div>
+                        <h4 id="detailName" class="font-orbitron font-bold text-lg text-white">Hydrogen</h4>
+                        <span id="detailGroup" class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Nonmetal</span>
+                    </div>
+                </div>
+                <p id="detailDesc" class="text-xs text-slate-300 mt-2 leading-relaxed">
+                    The lightest and most abundant chemical substance in the Universe. Click or match elements to view their atomic details.
+                </p>
+            </div>
+
+            <!-- Chemistry Group Quick Legend -->
+            <div class="glass-panel p-3 rounded-2xl">
+                <h4 class="font-orbitron text-xs font-semibold text-slate-400 mb-2 uppercase">Group Legend</h4>
+                <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500"></span> Nonmetals</div>
+                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-500"></span> Alkali Metals</div>
+                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-sky-500"></span> Alkaline Earth</div>
+                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-500"></span> Transition</div>
+                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500"></span> Halogens</div>
+                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-purple-500"></span> Noble Gases</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Game Over / Level Complete Modal -->
+    <div id="modalOverlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+        <div class="glass-panel max-w-md w-full p-6 rounded-3xl text-center border border-cyan-500/30 shadow-2xl transform transition-all scale-95 opacity-0" id="modalCard">
+            <div id="modalIconBox" class="w-16 h-16 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 flex items-center justify-center mx-auto mb-4 text-3xl">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h2 id="modalTitle" class="font-orbitron font-extrabold text-2xl text-white mb-1">Level Cleared!</h2>
+            <p id="modalSubtitle" class="text-sm text-slate-300 mb-4">You synthesized all targeted compounds successfully!</p>
+
+            <div class="glass-card p-4 rounded-xl mb-5 space-y-2 text-left">
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">Final Score:</span>
+                    <span id="modalScore" class="font-orbitron font-bold text-cyan-400">0</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">Moves Remaining:</span>
+                    <span id="modalMoves" class="font-orbitron font-bold text-amber-400">0</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">High Score:</span>
+                    <span id="modalHighScore" class="font-orbitron font-bold text-purple-400">0</span>
+                </div>
+            </div>
+
+            <button id="modalActionBtn" class="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-orbitron font-bold text-base shadow-lg shadow-cyan-500/30 transition-all active:scale-95">
+                Play Next Level
+            </button>
+        </div>
+    </div>
+
+    <!-- Help / Instructions Modal -->
+    <div id="helpOverlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+        <div class="glass-panel max-w-lg w-full p-6 rounded-3xl border border-slate-700 shadow-2xl relative">
+            <button id="closeHelpBtn" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h2 class="font-orbitron font-bold text-xl text-cyan-400 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-book-open"></i> How To Play
+            </h2>
+            <div class="space-y-3 text-xs sm:text-sm text-slate-300 max-h-[60vh] overflow-y-auto pr-1">
+                <p>🧪 <strong>Swap & Match:</strong> Click or drag adjacent chemical tiles to swap them. Create horizontal or vertical lines of 3 or more matching element tiles.</p>
+                <p>🎯 <strong>Objective:</strong> Reach target element quantities before running out of laboratory moves.</p>
+                <p>💥 <strong>Isotope Beam (Match 4):</strong> Matching 4 elements creates a unstable Isotope Bomb tile that clears an entire row or column when matched.</p>
+                <p>⚛️ <strong>Super Catalyst (Match 5):</strong> Matching 5 elements creates a Super Catalyst tile. Swap it with any element to eliminate ALL instances of that element on the board!</p>
+                <p>🔬 <strong>Elemental Knowledge:</strong> Click any element to display its atomic symbol, group, atomic number, and real-world chemical property.</p>
+            </div>
+            <button id="gotItHelpBtn" class="mt-5 w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-400 font-orbitron font-bold border border-slate-600 transition-colors">
+                Got It, Researcher!
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-5xl text-center py-2 text-xs text-slate-500">
+        ChemCrush &copy; 2026 • Interactive Chemistry Periodic Table Match-3 Engine
+    </footer>
+
+    <script>
+        // Chemical Elements Database with Groups, Atomic Numbers, and Descriptions
+        const ELEMENTS_DATA = {
+            'H':  { symbol: 'H',  name: 'Hydrogen',  number: 1,  group: 'group-nonmetal', category: 'Nonmetal', desc: 'Lightest and most abundant chemical element in the universe.' },
+            'He': { symbol: 'He', name: 'Helium',    number: 2,  group: 'group-noble', category: 'Noble Gas', desc: 'Colorless, odorless, inert noble gas used in balloons and cryogenics.' },
+            'Li': { symbol: 'Li', name: 'Lithium',   number: 3,  group: 'group-alkali', category: 'Alkali Metal', desc: 'Soft, silvery alkali metal essential for rechargeable high-energy batteries.' },
+            'C':  { symbol: 'C',  name: 'Carbon',    number: 6,  group: 'group-nonmetal', category: 'Nonmetal', desc: 'The fundamental chemical building block for all organic life forms.' },
+            'O':  { symbol: 'O',  name: 'Oxygen',    number: 8,  group: 'group-nonmetal', category: 'Nonmetal', desc: 'Highly reactive gas crucial for respiration in life and combustion.' },
+            'Ne': { symbol: 'Ne', name: 'Neon',      number: 10, group: 'group-noble', category: 'Noble Gas', desc: 'Noble gas famous for glowing reddish-orange in high-voltage discharge lights.' },
+            'Na': { symbol: 'Na', name: 'Sodium',    number: 11, group: 'group-alkali', category: 'Alkali Metal', desc: 'Highly reactive alkali metal component of standard table salt (NaCl).' },
+            'Mg': { symbol: 'Mg', name: 'Magnesium', number: 12, group: 'group-alkaline', category: 'Alkaline Earth', desc: 'Lightweight, strong structural metal used in aerospace alloys.' },
+            'Cl': { symbol: 'Cl', name: 'Chlorine',  number: 17, group: 'group-halogen', category: 'Halogen', desc: 'Yellow-green halogen gas widely used for water purification.' },
+            'Au': { symbol: 'Au', name: 'Gold',      number: 79, group: 'group-transition', category: 'Transition Metal', desc: 'Precious yellow metal prized for corrosion resistance and conductivity.' }
+        };
+
+        const GRID_SIZE = 8;
+        const ELEMENT_KEYS = Object.keys(ELEMENTS_DATA);
+
+        // Game State Variables
+        let board = [];
+        let selectedTile = null; // {r, c}
+        let isProcessing = false;
+        let score = 0;
+        let moves = 25;
+        let highScore = localStorage.getItem('chemcrush_highscore') || 0;
+        let soundEnabled = true;
+        let targets = {}; // { elementKey: remainingCount }
+
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playSwap() {
+                if (!soundEnabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.08);
+            }
+
+            playPop(comboMultiplier = 1) {
+                if (!soundEnabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                const freq = 400 + (comboMultiplier * 120);
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(freq * 1.5, this.ctx.currentTime + 0.12);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.12);
+            }
+
+            playExplosion() {
+                if (!soundEnabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.3);
+            }
+
+            playWin() {
+                if (!soundEnabled) return;
+                this.init();
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.1);
+                    gain.gain.setValueAtTime(0.2, this.ctx.currentTime + idx * 0.1);
+                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + idx * 0.1 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + idx * 0.1);
+                    osc.stop(this.ctx.currentTime + idx * 0.1 + 0.25);
+                });
+            }
+        }
+
+        const audioFX = new SoundEngine();
+
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.vx = (Math.random() - 0.5) * 6;
+                this.vy = (Math.random() - 0.5) * 6;
+                this.alpha = 1;
+                this.size = Math.random() * 6 + 3;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= 0.025;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(this.alpha, 0);
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function createExplosion(x, y, color = '#38bdf8', count = 18) {
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles = particles.filter(p => p.alpha > 0);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        function initGame() {
+            score = 0;
+            moves = 25;
+            selectedTile = null;
+            isProcessing = false;
+            
+            // Random Level Objective setup
+            targets = {};
+            const availableKeys = [...ELEMENT_KEYS].sort(() => 0.5 - Math.random()).slice(0, 3);
+            availableKeys.forEach(k => {
+                targets[k] = 12 + Math.floor(Math.random() * 6);
+            });
+
+            updateUI();
+            createInitialBoard();
+            renderBoard();
+        }
+
+        function createInitialBoard() {
+            board = [];
+            for (let r = 0; r < GRID_SIZE; r++) {
+                board[r] = [];
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    let key;
+                    do {
+                        key = ELEMENT_KEYS[Math.floor(Math.random() * ELEMENT_KEYS.length)];
+                    } while (
+                        (c >= 2 && board[r][c - 1]?.type === key && board[r][c - 2]?.type === key) ||
+                        (r >= 2 && board[r - 1]?.[c]?.type === key && board[r - 2]?.[c]?.type === key)
+                    );
+
+                    board[r][c] = {
+                        type: key,
+                        special: null // null | 'rowcol' | 'colorbomb'
+                    };
+                }
+            }
+        }
+
+        function renderBoard() {
+            const boardEl = document.getElementById('gameBoard');
+            boardEl.innerHTML = '';
+
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    const tileData = board[r][c];
+                    const elem = ELEMENTS_DATA[tileData.type] || ELEMENTS_DATA['H'];
+
+                    const cell = document.createElement('div');
+                    cell.className = `tile-cell rounded-xl flex flex-col items-center justify-between p-1 border shadow-md ${elem.group}`;
+                    
+                    if (tileData.special === 'rowcol') cell.classList.add('special-rowcol');
+                    if (tileData.special === 'colorbomb') cell.classList.add('special-colorbomb');
+
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+
+                    if (selectedTile && selectedTile.r === r && selectedTile.c === c) {
+                        cell.classList.add('selected');
+                    }
+
+                    if (tileData.special === 'colorbomb') {
+                        cell.innerHTML = `
+                            <span class="text-[9px] text-white/90 self-start font-bold">SUPER</span>
+                            <span class="text-xl sm:text-2xl font-black text-white leading-none my-auto">⚛️</span>
+                            <span class="text-[9px] text-white/90 self-end font-semibold">CATALYST</span>
+                        `;
+                    } else {
+                        cell.innerHTML = `
+                            <span class="text-[9px] text-white/80 self-start font-bold leading-none font-sans">${elem.number}</span>
+                            <span class="text-lg sm:text-xl font-black text-white leading-none font-orbitron my-auto">${elem.symbol}</span>
+                            <span class="text-[8px] text-white/70 truncate w-full text-center leading-none font-sans">${elem.name}</span>
+                        `;
+                    }
+
+                    // Click Handler
+                    cell.addEventListener('click', () => onTileClick(r, c));
+
+                    // Drag & Swipe Event Listeners for Mobile/Mouse
+                    addDragListeners(cell, r, c);
+
+                    boardEl.appendChild(cell);
+                }
+            }
+        }
+
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        function addDragListeners(element, r, c) {
+            element.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            element.addEventListener('touchend', (e) => {
+                if (isProcessing) return;
+                const deltaX = e.changedTouches[0].clientX - touchStartX;
+                const deltaY = e.changedTouches[0].clientY - touchStartY;
+                if (Math.abs(deltaX) > 30 || Math.abs(deltaY) > 30) {
+                    let targetR = r;
+                    let targetC = c;
+                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                        targetC += deltaX > 0 ? 1 : -1;
+                    } else {
+                        targetR += deltaY > 0 ? 1 : -1;
+                    }
+                    if (isValidPosition(targetR, targetC)) {
+                        attemptSwap(r, c, targetR, targetC);
+                    }
+                }
+            }, { passive: true });
+        }
+
+        function onTileClick(r, c) {
+            if (isProcessing) return;
+
+            // Show inspect details
+            const tile = board[r][c];
+            if (tile.type && ELEMENTS_DATA[tile.type]) {
+                updateDetailCard(ELEMENTS_DATA[tile.type]);
+            }
+
+            if (!selectedTile) {
+                selectedTile = { r, c };
+                renderBoard();
+            } else {
+                if (selectedTile.r === r && selectedTile.c === c) {
+                    selectedTile = null;
+                    renderBoard();
+                    return;
+                }
+
+                const isAdjacent = Math.abs(selectedTile.r - r) + Math.abs(selectedTile.c - c) === 1;
+                if (isAdjacent) {
+                    const prev = { ...selectedTile };
+                    selectedTile = null;
+                    attemptSwap(prev.r, prev.c, r, c);
+                } else {
+                    selectedTile = { r, c };
+                    renderBoard();
+                }
+            }
+        }
+
+        function isValidPosition(r, c) {
+            return r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE;
+        }
+
+        async function attemptSwap(r1, c1, r2, c2) {
+            isProcessing = true;
+            audioFX.playSwap();
+
+            // Swap in memory
+            swapTiles(r1, c1, r2, c2);
+            renderBoard();
+
+            await sleep(200);
+
+            // Special Color Bomb Activation Handling
+            const t1 = board[r1][c1];
+            const t2 = board[r2][c2];
+
+            if (t1.special === 'colorbomb' || t2.special === 'colorbomb') {
+                moves--;
+                updateUI();
+                await triggerColorBomb(t1.special === 'colorbomb' ? r1 : r2, t1.special === 'colorbomb' ? c1 : c2, t1.special === 'colorbomb' ? t2.type : t1.type);
+                await processBoardCascades();
+                isProcessing = false;
+                checkGameEndConditions();
+                return;
+            }
+
+            const matches = findMatches();
+            if (matches.length > 0) {
+                moves--;
+                updateUI();
+                await processBoardCascades();
+            } else {
+                // Revert swap if no match
+                swapTiles(r1, c1, r2, c2);
+                renderBoard();
+            }
+            isProcessing = false;
+            checkGameEndConditions();
+        }
+
+        function swapTiles(r1, c1, r2, c2) {
+            const temp = board[r1][c1];
+            board[r1][c1] = board[r2][c2];
+            board[r2][c2] = temp;
+        }
+
+        function findMatches() {
+            const matchedCoords = new Set();
+            const matchGroups = [];
+
+            // Check Horizontal Matches
+            for (let r = 0; r < GRID_SIZE; r++) {
+                let matchLength = 1;
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    const checkNext = c < GRID_SIZE - 1 && board[r][c].type && board[r][c].type === board[r][c + 1].type;
+                    if (checkNext) {
+                        matchLength++;
+                    } else {
+                        if (matchLength >= 3) {
+                            const group = [];
+                            for (let i = 0; i < matchLength; i++) {
+                                group.push({ r, c: c - i });
+                                matchedCoords.add(`${r},${c - i}`);
+                            }
+                            matchGroups.push(group);
+                        }
+                        matchLength = 1;
+                    }
+                }
+            }
+
+            // Check Vertical Matches
+            for (let c = 0; c < GRID_SIZE; c++) {
+                let matchLength = 1;
+                for (let r = 0; r < GRID_SIZE; r++) {
+                    const checkNext = r < GRID_SIZE - 1 && board[r][c].type && board[r][c].type === board[r + 1][c].type;
+                    if (checkNext) {
+                        matchLength++;
+                    } else {
+                        if (matchLength >= 3) {
+                            const group = [];
+                            for (let i = 0; i < matchLength; i++) {
+                                group.push({ r: r - i, c });
+                                matchedCoords.add(`${r - i},${c}`);
+                            }
+                            matchGroups.push(group);
+                        }
+                        matchLength = 1;
+                    }
+                }
+            }
+
+            return { coords: Array.from(matchedCoords).map(str => {
+                const [r, c] = str.split(',').map(Number);
+                return { r, c };
+            }), groups: matchGroups };
+        }
+
+        async function processBoardCascades() {
+            let comboCount = 1;
+            while (true) {
+                const { coords, groups } = findMatches();
+                if (coords.length === 0) break;
+
+                audioFX.playPop(comboCount);
+
+                // Handle Special Bomb Creation logic (Match 4 -> Row/Col Bomb, Match 5 -> Colorbomb)
+                const specialsToCreate = [];
+                groups.forEach(group => {
+                    if (group.length === 4) {
+                        specialsToCreate.push({ ...group[1], special: 'rowcol', type: board[group[1].r][group[1].c].type });
+                    } else if (group.length >= 5) {
+                        specialsToCreate.push({ ...group[2], special: 'colorbomb', type: 'CATALYST' });
+                    }
+                });
+
+                // Expand matching coords if rowcol bomb was cleared
+                let expandedCoords = [...coords];
+                coords.forEach(({ r, c }) => {
+                    const tile = board[r][c];
+                    if (tile.special === 'rowcol') {
+                        audioFX.playExplosion();
+                        for (let i = 0; i < GRID_SIZE; i++) {
+                            expandedCoords.push({ r, c: i });
+                            expandedCoords.push({ r: i, c });
+                        }
+                    }
+                });
+
+                // Unique list of cleared cells
+                const uniqueCleared = Array.from(new Set(expandedCoords.map(p => `${p.r},${p.c}`)))
+                    .map(s => { const [r, c] = s.split(',').map(Number); return { r, c }; });
+
+                // Calculate Score & Progress
+                uniqueCleared.forEach(({ r, c }) => {
+                    const tile = board[r][c];
+                    if (tile.type && targets[tile.type] !== undefined) {
+                        targets[tile.type] = Math.max(0, targets[tile.type] - 1);
+                    }
+
+                    // Particle Visual Effects
+                    const cellDom = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                    if (cellDom) {
+                        const rect = cellDom.getBoundingClientRect();
+                        createExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2, '#38bdf8');
+                        cellDom.classList.add('matched');
+                    }
+                });
+
+                score += uniqueCleared.length * 100 * comboCount;
+                if (score > highScore) {
+                    highScore = score;
+                    localStorage.setItem('chemcrush_highscore', highScore);
+                }
+                updateUI();
+
+                await sleep(300);
+
+                // Clear tiles in board array
+                uniqueCleared.forEach(({ r, c }) => {
+                    board[r][c] = { type: null, special: null };
+                });
+
+                // Place new Special Bombs created from combos
+                specialsToCreate.forEach(sp => {
+                    board[sp.r][sp.c] = { type: sp.type, special: sp.special };
+                });
+
+                // Gravity Fall Mechanics
+                applyGravity();
+                renderBoard();
+                await sleep(250);
+
+                // Fill Empty Top Space with new elements
+                fillNewElements();
+                renderBoard();
+                await sleep(250);
+
+                comboCount++;
+            }
+        }
+
+        async function triggerColorBomb(bombR, bombC, targetType) {
+            audioFX.playExplosion();
+            board[bombR][bombC] = { type: null, special: null };
+
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    if (board[r][c].type === targetType) {
+                        const cellDom = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                        if (cellDom) {
+                            const rect = cellDom.getBoundingClientRect();
+                            createExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2, '#f43f5e', 25);
+                        }
+                        if (targets[targetType] !== undefined) {
+                            targets[targetType] = Math.max(0, targets[targetType] - 1);
+                        }
+                        score += 150;
+                        board[r][c] = { type: null, special: null };
+                    }
+                }
+            }
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('chemcrush_highscore', highScore);
+            }
+            updateUI();
+            renderBoard();
+            await sleep(300);
+
+            applyGravity();
+            fillNewElements();
+            renderBoard();
+            await sleep(250);
+        }
+
+        function applyGravity() {
+            for (let c = 0; c < GRID_SIZE; c++) {
+                let emptySpot = GRID_SIZE - 1;
+                for (let r = GRID_SIZE - 1; r >= 0; r--) {
+                    if (board[r][c].type !== null) {
+                        if (r !== emptySpot) {
+                            board[emptySpot][c] = board[r][c];
+                            board[r][c] = { type: null, special: null };
+                        }
+                        emptySpot--;
+                    }
+                }
+            }
+        }
+
+        function fillNewElements() {
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    if (board[r][c].type === null) {
+                        const randKey = ELEMENT_KEYS[Math.floor(Math.random() * ELEMENT_KEYS.length)];
+                        board[r][c] = {
+                            type: randKey,
+                            special: null
+                        };
+                    }
+                }
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('scoreDisplay').innerText = score.toLocaleString();
+            document.getElementById('movesDisplay').innerText = moves;
+            document.getElementById('highScoreDisplay').innerText = highScore.toLocaleString();
+
+            const objContainer = document.getElementById('objectivesList');
+            objContainer.innerHTML = '';
+
+            let allTargetsCompleted = true;
+            Object.keys(targets).forEach(k => {
+                const count = targets[k];
+                if (count > 0) allTargetsCompleted = false;
+
+                const elem = ELEMENTS_DATA[k];
+                const badge = document.createElement('div');
+                badge.className = `flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold border ${elem.group} ${count === 0 ? 'opacity-40 line-through' : ''}`;
+                badge.innerHTML = `
+                    <span>${elem.symbol}:</span>
+                    <span class="font-orbitron font-bold">${count}</span>
+                `;
+                objContainer.appendChild(badge);
+            });
+
+            return allTargetsCompleted;
+        }
+
+        function updateDetailCard(elem) {
+            document.getElementById('detailSymbolBox').className = `w-14 h-14 rounded-xl flex flex-col items-center justify-center border shadow-md font-orbitron ${elem.group}`;
+            document.getElementById('detailAtomicNum').innerText = elem.number;
+            document.getElementById('detailSymbol').innerText = elem.symbol;
+            document.getElementById('detailName').innerText = elem.name;
+            document.getElementById('detailGroup').innerText = elem.category;
+            document.getElementById('detailDesc').innerText = elem.desc;
+        }
+
+        function checkGameEndConditions() {
+            const targetsDone = Object.values(targets).every(v => v <= 0);
+
+            if (targetsDone) {
+                audioFX.playWin();
+                showEndModal(true);
+            } else if (moves <= 0) {
+                showEndModal(false);
+            }
+        }
+
+        function showEndModal(isWin) {
+            const overlay = document.getElementById('modalOverlay');
+            const card = document.getElementById('modalCard');
+            const title = document.getElementById('modalTitle');
+            const subtitle = document.getElementById('modalSubtitle');
+            const iconBox = document.getElementById('modalIconBox');
+
+            if (isWin) {
+                iconBox.className = "w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center mx-auto mb-4 text-3xl";
+                iconBox.innerHTML = '<i class="fa-solid fa-vial-circle-check"></i>';
+                title.innerText = "Synthesis Completed!";
+                subtitle.innerText = "You successfully produced all targeted elements.";
+            } else {
+                iconBox.className = "w-16 h-16 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center mx-auto mb-4 text-3xl";
+                iconBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                title.innerText = "Reaction Halted";
+                subtitle.innerText = "Out of moves! Experiment terminated prematurely.";
+            }
+
+            document.getElementById('modalScore').innerText = score.toLocaleString();
+            document.getElementById('modalMoves').innerText = moves;
+            document.getElementById('modalHighScore').innerText = highScore.toLocaleString();
+
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                card.classList.remove('scale-95', 'opacity-0');
+                card.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function hideModal() {
+            const overlay = document.getElementById('modalOverlay');
+            const card = document.getElementById('modalCard');
+            card.classList.remove('scale-100', 'opacity-100');
+            card.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 200);
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        window.onload = function() {
+            initGame();
+
+            document.getElementById('restartBtn').addEventListener('click', () => {
+                initGame();
+            });
+
+            document.getElementById('audioBtn').addEventListener('click', () => {
+                soundEnabled = !soundEnabled;
+                const icon = document.getElementById('audioBtn').querySelector('i');
+                icon.className = soundEnabled ? 'fa-solid fa-volume-high text-lg w-5 h-5 flex items-center justify-center' : 'fa-solid fa-volume-xmark text-lg w-5 h-5 flex items-center justify-center text-rose-400';
+            });
+
+            document.getElementById('helpBtn').addEventListener('click', () => {
+                document.getElementById('helpOverlay').classList.remove('hidden');
+            });
+
+            document.getElementById('closeHelpBtn').addEventListener('click', () => {
+                document.getElementById('helpOverlay').classList.add('hidden');
+            });
+
+            document.getElementById('gotItHelpBtn').addEventListener('click', () => {
+                document.getElementById('helpOverlay').classList.add('hidden');
+            });
+
+            document.getElementById('modalActionBtn').addEventListener('click', () => {
+                hideModal();
+                initGame();
+            });
+        };
+    </script>
+</body>
+</html>
