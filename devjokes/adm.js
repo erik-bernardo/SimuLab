@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURAÇÃO ---
     // A sequência de teclas que queremos detectar (pode ser maiúscula ou minúscula)
     const secretCode = ['a', 'd', 'm']; 
-    const targetUrl = '.html'; // Para onde vai ser redirecionado
+    const targetUrl = 'https://erik-bernardo.github.io/SimuLabb/games/admin'; // Para onde vai ser redirecionado
     
     let codeIndex = 0; // Contador para saber em qual letra estamos
 
