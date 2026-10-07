@@ -18,15 +18,6 @@
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: 'var(--color-primary-50, #eff6ff)',
-                            100: 'var(--color-primary-100, #dbeafe)',
-                            500: 'var(--color-primary-500, #3b82f6)',
-                            600: 'var(--color-primary-600, #2563eb)',
-                            700: 'var(--color-primary-700, #1d4ed8)',
-                        }
                     }
                 }
             }
@@ -63,56 +54,97 @@
             cursor: text;
         }
 
-        /* CSS Variables for Dynamic Color Customization */
+        /* Dynamic CSS Theme Variables */
         :root {
             --primary-color: #3b82f6;
             --primary-hover: #2563eb;
-            --bg-canvas: #f8fafc;
-            --text-main: #0f172a;
         }
 
         .dynamic-btn-solid {
-            background-color: var(--primary-color);
-            color: #ffffff;
+            background-color: var(--primary-color) !important;
+            color: #ffffff !important;
             transition: all 0.2s ease;
         }
         .dynamic-btn-solid:hover {
-            background-color: var(--primary-hover);
+            background-color: var(--primary-hover) !important;
+            transform: translateY(-1px);
+        }
+
+        .dynamic-btn-secondary {
+            background-color: #64748b !important;
+            color: #ffffff !important;
+            transition: all 0.2s ease;
+        }
+        .dynamic-btn-secondary:hover {
+            background-color: #475569 !important;
             transform: translateY(-1px);
         }
 
         .dynamic-btn-outline {
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            background-color: transparent;
+            border: 2px solid var(--primary-color) !important;
+            color: var(--primary-color) !important;
+            background-color: transparent !important;
             transition: all 0.2s ease;
         }
         .dynamic-btn-outline:hover {
-            background-color: var(--primary-color);
-            color: #ffffff;
+            background-color: var(--primary-color) !important;
+            color: #ffffff !important;
             transform: translateY(-1px);
         }
 
-        .dynamic-btn-gradient {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
-            color: #ffffff;
-            transition: all 0.2s ease;
+        /* DARK MODE TEXT CONTRAST OVERRIDES */
+        /* Ensuring all typography is bright and legible in dark mode */
+        #preview-canvas.dark {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
         }
-        .dynamic-btn-gradient:hover {
-            opacity: 0.95;
-            transform: translateY(-1px);
+        
+        #preview-canvas.dark h1,
+        #preview-canvas.dark h2,
+        #preview-canvas.dark h3,
+        #preview-canvas.dark h4,
+        #preview-canvas.dark strong,
+        #preview-canvas.dark b {
+            color: #ffffff !important;
+        }
+
+        #preview-canvas.dark p,
+        #preview-canvas.dark span:not(.dynamic-bg-primary),
+        #preview-canvas.dark div,
+        #preview-canvas.dark li {
+            color: #cbd5e1 !important;
+        }
+
+        #preview-canvas.dark .card-bg {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+        }
+
+        #preview-canvas.dark .section-alt-bg {
+            background-color: #1a2332 !important;
+            border-color: #334155 !important;
+        }
+
+        #preview-canvas.dark .dynamic-btn-outline {
+            color: #60a5fa !important;
+            border-color: #60a5fa !important;
+        }
+
+        #preview-canvas.dark .dynamic-btn-outline:hover {
+            background-color: #60a5fa !important;
+            color: #0f172a !important;
         }
 
         .dynamic-text-primary {
             color: var(--primary-color);
         }
 
-        .dynamic-bg-primary {
-            background-color: var(--primary-color);
+        #preview-canvas.dark .dynamic-text-primary {
+            color: #60a5fa !important;
         }
 
-        .dynamic-border-primary {
-            border-color: var(--primary-color);
+        .dynamic-bg-primary {
+            background-color: var(--primary-color);
         }
 
         /* Device preview frames */
@@ -120,7 +152,7 @@
             max-width: 380px !important;
             margin: 0 auto;
             border-radius: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             border: 8px solid #1e293b;
         }
 
@@ -131,16 +163,10 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             border: 4px solid #334155;
         }
-
-        /* Modal backdrop transition */
-        .modal-fade {
-            transition: opacity 0.25s ease, transform 0.25s ease;
-        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col h-screen overflow-hidden">
 
-    <!-- TOP NAVBAR -->
     <header class="bg-slate-800 border-b border-slate-700 px-4 py-2.5 flex items-center justify-between z-30 shrink-0 select-none">
         <div class="flex items-center space-x-3">
             <div class="p-2 bg-blue-600 rounded-lg text-white font-bold text-lg flex items-center justify-center w-9 h-9">
@@ -148,7 +174,7 @@
             </div>
             <div>
                 <h1 class="font-bold text-slate-100 leading-tight">SobreNós Studio</h1>
-                <p class="text-xs text-slate-400 hidden sm:block">Gerador & Editor ao Vivo de Página Sobre Nós</p>
+                <p class="text-xs text-slate-400 hidden sm:block">Editor de Páginas com Tema Escuro & Claro</p>
             </div>
         </div>
 
@@ -157,63 +183,50 @@
             <button onclick="setViewport('desktop')" id="btn-vp-desktop" class="px-3 py-1.5 rounded-md text-xs font-medium text-white bg-slate-700 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-desktop"></i> Desktop
             </button>
-            <button onclick="setViewport('tablet')" id="btn-vp-tablet" class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5">
-                <i class="fa-solid fa-tablet-screen-button"></i> Tablet
-            </button>
-            <button onclick="setViewport('mobile')" id="btn-vp-mobile" class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5">
-                <i class="fa-solid fa-mobile-screen"></i> Mobile
-            </button>
+
         </div>
 
         <!-- Action Buttons -->
         <div class="flex items-center space-x-2">
-            <button onclick="saveToLocalStorage()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs font-medium transition flex items-center gap-1.5" title="Salvar progresso no navegador">
-                <i class="fa-solid fa-floppy-disk text-emerald-400"></i> <span class="hidden sm:inline">Salvar</span>
-            </button>
-            <button onclick="loadFromLocalStorage()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs font-medium transition flex items-center gap-1.5" title="Carregar do armazenamento local">
-                <i class="fa-solid fa-folder-open text-amber-400"></i> <span class="hidden sm:inline">Carregar</span>
-            </button>
-            <button onclick="openExportModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg text-xs transition flex items-center gap-1.5 shadow-lg shadow-blue-600/30">
+            <button onclick="openExportModal()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg text-xs transition flex items-center gap-1.5 shadow-lg shadow-blue-600/30">
                 <i class="fa-solid fa-code"></i> Exportar HTML
             </button>
         </div>
     </header>
 
-    <!-- MAIN WORKSPACE -->
     <div class="flex-1 flex overflow-hidden relative">
         
-        <!-- LEFT PANEL: EDITOR CONTROLS -->
+        <!-- LEFT SIDEBAR: CONTROL PANEL -->
         <aside id="editor-panel" class="w-full md:w-[420px] lg:w-[460px] bg-slate-800 border-r border-slate-700 flex flex-col h-full z-20 shrink-0 transition-all duration-300">
             <!-- Tabs Header -->
             <div class="flex border-b border-slate-700 bg-slate-800/80 overflow-x-auto text-xs font-medium text-slate-400 scrollbar-none">
-                <button onclick="switchTab('tab-content')" id="nav-tab-content" class="flex-1 py-3 px-3 text-center border-b-2 border-blue-500 text-blue-400 font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <button onclick="switchTab('tab-content')" id="nav-tab-content" class="flex-1 py-3 px-2 text-center border-b-2 border-blue-500 text-blue-400 font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <i class="fa-solid fa-pen-to-square"></i> Conteúdo
                 </button>
-                <button onclick="switchTab('tab-media')" id="nav-tab-media" class="flex-1 py-3 px-3 text-center border-b-2 border-transparent hover:text-slate-200 flex items-center justify-center gap-1.5 whitespace-nowrap">
-                    <i class="fa-solid fa-image"></i> Imagens
-                </button>
-                <button onclick="switchTab('tab-buttons')" id="nav-tab-buttons" class="flex-1 py-3 px-3 text-center border-b-2 border-transparent hover:text-slate-200 flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <button onclick="switchTab('tab-buttons')" id="nav-tab-buttons" class="flex-1 py-3 px-2 text-center border-b-2 border-transparent hover:text-slate-200 flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <i class="fa-solid fa-link"></i> Botões
                 </button>
-                <button onclick="switchTab('tab-style')" id="nav-tab-style" class="flex-1 py-3 px-3 text-center border-b-2 border-transparent hover:text-slate-200 flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <button onclick="switchTab('tab-team')" id="nav-tab-team" class="flex-1 py-3 px-2 text-center border-b-2 border-transparent hover:text-slate-200 flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-users"></i> Equipe
+                </button>
+                <button onclick="switchTab('tab-style')" id="nav-tab-style" class="flex-1 py-3 px-2 text-center border-b-2 border-transparent hover:text-slate-200 flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <i class="fa-solid fa-palette"></i> Estilo
                 </button>
             </div>
 
-            <!-- Tab Contents Container -->
+            <!-- Tab Content Body -->
             <div class="flex-1 overflow-y-auto p-4 space-y-6 text-sm text-slate-300">
 
-                <!-- TAB 1: CONTEÚDO -->
                 <div id="tab-content" class="space-y-5">
                     
                     <!-- Header Text Section -->
                     <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-3">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center justify-between">
-                            <span>Cabeçalho Principal</span>
+                            <span>Seção Principal (Hero)</span>
                             <i class="fa-solid fa-heading"></i>
                         </h3>
                         <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1">Tag Superior / Badge</label>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Badge Superior</label>
                             <input type="text" id="input-badge" oninput="updateData()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition">
                         </div>
                         <div>
@@ -221,8 +234,12 @@
                             <input type="text" id="input-hero-title" oninput="updateData()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1">Subtítulo / Apresentação</label>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Subtítulo</label>
                             <textarea id="input-hero-subtitle" oninput="updateData()" rows="2" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">URL da Imagem Principal</label>
+                            <input type="text" id="input-hero-image" oninput="updateData()" placeholder="https://..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
                         </div>
                     </div>
 
@@ -233,31 +250,21 @@
                             <i class="fa-solid fa-book-open"></i>
                         </h3>
                         <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1">Título da Seção de História</label>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Título da História</label>
                             <input type="text" id="input-story-title" oninput="updateData()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition">
                         </div>
-                        
-                        <!-- Dynamic Paragraphs Manager -->
                         <div>
-                            <div class="flex items-center justify-between mb-1.5">
-                                <label class="text-xs font-medium text-slate-400">Parágrafos da História</label>
-                                <button onclick="addParagraph()" class="text-xs text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1">
-                                    <i class="fa-solid fa-plus"></i> Adicionar
-                                </button>
-                            </div>
-                            <div id="paragraphs-list" class="space-y-2">
-                                <!-- Rendered dynamically -->
-                            </div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Texto da História</label>
+                            <textarea id="input-story-text" oninput="updateData()" rows="3" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
                         </div>
                     </div>
 
-                    <!-- Mission, Vision, Values Grid -->
+                    <!-- Mission & Vision -->
                     <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-3">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center justify-between">
-                            <span>Pilares (Missão, Visão, Valores)</span>
+                            <span>Missão, Visão e Valores</span>
                             <i class="fa-solid fa-compass"></i>
                         </h3>
-                        
                         <div>
                             <label class="block text-xs font-medium text-slate-400 mb-1">Missão</label>
                             <textarea id="input-mission" oninput="updateData()" rows="2" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition"></textarea>
@@ -272,139 +279,77 @@
                         </div>
                     </div>
 
-                    <!-- Stats / Numbers Section -->
-                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-3">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center justify-between">
-                            <span>Métricas / Estatísticas</span>
-                            <i class="fa-solid fa-chart-simple"></i>
-                        </h3>
-                        <div id="stats-list" class="space-y-2">
-                            <!-- Rendered dynamically -->
-                        </div>
-                        <button onclick="addStat()" class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-300 rounded-lg transition flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-plus"></i> Adicionar Estatística
-                        </button>
-                    </div>
-
                 </div>
 
-                <!-- TAB 2: IMAGENS E GALERIA -->
-                <div id="tab-media" class="space-y-5 hidden">
-                    
-                    <!-- Main Cover/Profile Image -->
-                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-3">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center justify-between">
-                            <span>Imagem Principal (Destaque)</span>
-                            <i class="fa-solid fa-image"></i>
-                        </h3>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1">URL da Imagem</label>
-                            <input type="text" id="input-hero-image" oninput="updateData()" placeholder="https://..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1">Legenda / Texto Alt</label>
-                            <input type="text" id="input-hero-image-alt" oninput="updateData()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
-                        </div>
-                    </div>
-
-                    <!-- Team / Office Gallery -->
-                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
-                                <span>Galeria de Fotos / Equipe</span>
-                            </h3>
-                            <button onclick="addGalleryImage()" class="text-xs text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1">
-                                <i class="fa-solid fa-plus"></i> Nova Foto
-                            </button>
-                        </div>
-                        <p class="text-xs text-slate-400">Adicione fotos dos integrantes, escritório ou momentos da marca.</p>
-
-                        <div id="gallery-list" class="space-y-3">
-                            <!-- Dynamic Gallery Inputs -->
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- TAB 3: BOTÕES DINÂMICOS -->
                 <div id="tab-buttons" class="space-y-5 hidden">
                     <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-3">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
-                                <span>Gerenciador de Botões (CTA & Links)</span>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400">
+                                Gerenciador de Botões
                             </h3>
                             <button onclick="addButton()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-xs font-medium transition flex items-center gap-1">
-                                <i class="fa-solid fa-plus"></i> Adicionar
+                                <i class="fa-solid fa-plus"></i> Novo Botão
                             </button>
                         </div>
-                        <p class="text-xs text-slate-400">Crie botões para redes sociais, portfólio, contato ou downloads.</p>
+                        <p class="text-xs text-slate-400">Adicione, edite ou remova os botões de ação da sua página.</p>
 
                         <div id="buttons-list" class="space-y-3">
-                            <!-- Dynamic Buttons List -->
+                            <!-- Dynamic Buttons Rendered Here -->
                         </div>
                     </div>
                 </div>
 
-                <!-- TAB 4: ESTILO E TEMA -->
+                <div id="tab-team" class="space-y-5 hidden">
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400">
+                                Membros da Equipe
+                            </h3>
+                            <button onclick="addTeamMember()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-xs font-medium transition flex items-center gap-1">
+                                <i class="fa-solid fa-plus"></i> Novo Membro
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-400">Gerencie fotos, nomes e cargos do seu time.</p>
+
+                        <div id="team-list" class="space-y-3">
+                            <!-- Dynamic Team Members Rendered Here -->
+                        </div>
+                    </div>
+                </div>
+
                 <div id="tab-style" class="space-y-5 hidden">
                     
-                    <!-- Color Palettes -->
+                    <!-- Theme Mode Toggle -->
                     <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-3">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center justify-between">
-                            <span>Cor do Tema</span>
+                            <span>Alternar Tema do Preview</span>
+                            <i class="fa-solid fa-circle-half-stroke"></i>
+                        </h3>
+                        <p class="text-xs text-slate-400">
+                            Ao selecionar o <strong>Modo Escuro</strong>, a fonte das letras ficará clara automaticamente para garantir alto contraste.
+                        </p>
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <button onclick="setPreviewMode('light')" id="btn-mode-light" class="py-3 px-3 rounded-xl border border-slate-600 bg-slate-800 text-white font-medium text-xs flex items-center justify-center gap-2 hover:bg-slate-700 transition shadow">
+                                <i class="fa-solid fa-sun text-amber-400 text-base"></i> Modo Claro
+                            </button>
+                            <button onclick="setPreviewMode('dark')" id="btn-mode-dark" class="py-3 px-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-400 font-medium text-xs flex items-center justify-center gap-2 hover:bg-slate-800 transition shadow">
+                                <i class="fa-solid fa-moon text-blue-400 text-base"></i> Modo Escuro
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Primary Color Selection -->
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center justify-between">
+                            <span>Cor Principal de Destaque</span>
                             <i class="fa-solid fa-palette"></i>
                         </h3>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-2">Selecione uma Cor Primária</label>
-                            <div class="grid grid-cols-5 gap-2" id="color-presets">
-                                <button onclick="setPrimaryColor('#3b82f6')" class="h-9 rounded-lg bg-blue-500 border-2 border-white/20 hover:scale-105 transition shadow"></button>
-                                <button onclick="setPrimaryColor('#10b981')" class="h-9 rounded-lg bg-emerald-500 border-2 border-white/20 hover:scale-105 transition shadow"></button>
-                                <button onclick="setPrimaryColor('#8b5cf6')" class="h-9 rounded-lg bg-purple-500 border-2 border-white/20 hover:scale-105 transition shadow"></button>
-                                <button onclick="setPrimaryColor('#f43f5e')" class="h-9 rounded-lg bg-rose-500 border-2 border-white/20 hover:scale-105 transition shadow"></button>
-                                <button onclick="setPrimaryColor('#f59e0b')" class="h-9 rounded-lg bg-amber-500 border-2 border-white/20 hover:scale-105 transition shadow"></button>
-                                <button onclick="setPrimaryColor('#06b6d4')" class="h-9 rounded-lg bg-cyan-500 border-2 border-white/20 hover:scale-105 transition shadow"></button>
-                                <button onclick="setPrimaryColor('#ec4899')" class="h-9 rounded-lg bg-pink-500 border-2 border-white/20 hover:scale-105 transition shadow"></button>
-                                <button onclick="setPrimaryColor('#6366f1')" class="h-9 rounded-lg bg-indigo-500 border-2 border-white/20 hover:scale-105 transition shadow"></button>
-                                <button onclick="setPrimaryColor('#84cc16')" class="h-9 rounded-lg bg-lime-500 border-2 border-white/20 hover:scale-105 transition shadow"></button>
-                                <button onclick="setPrimaryColor('#09090b')" class="h-9 rounded-lg bg-slate-900 border-2 border-white/20 hover:scale-105 transition shadow"></button>
-                            </div>
-                        </div>
-                        <div class="pt-2">
-                            <label class="block text-xs font-medium text-slate-400 mb-1">Cor Personalizada (Hex)</label>
-                            <div class="flex items-center gap-2">
-                                <input type="color" id="input-custom-color" onchange="setPrimaryColor(this.value)" class="w-9 h-9 rounded bg-transparent cursor-pointer border-0">
-                                <input type="text" id="input-custom-color-hex" oninput="setPrimaryColor(this.value)" placeholder="#3b82f6" class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Theme Mode (Light / Dark) -->
-                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-3">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center justify-between">
-                            <span>Modo da Página Final</span>
-                            <i class="fa-solid fa-moon"></i>
-                        </h3>
-                        <div class="grid grid-cols-2 gap-3">
-                            <button onclick="setPreviewMode('light')" id="btn-mode-light" class="py-2.5 px-3 rounded-lg border border-slate-600 bg-slate-800 text-white font-medium text-xs flex items-center justify-center gap-2 hover:bg-slate-700 transition">
-                                <i class="fa-solid fa-sun text-amber-400"></i> Modo Claro
-                            </button>
-                            <button onclick="setPreviewMode('dark')" id="btn-mode-dark" class="py-2.5 px-3 rounded-lg border border-slate-700 bg-slate-900 text-slate-400 font-medium text-xs flex items-center justify-center gap-2 hover:bg-slate-800 transition">
-                                <i class="fa-solid fa-moon text-blue-400"></i> Modo Escuro
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Layout / Alignment Styles -->
-                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-3">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center justify-between">
-                            <span>Arredondamento de Bordas</span>
-                            <i class="fa-solid fa-shapes"></i>
-                        </h3>
-                        <div class="grid grid-cols-4 gap-2">
-                            <button onclick="setBorderRadius('rounded-none')" class="py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs text-slate-300">Reto</button>
-                            <button onclick="setBorderRadius('rounded-md')" class="py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-md text-xs text-slate-300">Suave</button>
-                            <button onclick="setBorderRadius('rounded-xl')" class="py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs text-slate-300">Médio</button>
-                            <button onclick="setBorderRadius('rounded-3xl')" class="py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl text-xs text-slate-300">Curvo</button>
+                        <div class="grid grid-cols-5 gap-2" id="color-presets">
+                            <button onclick="setPrimaryColor('#3b82f6')" class="h-9 rounded-lg bg-blue-500 border-2 border-white/20 hover:scale-105 transition shadow"></button>
+                            <button onclick="setPrimaryColor('#10b981')" class="h-9 rounded-lg bg-emerald-500 border-2 border-white/20 hover:scale-105 transition shadow"></button>
+                            <button onclick="setPrimaryColor('#8b5cf6')" class="h-9 rounded-lg bg-purple-500 border-2 border-white/20 hover:scale-105 transition shadow"></button>
+                            <button onclick="setPrimaryColor('#f43f5e')" class="h-9 rounded-lg bg-rose-500 border-2 border-white/20 hover:scale-105 transition shadow"></button>
+                            <button onclick="setPrimaryColor('#f59e0b')" class="h-9 rounded-lg bg-amber-500 border-2 border-white/20 hover:scale-105 transition shadow"></button>
                         </div>
                     </div>
 
@@ -413,10 +358,9 @@
             </div>
         </aside>
 
-        <!-- RIGHT PANEL: LIVE PREVIEW CANVAS -->
         <main class="flex-1 bg-slate-950 flex flex-col h-full overflow-hidden relative">
             
-            <!-- Canvas Toolbar -->
+            <!-- Preview Top Info Bar -->
             <div class="bg-slate-900/90 border-b border-slate-800 px-4 py-2 flex items-center justify-between text-xs text-slate-400 shrink-0">
                 <div class="flex items-center space-x-2">
                     <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -431,7 +375,7 @@
                 </div>
             </div>
 
-            <!-- Scrollable Preview Frame Wrapper -->
+            <!-- Scrollable Preview Workspace Frame -->
             <div class="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center items-start bg-slate-950">
                 
                 <!-- PREVIEW CONTAINER CARD -->
@@ -439,7 +383,7 @@
                     
                     <div id="preview-canvas" class="bg-white text-slate-900 rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300 border border-slate-200">
                         
-                        <!-- HERO / HEADER SECTION -->
+                        <!-- HERO SECTION -->
                         <section class="px-6 py-12 md:py-16 md:px-12 text-center max-w-4xl mx-auto">
                             <!-- Badge -->
                             <div class="inline-block mb-4">
@@ -449,100 +393,93 @@
                             </div>
 
                             <!-- Hero Title -->
-                            <h1 id="view-hero-title" contenteditable="true" onblur="syncEditable('heroTitle', this.innerText)" class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-slate-900 preview-editable leading-tight">
-                                Transformando Ideias em Experiências Digitais Incríveis
+                            <h1 id="view-hero-title" contenteditable="true" onblur="syncEditable('heroTitle', this.innerText)" class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight preview-editable">
+                                Criando Soluções Inovadoras para um Futuro Digital
                             </h1>
 
                             <!-- Hero Subtitle -->
-                            <p id="view-hero-subtitle" contenteditable="true" onblur="syncEditable('heroSubtitle', this.innerText)" class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed preview-editable">
-                                Somos um coletivo de mentes criativas, engenheiros e designers apaixonados por criar soluções inovadoras que conectam pessoas e impulsionam negócios pelo mundo.
+                            <p id="view-hero-subtitle" contenteditable="true" onblur="syncEditable('heroSubtitle', this.innerText)" class="text-base sm:text-lg max-w-2xl mx-auto leading-relaxed preview-editable mb-8">
+                                Conectamos tecnologia moderna com design intuitivo para ajudar marcas a crescer e impactar positivamente milhares de usuários.
                             </p>
 
-                            <!-- Dynamic Buttons Group -->
-                            <div id="view-buttons-container" class="flex flex-wrap items-center justify-center gap-3 mt-8">
-                                <!-- Dynamic Render -->
+                            <!-- Dynamic Buttons Section -->
+                            <div id="view-buttons-container" class="flex flex-wrap items-center justify-center gap-3 mt-6">
+                                <!-- Rendered dynamically -->
                             </div>
                         </section>
 
                         <!-- HERO IMAGE SECTION -->
                         <section class="px-6 md:px-12 mb-12">
-                            <div class="max-w-4xl mx-auto overflow-hidden shadow-xl rounded-2xl relative group border border-slate-100">
-                                <img id="view-hero-image" src="" alt="Destaque" class="w-full h-64 sm:h-80 md:h-96 object-cover transition-transform duration-500 group-hover:scale-105" onerror="handleImageError(this)">
-                            </div>
-                        </section>
-
-                        <!-- STATS / METRICS SECTION -->
-                        <section class="bg-slate-50 border-y border-slate-100 py-10 px-6 md:px-12 dark:bg-slate-800/40 dark:border-slate-800">
-                            <div class="max-w-4xl mx-auto">
-                                <div id="view-stats-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-                                    <!-- Dynamic Render -->
-                                </div>
+                            <div class="max-w-4xl mx-auto overflow-hidden shadow-xl rounded-2xl relative group border border-slate-200 card-bg">
+                                <img id="view-hero-image" src="" alt="Imagem Principal" class="w-full h-64 sm:h-80 md:h-96 object-cover transition-transform duration-500 group-hover:scale-105" onerror="handleImageError(this)">
                             </div>
                         </section>
 
                         <!-- OUR STORY SECTION -->
-                        <section class="px-6 py-12 md:py-16 md:px-12 max-w-4xl mx-auto">
+                        <section class="px-6 py-12 md:py-16 md:px-12 max-w-4xl mx-auto border-t border-slate-100 card-bg">
                             <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
                                 <div class="md:col-span-4">
-                                    <h2 id="view-story-title" contenteditable="true" onblur="syncEditable('storyTitle', this.innerText)" class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 preview-editable leading-snug">
-                                        Nossa História & Propósito
+                                    <h2 id="view-story-title" contenteditable="true" onblur="syncEditable('storyTitle', this.innerText)" class="text-2xl sm:text-3xl font-bold tracking-tight preview-editable leading-snug">
+                                        Nossa Trajetória
                                     </h2>
                                     <div class="w-16 h-1 dynamic-bg-primary rounded-full mt-3"></div>
                                 </div>
-                                <div class="md:col-span-8 space-y-4 text-slate-600 leading-relaxed" id="view-paragraphs-container">
-                                    <!-- Dynamic Render -->
+                                <div class="md:col-span-8">
+                                    <p id="view-story-text" contenteditable="true" onblur="syncEditable('storyText', this.innerText)" class="text-base leading-relaxed preview-editable">
+                                        Desde nossa fundação, nos dedicamos a construir produtos que unem performance, elegância e acessibilidade. Começamos com uma pequena equipe apaixonada por resolver desafios complexos e hoje nos orgulhamos de atender clientes ao redor do mundo.
+                                    </p>
                                 </div>
                             </div>
                         </section>
 
-                        <!-- MISSION, VISION, VALUES -->
-                        <section class="px-6 py-10 md:px-12 bg-slate-50/50 border-t border-slate-100 dark:bg-slate-800/20 dark:border-slate-800">
+                        <!-- MISSION, VISION, VALUES SECTION -->
+                        <section class="px-6 py-12 md:px-12 bg-slate-50 border-y border-slate-100 section-alt-bg">
                             <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
                                 
                                 <!-- Card Missão -->
-                                <div class="p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700/60 shadow-sm hover:shadow-md transition">
+                                <div class="p-6 bg-white rounded-xl border border-slate-200/80 shadow-sm card-bg">
                                     <div class="w-10 h-10 rounded-lg dynamic-bg-primary text-white flex items-center justify-center font-bold mb-4 shadow-sm">
                                         <i class="fa-solid fa-bullseye text-lg"></i>
                                     </div>
-                                    <h3 class="font-bold text-slate-900 dark:text-white text-lg mb-2">Missão</h3>
-                                    <p id="view-mission" contenteditable="true" onblur="syncEditable('mission', this.innerText)" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed preview-editable">
-                                        Impactar positivamente a vida de milhares de pessoas através de software de altíssima qualidade e design acessível.
+                                    <h3 class="font-bold text-lg mb-2">Missão</h3>
+                                    <p id="view-mission" contenteditable="true" onblur="syncEditable('mission', this.innerText)" class="text-xs leading-relaxed preview-editable">
+                                        Entregar soluções de software extraordinárias com usabilidade impecável.
                                     </p>
                                 </div>
 
                                 <!-- Card Visão -->
-                                <div class="p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700/60 shadow-sm hover:shadow-md transition">
+                                <div class="p-6 bg-white rounded-xl border border-slate-200/80 shadow-sm card-bg">
                                     <div class="w-10 h-10 rounded-lg dynamic-bg-primary text-white flex items-center justify-center font-bold mb-4 shadow-sm">
                                         <i class="fa-solid fa-eye text-lg"></i>
                                     </div>
-                                    <h3 class="font-bold text-slate-900 dark:text-white text-lg mb-2">Visão</h3>
-                                    <p id="view-vision" contenteditable="true" onblur="syncEditable('vision', this.innerText)" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed preview-editable">
-                                        Ser referência global em inovação contínua, mantendo o foco absoluto na experiência humana e na simplicidade.
+                                    <h3 class="font-bold text-lg mb-2">Visão</h3>
+                                    <p id="view-vision" contenteditable="true" onblur="syncEditable('vision', this.innerText)" class="text-xs leading-relaxed preview-editable">
+                                        Ser a principal referência em ecossistemas e aplicações web acessíveis.
                                     </p>
                                 </div>
 
                                 <!-- Card Valores -->
-                                <div class="p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700/60 shadow-sm hover:shadow-md transition">
+                                <div class="p-6 bg-white rounded-xl border border-slate-200/80 shadow-sm card-bg">
                                     <div class="w-10 h-10 rounded-lg dynamic-bg-primary text-white flex items-center justify-center font-bold mb-4 shadow-sm">
                                         <i class="fa-solid fa-heart text-lg"></i>
                                     </div>
-                                    <h3 class="font-bold text-slate-900 dark:text-white text-lg mb-2">Valores</h3>
-                                    <p id="view-values" contenteditable="true" onblur="syncEditable('values', this.innerText)" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed preview-editable">
-                                        Transparência radical, colaboração sem fronteiras, aprendizado constante e obsessão pela satisfação do cliente.
+                                    <h3 class="font-bold text-lg mb-2">Valores</h3>
+                                    <p id="view-values" contenteditable="true" onblur="syncEditable('values', this.innerText)" class="text-xs leading-relaxed preview-editable">
+                                        Transparência, inovação contínua e paixão pela experiência do cliente.
                                     </p>
                                 </div>
 
                             </div>
                         </section>
 
-                        <!-- GALLERY SECTION -->
-                        <section id="view-gallery-section" class="px-6 py-12 md:py-16 md:px-12 max-w-4xl mx-auto border-t border-slate-100 dark:border-slate-800">
-                            <div class="text-center max-w-xl mx-auto mb-8">
-                                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Conheça Nosso Espaço & Equipe</h2>
-                                <p class="text-slate-500 text-xs mt-1">Um pouco dos bastidores e do time que faz a magia acontecer.</p>
+                        <!-- TEAM SECTION -->
+                        <section id="view-team-section" class="px-6 py-12 md:py-16 md:px-12 max-w-4xl mx-auto">
+                            <div class="text-center max-w-xl mx-auto mb-10">
+                                <h2 class="text-2xl sm:text-3xl font-bold">Conheça Nossa Equipe</h2>
+                                <p class="text-xs mt-2">Pessoas talentosas motivadas por construir o melhor produto.</p>
                             </div>
-                            <div id="view-gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                <!-- Dynamic Render -->
+                            <div id="view-team-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                                <!-- Dynamic Team Rendered Here -->
                             </div>
                         </section>
 
@@ -560,13 +497,12 @@
         </main>
     </div>
 
-    <!-- EXPORT MODAL -->
     <div id="export-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-800 border border-slate-700 w-full max-w-3xl rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden modal-fade">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-3xl rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-700 flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                     <i class="fa-solid fa-code text-blue-400 text-lg"></i>
-                    <h3 class="font-bold text-white text-base">Código HTML/CSS Gerado</h3>
+                    <h3 class="font-bold text-white text-base">Código HTML Exportável</h3>
                 </div>
                 <button onclick="closeExportModal()" class="text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -575,11 +511,9 @@
             
             <div class="p-6 flex-1 overflow-y-auto space-y-4">
                 <p class="text-xs text-slate-400">
-                    Copie o código limpo abaixo para usar diretamente no seu site ou projeto web. O código inclui o Tailwind CSS via CDN para manter os mesmos estilos.
+                    Este é o código limpo e pronto para ser publicado em qualquer servidor ou hospedagem web.
                 </p>
-                <div class="relative">
-                    <textarea id="export-code-area" readonly class="w-full h-80 bg-slate-900 font-mono text-xs text-blue-300 p-4 rounded-xl border border-slate-700 focus:outline-none scrollbar-thin select-all"></textarea>
-                </div>
+                <textarea id="export-code-area" readonly class="w-full h-80 bg-slate-900 font-mono text-xs text-blue-300 p-4 rounded-xl border border-slate-700 focus:outline-none select-all"></textarea>
             </div>
 
             <div class="px-6 py-4 border-t border-slate-700 bg-slate-800/80 flex items-center justify-between">
@@ -598,64 +532,48 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
-        // DEFAULT INITIAL STATE DATA
+        // Initial state
         const defaultData = {
             badge: "Sobre Nós",
-            heroTitle: "Transformando Ideias em Experiências Digitais Incríveis",
-            heroSubtitle: "Somos um coletivo de mentes criativas, engenheiros e designers apaixonados por criar soluções inovadoras que conectam pessoas e impulsionam negócios pelo mundo.",
+            heroTitle: "Criando Soluções Inovadoras para um Futuro Digital",
+            heroSubtitle: "Conectamos tecnologia moderna com design intuitivo para ajudar marcas a crescer e impactar positivamente milhares de usuários.",
             heroImage: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
-            heroImageAlt: "Equipe trabalhando junta no escritório",
-            storyTitle: "Nossa História & Propósito",
-            paragraphs: [
-                "Fundada em 2020, nossa empresa nasceu com a missão clara de simplificar a tecnologia para empresas de todos os portes. O que começou como uma pequena equipe de três entusiastas hoje se tornou uma referência de excelência.",
-                "Acreditamos que o bom design e o código limpo andam de mãos dadas. Cada produto que construímos passa por um rigoroso processo de criação focado nas reais necessidades do usuário final."
-            ],
-            mission: "Impactar positivamente a vida de milhares de pessoas através de software de altíssima qualidade e design acessível.",
-            vision: "Ser referência global em inovação contínua, mantendo o foco absoluto na experiência humana e na simplicidade.",
-            values: "Transparência radical, colaboração sem fronteiras, aprendizado constante e obsessão pela satisfação do cliente.",
-            stats: [
-                { number: "500+", label: "Clientes Atendidos" },
-                { number: "98%", label: "Satisfação" },
-                { number: "12+", label: "Prêmios do Setor" },
-                { number: "24/7", label: "Suporte Dedicado" }
-            ],
-            buttons: [
-                { id: "b1", label: "Entrar em Contato", url: "#contato", style: "solid", icon: "fa-paper-plane" },
-                { id: "b2", label: "Nosso Portfólio", url: "#portfolio", style: "outline", icon: "fa-folder-open" },
-                { id: "b3", label: "Instagram", url: "https://instagram.com", style: "gradient", icon: "fa-instagram" }
-            ],
-            gallery: [
-                { url: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80", title: "Nossa Equipe" },
-                { url: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80", title: "Nosso Escritório" },
-                { url: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=600&q=80", title: "Brainstorming" }
-            ],
+            storyTitle: "Nossa Trajetória",
+            storyText: "Desde nossa fundação, nos dedicamos a construir produtos que unem performance, elegância e acessibilidade. Começamos com uma pequena equipe apaixonada por resolver desafios complexos e hoje nos orgulhosamente atendemos clientes ao redor do mundo.",
+            mission: "Entregar soluções de software extraordinárias com usabilidade impecável.",
+            vision: "Ser a principal referência em ecossistemas e aplicações web acessíveis.",
+            values: "Transparência, inovação contínua e paixão pela experiência do cliente.",
             primaryColor: "#3b82f6",
             previewMode: "light",
-            borderRadius: "rounded-xl"
+            buttons: [
+                { id: "b1", label: "Fale Conosco", url: "#contato", style: "solid" },
+                { id: "b2", label: "Saiba Mais", url: "#sobre", style: "outline" }
+            ],
+            team: [
+                {
+                    name: "Ana Silva",
+                    role: "CEO & Fundadora",
+                    photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80",
+                    bio: "Especialista em liderança de produtos digitais com mais de 10 anos de mercado."
+                },
+                {
+                    name: "Lucas Mendes",
+                    role: "Líder de Tecnologia",
+                    photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80",
+                    bio: "Desenvolvedor full-stack apaixonado por sistemas escaláveis."
+                },
+                {
+                    name: "Mariana Costa",
+                    role: "Designer de UX/UI",
+                    photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=600&q=80",
+                    bio: "Focada em criar experiências de usuário limpas e memoráveis."
+                }
+            ]
         };
 
-        // Reactive Application State
         let appData = JSON.parse(JSON.stringify(defaultData));
 
-        // Available FontAwesome Icons List for Buttons
-        const availableIcons = [
-            { name: "Nenhum", value: "" },
-            { name: "Avião de Papel", value: "fa-paper-plane" },
-            { name: "Pasta/Portfólio", value: "fa-folder-open" },
-            { name: "Instagram", value: "fa-instagram" },
-            { name: "LinkedIn", value: "fa-linkedin" },
-            { name: "GitHub", value: "fa-github" },
-            { name: "WhatsApp", value: "fa-whatsapp" },
-            { name: "Envelope/E-mail", value: "fa-envelope" },
-            { name: "Telefone", value: "fa-phone" },
-            { name: "Download", value: "fa-download" },
-            { name: "Seta Direita", value: "fa-arrow-right" },
-            { name: "Estrela", value: "fa-star" }
-        ];
-
-        // INITIALIZE APPLICATION
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('current-year').textContent = new Date().getFullYear();
             initApp();
@@ -668,9 +586,9 @@
             applyThemeColors();
         }
 
-        // Tab Switching Logic
+        // Tab Switching
         function switchTab(tabId) {
-            const tabs = ['tab-content', 'tab-media', 'tab-buttons', 'tab-style'];
+            const tabs = ['tab-content', 'tab-buttons', 'tab-team', 'tab-style'];
             tabs.forEach(t => {
                 document.getElementById(t).classList.add('hidden');
                 const navBtn = document.getElementById('nav-' + t);
@@ -684,29 +602,26 @@
             activeNav.classList.add('border-blue-500', 'text-blue-400', 'font-semibold');
         }
 
-        // Populate Left Panel Form Fields from State
+        // Populate Forms
         function populateFormInputs() {
             document.getElementById('input-badge').value = appData.badge;
             document.getElementById('input-hero-title').value = appData.heroTitle;
             document.getElementById('input-hero-subtitle').value = appData.heroSubtitle;
             document.getElementById('input-hero-image').value = appData.heroImage;
-            document.getElementById('input-hero-image-alt').value = appData.heroImageAlt;
             document.getElementById('input-story-title').value = appData.storyTitle;
+            document.getElementById('input-story-text').value = appData.storyText;
             document.getElementById('input-mission').value = appData.mission;
             document.getElementById('input-vision').value = appData.vision;
             document.getElementById('input-values').value = appData.values;
-            document.getElementById('input-custom-color-hex').value = appData.primaryColor;
-            document.getElementById('input-custom-color').value = appData.primaryColor;
         }
 
-        // Update State from Form Inputs
         function updateData() {
             appData.badge = document.getElementById('input-badge').value;
             appData.heroTitle = document.getElementById('input-hero-title').value;
             appData.heroSubtitle = document.getElementById('input-hero-subtitle').value;
             appData.heroImage = document.getElementById('input-hero-image').value;
-            appData.heroImageAlt = document.getElementById('input-hero-image-alt').value;
             appData.storyTitle = document.getElementById('input-story-title').value;
+            appData.storyText = document.getElementById('input-story-text').value;
             appData.mission = document.getElementById('input-mission').value;
             appData.vision = document.getElementById('input-vision').value;
             appData.values = document.getElementById('input-values').value;
@@ -714,154 +629,65 @@
             updatePreviewUI();
         }
 
-        // Synchronize changes made via inline editing (contenteditable) back to inputs and state
         function syncEditable(key, value) {
             appData[key] = value.trim();
             populateFormInputs();
         }
 
-        // Render Dynamic Lists (Paragraphs, Stats, Buttons, Gallery)
         function renderDynamicFormLists() {
-            // 1. Paragraphs List
-            const parList = document.getElementById('paragraphs-list');
-            parList.innerHTML = '';
-            appData.paragraphs.forEach((p, index) => {
-                const div = document.createElement('div');
-                div.className = 'flex items-center gap-2';
-                div.innerHTML = `
-                    <textarea oninput="updateParagraph(${index}, this.value)" rows="2" class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">${p}</textarea>
-                    <button onclick="removeParagraph(${index})" class="text-rose-400 hover:text-rose-300 p-2"><i class="fa-solid fa-trash-can"></i></button>
-                `;
-                parList.appendChild(div);
-            });
-
-            // 2. Stats List
-            const statsList = document.getElementById('stats-list');
-            statsList.innerHTML = '';
-            appData.stats.forEach((st, index) => {
-                const div = document.createElement('div');
-                div.className = 'grid grid-cols-12 gap-2 items-center bg-slate-800/80 p-2 rounded-lg border border-slate-700';
-                div.innerHTML = `
-                    <input type="text" value="${st.number}" oninput="updateStat(${index}, 'number', this.value)" placeholder="500+" class="col-span-4 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
-                    <input type="text" value="${st.label}" oninput="updateStat(${index}, 'label', this.value)" placeholder="Rótulo" class="col-span-7 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
-                    <button onclick="removeStat(${index})" class="col-span-1 text-rose-400 hover:text-rose-300 text-center"><i class="fa-solid fa-xmark"></i></button>
-                `;
-                statsList.appendChild(div);
-            });
-
-            // 3. Dynamic Buttons List
+            // Buttons list
             const btnList = document.getElementById('buttons-list');
             btnList.innerHTML = '';
             appData.buttons.forEach((btn, index) => {
                 const div = document.createElement('div');
                 div.className = 'bg-slate-800 p-3 rounded-xl border border-slate-700 space-y-2';
-                
-                let iconOptions = availableIcons.map(ic => 
-                    `<option value="${ic.value}" ${btn.icon === ic.value ? 'selected' : ''}>${ic.name}</option>`
-                ).join('');
-
                 div.innerHTML = `
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-400">Botão #${index + 1}</span>
-                        <button onclick="removeButton(${index})" class="text-rose-400 hover:text-rose-300 text-xs flex items-center gap-1">
-                            <i class="fa-solid fa-trash-can"></i> Remover
+                        <button onclick="removeButton(${index})" class="text-rose-400 hover:text-rose-300 text-xs">
+                            <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-0.5">Texto</label>
-                            <input type="text" value="${btn.label}" oninput="updateBtnProp(${index}, 'label', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-0.5">Link (URL)</label>
-                            <input type="text" value="${btn.url}" oninput="updateBtnProp(${index}, 'url', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
-                        </div>
+                        <input type="text" value="${btn.label}" oninput="updateBtnProp(${index}, 'label', this.value)" placeholder="Texto" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
+                        <input type="text" value="${btn.url}" oninput="updateBtnProp(${index}, 'url', this.value)" placeholder="Link URL" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-0.5">Estilo Visual</label>
-                            <select onchange="updateBtnProp(${index}, 'style', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
-                                <option value="solid" ${btn.style === 'solid' ? 'selected' : ''}>Sólido</option>
-                                <option value="outline" ${btn.style === 'outline' ? 'selected' : ''}>Contorno</option>
-                                <option value="gradient" ${btn.style === 'gradient' ? 'selected' : ''}>Gradiente</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-0.5">Ícone</label>
-                            <select onchange="updateBtnProp(${index}, 'icon', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
-                                ${iconOptions}
-                            </select>
-                        </div>
+                    <div>
+                        <select onchange="updateBtnProp(${index}, 'style', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
+                            <option value="solid" ${btn.style === 'solid' ? 'selected' : ''}>Estilo Primário</option>
+                            <option value="secondary" ${btn.style === 'secondary' ? 'selected' : ''}>Estilo Secundário</option>
+                            <option value="outline" ${btn.style === 'outline' ? 'selected' : ''}>Estilo Outline</option>
+                        </select>
                     </div>
                 `;
                 btnList.appendChild(div);
             });
 
-            // 4. Gallery List
-            const galleryList = document.getElementById('gallery-list');
-            galleryList.innerHTML = '';
-            appData.gallery.forEach((g, index) => {
+            // Team list
+            const teamList = document.getElementById('team-list');
+            teamList.innerHTML = '';
+            appData.team.forEach((member, index) => {
                 const div = document.createElement('div');
                 div.className = 'bg-slate-800 p-3 rounded-xl border border-slate-700 space-y-2';
                 div.innerHTML = `
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-400">Foto #${index + 1}</span>
-                        <button onclick="removeGalleryImage(${index})" class="text-rose-400 hover:text-rose-300 text-xs"><i class="fa-solid fa-trash-can"></i></button>
+                        <span class="text-xs font-bold text-slate-400">Membro #${index + 1}</span>
+                        <button onclick="removeTeamMember(${index})" class="text-rose-400 hover:text-rose-300 text-xs">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
                     </div>
-                    <div>
-                        <label class="text-[10px] text-slate-400 block mb-0.5">URL da Foto</label>
-                        <input type="text" value="${g.url}" oninput="updateGalleryProp(${index}, 'url', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-slate-400 block mb-0.5">Título / Legenda</label>
-                        <input type="text" value="${g.title}" oninput="updateGalleryProp(${index}, 'title', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
-                    </div>
+                    <input type="text" value="${member.name}" oninput="updateTeamProp(${index}, 'name', this.value)" placeholder="Nome" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
+                    <input type="text" value="${member.role}" oninput="updateTeamProp(${index}, 'role', this.value)" placeholder="Cargo" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
+                    <input type="text" value="${member.photo}" oninput="updateTeamProp(${index}, 'photo', this.value)" placeholder="URL da Foto" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
+                    <textarea oninput="updateTeamProp(${index}, 'bio', this.value)" placeholder="Biografia curta" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white resize-none">${member.bio}</textarea>
                 `;
-                galleryList.appendChild(div);
+                teamList.appendChild(div);
             });
         }
 
-        // Handlers for Paragraph Actions
-        function addParagraph() {
-            appData.paragraphs.push("Novo parágrafo com detalhes sobre a trajetória da empresa.");
-            renderDynamicFormLists();
-            updatePreviewUI();
-        }
-        function updateParagraph(index, value) {
-            appData.paragraphs[index] = value;
-            updatePreviewUI();
-        }
-        function removeParagraph(index) {
-            appData.paragraphs.splice(index, 1);
-            renderDynamicFormLists();
-            updatePreviewUI();
-        }
-
-        // Handlers for Stats Actions
-        function addStat() {
-            appData.stats.push({ number: "100%", label: "Nova Métrica" });
-            renderDynamicFormLists();
-            updatePreviewUI();
-        }
-        function updateStat(index, prop, value) {
-            appData.stats[index][prop] = value;
-            updatePreviewUI();
-        }
-        function removeStat(index) {
-            appData.stats.splice(index, 1);
-            renderDynamicFormLists();
-            updatePreviewUI();
-        }
-
-        // Handlers for Buttons Actions
+        // Button Functions
         function addButton() {
-            appData.buttons.push({
-                id: 'b' + Date.now(),
-                label: "Novo Botão",
-                url: "#",
-                style: "solid",
-                icon: "fa-arrow-right"
-            });
+            appData.buttons.push({ id: 'b' + Date.now(), label: "Novo Botão", url: "#", style: "solid" });
             renderDynamicFormLists();
             updatePreviewUI();
         }
@@ -875,72 +701,43 @@
             updatePreviewUI();
         }
 
-        // Handlers for Gallery Actions
-        function addGalleryImage() {
-            appData.gallery.push({
-                url: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80",
-                title: "Novo Momento"
+        // Team Functions
+        function addTeamMember() {
+            appData.team.push({
+                name: "Novo Membro",
+                role: "Cargo / Função",
+                photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+                bio: "Descrição sobre a experiência do profissional."
             });
             renderDynamicFormLists();
             updatePreviewUI();
         }
-        function updateGalleryProp(index, prop, value) {
-            appData.gallery[index][prop] = value;
+        function updateTeamProp(index, prop, value) {
+            appData.team[index][prop] = value;
             updatePreviewUI();
         }
-        function removeGalleryImage(index) {
-            appData.gallery.splice(index, 1);
+        function removeTeamMember(index) {
+            appData.team.splice(index, 1);
             renderDynamicFormLists();
             updatePreviewUI();
         }
 
-        // UPDATE PREVIEW UI FROM STATE
         function updatePreviewUI() {
-            // Text values
             document.getElementById('view-badge').innerText = appData.badge;
             document.getElementById('view-hero-title').innerText = appData.heroTitle;
             document.getElementById('view-hero-subtitle').innerText = appData.heroSubtitle;
             document.getElementById('view-story-title').innerText = appData.storyTitle;
+            document.getElementById('view-story-text').innerText = appData.storyText;
             document.getElementById('view-mission').innerText = appData.mission;
             document.getElementById('view-vision').innerText = appData.vision;
             document.getElementById('view-values').innerText = appData.values;
 
-            // Hero Image
             const imgEl = document.getElementById('view-hero-image');
             if (imgEl.src !== appData.heroImage) {
                 imgEl.src = appData.heroImage;
             }
-            imgEl.alt = appData.heroImageAlt || "Destaque";
 
-            // Paragraphs
-            const parContainer = document.getElementById('view-paragraphs-container');
-            parContainer.innerHTML = '';
-            appData.paragraphs.forEach((p, idx) => {
-                const pEl = document.createElement('p');
-                pEl.contentEditable = "true";
-                pEl.className = "preview-editable";
-                pEl.innerText = p;
-                pEl.onblur = function() {
-                    appData.paragraphs[idx] = this.innerText;
-                    renderDynamicFormLists();
-                };
-                parContainer.appendChild(pEl);
-            });
-
-            // Stats
-            const statsGrid = document.getElementById('view-stats-grid');
-            statsGrid.innerHTML = '';
-            appData.stats.forEach(st => {
-                const div = document.createElement('div');
-                div.className = "p-3";
-                div.innerHTML = `
-                    <div class="text-2xl sm:text-3xl font-extrabold dynamic-text-primary mb-1">${st.number}</div>
-                    <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">${st.label}</div>
-                `;
-                statsGrid.appendChild(div);
-            });
-
-            // Dynamic Buttons
+            // Buttons Preview
             const btnContainer = document.getElementById('view-buttons-container');
             btnContainer.innerHTML = '';
             appData.buttons.forEach(b => {
@@ -948,61 +745,50 @@
                 a.href = b.url || '#';
                 a.target = "_blank";
                 
-                let btnClass = "px-5 py-2.5 font-semibold text-xs transition duration-200 shadow-sm flex items-center gap-2 " + appData.borderRadius + " ";
+                let btnClass = "px-5 py-2.5 rounded-xl font-semibold text-xs transition duration-200 shadow-sm flex items-center gap-2 ";
                 if (b.style === 'solid') btnClass += "dynamic-btn-solid";
+                else if (b.style === 'secondary') btnClass += "dynamic-btn-secondary";
                 else if (b.style === 'outline') btnClass += "dynamic-btn-outline";
-                else if (b.style === 'gradient') btnClass += "dynamic-btn-gradient";
 
                 a.className = btnClass;
-                
-                let iconHtml = b.icon ? `<i class="fa-solid ${b.icon}"></i>` : '';
-                a.innerHTML = `${iconHtml} <span>${b.label}</span>`;
+                a.innerText = b.label;
                 btnContainer.appendChild(a);
             });
 
-            // Gallery Grid
-            const gallerySection = document.getElementById('view-gallery-section');
-            const galleryGrid = document.getElementById('view-gallery-grid');
-            if (appData.gallery.length === 0) {
-                gallerySection.classList.add('hidden');
+            // Team Grid Preview
+            const teamSection = document.getElementById('view-team-section');
+            const teamGrid = document.getElementById('view-team-grid');
+            if (appData.team.length === 0) {
+                teamSection.classList.add('hidden');
             } else {
-                gallerySection.classList.remove('hidden');
-                galleryGrid.innerHTML = '';
-                appData.gallery.forEach(g => {
+                teamSection.classList.remove('hidden');
+                teamGrid.innerHTML = '';
+                appData.team.forEach(m => {
                     const div = document.createElement('div');
-                    div.className = "overflow-hidden rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm group bg-white dark:bg-slate-800";
+                    div.className = "rounded-xl border border-slate-200/80 overflow-hidden shadow-sm card-bg flex flex-col";
                     div.innerHTML = `
-                        <div class="h-44 overflow-hidden relative">
-                            <img src="${g.url}" alt="${g.title}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" onerror="handleImageError(this)">
+                        <div class="h-48 overflow-hidden">
+                            <img src="${m.photo}" alt="${m.name}" class="w-full h-full object-cover" onerror="handleImageError(this)">
                         </div>
-                        <div class="p-3 text-center">
-                            <p class="text-xs font-semibold text-slate-700 dark:text-slate-200">${g.title}</p>
+                        <div class="p-4 flex-1 flex flex-col">
+                            <h3 class="font-bold text-base mb-0.5">${m.name}</h3>
+                            <p class="text-xs font-medium dynamic-text-primary mb-2">${m.role}</p>
+                            <p class="text-xs leading-relaxed opacity-80">${m.bio}</p>
                         </div>
                     `;
-                    galleryGrid.appendChild(div);
+                    teamGrid.appendChild(div);
                 });
             }
         }
 
-        // Apply Color and Dark/Light Modes
         function setPrimaryColor(color) {
             appData.primaryColor = color;
-            document.getElementById('input-custom-color-hex').value = color;
-            document.getElementById('input-custom-color').value = color;
             applyThemeColors();
         }
 
         function applyThemeColors() {
             document.documentElement.style.setProperty('--primary-color', appData.primaryColor);
-            
-            // Generate darker hover color dynamically
-            let hoverColor = appData.primaryColor;
-            try {
-                // simple darkener logic
-                hoverColor = appData.primaryColor + 'cc';
-            } catch(e){}
-            document.documentElement.style.setProperty('--primary-hover', hoverColor);
-
+            document.documentElement.style.setProperty('--primary-hover', appData.primaryColor + 'cc');
             updatePreviewUI();
         }
 
@@ -1013,26 +799,18 @@
             const btnDark = document.getElementById('btn-mode-dark');
 
             if (mode === 'dark') {
-                canvas.classList.add('dark', 'bg-slate-900', 'text-slate-100');
-                canvas.classList.remove('bg-white', 'text-slate-900');
+                canvas.classList.add('dark');
                 btnDark.classList.add('border-blue-500', 'text-white', 'bg-slate-800');
                 btnLight.classList.remove('border-blue-500', 'text-white');
                 btnLight.classList.add('text-slate-400');
             } else {
-                canvas.classList.remove('dark', 'bg-slate-900', 'text-slate-100');
-                canvas.classList.add('bg-white', 'text-slate-900');
+                canvas.classList.remove('dark');
                 btnLight.classList.add('border-blue-500', 'text-white', 'bg-slate-800');
                 btnDark.classList.remove('border-blue-500', 'text-white');
                 btnDark.classList.add('text-slate-400');
             }
         }
 
-        function setBorderRadius(radiusClass) {
-            appData.borderRadius = radiusClass;
-            updatePreviewUI();
-        }
-
-        // Viewport Switcher (Desktop, Tablet, Mobile)
         function setViewport(mode) {
             const container = document.getElementById('preview-viewport-container');
             const btnD = document.getElementById('btn-vp-desktop');
@@ -1061,64 +839,35 @@
             }
         }
 
-        // Image error fallback
         function handleImageError(img) {
-            img.src = "https://placehold.co/800x500/1e293b/ffffff?text=Imagem+N%C3%A3o+Encontrada";
-        }
-
-        // LocalStorage Save & Load
-        function saveToLocalStorage() {
-            localStorage.setItem('aboutUsStudioData', JSON.stringify(appData));
-            alert('Progresso salvo com sucesso no armazenamento do seu navegador!');
-        }
-
-        function loadFromLocalStorage() {
-            const saved = localStorage.getItem('aboutUsStudioData');
-            if (saved) {
-                try {
-                    appData = JSON.parse(saved);
-                    initApp();
-                    alert('Progresso carregado com sucesso!');
-                } catch(e) {
-                    alert('Erro ao carregar os dados salvos.');
-                }
-            } else {
-                alert('Nenhum progresso salvo anteriormente foi encontrado.');
-            }
+            img.src = "https://placehold.co/600x400/1e293b/ffffff?text=Imagem+N%C3%A3o+Encontrada";
         }
 
         function resetToDefaults() {
-            if (confirm("Tem certeza que deseja restaurar os dados originais? Suas edições atuais serão perdidas.")) {
-                appData = JSON.parse(JSON.stringify(defaultData));
-                initApp();
-            }
+            appData = JSON.parse(JSON.stringify(defaultData));
+            initApp();
+            setPreviewMode('light');
         }
 
-        // EXPORT MODAL & HTML CODE GENERATION
+        // Export Clean HTML Code Modal
         function openExportModal() {
             const modal = document.getElementById('export-modal');
             const codeArea = document.getElementById('export-code-area');
             
-            // Clean clones for export
             const canvasClone = document.getElementById('preview-canvas').cloneNode(true);
-            
-            // Remove editability attributes from clone
             canvasClone.querySelectorAll('[contenteditable]').forEach(el => {
                 el.removeAttribute('contenteditable');
                 el.classList.remove('preview-editable');
             });
 
             const htmlContent = `<!DOCTYPE html>
-<html lang="pt-BR" class="${appData.previewMode === 'dark' ? 'dark' : ''}">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${appData.heroTitle} - Sobre Nós</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"><\/script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -1126,17 +875,26 @@
             --primary-color: ${appData.primaryColor};
             --primary-hover: ${appData.primaryColor}cc;
         }
-        .dynamic-btn-solid { background-color: var(--primary-color); color: #fff; }
-        .dynamic-btn-solid:hover { background-color: var(--primary-hover); }
-        .dynamic-btn-outline { border: 2px solid var(--primary-color); color: var(--primary-color); }
-        .dynamic-btn-outline:hover { background-color: var(--primary-color); color: #fff; }
-        .dynamic-btn-gradient { background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%); color: #fff; }
-        .dynamic-text-primary { color: var(--primary-color); }
+        .dynamic-btn-solid { background-color: var(--primary-color) !important; color: #fff !important; }
+        .dynamic-btn-secondary { background-color: #64748b !important; color: #fff !important; }
+        .dynamic-btn-outline { border: 2px solid var(--primary-color) !important; color: var(--primary-color) !important; background: transparent !important; }
         .dynamic-bg-primary { background-color: var(--primary-color); }
+        .dynamic-text-primary { color: var(--primary-color); }
+
+        ${appData.previewMode === 'dark' ? `
+        /* DARK MODE CONTRAST STYLES */
+        body { background-color: #0f172a !important; color: #f8fafc !important; }
+        h1, h2, h3, h4, strong { color: #ffffff !important; }
+        p, div, span:not(.dynamic-bg-primary) { color: #cbd5e1 !important; }
+        .card-bg { background-color: #1e293b !important; border-color: #334155 !important; }
+        .section-alt-bg { background-color: #1a2332 !important; border-color: #334155 !important; }
+        .dynamic-btn-outline { color: #60a5fa !important; border-color: #60a5fa !important; }
+        .dynamic-text-primary { color: #60a5fa !important; }
+        ` : ''}
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen py-10">
-    <main class="max-w-5xl mx-auto px-4">
+<body class="py-10 px-4">
+    <main class="max-w-5xl mx-auto">
         ${canvasClone.outerHTML}
     </main>
 </body>
