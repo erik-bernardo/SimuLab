@@ -16,8 +16,8 @@ async function buscarSimulador(perguntaDoUsuario) {
             content: `Você é o assistente de navegação do site. Sua única função é recomendar o simulador correto com base no que o usuário precisa.
 
             Lista de Simuladores disponíveis:
-https://erik-bernardo.github.io/SimuLab/simulacoes.html
-https://erik-bernardo.github.io/SimuLab/index.html
+https://erik-bernardo.github.io/SimuLabb/simulacoes.html
+https://erik-bernardo.github.io/SimuLabb/index.html
 
             Regras:
             - Responda em português, de forma amigável e curta.
