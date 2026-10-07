@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Enigma da Pirâmide Química</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --egyptian-gold: #d4af37;
+            --egyptian-blue: #0f4c81;
+            --sand-light: #e6d5a1;
+            --sand-dark: #b89c56;
+            --stone: #2c3e50;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #1a1a1a;
+            color: #ecf0f1;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-egyptian {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Fundo principal imitando uma parede de pirâmide à luz de tochas */
+        #game-container {
+            background: radial-gradient(circle at center, #524024 0%, #1c150b 100%);
+            border: 8px solid var(--egyptian-gold);
+            border-image: repeating-linear-gradient(45deg, var(--egyptian-gold), var(--egyptian-gold) 10px, var(--sand-dark) 10px, var(--sand-dark) 20px) 10;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,0.6);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            max-height: 800px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Textura de parede de pedra */
+        .stone-wall {
+            background-color: #3b3024;
+            background-image: 
+                linear-gradient(335deg, rgba(0,0,0,0.3) 23px, transparent 23px),
+                linear-gradient(155deg, rgba(0,0,0,0.3) 23px, transparent 23px),
+                linear-gradient(335deg, rgba(0,0,0,0.3) 23px, transparent 23px),
+                linear-gradient(155deg, rgba(0,0,0,0.3) 23px, transparent 23px);
+            background-size: 58px 58px;
+            background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
+        }
+
+        /* Animações dos obstáculos */
+        @keyframes flicker {
+            0% { transform: scale(1); filter: drop-shadow(0 0 10px red); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 20px orange); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 10px red); }
+        }
+        .obstacle-fire { animation: flicker 0.5s infinite alternate; font-size: 6rem; }
+        .obstacle-ice { filter: drop-shadow(0 0 15px cyan); font-size: 6rem; }
+        .obstacle-door { filter: drop-shadow(0 0 10px #8B4513); font-size: 6rem; }
+        .obstacle-win { filter: drop-shadow(0 0 30px gold); font-size: 6rem; }
+
+        /* Estilização dos Elementos Químicos no chão e inventário */
+        .chem-element {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--egyptian-blue), #082d4f);
+            border: 2px solid var(--egyptian-gold);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+            user-select: none;
+        }
+
+        .chem-element:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 8px 12px rgba(212, 175, 55, 0.4);
+        }
+
+        .chem-element.in-lab {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        /* Botões padronizados do jogo */
+        .btn-egyptian {
+            background: linear-gradient(to bottom, var(--egyptian-gold), var(--sand-dark));
+            color: #1a1a1a;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            border: 2px solid #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            text-transform: uppercase;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+        }
+        .btn-egyptian:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--egyptian-gold);
+        }
+        .btn-egyptian:active {
+            transform: scale(0.95);
+        }
+        .btn-egyptian:disabled {
+            filter: grayscale(100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Balão de vidro do laboratório */
+        .flask {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50% 50% 10px 10px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 15px;
+            box-shadow: inset 0 -20px 30px rgba(0, 255, 255, 0.1);
+        }
+        .flask::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            border-left: 4px solid rgba(255, 255, 255, 0.3);
+            border-right: 4px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Overlay do Modal de Mensagens */
+        #msg-overlay {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div id="game-container" class="rounded-2xl">
+        
+        <!-- Cabeçalho -->
+        <header class="bg-black bg-opacity-60 text-center p-4 border-b-4 border-[color:var(--egyptian-gold)]">
+            <h1 class="font-egyptian text-2xl sm:text-3xl text-[color:var(--egyptian-gold)] tracking-widest drop-shadow-md" id="level-title">O Enigma da Pirâmide</h1>
+            <p class="text-sm sm:text-base mt-2 text-gray-300" id="level-desc">Prepare-se para explorar.</p>
+        </header>
+
+        <!-- Área de Jogo (Cena Superior) -->
+        <main class="flex-1 flex flex-col relative stone-wall">
+            
+            <!-- Obstáculo no centro da sala -->
+            <div class="flex-1 flex flex-col justify-center items-center">
+                <div id="obstacle-visual" class="text-6xl mb-4 transition-all duration-500">❓</div>
+                <h2 id="obstacle-name" class="font-egyptian text-xl sm:text-2xl font-bold bg-black bg-opacity-70 px-4 py-2 rounded-lg text-white">Desconhecido</h2>
+            </div>
+
+            <!-- Chão com elementos químicos espalhados -->
+            <div class="h-32 bg-black bg-opacity-50 border-t-2 border-gray-600 relative overflow-hidden flex justify-center items-center gap-4 sm:gap-8 px-4" id="floor-area">
+                <!-- Elementos renderizados aqui dinamicamente -->
+            </div>
+            
+            <!-- Partículas decorativas no fundo (opcional visual) -->
+            <div class="absolute inset-0 pointer-events-none opacity-20" style="background-image: url('data:image/svg+xml;utf8,<svg width=\"20\" height=\"20\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"2\" cy=\"2\" r=\"1\" fill=\"gold\"/></svg>'); background-size: 30px 30px;"></div>
+        </main>
+
+        <footer class="bg-[#1c150b] border-t-4 border-[color:var(--egyptian-gold)] p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6 h-auto md:h-64">
+            
+            <!-- Seção de Inventário -->
+            <div class="flex flex-col">
+                <h3 class="font-egyptian text-lg text-[color:var(--egyptian-gold)] mb-2 flex items-center justify-between">
+                    <span>Sua Mochila</span>
+                    <span class="text-xs text-gray-400 font-sans">Clique no chão para coletar</span>
+                </h3>
+                <div id="inventory-slots" class="bg-black bg-opacity-50 p-3 rounded-lg min-h-[80px] flex flex-wrap gap-2 items-start border border-gray-700 shadow-inner">
+                    <!-- Itens coletados aparecem aqui -->
+                    <span class="text-gray-500 text-sm italic w-full text-center mt-4 empty-msg">Vazia</span>
+                </div>
+                <p class="text-xs text-gray-400 mt-2 text-center">Clique no item da mochila para enviar ao laboratório.</p>
+            </div>
+
+            <!-- Seção do Laboratório -->
+            <div class="flex flex-col items-center border-l-0 md:border-l-2 border-gray-700 md:pl-6 relative">
+                <h3 class="font-egyptian text-lg text-[#2ecc71] mb-2 w-full text-center">Laboratório Alquímico</h3>
+                
+                <div class="flex w-full justify-between items-center gap-4">
+                    
+                    <!-- Balão de vidro com elementos selecionados -->
+                    <div class="flask relative flex flex-wrap justify-center items-end gap-1 p-2">
+                        <div id="lab-elements" class="flex flex-wrap justify-center gap-1 w-full z-10">
+                            <!-- Elementos selecionados do inventário aparecem aqui -->
+                        </div>
+                    </div>
+
+                    <!-- Controles de Síntese -->
+                    <div class="flex flex-col gap-2 flex-1 items-center">
+                        <button id="btn-combine" class="btn-egyptian w-full text-sm py-2">Combinar</button>
+                        <button id="btn-clear-lab" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-1 px-4 rounded text-xs transition w-full">Limpar Tubo</button>
+                    </div>
+                </div>
+
+                <!-- Resultado da Combinação -->
+                <div class="mt-4 w-full bg-black bg-opacity-60 p-2 rounded-lg border border-[color:var(--egyptian-gold)] flex justify-between items-center">
+                    <div class="text-center flex-1">
+                        <span class="block text-xs text-gray-400">Composto Atual</span>
+                        <strong id="crafted-compound" class="text-xl text-[color:var(--egyptian-gold)] font-mono tracking-widest">---</strong>
+                    </div>
+                    <button id="btn-use" class="btn-egyptian text-xs h-full" disabled>Usar no Obstáculo</button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <div id="msg-overlay" class="fixed inset-0 z-50 hidden flex justify-center items-center">
+        <div class="bg-[#1c150b] border-2 border-[color:var(--egyptian-gold)] rounded-xl p-6 sm:p-8 max-w-md w-11/12 text-center shadow-[0_0_40px_rgba(212,175,55,0.3)] transform scale-95 transition-transform duration-300" id="msg-box">
+            <h2 id="msg-title" class="font-egyptian text-2xl text-[color:var(--egyptian-gold)] mb-4">Atenção</h2>
+            <p id="msg-text" class="text-gray-200 mb-6 text-lg">Mensagem do jogo.</p>
+            <button id="msg-btn" class="btn-egyptian w-full">Entendido</button>
+        </div>
+    </div>
+
+    <script>
+        // Banco de Dados do Jogo
+        const levels = [
+            {
+                title: "Câmara do Fogo Divino",
+                description: "Chamas mágicas bloqueiam a passagem! Qual composto químico apaga o fogo?",
+                obstacleEmoji: "🔥",
+                obstacleClass: "obstacle-fire",
+                obstacleName: "Fogo Intenso",
+                elementsOnFloor: ["H", "H", "O", "C", "N"], // C e N são distrações
+                requiredFormula: "H2O",
+                successMsg: "Excelente! A água (H2O) apagou o fogo. A passagem está livre!"
+            },
+            {
+                title: "Salão do Frio Eterno",
+                description: "Um enorme bloco de gelo místico tranca a porta. Precisamos derreter isso rapidamente.",
+                obstacleEmoji: "🧊",
+                obstacleClass: "obstacle-ice",
+                obstacleName: "Bloco de Gelo",
+                elementsOnFloor: ["Na", "Cl", "O", "H", "He"], // Distrações
+                requiredFormula: "NaCl",
+                successMsg: "Muito bem! O sal (NaCl - Cloreto de Sódio) baixou o ponto de fusão do gelo, derretendo-o!"
+            },
+            {
+                title: "A Porta Guardiã",
+                description: "A grande porta da tumba está completamente selada com ferrugem espessa. Precisamos de um ácido forte!",
+                obstacleEmoji: "🚪",
+                obstacleClass: "obstacle-door",
+                obstacleName: "Porta Enferrujada",
+                elementsOnFloor: ["H", "Cl", "Na", "O", "Au"],
+                requiredFormula: "HCl",
+                successMsg: "Brilhante! O Ácido Clorídrico (HCl) corroeu a ferrugem. A porta se abriu!"
+            },
+            {
+                title: "A Tumba do Faraó Químico",
+                description: "Você superou todos os desafios usando o conhecimento dos elementos!",
+                obstacleEmoji: "🏆",
+                obstacleClass: "obstacle-win",
+                obstacleName: "Tesouro do Conhecimento",
+                elementsOnFloor: [],
+                requiredFormula: "WIN",
+                successMsg: "Você venceu o jogo!"
+            }
+        ];
+
+        // Dicionário de Receitas. A chave é a lista de elementos ordenada alfabeticamente e separada por vírgula.
+        const recipes = {
+            "H,H,O": { name: "Água", formula: "H2O" },
+            "Cl,Na": { name: "Cloreto de Sódio", formula: "NaCl" },
+            "Cl,H": { name: "Ácido Clorídrico", formula: "HCl" },
+            "C,O,O": { name: "Dióxido de Carbono", formula: "CO2" },
+            "H,N,O,O,O": { name: "Ácido Nítrico", formula: "HNO3" }
+        };
+
+        // Estado do Jogo
+        let currentLevel = 0;
+        let inventory = [];
+        let labElements = [];
+        let craftedCompound = null;
+
+        // Referências do DOM
+        const elLevelTitle = document.getElementById('level-title');
+        const elLevelDesc = document.getElementById('level-desc');
+        const elObstacleVisual = document.getElementById('obstacle-visual');
+        const elObstacleName = document.getElementById('obstacle-name');
+        const elFloorArea = document.getElementById('floor-area');
+        const elInventorySlots = document.getElementById('inventory-slots');
+        const elLabElements = document.getElementById('lab-elements');
+        const elCraftedCompound = document.getElementById('crafted-compound');
+        
+        const btnCombine = document.getElementById('btn-combine');
+        const btnClearLab = document.getElementById('btn-clear-lab');
+        const btnUse = document.getElementById('btn-use');
+
+        // Referências do Modal
+        const modalOverlay = document.getElementById('msg-overlay');
+        const modalBox = document.getElementById('msg-box');
+        const modalTitle = document.getElementById('msg-title');
+        const modalText = document.getElementById('msg-text');
+        const modalBtn = document.getElementById('msg-btn');
+        let modalCallback = null;
+
+        function showMessage(title, text, callback = null) {
+            modalTitle.innerText = title;
+            modalText.innerText = text;
+            modalCallback = callback;
+            modalOverlay.classList.remove('hidden');
+            // Pequena animação
+            setTimeout(() => {
+                modalBox.classList.remove('scale-95');
+                modalBox.classList.add('scale-100');
+            }, 10);
+        }
+
+        modalBtn.addEventListener('click', () => {
+            modalBox.classList.remove('scale-100');
+            modalBox.classList.add('scale-95');
+            setTimeout(() => {
+                modalOverlay.classList.add('hidden');
+                if (modalCallback) modalCallback();
+            }, 200);
+        });
+
+        function initGame() {
+            currentLevel = 0;
+            inventory = [];
+            labElements = [];
+            craftedCompound = null;
+            loadLevel();
+            showMessage("Bem-vindo à Pirâmide!", "Colete os elementos químicos clicando neles no chão. No laboratório, combine-os para criar substâncias e superar os obstáculos em cada sala.");
+        }
+
+        function loadLevel() {
+            const levelData = levels[currentLevel];
+            
+            // Textos da Fase
+            elLevelTitle.innerText = levelData.title;
+            elLevelDesc.innerText = levelData.description;
+            
+            // Obstáculo
+            elObstacleVisual.innerText = levelData.obstacleEmoji;
+            elObstacleVisual.className = `text-6xl mb-4 transition-all duration-500 ${levelData.obstacleClass}`;
+            elObstacleName.innerText = levelData.obstacleName;
+
+            // Limpa estado da fase
+            inventory = [];
+            clearLab(false); // Limpa laboratório sem devolver itens ao inventário antigo
+            updateInventoryUI();
+
+            // Chão da Sala
+            elFloorArea.innerHTML = '';
+            
+            if (currentLevel === levels.length - 1) {
+                // Estado de Vitória
+                elFloorArea.innerHTML = '<span class="text-xl text-[color:var(--egyptian-gold)]">Você se tornou o Mestre da Alquimia!</span>';
+                document.querySelector('footer').style.display = 'none'; // Esconde painel inferior
+                return;
+            }
+
+            // Espalha elementos aleatoriamente no chão
+            const elementsToDrop = [...levelData.elementsOnFloor];
+            elementsToDrop.sort(() => Math.random() - 0.5); // Embaralha levemente
+
+            elementsToDrop.forEach((symbol, index) => {
+                const elDiv = document.createElement('div');
+                elDiv.className = 'chem-element';
+                elDiv.innerText = symbol;
+                // Animação de entrada
+                elDiv.style.opacity = '0';
+                elDiv.style.transform = 'translateY(-20px)';
+                
+                elDiv.addEventListener('click', () => collectElement(symbol, elDiv));
+                elFloorArea.appendChild(elDiv);
+
+                setTimeout(() => {
+                    elDiv.style.transition = 'all 0.5s ease';
+                    elDiv.style.opacity = '1';
+                    elDiv.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+        }
+
+        function collectElement(symbol, elementNode) {
+            // Efeito visual sumindo do chão
+            elementNode.style.transform = 'scale(0)';
+            elementNode.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (elementNode.parentNode) {
+                    elementNode.parentNode.removeChild(elementNode);
+                }
+                inventory.push({ id: Date.now() + Math.random(), symbol: symbol });
+                updateInventoryUI();
+            }, 300);
+        }
+
+        function updateInventoryUI() {
+            elInventorySlots.innerHTML = '';
+            
+            if (inventory.length === 0) {
+                elInventorySlots.innerHTML = '<span class="text-gray-500 text-sm italic w-full text-center mt-4 empty-msg">Mochila Vazia</span>';
+                return;
+            }
+
+            inventory.forEach((item, index) => {
+                const elDiv = document.createElement('div');
+                elDiv.className = 'chem-element w-10 h-10 text-sm';
+                elDiv.innerText = item.symbol;
+                
+                elDiv.addEventListener('click', () => sendToLab(index));
+                elInventorySlots.appendChild(elDiv);
+            });
+        }
+
+        function sendToLab(inventoryIndex) {
+            if (labElements.length >= 6) {
+                showMessage("Aviso", "O tubo de ensaio está cheio!");
+                return;
+            }
+
+            // Remove do inventário e adiciona ao laboratório
+            const item = inventory.splice(inventoryIndex, 1)[0];
+            labElements.push(item);
+            
+            updateInventoryUI();
+            updateLabUI();
+            
+            // Reseta composto sempre que altera ingredientes
+            craftedCompound = null;
+            updateCraftedUI();
+        }
+
+        function updateLabUI() {
+            elLabElements.innerHTML = '';
+            
+            labElements.forEach((item, index) => {
+                const elDiv = document.createElement('div');
+                elDiv.className = 'chem-element in-lab w-8 h-8 text-xs !shadow-none !border-white';
+                elDiv.innerText = item.symbol;
+                elLabElements.appendChild(elDiv);
+            });
+        }
+
+        function clearLab(returnToInventory = true) {
+            if (returnToInventory && labElements.length > 0) {
+                // Devolve para o inventário
+                inventory = inventory.concat(labElements);
+                updateInventoryUI();
+            }
+            labElements = [];
+            craftedCompound = null;
+            updateLabUI();
+            updateCraftedUI();
+        }
+
+        function combineElements() {
+            if (labElements.length === 0) {
+                showMessage("Aviso", "Coloque elementos no tubo antes de combinar.");
+                return;
+            }
+
+            // Extrai os símbolos, ordena em ordem alfabética para facilitar a busca e junta com vírgula
+            const symbols = labElements.map(item => item.symbol);
+            symbols.sort();
+            const recipeKey = symbols.join(',');
+
+            if (recipes[recipeKey]) {
+                craftedCompound = recipes[recipeKey];
+                // Efeito visual no tubo
+                elLabElements.innerHTML = '<div class="text-3xl animate-bounce">✨</div>';
+                setTimeout(() => { updateLabUI(); }, 1000);
+                
+                showMessage("Sucesso Alquímico!", `Você criou: ${craftedCompound.name} (${craftedCompound.formula})`);
+            } else {
+                showMessage("Falha", "Essa combinação de elementos resultou em um resíduo inútil. Tente novamente.");
+                clearLab(true); // Devolve para tentar de novo ou descarta? Vamos devolver para não frustrar
+                return;
+            }
+            
+            updateCraftedUI();
+        }
+
+        function updateCraftedUI() {
+            if (craftedCompound) {
+                elCraftedCompound.innerText = craftedCompound.formula;
+                elCraftedCompound.classList.add('text-green-400');
+                btnUse.disabled = false;
+            } else {
+                elCraftedCompound.innerText = "---";
+                elCraftedCompound.classList.remove('text-green-400');
+                btnUse.disabled = true;
+            }
+        }
+
+        function useCompound() {
+            if (!craftedCompound) return;
+
+            const levelData = levels[currentLevel];
+
+            if (craftedCompound.formula === levelData.requiredFormula) {
+                // Animação de sucesso no obstáculo
+                elObstacleVisual.style.transform = 'scale(0) rotate(180deg)';
+                elObstacleVisual.style.opacity = '0';
+                
+                showMessage("Caminho Aberto!", levelData.successMsg, () => {
+                    currentLevel++;
+                    loadLevel();
+                });
+            } else {
+                // Errou a substância
+                elObstacleVisual.classList.add('animate-ping');
+                setTimeout(() => elObstacleVisual.classList.remove('animate-ping'), 500);
+                
+                showMessage("Ação Ineficaz", `O composto ${craftedCompound.formula} não causou efeito em ${levelData.obstacleName}. Pense em outro composto químico que resolva o problema!`);
+                // Limpa o laboratório após usar errado para forçar pensar novamente
+                labElements = []; // Descarta (foi consumido)
+                craftedCompound = null;
+                updateLabUI();
+                updateCraftedUI();
+            }
+        }
+
+        // Atrelando Eventos aos Botões
+        btnClearLab.addEventListener('click', () => clearLab(true));
+        btnCombine.addEventListener('click', combineElements);
+        btnUse.addEventListener('click', useCompound);
+
+        // Inicia o jogo quando a página carregar
+        window.onload = () => {
+            initGame();
+        };
+
+    </script>
+</body>
+</html>
