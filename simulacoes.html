@@ -1,404 +1,1561 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulab - Simuladores</title>
-    <link rel="icon" type="image/png" href="https://erik-bernardo.github.io/SimuLabb/dados/logo-icon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<html lang="pt-BR"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simuladores | SimuLab</title>
 
-    <style>
-        /* ----------------------------------- */
-        /* RESET BÁSICO E ESTILOS GERAIS */
-        /* ----------------------------------- */
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f8f8;
-            color: #333;
-        }
+<style>
+:root {
+    --orange: #ff6900;
+    --orange-dark: #e85b00;
+    --orange-light: #fff0df;
+    --blue: #142b46;
+    --text: #172a42;
+    --muted: #65758b;
+    --background: #f7f9fb;
+    --white: #fff;
+    --border: #e2e8ef;
+    --shadow: 0 5px 18px rgba(24, 49, 74, .07);
+}
 
-        .content-area {
-            padding: 20px 40px;
-            max-width: 1280px;
-            margin: 0 auto;
-        }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-        /* ----------------------------------- */
-        /* MENU DE MATÉRIAS E CARDS PRINCIPAIS */
-        /* ----------------------------------- */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--background);
+    color: var(--text);
+}
 
-        .main-wrapper {
-            display: flex;
-            align-items: flex-start;
-            gap: 30px;
-            margin-top: 20px;
-        }
+a {
+    color: inherit;
+    text-decoration: none;
+}
 
-        .ads-sidebar {
-            width: 160px;
-            flex-shrink: 0;
-            position: sticky;
-            top: 20px;
-            z-index: 10;
-        }
+button, input {
+    font: inherit;
+}
 
-        .banner-simulab {
-            background-color: #000;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            border: 1px solid #444;
-        }
+button {
+    cursor: pointer;
+}
 
-        .banner-simulab:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(210, 105, 30, 0.5);
-            filter: brightness(1.1);
-        }
+/* CABEÇALHO */
 
-        .banner-simulab img {
-            width: 100%;
-            display: block;
-        }
+.topbar {
+    height: 76px;
+    background: rgba(255,255,255,.97);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+    padding: 0 30px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
 
-        .card-container-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            flex-grow: 1;
-            justify-content: flex-start;
-        }
-        
-        .card-link {
-            flex: 1 1 190px;
-            max-width: 190px;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 210px;
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--blue);
+}
 
-        .content-card {
-            width: 100%;
-            height: 180px;
-            background-color: #e0e0e0;
-            border-radius: 10px;
-            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s;
-            cursor: pointer;
-            
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
+.logo i {
+    color: var(--orange);
+    font-size: 31px;
+}
 
-        .content-card:hover {
-            transform: scale(1.02);
-            box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.4);
-        }
-        
-        .card-icon {
-            font-size: 3em;
-            margin-bottom: 10px;
-            color: #D2691E;
-        }
-        
-        .card-title {
-            text-align: center;
-            color: #555;
-            font-weight: bold;
-            margin: 0;
-            padding: 0 10px;
-        }
+.logo span {
+    color: var(--orange);
+}
 
-        /* ----------------------------------- */
-        /* SECÇÃO: SIMULADORES DE PARCEIROS    */
-        /* ----------------------------------- */
+.search {
+    display: flex;
+    width: min(440px, 36vw);
+    height: 42px;
+    border: 1px solid #dce3eb;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+}
 
-        .partners-section {
-            width: 100%;
-            margin-top: 40px;
-            padding-top: 25px;
-            border-top: 2px dashed #ccc;
-        }
+.search input {
+    border: 0;
+    outline: 0;
+    padding: 0 14px;
+    width: 100%;
+    min-width: 0;
+    font-size: 12px;
+}
 
-        .partners-header {
-            margin-bottom: 20px;
-        }
+.search button {
+    width: 49px;
+    flex-shrink: 0;
+    border: none;
+    background: var(--orange);
+    color: white;
+    font-size: 17px;
+}
 
-        .partners-header h2 {
-            color: #D2691E;
-            font-size: 20px;
-            margin: 0 0 8px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+.top-links {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
 
-        .partners-header p {
-            color: #555;
-            font-size: 14px;
-            margin: 0;
-            line-height: 1.5;
-        }
+.top-links a:hover {
+    color: var(--orange);
+}
 
-        /* Container de botões parceiros (estilo retangular grande com imagem) */
-        .partner-card {
-            width: 210px;
-            height: 110px;
-            background-color: #ffffff;
-            border-radius: 18px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            text-decoration: none;
-        }
+.access-link {
+    padding: 15px 20px;
+    background: var(--orange);
+    color: white !important;
+    border-radius: 9px;
+}
 
-        .partner-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        }
+.access-link:hover {
+    background: var(--orange-dark);
+}
 
-        .partner-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Garante que a imagem preenche todo o card */
-            display: block;
-        }
+/* ESTRUTURA PRINCIPAL */
 
-        /* Responsividade */
-        @media (max-width: 1200px) {
-            .card-container-wrapper {
-                justify-content: space-around;
-                gap: 25px;
-            }
-            .card-link {
-                flex: 1 1 250px;
-                max-width: 250px;
-            }
-        }
+.layout {
+    display: grid;
+    grid-template-columns: 205px minmax(0, 1fr);
+    min-height: calc(100vh - 76px);
+}
 
-        @media (max-width: 600px) {
-            .card-link {
-                flex: 1 1 40%;
-                max-width: 45%;
-            }
-            .partner-card {
-                width: 100%;
-                max-width: 250px;
-            }
-        }
-    </style>
+.sidebar {
+    background: #fff;
+    border-right: 1px solid var(--border);
+    padding: 22px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.side-label {
+    font-size: 10px;
+    color: #96a1b0;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    padding: 12px 12px 6px;
+    text-transform: uppercase;
+}
+
+.side-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 13px;
+    border: 0;
+    border-radius: 9px;
+    color: var(--text);
+    background: transparent;
+    font-size: 12px;
+    text-align: left;
+    transition: .2s;
+}
+
+.side-link i {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.side-link:hover {
+    background: #fff4e9;
+    color: var(--orange);
+}
+
+.side-link.active {
+    background: var(--orange);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 12px #ff69002b;
+}
+
+.side-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 10px 2px;
+}
+
+.subject-icon {
+    display: inline-flex;
+    width: 25px;
+    height: 25px;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.math-color { background: #1685e8; }
+.physics-color { background: #f6ae28; }
+.chemistry-color { background: #19a568; }
+
+.mascot-note {
+    margin-top: auto;
+    padding: 13px 10px;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #fff0df, #fffaf4);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #40536a;
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.mascot-note img {
+    width: 56px;
+    height: 65px;
+    object-fit: contain;
+}
+
+/* CONTEÚDO */
+
+main {
+    min-width: 0;
+    padding: 19px 24px 45px;
+    max-width: 1800px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* BANNER */
+
+.hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 230px;
+    padding: 28px 35px;
+    overflow: hidden;
+    border-radius: 13px;
+    background:
+        radial-gradient(circle at 76% 28%, #ffe1b5 0, transparent 22%),
+        linear-gradient(110deg, #ffb34b 0%, #fff4e4 26%, #fffaf1 65%, #ff9a37 100%);
+    isolation: isolate;
+}
+
+.hero::before,
+.hero::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    border-radius: 50%;
+    background: #ff9a35;
+    opacity: .14;
+}
+
+.hero::before {
+    width: 360px;
+    height: 360px;
+    right: 2%;
+    top: -220px;
+}
+
+.hero::after {
+    width: 300px;
+    height: 300px;
+    right: 20%;
+    bottom: -250px;
+}
+
+.hero-mascot {
+    width: 26%;
+    max-width: 285px;
+    min-width: 145px;
+    height: 200px;
+    object-fit: contain;
+    object-position: center bottom;
+    align-self: flex-end;
+    margin: -28px 25px -28px -15px;
+}
+
+.hero-content {
+    max-width: 570px;
+    z-index: 1;
+}
+
+.eyebrow {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.hero h1 {
+    color: var(--blue);
+    font-size: clamp(23px, 2.1vw, 34px);
+    line-height: 1.2;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.hero h1 span {
+    color: var(--orange);
+}
+
+.hero p {
+    color: #40566d;
+    font-size: 13px;
+    line-height: 1.75;
+    max-width: 470px;
+}
+
+.hero-decoration {
+    margin-left: auto;
+    padding: 15px 30px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    color: var(--orange);
+    font-size: 45px;
+    opacity: .9;
+    transform: rotate(-8deg);
+}
+
+.hero-decoration i:nth-child(2) {
+    font-size: 65px;
+    transform: rotate(13deg);
+}
+
+/* TÍTULOS E FILTROS */
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin: 25px 0 16px;
+}
+
+.heading-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.heading-title > i {
+    color: var(--orange);
+    font-size: 27px;
+}
+
+.heading-title h2 {
+    font-size: 23px;
+    color: var(--blue);
+    font-weight: 700;
+}
+
+.count {
+    background: #edf2f8;
+    color: #62748b;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 17px;
+    background: white;
+    border: 1px solid var(--border);
+    color: #40536a;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: .2s;
+}
+
+.filter-btn:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+    transform: translateY(-1px);
+}
+
+.filter-btn.active {
+    color: white;
+    background: var(--orange);
+    border-color: var(--orange);
+    box-shadow: 0 4px 10px #ff690024;
+}
+
+/* CARDS DOS SIMULADORES */
+
+.sim-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.sim-card {
+    position: relative;
+    min-width: 0;
+    min-height: 175px;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 1px solid #e8edf3;
+    border-radius: 13px;
+    padding: 18px 17px 15px;
+    box-shadow: var(--shadow);
+    transition: transform .2s, box-shadow .2s, border-color .2s;
+    overflow: hidden;
+}
+
+.sim-card::before {
+    content: "";
+    position: absolute;
+    height: 3px;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--subject-color, var(--orange));
+    opacity: 0;
+    transition: .2s;
+}
+
+.sim-card:hover {
+    transform: translateY(-4px);
+    border-color: #ffd0a7;
+    box-shadow: 0 10px 24px #1c365414;
+}
+
+.sim-card:hover::before {
+    opacity: 1;
+}
+
+.card-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 13px;
+}
+
+.card-icon {
+    width: 43px;
+    height: 43px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    background: var(--subject-bg, #fff0df);
+    color: var(--subject-color, var(--orange));
+    font-size: 20px;
+}
+
+.card-top h3 {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--blue);
+    font-weight: 700;
+}
+
+.subject-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    align-self: flex-start;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-bottom: 9px;
+    color: var(--subject-color, var(--orange));
+    background: var(--subject-bg, #fff0df);
+}
+
+.sim-card p {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.65;
+    margin-bottom: 15px;
+    flex: 1;
+}
+
+.card-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.open-sim {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: 8px;
+    padding: 9px 13px;
+    background: var(--orange);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.open-sim:hover {
+    background: var(--orange-dark);
+}
+
+.open-sim i {
+    font-size: 11px;
+}
+
+.card-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 29px;
+    height: 29px;
+    border-radius: 50%;
+    color: var(--orange);
+    background: #fff0df;
+    font-size: 12px;
+}
+
+.status {
+    color: #17844e;
+    background: #e6f8ee;
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 9px;
+    font-weight: 600;
+}
+
+.sim-card[hidden],
+.partner-card[hidden] {
+    display: none !important;
+}
+
+/* RECURSOS EXTERNOS */
+
+.partners-section {
+    margin-top: 38px;
+    padding-top: 25px;
+    border-top: 1px dashed #d1d9e2;
+}
+
+.partners-header {
+    margin-bottom: 18px;
+}
+
+.partners-header h2 {
+    font-size: 19px;
+    color: var(--orange-dark);
+    margin-bottom: 7px;
+}
+
+.partners-header h2 i {
+    margin-right: 7px;
+}
+
+.partners-header p {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.8;
+    max-width: 900px;
+}
+
+.partner-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 190px));
+    gap: 14px;
+}
+
+.partner-card {
+    height: 95px;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    border: 1px solid #edf0f3;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    transition: .2s;
+}
+
+.partner-card:hover {
+    transform: translateY(-4px);
+    border-color: #ffbd8a;
+}
+
+.partner-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    background: white;
+    padding: 45px 20px;
+    border-radius: 12px;
+    color: var(--muted);
+    border: 1px dashed #d9e0e9;
+}
+
+.empty-state i {
+    display: block;
+    font-size: 30px;
+    color: var(--orange);
+    margin-bottom: 12px;
+}
+
+/* BOTÃO FLUTUANTE */
+
+.chat-button {
+    position: fixed;
+    right: 22px;
+    bottom: 18px;
+    z-index: 50;
+    background: white;
+    border: 1px solid #e8edf2;
+    border-radius: 30px;
+    box-shadow: 0 4px 16px #10243b1c;
+    padding: 11px 17px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--blue);
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.chat-button i {
+    font-size: 21px;
+    color: var(--orange);
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 1250px) {
+    .sim-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .hero-decoration {
+        font-size: 34px;
+        gap: 15px;
+        padding-right: 0;
+    }
+
+    .top-links {
+        gap: 15px;
+    }
+}
+
+@media (max-width: 950px) {
+    .layout {
+        grid-template-columns: 72px minmax(0, 1fr);
+    }
+
+    .sidebar {
+        padding: 18px 9px;
+        align-items: center;
+    }
+
+    .side-link {
+        justify-content: center;
+        padding: 13px 5px;
+    }
+
+    .side-link span:not(.subject-icon),
+    .side-label,
+    .mascot-note,
+    .side-divider + .side-label {
+        display: none;
+    }
+
+    .side-link i {
+        font-size: 19px;
+    }
+
+    .side-link .subject-icon {
+        width: 30px;
+        height: 30px;
+    }
+
+    .logo {
+        min-width: auto;
+        font-size: 22px;
+    }
+
+    .search {
+        width: 35%;
+    }
+
+    .top-links a:not(.access-link) {
+        display: none;
+    }
+
+    .hero-decoration {
+        display: none;
+    }
+
+    .sim-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .topbar {
+        height: auto;
+        min-height: 70px;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 12px 15px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .logo i {
+        font-size: 24px;
+    }
+
+    .search {
+        order: 3;
+        width: 100%;
+    }
+
+    .top-links {
+        margin-left: auto;
+    }
+
+    .access-link {
+        padding: 10px 12px;
+        font-size: 10px;
+    }
+
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        position: sticky;
+        top: 94px;
+        z-index: 30;
+        flex-direction: row;
+        overflow-x: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+        padding: 9px 12px;
+        gap: 7px;
+    }
+
+    .sidebar .side-link {
+        flex: 0 0 auto;
+        width: auto;
+        padding: 9px 12px;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .sidebar .side-link span:not(.subject-icon) {
+        display: inline;
+        font-size: 11px;
+    }
+
+    .sidebar .side-link i {
+        font-size: 14px;
+    }
+
+    .sidebar .side-link .subject-icon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .sidebar .side-divider,
+    .sidebar .side-label,
+    .sidebar .mascot-note {
+        display: none;
+    }
+
+    main {
+        padding: 13px 13px 35px;
+    }
+
+    .hero {
+        min-height: 205px;
+        padding: 20px 16px;
+    }
+
+    .hero-mascot {
+        min-width: 90px;
+        width: 30%;
+        height: 155px;
+        margin: -20px 10px -20px -12px;
+    }
+
+    .hero h1 {
+        font-size: 21px;
+    }
+
+    .hero p {
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+    .eyebrow {
+        font-size: 10px;
+    }
+
+    .heading-title h2 {
+        font-size: 17px;
+    }
+
+    .heading-title > i {
+        font-size: 21px;
+    }
+
+    .count {
+        font-size: 9px;
+        padding: 7px 8px;
+    }
+
+    .filters {
+        gap: 7px;
+    }
+
+    .filter-btn {
+        padding: 9px 11px;
+        font-size: 10px;
+    }
+
+    .sim-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .sim-card {
+        padding: 13px 11px;
+        min-height: 185px;
+    }
+
+    .card-top {
+        gap: 8px;
+    }
+
+    .card-icon {
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+    }
+
+    .card-top h3 {
+        font-size: 11px;
+    }
+
+    .sim-card p {
+        font-size: 10px;
+    }
+
+    .open-sim {
+        padding: 8px 9px;
+        font-size: 10px;
+    }
+
+    .card-arrow {
+        display: none;
+    }
+
+    .partner-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .chat-button {
+        right: 12px;
+        bottom: 12px;
+    }
+}
+</style>
 </head>
+
 <body>
 
-  <main class="content-area">
-    <div class="main-wrapper">
+
+
+<div class="layout">
+
+    <aside class="sidebar">
+        <span class="side-label">Navegação</span>
+
+        <a href="https://erik-bernardo.github.io/SimuLabb/" class="side-link">
+            <i class="fa-solid fa-house"></i><span>Início</span>
+        </a>
+
+        <a href="https://erik-bernardo.github.io/SimuLabb/games.html" class="side-link">
+            <i class="fa-solid fa-gamepad"></i><span>Jogos</span>
+        </a>
+
+        <a href="https://erik-bernardo.github.io/SimuLabb/simulacoes.html" class="side-link active">
+            <i class="fa-solid fa-calculator"></i><span>Simuladores</span>
+        </a>
+
         
-        <aside class="ads-sidebar">
-            <div class="ad-unit banner-simulab">
-                <a href="https://erik-bernardo.github.io/SimuLab/index.html">
-                    <img src="dados/Educação.png" alt="SimuLab - Estude Agora">
-                </a>
-            </div>
-        </aside>
 
-        <div style="flex-grow: 1;">
-            <!-- SIMULADORES DO SIMULAB -->
-            <div class="card-container-wrapper">
-                <a href="simulacoes/geometria_plana.html" class="card-link" data-subject="matematica">
-                    <div class="content-card">
-                        <i class="fas fa-chart-area card-icon"></i> <p class="card-title">Geometria Plana</p>
-                    </div>
-                </a>
-                <a href="simulacoes/conjuntos_numericos.html" class="card-link" data-subject="matematica">
-                    <div class="content-card">
-                        <i class="fas fa-calculator card-icon"></i> <p class="card-title">Conjuntos Numéricos</p>
-                    </div>
-                </a>
-                <a href="simulacoes/funcoes.html" class="card-link" data-subject="matematica">
-                    <div class="content-card">
-                        <i class="fas fa-line-chart card-icon"></i> <p class="card-title">Função Afim e Quadrática</p>
-                    </div>
-                </a>
-                <a href="simulacoes/arcos_angulos.html" class="card-link" data-subject="matematica">
-                    <div class="content-card">
-                        <i class="fas fa-drafting-compass card-icon"></i> <p class="card-title">Arcos e Ângulos</p>
-                    </div>
-                </a>
-                <a href="simulacoes/sequencias_numericas.html" class="card-link" data-subject="matematica">
-                    <div class="content-card">
-                        <i class="fas fa-sort-numeric-up-alt card-icon"></i> <p class="card-title">Sequências Iniciais</p>
-                    </div>
-                </a>
-                <a href="simulacoes/porcentagem.html" class="card-link" data-subject="matematica financeira">
-                    <div class="content-card">
-                        <i class="fas fa-percent card-icon"></i> <p class="card-title">Porcentagem e Frações</p>
-                    </div>
-                </a>
-                <a href="simulacoes/taxas.html" class="card-link" data-subject="matematica financeira">
-                    <div class="content-card">
-                        <i class="fas fa-exchange-alt card-icon"></i> <p class="card-title">Taxas Equivalentes</p>
-                    </div>
-                </a>
-                <a href="simulacoes/custo_venda.html" class="card-link" data-subject="matematica financeira">
-                    <div class="content-card">
-                        <i class="fas fa-cash-register card-icon"></i> <p class="card-title">Custo e Venda</p>
-                    </div>
-                </a>
-                <a href="simulacoes/mru.html" class="card-link" data-subject="fisica">
-                    <div class="content-card">
-                        <i class="fas fa-car-side card-icon"></i> <p class="card-title">MRU</p>
-                    </div>
-                </a>
-                <a href="simulacoes/energia.html" class="card-link" data-subject="fisica">
-                    <div class="content-card">
-                        <i class="fas fa-bolt card-icon"></i> <p class="card-title">Energia</p>
-                    </div>
-                </a>
-                <a href="simulacoes/escalas_termometricas.html" class="card-link" data-subject="fisica">
-                    <div class="content-card">
-                        <i class="fas fa-thermometer-half card-icon"></i> <p class="card-title">Escalas Term.</p>
-                    </div>
-                </a>
-                <a href="simulacoes/queda_livre.html" class="card-link" data-subject="fisica">
-                    <div class="content-card">
-                        <i class="fas fa-gavel card-icon"></i> <p class="card-title">Queda Livre</p>
-                    </div>
-                </a>
-                <a href="simulacoes/tabela_periodica.html" class="card-link" data-subject="quimica">
-                    <div class="content-card">
-                        <i class="fas fa-atom card-icon"></i> <p class="card-title">Tabela Periódica</p>
-                    </div>
-                </a>
-                <a href="simulacoes/ligacoes.html" class="card-link" data-subject="quimica">
-                    <div class="content-card">
-                        <i class="fas fa-link card-icon"></i> <p class="card-title">Ligações Químicas</p>
-                    </div>
-                </a>
-                <a href="simulacoes/acidos_bases.html" class="card-link" data-subject="quimica">
-                    <div class="content-card">
-                        <i class="fas fa-vial card-icon"></i> <p class="card-title">Ácidos e Bases</p>
-                    </div>
-                </a>
-                <a href="simulacoes/matriz.html" class="card-link" data-subject="matematica">
-                    <div class="content-card">
-                        <i class="fa-solid fa-hashtag card-icon"></i> <p class="card-title">Matrizes</p>
-                    </div>
-                </a>
-                <a href="simulacoes/probabilidade.html" class="card-link" data-subject="matematica">
-                    <div class="content-card">
-                        <i class="fas fa-dice-six card-icon"></i> <p class="card-title">Probabilidade</p>
-                    </div>
-                </a>
-                <a href="simulacoes/combinatoria.html" class="card-link" data-subject="matematica">
-                    <div class="content-card">
-                        <i class="fas fa-sitemap card-icon"></i> <p class="card-title">Análise Combinatória</p>
-                    </div>
-                </a>
-                <a href="simulacoes/nox.html" class="card-link" data-subject="quimica">
-                    <div class="content-card">
-                        <i class="fa-solid fa-flask card-icon"></i> <p class="card-title">NOX</p>
-                    </div>
-                </a>
-                <a href="simulacoes/estequiometria.html" class="card-link" data-subject="quimica">
-                    <div class="content-card">
-                        <i class="fas fa-weight-hanging card-icon"></i> <p class="card-title">Estequiometria</p>
-                    </div>
-                </a>
-                <a href="simulacoes/solucoes.html" class="card-link" data-subject="quimica">
-                    <div class="content-card">
-                        <i class="fas fa-water card-icon"></i> <p class="card-title">Soluções</p>
-                    </div>
-                </a>
-                <a href="simulacoes/reacoes.html" class="card-link" data-subject="quimica">
-                    <div class="content-card">
-                        <i class="fas fa-atom card-icon"></i> <p class="card-title">Reações Químicas</p>
-                    </div>
-                </a>
-                <a href="simulacoes/cinetica.html" class="card-link" data-subject="quimica">
-                    <div class="content-card">
-                        <i class="fas fa-tachometer-alt card-icon"></i> <p class="card-title">Cinética Química</p>
-                    </div>
-                </a>
-                <a href="simulacoes/dilatacao_termica.html" class="card-link" data-subject="fisica">
-                    <div class="content-card">
-                        <i class="fas fa-expand-alt card-icon"></i> <p class="card-title">Dilatação Térmica</p>
-                    </div>
-                </a>
-                <a href="simulacoes/calorimetria.html" class="card-link" data-subject="fisica">
-                    <div class="content-card">
-                        <i class="fas fa-fire-alt card-icon"></i> <p class="card-title">Calorimetria</p>
-                    </div>
-                </a>
-                <a href="simulacoes/ondas.html" class="card-link" data-subject="fisica">
-                    <div class="content-card">
-                        <i class="fas fa-wave-square card-icon"></i> <p class="card-title">Ondas e Óptica</p>
-                    </div>
-                </a>
-                <a href="simulacoes/hidrostatica.html" class="card-link" data-subject="fisica">
-                    <div class="content-card">
-                        <i class="fas fa-faucet card-icon"></i> <p class="card-title">Hidrostática</p>
-                    </div>
-                </a>
-                <a href="simulacoes/gravitacao_universal.html" class="card-link" data-subject="fisica">
-                    <div class="content-card">
-                        <i class="fas fa-cogs card-icon"></i> <p class="card-title">Gravitação Universal</p>
-                    </div>
-                </a>
-                <a href="simulacoes/limites.html" class="card-link" data-subject="matematica">
-                    <div class="content-card">
-                        <i class="fas fa-infinity card-icon"></i> <p class="card-title">Cálculo e Limites</p>
-                    </div>
-                </a>
-                <a href="simulacoes/sistema-linear.html" class="card-link" data-subject="matematica">
-                    <div class="content-card">
-                        <i class="fas fa-divide card-icon"></i> <p class="card-title">Sistemas Lineares</p>
-                    </div>
-                </a>
-                <a href="simulacoes/eletroquimica.html" class="card-link" data-subject="quimica">
-                    <div class="content-card">
-                        <i class="fas fa-battery-full card-icon"></i> <p class="card-title">Eletroquímica</p>
-                    </div>
-                </a>
-            </div>
+        
 
-            <!-- SECÇÃO DE SIMULADORES PARCEIROS (ESTILO BOTÕES DE IMAGEM) -->
-            <section class="partners-section">
-                <div class="partners-header">
-                    <h2><i class="fas fa-handshake"></i> Simuladores e Recursos Recomendados</h2>
-                    <p>Os recursos abaixo foram cuidadosamente selecionados e recomendados pela equipa do SimuLab para facilitar o trabalho dos docentes. <strong>Nota:</strong> Estas ferramentas pertencem a plataformas externas parceiras e abrem num novo separador.</p>
-                </div>
+        
 
-                <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-                    <!-- MolView -->
-                    <a href="https://molview.org/" target="_blank" rel="noopener noreferrer" class="partner-card" data-subject="quimica">
-                        <img src="https://app.molview.com/og_image.png" alt="MolView">
-                    </a>
+        <div class="side-divider"></div>
+        <span class="side-label">Matérias</span>
 
-                    <!-- PhET -->
-                    <a href="https://phet.colorado.edu/pt_BR/simulations/filter?type=html" target="_blank" rel="noopener noreferrer" class="partner-card" data-subject="fisica">
-                        <img src="https://phet.colorado.edu/images/phet-social-media-logo.png" alt="PhET Interactive Simulations">
-                    </a>
+        <button class="side-link subject-filter" data-filter="matematica">
+            <span class="subject-icon math-color"><i class="fa-solid fa-sigma"></i></span>
+            <span>Matemática</span>
+        </button>
 
-                    <!-- GeoGebra -->
-                    <a href="https://www.geogebra.org/calculator" target="_blank" rel="noopener noreferrer" class="partner-card" data-subject="matematica">
-                        <img src="https://media.labxchange.org/org/Geogebra_landscape_logo.png" alt="GeoGebra">
-                    </a>
-                </div>
-            </section>
+        <button class="side-link subject-filter" data-filter="quimica">
+            <span class="subject-icon chemistry-color"><i class="fa-solid fa-flask"></i></span>
+            <span>Química</span>
+        </button>
+
+        <button class="side-link subject-filter" data-filter="fisica">
+            <span class="subject-icon physics-color"><i class="fa-solid fa-atom"></i></span>
+            <span>Física</span>
+        </button>
+
+        <div class="mascot-note">
+            <!-- Troque pelo caminho real da imagem do mascote -->
+            <img src="../assets/mascote.png" alt="Mascote do SimuLab" onerror="this.style.display='none'" style="display: none;">
+            <p>Explorando novos mundos do conhecimento!</p>
         </div>
+    </aside>
 
-    </div> 
-  </main>
+    <main>
 
+        <!-- BANNER PRINCIPAL -->
+        <section class="hero">
+            <!-- Troque ../assets/mascote.png pelo arquivo do seu mascote -->
+            <img src="../assets/mascote.png" class="hero-mascot" alt="Mascote do SimuLab" onerror="this.style.display='none'" style="display: none;">
+
+            <div class="hero-content">
+                <div class="eyebrow">Simuladores</div>
+                <h1>Explore, teste e descubra<br>
+                    <span>o mundo na prática!</span>
+                </h1>
+                <p>
+                    Nossos simuladores tornam o aprendizado mais interativo,
+                    permitindo que você visualize conceitos, faça experimentos
+                    virtuais e entenda a teoria de forma prática e divertida.
+                </p>
+            </div>
+
+            <div class="hero-decoration" aria-hidden="true">
+                <i class="fa-solid fa-atom"></i>
+                <i class="fa-solid fa-flask"></i>
+            </div>
+        </section>
+
+        <!-- SIMULADORES -->
+        <section>
+            <div class="section-heading">
+                <div class="heading-title">
+                    <i class="fa-solid fa-atom"></i>
+                    <h2 id="sectionTitle">Todos os simuladores</h2>
+                </div>
+
+                <span class="count" id="simCount">31 simuladores</span>
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" data-filter="todos">
+                    <i class="fa-solid fa-border-all"></i> Todos
+                </button>
+
+                <button class="filter-btn" data-filter="matematica">
+                    <i class="fa-solid fa-sigma"></i> Matemática
+                </button>
+
+                <button class="filter-btn" data-filter="fisica">
+                    <i class="fa-solid fa-atom"></i> Física
+                </button>
+
+                <button class="filter-btn" data-filter="quimica">
+                    <i class="fa-solid fa-flask"></i> Química
+                </button>
+            </div>
+
+            <div class="sim-grid" id="simGrid">
+
+                <!-- MATEMÁTICA -->
+
+                <article class="sim-card" data-subject="matematica" data-name="Geometria Plana" style="--subject-color:#1685e8;--subject-bg:#e8f3ff">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-chart-area"></i></div>
+                        <h3>Geometria Plana</h3>
+                    </div>
+                    <span class="subject-tag">∑ Matemática</span>
+                    <p>Explore formas geométricas, áreas, perímetros e suas propriedades.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/geometria_plana.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                        <span class="card-arrow"><i class="fa-solid fa-shapes"></i></span>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="matematica" data-name="Conjuntos Numéricos" style="--subject-color:#1685e8;--subject-bg:#e8f3ff">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-calculator"></i></div>
+                        <h3>Conjuntos Numéricos</h3>
+                    </div>
+                    <span class="subject-tag">∑ Matemática</span>
+                    <p>Entenda os conjuntos numéricos e as relações entre seus elementos.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/conjuntos_numericos.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="matematica" data-name="Função Afim e Quadrática" style="--subject-color:#1685e8;--subject-bg:#e8f3ff">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-chart-line"></i></div>
+                        <h3>Função Afim e Quadrática</h3>
+                    </div>
+                    <span class="subject-tag">∑ Matemática</span>
+                    <p>Visualize gráficos e investigue como os coeficientes alteram as funções.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/funcoes.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="matematica" data-name="Arcos e Ângulos" style="--subject-color:#1685e8;--subject-bg:#e8f3ff">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-drafting-compass"></i></div>
+                        <h3>Arcos e Ângulos</h3>
+                    </div>
+                    <span class="subject-tag">∑ Matemática</span>
+                    <p>Explore ângulos, arcos e suas relações geométricas.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/arcos_angulos.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="matematica" data-name="Sequências Iniciais" style="--subject-color:#1685e8;--subject-bg:#e8f3ff">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-arrow-down-1-9"></i></div>
+                        <h3>Sequências Iniciais</h3>
+                    </div>
+                    <span class="subject-tag">∑ Matemática</span>
+                    <p>Descubra padrões e relações em sequências numéricas.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/sequencias_numericas.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="matematica" data-name="Porcentagem e Frações" style="--subject-color:#1685e8;--subject-bg:#e8f3ff">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-percent"></i></div>
+                        <h3>Porcentagem e Frações</h3>
+                    </div>
+                    <span class="subject-tag">∑ Matemática</span>
+                    <p>Pratique frações, porcentagens e suas aplicações no cotidiano.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/porcentagem.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="matematica" data-name="Taxas Equivalentes" style="--subject-color:#1685e8;--subject-bg:#e8f3ff">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+                        <h3>Taxas Equivalentes</h3>
+                    </div>
+                    <span class="subject-tag">∑ Matemática</span>
+                    <p>Compare taxas e entenda suas equivalências financeiras.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/taxas.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="matematica" data-name="Custo e Venda" style="--subject-color:#1685e8;--subject-bg:#e8f3ff">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-cash-register"></i></div>
+                        <h3>Custo e Venda</h3>
+                    </div>
+                    <span class="subject-tag">∑ Matemática</span>
+                    <p>Calcule custos, preços de venda, lucros e prejuízos.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/custo_venda.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="matematica" data-name="Matrizes" style="--subject-color:#1685e8;--subject-bg:#e8f3ff">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-hashtag"></i></div>
+                        <h3>Matrizes</h3>
+                    </div>
+                    <span class="subject-tag">∑ Matemática</span>
+                    <p>Visualize matrizes e explore suas operações fundamentais.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/matriz.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="matematica" data-name="Probabilidade" style="--subject-color:#1685e8;--subject-bg:#e8f3ff">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-dice"></i></div>
+                        <h3>Probabilidade</h3>
+                    </div>
+                    <span class="subject-tag">∑ Matemática</span>
+                    <p>Investigue eventos aleatórios e calcule suas probabilidades.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/probabilidade.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="matematica" data-name="Análise Combinatória" style="--subject-color:#1685e8;--subject-bg:#e8f3ff">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-sitemap"></i></div>
+                        <h3>Análise Combinatória</h3>
+                    </div>
+                    <span class="subject-tag">∑ Matemática</span>
+                    <p>Explore possibilidades, combinações e princípios de contagem.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/combinatoria.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="matematica" data-name="Cálculo e Limites" style="--subject-color:#1685e8;--subject-bg:#e8f3ff">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-infinity"></i></div>
+                        <h3>Cálculo e Limites</h3>
+                    </div>
+                    <span class="subject-tag">∑ Matemática</span>
+                    <p>Investigue limites e o comportamento de funções matemáticas.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/limites.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="matematica" data-name="Sistemas Lineares" style="--subject-color:#1685e8;--subject-bg:#e8f3ff">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-divide"></i></div>
+                        <h3>Sistemas Lineares</h3>
+                    </div>
+                    <span class="subject-tag">∑ Matemática</span>
+                    <p>Explore sistemas de equações e encontre suas soluções.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/sistema-linear.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <!-- FÍSICA -->
+
+                <article class="sim-card" data-subject="fisica" data-name="MRU" style="--subject-color:#d9910b;--subject-bg:#fff4d8">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-car-side"></i></div>
+                        <h3>MRU</h3>
+                    </div>
+                    <span class="subject-tag">⚛ Física</span>
+                    <p>Explore o movimento retilíneo uniforme e as relações entre espaço e tempo.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/mru.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="fisica" data-name="Energia" style="--subject-color:#d9910b;--subject-bg:#fff4d8">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-bolt"></i></div>
+                        <h3>Energia</h3>
+                    </div>
+                    <span class="subject-tag">⚛ Física</span>
+                    <p>Conheça diferentes formas de energia e suas transformações.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/energia.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="fisica" data-name="Escalas Termométricas" style="--subject-color:#d9910b;--subject-bg:#fff4d8">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-temperature-half"></i></div>
+                        <h3>Escalas Termométricas</h3>
+                    </div>
+                    <span class="subject-tag">⚛ Física</span>
+                    <p>Compare as escalas Celsius, Fahrenheit e Kelvin.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/escalas_termometricas.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="fisica" data-name="Queda Livre" style="--subject-color:#d9910b;--subject-bg:#fff4d8">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-arrow-down"></i></div>
+                        <h3>Queda Livre</h3>
+                    </div>
+                    <span class="subject-tag">⚛ Física</span>
+                    <p>Observe a ação da gravidade sobre objetos em queda.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/queda_livre.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="fisica" data-name="Dilatação Térmica" style="--subject-color:#d9910b;--subject-bg:#fff4d8">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-expand"></i></div>
+                        <h3>Dilatação Térmica</h3>
+                    </div>
+                    <span class="subject-tag">⚛ Física</span>
+                    <p>Visualize como a temperatura influencia as dimensões dos materiais.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/dilatacao_termica.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="fisica" data-name="Calorimetria" style="--subject-color:#d9910b;--subject-bg:#fff4d8">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-fire"></i></div>
+                        <h3>Calorimetria</h3>
+                    </div>
+                    <span class="subject-tag">⚛ Física</span>
+                    <p>Estude trocas de calor, temperatura e energia térmica.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/calorimetria.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="fisica" data-name="Ondas e Óptica" style="--subject-color:#d9910b;--subject-bg:#fff4d8">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-wave-square"></i></div>
+                        <h3>Ondas e Óptica</h3>
+                    </div>
+                    <span class="subject-tag">⚛ Física</span>
+                    <p>Explore fenômenos ondulatórios e os princípios da óptica.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/ondas.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="fisica" data-name="Hidrostática" style="--subject-color:#d9910b;--subject-bg:#fff4d8">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-water"></i></div>
+                        <h3>Hidrostática</h3>
+                    </div>
+                    <span class="subject-tag">⚛ Física</span>
+                    <p>Investigue pressão, densidade e o comportamento dos fluidos.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/hidrostatica.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="fisica" data-name="Gravitação Universal" style="--subject-color:#d9910b;--subject-bg:#fff4d8">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-earth-americas"></i></div>
+                        <h3>Gravitação Universal</h3>
+                    </div>
+                    <span class="subject-tag">⚛ Física</span>
+                    <p>Entenda a atração gravitacional entre corpos e os movimentos celestes.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/gravitacao_universal.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <!-- QUÍMICA -->
+
+                <article class="sim-card" data-subject="quimica" data-name="Tabela Periódica" style="--subject-color:#19a568;--subject-bg:#e3f8ed">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-atom"></i></div>
+                        <h3>Tabela Periódica</h3>
+                    </div>
+                    <span class="subject-tag">⚗ Química</span>
+                    <p>Explore os elementos químicos, seus símbolos e propriedades.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/tabela_periodica.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="quimica" data-name="Ligações Químicas" style="--subject-color:#19a568;--subject-bg:#e3f8ed">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-link"></i></div>
+                        <h3>Ligações Químicas</h3>
+                    </div>
+                    <span class="subject-tag">⚗ Química</span>
+                    <p>Conheça as ligações iônicas, covalentes e metálicas.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/ligacoes.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="quimica" data-name="Ácidos e Bases" style="--subject-color:#19a568;--subject-bg:#e3f8ed">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-vial"></i></div>
+                        <h3>Ácidos e Bases</h3>
+                    </div>
+                    <span class="subject-tag">⚗ Química</span>
+                    <p>Investigue o pH e as propriedades de ácidos e bases.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/acidos_bases.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="quimica" data-name="NOX" style="--subject-color:#19a568;--subject-bg:#e3f8ed">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-flask"></i></div>
+                        <h3>NOX</h3>
+                    </div>
+                    <span class="subject-tag">⚗ Química</span>
+                    <p>Pratique a determinação do número de oxidação dos elementos.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/nox.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="quimica" data-name="Estequiometria" style="--subject-color:#19a568;--subject-bg:#e3f8ed">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-weight-hanging"></i></div>
+                        <h3>Estequiometria</h3>
+                    </div>
+                    <span class="subject-tag">⚗ Química</span>
+                    <p>Relacione quantidades de reagentes e produtos em reações.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/estequiometria.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="quimica" data-name="Soluções" style="--subject-color:#19a568;--subject-bg:#e3f8ed">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-water"></i></div>
+                        <h3>Soluções</h3>
+                    </div>
+                    <span class="subject-tag">⚗ Química</span>
+                    <p>Explore solubilidade, concentração e diluição de soluções.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/solucoes.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="quimica" data-name="Reações Químicas" style="--subject-color:#19a568;--subject-bg:#e3f8ed">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-atom"></i></div>
+                        <h3>Reações Químicas</h3>
+                    </div>
+                    <span class="subject-tag">⚗ Química</span>
+                    <p>Observe transformações químicas e os produtos formados.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/reacoes.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="quimica" data-name="Cinética Química" style="--subject-color:#19a568;--subject-bg:#e3f8ed">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-gauge-high"></i></div>
+                        <h3>Cinética Química</h3>
+                    </div>
+                    <span class="subject-tag">⚗ Química</span>
+                    <p>Descubra como temperatura e concentração influenciam a velocidade das reações.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/cinetica.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="sim-card" data-subject="quimica" data-name="Eletroquímica" style="--subject-color:#19a568;--subject-bg:#e3f8ed">
+                    <div class="card-top">
+                        <div class="card-icon"><i class="fa-solid fa-battery-full"></i></div>
+                        <h3>Eletroquímica</h3>
+                    </div>
+                    <span class="subject-tag">⚗ Química</span>
+                    <p>Investigue reações de oxidação e redução e a geração de energia elétrica.</p>
+                    <div class="card-bottom">
+                        <a href="simulacoes/eletroquimica.html" class="open-sim">Explorar <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <div class="empty-state" id="emptyState" hidden="">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <strong>Nenhum simulador encontrado</strong>
+                    <p>Tente outra palavra ou selecione uma matéria diferente.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- RECURSOS EXTERNOS -->
+        <section class="partners-section">
+            <div class="partners-header">
+                <h2><i class="fa-solid fa-handshake"></i>
+                    Simuladores e recursos recomendados
+                </h2>
+                <p>
+                    Explore também estas ferramentas externas selecionadas para
+                    complementar seus estudos. Elas abrem em uma nova aba.
+                </p>
+            </div>
+
+            <div class="partner-grid">
+                <a href="https://molview.org/" target="_blank" rel="noopener noreferrer" class="partner-card" data-subject="quimica" aria-label="Abrir MolView">
+                    <img src="https://app.molview.com/og_image.png" alt="MolView">
+                </a>
+
+                <a href="https://phet.colorado.edu/pt_BR/simulations/filter?type=html" target="_blank" rel="noopener noreferrer" class="partner-card" data-subject="fisica" aria-label="Abrir PhET">
+                    <img src="https://phet.colorado.edu/images/phet-social-media-logo.png" alt="PhET Interactive Simulations">
+                </a>
+
+                <a href="https://www.geogebra.org/calculator" target="_blank" rel="noopener noreferrer" class="partner-card" data-subject="matematica" aria-label="Abrir GeoGebra">
+                    <img src="https://media.labxchange.org/org/Geogebra_landscape_logo.png" alt="GeoGebra">
+                </a>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+
+
+<script>
+const cards = [...document.querySelectorAll('.sim-card')];
+const partnerCards = [...document.querySelectorAll('.partner-card')];
+const filterButtons = [...document.querySelectorAll('.filter-btn')];
+const sidebarButtons = [...document.querySelectorAll('.subject-filter')];
+
+const searchInput = document.getElementById('searchInput');
+const searchForm = document.getElementById('searchForm');
+const countLabel = document.getElementById('simCount');
+const sectionTitle = document.getElementById('sectionTitle');
+const emptyState = document.getElementById('emptyState');
+
+let activeSubject = 'todos';
+
+const subjectNames = {
+    todos: 'Todos os simuladores',
+    matematica: 'Simuladores de Matemática',
+    fisica: 'Simuladores de Física',
+    quimica: 'Simuladores de Química'
+};
+
+function normalizeText(text) {
+    return text
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+}
+
+function applyFilters() {
+    const query = normalizeText(searchInput.value);
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+        const subject = card.dataset.subject;
+        const searchableText = normalizeText(
+            card.dataset.name + ' ' + card.innerText
+        );
+
+        const matchesSubject =
+            activeSubject === 'todos' || subject === activeSubject;
+
+        const matchesSearch =
+            query === '' || searchableText.includes(query);
+
+        const visible = matchesSubject && matchesSearch;
+
+        card.hidden = !visible;
+
+        if (visible) visibleCount++;
+    });
+
+    partnerCards.forEach(card => {
+        const matchesSubject =
+            activeSubject === 'todos' ||
+            card.dataset.subject === activeSubject;
+
+        const matchesSearch =
+            query === '' ||
+            normalizeText(card.innerText + ' ' + card.querySelector('img').alt)
+                .includes(query);
+
+        card.hidden = !(matchesSubject && matchesSearch);
+    });
+
+    countLabel.textContent =
+        visibleCount + (visibleCount === 1 ? ' simulador' : ' simuladores');
+
+    sectionTitle.textContent = subjectNames[activeSubject];
+
+    emptyState.hidden = visibleCount !== 0;
+}
+
+function setSubject(subject) {
+    activeSubject = subject;
+
+    filterButtons.forEach(button => {
+        button.classList.toggle(
+            'active',
+            button.dataset.filter === subject
+        );
+    });
+
+    sidebarButtons.forEach(button => {
+        button.classList.toggle(
+            'active',
+            button.dataset.filter === subject
+        );
+    });
+
+    applyFilters();
+}
+
+filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        setSubject(button.dataset.filter);
+    });
+});
+
+sidebarButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        setSubject(button.dataset.filter);
+    });
+});
+
+searchInput.addEventListener('input', applyFilters);
+
+searchForm.addEventListener('submit', event => {
+    event.preventDefault();
+    applyFilters();
+});
+
+applyFilters();
+</script>
+<script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="e3pwbdB7Yh7c7CqbtkE3u";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
 <script src="dados/head.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -468,8 +1625,5 @@
     });
 </script>
 
-<script>
-(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="e3pwbdB7Yh7c7CqbtkE3u";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
-</script>
-</body>
-</html>
+
+</body></html>
